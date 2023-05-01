@@ -1,0 +1,7 @@
+{
+  "name": "ELD_MOB",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
