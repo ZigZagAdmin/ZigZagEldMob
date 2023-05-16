@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user';
 import { AuthService } from 'src/app/services/auth.service';
 import { FormGroup, FormControl } from '@angular/forms';
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginPage implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private route: Router
   ) { }
 
   focused = false;
@@ -34,12 +36,13 @@ export class LoginPage implements OnInit {
   }
 
   login(username: string, password: string) {
-  
+
     // const username = this.loginForm.get('username')?.value;
     // const password = this.loginForm.get('password')?.value;
     this.authService.login(username, password).subscribe(res => {
       this.authUser = res;
       console.log(JSON.stringify(res))
+      this.route.navigate(['/tabs']);
     })
     // console.log(username, password)
   }

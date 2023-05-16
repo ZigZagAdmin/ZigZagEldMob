@@ -6,12 +6,57 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<!--<ion-content [fullscreen]="true">-->
+<!--  <ion-header collapse="condense">-->
+<!--    <ion-toolbar>-->
+<!--      <ion-title size="large">Tab 1</ion-title>-->
+<!--    </ion-toolbar>-->
+<!--  </ion-header>-->
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+<!--  <app-explore-container name="Tab 1 page"></app-explore-container>-->
+<!--</ion-content>-->
+
+<ion-content [fullscreen]="true">
+  <ion-segment (ionChange)="segmentChanged($event)" value="list">
+    <ion-segment-button value="list">
+      <ion-label> List </ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="card">
+      <ion-label> Card </ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="boxing">
+      <ion-label> Boxing </ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list
+    class="animate__animated animate__slideInUp animate__fast"
+    *ngIf="segment === 'list'"
+  >
+    <ion-item *ngFor="let item of arr; let index = index">
+      <ion-label>Item {{ index + 1 }}</ion-label>
+    </ion-item>
+  </ion-list>
+
+  <div
+    class="animate__animated animate__slideInUp animate__fast"
+    *ngIf="segment === 'card'"
+  >
+    <ion-card *ngFor="let item of arr; let index = index">
+      <ion-card-content>
+        <h2>Card {{ index + 1 }}</h2>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div
+    class="animate__animated animate__slideInUp animate__fast"
+    *ngIf="segment === 'boxing'"
+  >
+    <ion-card *ngFor="let item of arr; let index = index">
+      <ion-card-content>
+        <h2>Card {{ index + 1 }}</h2>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>
