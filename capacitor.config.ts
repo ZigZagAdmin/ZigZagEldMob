@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'ELD_MOB',
+  appId: 'com.zigzag.plus',
+  appName: 'ZigZag Plus',
   webDir: 'www',
   bundledWebRuntime: false
 };
