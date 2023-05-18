@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zigzag.plus">
 
     <application
         android:allowBackup="true"
@@ -14,6 +15,7 @@
             android:name="com.zigzag.plus.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:networkSecurityConfig="@xml/network_security_config"
             android:launchMode="singleTask"
             android:exported="true">
 
