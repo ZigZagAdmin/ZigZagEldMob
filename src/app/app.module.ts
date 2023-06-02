@@ -8,8 +8,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AUTH_API_URL } from './app-injection-tokens';
-import { environment } from 'src/environments/environment';
-
+import { environment } from 'src/environments/environment'; 
+import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -18,16 +18,17 @@ import { environment } from 'src/environments/environment';
     IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [
+    AndroidPermissions,
     {
       provide: RouteReuseStrategy,
-      useClass: IonicRouteStrategy
+      useClass: IonicRouteStrategy,
     },
     {
-    provide: AUTH_API_URL,
-    useValue: environment.authApi
+      provide: AUTH_API_URL,
+      useValue: environment.authApi,
     },
   ],
   bootstrap: [AppComponent],

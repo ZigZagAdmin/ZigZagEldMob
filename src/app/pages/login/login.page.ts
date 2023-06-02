@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user';
 import { AuthService } from 'src/app/services/auth.service';
 import { FormGroup, FormControl } from '@angular/forms';
-import {Router} from "@angular/router";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -10,22 +10,17 @@ import {Router} from "@angular/router";
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
-
-    loginForm = new FormGroup({
+  loginForm = new FormGroup({
     username: new FormControl(''),
-    password: new FormControl('')
-  },);
+    password: new FormControl(''),
+  });
 
-  constructor(
-    private authService: AuthService,
-    private route: Router
-  ) { }
+  constructor(private authService: AuthService, private route: Router) {}
 
   focused = false;
   authUser!: AuthUser;
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   onBlur(event: any) {
     const value = event.target.value;
@@ -36,14 +31,15 @@ export class LoginPage implements OnInit {
   }
 
   login(username: string, password: string) {
-
-    // const username = this.loginForm.get('username')?.value;
-    // const password = this.loginForm.get('password')?.value;
-    this.authService.login(username, password).subscribe(res => {
-      this.authUser = res;
-      console.log(JSON.stringify(res))
-      this.route.navigate(['/tabs']);
-    })
-    // console.log(username, password)
+    this.authService.login(username, password).subscribe(
+      (res) => {
+        this.authUser = res;
+        console.log(JSON.stringify(res));
+        this.route.navigate(['/select-vehicle']);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
 }
