@@ -1,0 +1,29 @@
+export class Company {
+  CompanyId!: string;
+  Name!: string;
+  DotNumber!: number;
+  TimeZoneCode!: string;
+  TimeZoneName!: string;
+  Street!: string;
+  City!: string;
+  ZipCode!: string;
+  CountryCode!: string;
+  StateProvinceCode!: string;
+  ComplianceModeCode!: string;
+  ComplianceModeName!: string;
+  VehicleMotionThresholdCode!: string;
+  VehicleMotionThresholdName!: string;
+  HoursOfServiceRuleCode!: string;
+  HoursOfServiceRuleName!: string;
+  CargoTypeCode!: string;
+  CargoTypeName!: string;
+  RestartHoursCode!: string;
+  RestartHoursName!: string;
+  RestBreakCode!: string;
+  RestBreakName!: string;
+  ExemptDriver!: boolean;
+  WaitingTimeException!: boolean;
+  ShortHaulException!: boolean;
+  AllowYardMoves!: boolean;
+  AllowPersonalUse!: boolean;
+}

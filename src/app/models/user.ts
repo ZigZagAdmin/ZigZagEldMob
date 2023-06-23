@@ -1,14 +1,13 @@
-export class AuthUser {
+export class User {
   UserId!: string;
-  CompanyId!: string;
   Name!: string;
   FirstName!: string;
   LastName!: string;
   Email!: string;
+  EmailConfirmed!: string;
   PhoneNumber!: string;
+  Password!: string;
   RoleCode!: string;
   Status!: boolean;
-  AccessToken!: string;
   Language!: string;
-  DriverId!: string;
 }

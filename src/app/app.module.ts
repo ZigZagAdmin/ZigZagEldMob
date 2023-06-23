@@ -3,13 +3,19 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { ACCESS_TOKEN_KEY } from './services/auth.service';
+import { JwtModule } from '@auth0/angular-jwt';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AUTH_API_URL } from './app-injection-tokens';
-import { environment } from 'src/environments/environment'; 
+import { environment } from 'src/environments/environment';
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
+
+export function tokenGetter(): string {
+  return localStorage.getItem(ACCESS_TOKEN_KEY)!;
+}
 
 @NgModule({
   declarations: [AppComponent],
@@ -19,6 +25,12 @@ import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions
     AppRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter,
+        allowedDomains: environment.tokenAllowedDomains,
+      },
+    }),
   ],
   providers: [
     AndroidPermissions,

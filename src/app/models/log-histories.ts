@@ -1,0 +1,34 @@
+export class LogHistories {
+  LogHistoriesId!: string;
+  LogDailiesId!: string;
+  DriverId!: string;
+  VehicleId!: string;
+  DateBgn!: string;
+  DateEnd!: string;
+  DateBgnEdit!: string;
+  DateEndEdit!: string;
+  EventSequenceNumber!: number;
+  EventTypeCode!: string;
+  EventTypeName!: string;
+  EventTypeType!: string;
+  LocationDescription!: string;
+  LocationDescriptionManual!: string;
+  EventRecordStatusCode!: string;
+  EventRecordStatusName!: string;
+  EventRecordOriginCode!: string;
+  EventRecordOriginName!: string;
+  City!: string;
+  StateProvinceCode!: string;
+  CountryCode!: string;
+  Odometer!: number;
+  Latitude!: number;
+  Longitude!: number;
+  EngineHours!: number;
+  Comment!: string;
+  PositioningCode!: string;
+  PositioningName!: string;
+  LocationSourceCode!: string;
+  LocationSourceName!: string;
+  Status!: number;
+  Checkbox!: number;
+}
