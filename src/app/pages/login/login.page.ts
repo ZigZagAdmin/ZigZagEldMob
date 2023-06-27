@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user';
-import { AuthService } from 'src/app/services/auth.service';
-import { ManageService } from 'src/app/services/manage.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { forkJoin, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { formatDate } from '@angular/common';
+import { DatabaseService } from 'src/app/services/database.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { ManageService } from 'src/app/services/manage.service';
 
 @Component({
   selector: 'app-login',
@@ -22,6 +23,7 @@ export class LoginPage implements OnInit {
   constructor(
     private authService: AuthService,
     private manageService: ManageService,
+    private databaseService: DatabaseService,
     private route: Router
   ) {}
 
@@ -66,15 +68,33 @@ export class LoginPage implements OnInit {
               return throwError(error);
             })
           );
+        }),
+        catchError((error) => {
+          console.log(error);
+          const errorMessage = 'Invalid login or password';
+          alert(errorMessage);
+          return throwError(errorMessage);
         })
       )
       .subscribe(
-        ([drivers, company, vehicles, terminals, elds]) => {
+        ([
+          drivers,
+          company,
+          vehicles,
+          terminals,
+          elds,
+          logDailies,
+          logHistories,
+        ]) => {
           console.log('Drivers:', JSON.stringify(drivers));
           console.log('Company:', JSON.stringify(company));
           console.log('Vehicles:', JSON.stringify(vehicles));
           console.log('Terminals:', JSON.stringify(terminals));
           console.log('ELDs:', JSON.stringify(elds));
+          console.log('Log Dailies:', JSON.stringify(logDailies));
+          console.log('Log Histories:', JSON.stringify(logHistories));
+
+          this.databaseService.saveDriverData(drivers);
 
           // Здесь вы можете записать полученные данные в локальную базу данных
           // Например, используя сервис для работы с базой данных
@@ -86,6 +106,9 @@ export class LoginPage implements OnInit {
         },
         (error) => {
           console.log(error);
+          const errorMessage = 'An error occurred during login';
+          alert(errorMessage);
+          // Обработка ошибки во время выполнения запросов
         }
       );
   }

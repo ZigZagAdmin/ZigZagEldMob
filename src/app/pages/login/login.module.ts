@@ -6,6 +6,8 @@ import { LoginPageRoutingModule } from './login-routing.module';
 import { LoginPage } from './login.page';
 import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
 import { LocationAccuracy } from '@awesome-cordova-plugins/location-accuracy/ngx';
+import { DatabaseService } from 'src/app/services/database.service';
+import { SQLite } from '@awesome-cordova-plugins/sqlite/ngx';
 
 @NgModule({
   imports: [
@@ -16,6 +18,6 @@ import { LocationAccuracy } from '@awesome-cordova-plugins/location-accuracy/ngx
     LoginPageRoutingModule,
   ],
   declarations: [LoginPage],
-  providers: [BluetoothSerial, LocationAccuracy],
+  providers: [BluetoothSerial, LocationAccuracy, DatabaseService, SQLite],
 })
 export class LoginPageModule {}
