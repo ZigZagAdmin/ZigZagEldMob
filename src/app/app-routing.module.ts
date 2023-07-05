@@ -23,19 +23,16 @@ const routes: Routes = [
       import('./pages/loader/loader.module').then((m) => m.LoaderPageModule),
   },
   {
-    path: 'vehicles',
-    loadChildren: () =>
-      import('./pages/vehicles/vehicles.module').then(
-        (m) => m.VehiclesPageModule
-      ),
-  },
-  {
     path: 'select-vehicle',
     loadChildren: () =>
       import('./pages/select-vehicle/select-vehicle.module').then(
         (m) => m.SelectVehiclePageModule
       ),
+  },  {
+    path: 'connect-mac',
+    loadChildren: () => import('./pages/connect-mac/connect-mac.module').then( m => m.ConnectMacPageModule)
   },
+
 ];
 @NgModule({
   imports: [

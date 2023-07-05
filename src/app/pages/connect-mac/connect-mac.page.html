@@ -1,0 +1,23 @@
+<!-- <ion-header>
+  <ion-toolbar color="primary">
+    <ion-title> Connect to MAC </ion-title>
+  </ion-toolbar>
+  <ion-toolbar color="dark">
+    <ion-title> Vehicle Unit: 1111 </ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title> Bluetooth LE Connection </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label position="floating">PT-30U MAC Address</ion-label>
+    <ion-input type="text" [(ngModel)]="macAddress"></ion-input>
+  </ion-item>
+
+  <ion-button expand="full" (click)="connectToDevice()">Connect</ion-button>
+</ion-content>

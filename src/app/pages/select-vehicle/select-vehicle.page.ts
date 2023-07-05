@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-select-vehicle',
@@ -6,10 +7,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./select-vehicle.page.scss'],
 })
 export class SelectVehiclePage implements OnInit {
+  constructor(private route: Router) {}
 
-  constructor() { }
+  ngOnInit() {}
 
-  ngOnInit() {
+  selectVehicle() {
+    this.route.navigate(['/connect-mac']);
   }
-
 }

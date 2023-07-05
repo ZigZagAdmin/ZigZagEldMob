@@ -8,7 +8,7 @@ import { JwtModule } from '@auth0/angular-jwt';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { AUTH_API_URL } from './app-injection-tokens';
 import { environment } from 'src/environments/environment';
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
