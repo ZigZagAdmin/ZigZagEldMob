@@ -37,7 +37,12 @@
       expand="block"
       (click)="login(username.value, password.value)"
       type="submit"
-      >Login</ion-button
     >
+      <ng-container *ngIf="!loading; else spinnerTemplate">Login</ng-container>
+    </ion-button>
+
+    <ng-template #spinnerTemplate>
+      <ion-spinner name="crescent"></ion-spinner>
+    </ng-template>
   </form>
 </ion-content>

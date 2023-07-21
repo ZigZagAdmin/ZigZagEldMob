@@ -1,5 +1,35 @@
 <ion-header>
   <ion-toolbar color="primary">
+    <ion-buttons *ngIf="showBackButton" slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Vehicles</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  <ion-card
+    *ngFor="let vehicle of vehicles"
+    (click)="selectVehicle(vehicle)"
+    class="ion-activatable ripple-parent"
+  >
+    <ion-ripple-effect></ion-ripple-effect>
+    <ion-card-header>
+      <ion-card-subtitle
+        >Vehicle unit: {{ vehicle.VehicleUnit }}</ion-card-subtitle
+      >
+    </ion-card-header>
+    <ion-card-content>
+      Year: {{ vehicle.Year }}, Model: {{ vehicle.Model }}
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<!-- <ion-header>
+  <ion-toolbar color="primary">
     <ion-title> Vehicles </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -36,4 +66,4 @@
 
     <ion-card-content> Year: 2009, Model: Honda Civic </ion-card-content>
   </ion-card>
-</ion-content>
+</ion-content> -->

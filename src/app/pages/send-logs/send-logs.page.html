@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Send Logs</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-text class="ion-text-center">
+    <p>7 days + today</p>
+  </ion-text>
+  <ion-item lines="full">
+    <ion-input label="Comment" labelPlacement="floating"></ion-input>
+  </ion-item>
+  <ion-item lines="full">
+    <ion-input label="Data Transfer Type" labelPlacement="floating"></ion-input>
+  </ion-item>
+  <ion-button class="custom-button" expand="block">Send</ion-button>
+</ion-content>

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
+import { Storage } from '@ionic/storage';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-connect-mac',
@@ -7,10 +9,21 @@ import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
   styleUrls: ['./connect-mac.page.scss'],
 })
 export class ConnectMacPage implements OnInit {
+  pickedVehicle!: string;
   macAddress: string = '';
-  constructor(private bluetoothLE: BluetoothLE) {}
+  constructor(
+    private bluetoothLE: BluetoothLE,
+    private storage: Storage,
+    private navCtrl: NavController
+  ) {}
 
   ngOnInit() {}
+
+  ionViewWillEnter() {
+    this.storage.get('pickedVehicle').then((pickedVehicle) => {
+      this.pickedVehicle = pickedVehicle;
+    });
+  }
 
   connectToDevice() {
     const params = {
@@ -19,14 +32,29 @@ export class ConnectMacPage implements OnInit {
 
     this.bluetoothLE.connect(params).subscribe(
       (success) => {
-        console.log(params);
-        console.log('Connected to PT-30U', success);
+        alert(params);
+        alert('Connected to PT-30U' + success);
         // Дальнейшая обработка успешного подключения
       },
       (error) => {
-        console.log('Failed to connect to PT-30U', error);
+        alert('Failed to connect to PT-30U' + error.message);
         // Обработка ошибки подключения
       }
     );
+  }
+
+  continueDisconected() {
+    this.navCtrl.navigateForward('/unitab');
+  }
+
+  redirectToVehicle() {
+    this.navCtrl.navigateBack('/select-vehicle');
+  }
+
+  handleRefresh(event: any) {
+    setTimeout(() => {
+      // Any calls to load data go here
+      event.target.complete();
+    }, 1000);
   }
 }

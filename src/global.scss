@@ -9,14 +9,14 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
-/* Core CSS required for Ionic components to work properly */ 
+/* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
-@import '@ionic/angular/css/display.css';
+@import "@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
@@ -25,9 +25,10 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 @import "./theme/fonts.scss";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap");
 
 * {
-  font-family: Gilroy;
+  font-family: Poppins;
 }
 // .flex-center {
 //     display: flex;
@@ -35,3 +36,19 @@
 //     align-items: center;
 //     height: 100%;
 // }
+hr {
+  height: 1px !important;
+  width: 500px !important;
+  background: #e5e5e5 !important;
+  display: block !important;
+  font-size: 2rem !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.custom-card {
+  margin-inline: 1px;
+  margin-top: 5px;
+  margin-bottom: 3px;
+  border-radius: 8px;
+}

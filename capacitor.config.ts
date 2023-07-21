@@ -9,6 +9,11 @@ const config: CapacitorConfig = {
     androidScheme: 'http',
     allowNavigation: ['api.zigzagplus.com'],
   },
+  plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
+  },
 };
 
 export default config;

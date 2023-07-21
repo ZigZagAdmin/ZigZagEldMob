@@ -1,23 +1,55 @@
-<!-- <ion-header>
+<ion-header>
   <ion-toolbar color="primary">
-    <ion-title> Connect to MAC </ion-title>
+    <!-- <ion-buttons slot="start">
+      <ion-back-button defaultHref="/select-vehicle"></ion-back-button>
+    </ion-buttons> -->
+    <ion-title>Connect to ELD</ion-title>
   </ion-toolbar>
-  <ion-toolbar color="dark">
-    <ion-title> Vehicle Unit: 1111 </ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
+</ion-header>
 <ion-header>
   <ion-toolbar>
-    <ion-title> Bluetooth LE Connection </ion-title>
+    <ion-button
+      (click)="redirectToVehicle()"
+      fill="clear"
+      size="small"
+      color="dark"
+      ><ion-icon name="swap-horizontal-outline"></ion-icon
+    ></ion-button>
+    <ion-title> Vehicle unit: {{ pickedVehicle }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-item>
-    <ion-label position="floating">PT-30U MAC Address</ion-label>
-    <ion-input type="text" [(ngModel)]="macAddress"></ion-input>
-  </ion-item>
-
-  <ion-button expand="full" (click)="connectToDevice()">Connect</ion-button>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  <div class="macText">
+    <ion-text> Enter ELD MAC address listed on the device.</ion-text>
+  </div>
+  <div class="content">
+    <ion-item lines="full">
+      <ion-input
+        label="MAC address"
+        labelPlacement="floating"
+        [clearInput]="true"
+        type="text"
+        [(ngModel)]="macAddress"
+      ></ion-input>
+    </ion-item>
+    <div class="ion-activatable ripple-parent buttons">
+      <ion-button expand="block" shape="round">
+        Connect
+        <ion-ripple-effect></ion-ripple-effect>
+      </ion-button>
+      <ion-button
+        expand="block"
+        color="dark"
+        shape="round"
+        (click)="continueDisconected()"
+      >
+        Continue Disconnected
+        <ion-ripple-effect></ion-ripple-effect>
+      </ion-button>
+    </div>
+  </div>
 </ion-content>

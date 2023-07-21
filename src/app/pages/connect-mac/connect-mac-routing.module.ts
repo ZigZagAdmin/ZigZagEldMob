@@ -6,8 +6,8 @@ import { ConnectMacPage } from './connect-mac.page';
 const routes: Routes = [
   {
     path: '',
-    component: ConnectMacPage
-  }
+    component: ConnectMacPage,
+  },
 ];
 
 @NgModule({

@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>DOT Inspection</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-text class="ion-text-center"
+    ><p>
+      Inspect logs for the 24-hour period and the previous days for one HOS
+      cycle
+    </p>
+    <p style="color: #a5a5a5">7 days + today</p>
+    <p style="color: #a5a5a5">
+      Select "Start Inspection" and give your device to the officer
+    </p>
+  </ion-text>
+  <ion-button
+    (click)="onStartInspectionClick()"
+    class="custom-button"
+    expand="block"
+    >Start Inspection</ion-button
+  >
+  <hr />
+  <ion-text class="ion-text-center"
+    ><p>
+      Send logs for the 24-hour period and the previous days for one HOS cycle
+    </p>
+    <p style="color: #a5a5a5">7 days + today</p>
+    <p style="color: #a5a5a5">Send your logs to the officer, if they request</p>
+  </ion-text>
+  <ion-button (click)="onSendLogsClick()" class="custom-button" expand="block"
+    >Send Logs</ion-button
+  >
+</ion-content>

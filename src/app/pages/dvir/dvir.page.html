@@ -1,0 +1,94 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="end">
+      <ion-button (click)="insertDvir()"
+        ><ion-icon slot="icon-only" name="add-sharp"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+    <ion-title>DVIRs</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card
+    class="custom-card"
+    *ngFor="let dvir of dvirs"
+    [ngStyle]="{
+      'background-color': dvir.StatusCode === 'VCS' || dvir.StatusCode === 'DC' ? '#D3FFD6' : '#F8C7CC'
+    }"
+  >
+    <ion-label>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4">
+            {{ dvir.CreateDate | date:'mediumDate' }}
+          </ion-col>
+          <ion-col size="4" class="ion-text-center">
+            {{ dvir.CreateDate | date:'shortTime' }}
+          </ion-col>
+          <ion-col size="4" class="ion-text-end">
+            {{ dvir.CreateDate | date:'EEEE' }}
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-label>
+
+    <ion-label>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="1">
+            <ion-icon name="car-sharp"></ion-icon>
+          </ion-col>
+          <ion-col size="5"> {{ dvir.VehicleUnit }} </ion-col>
+          <ion-col size="1">
+            <ion-icon name="car-sharp"></ion-icon>
+          </ion-col>
+          <ion-col size="5">
+            {{ dvir.Trailers ? dvir.Trailers : 'None' }}
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-label>
+
+    <ion-label *ngIf="dvir.DefectsVehicle">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="1">
+            <ion-icon name="construct"></ion-icon>
+          </ion-col>
+          <ion-col size="11"> {{ dvir.DefectsVehicle }} </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-label>
+
+    <ion-label *ngIf="dvir.Remarks">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="1">
+            <ion-icon name="chatbubbles"></ion-icon>
+          </ion-col>
+          <ion-col size="11"> {{ dvir.Remarks }} </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-label>
+
+    <ion-label>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="1">
+            <ion-icon
+              [name]="dvir.StatusCode === 'VCS' || dvir.StatusCode === 'DC' ?'checkmark-outline' : 'alert-circle-outline'"
+            ></ion-icon>
+          </ion-col>
+          <ion-col size="11">
+            {{ dvir.StatusName === 'Vehicle Condition Satisfactory' ? 'No
+            defects specified' : dvir.StatusName }}
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-label>
+  </ion-card>
+  <div *ngIf="dvirs.length === 0" class="nodata ion-text-center">
+    <p style="color: #a5a5a5">No Records Found</p>
+  </div>
+</ion-content>

@@ -9,6 +9,7 @@ import { LogHistories } from '../models/log-histories';
 import { Driver } from '../models/driver';
 import { LogDailies } from '../models/log-dailies';
 import { Vehicle } from '../models/vehicle';
+import { DVIRs } from '../models/dvirs';
 
 @Injectable({
   providedIn: 'root',
@@ -50,6 +51,13 @@ export class ManageService {
   getELDs(): Observable<ELD[]> {
     const httpParams = new HttpParams();
     return this.http.get<ELD[]>(this.apiUrl + 'api/EldManage/elds', {
+      params: httpParams,
+    });
+  }
+
+  getDVIRs(): Observable<DVIRs[]> {
+    const httpParams = new HttpParams();
+    return this.http.get<DVIRs[]>(this.apiUrl + 'api/EldDashboard/DVIRs', {
       params: httpParams,
     });
   }

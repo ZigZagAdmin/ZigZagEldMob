@@ -12,6 +12,9 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { AUTH_API_URL } from './app-injection-tokens';
 import { environment } from 'src/environments/environment';
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
+import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
+import { Storage } from '@ionic/storage';
+import { IonicStorageModule } from '@ionic/storage-angular';
 
 export function tokenGetter(): string {
   return localStorage.getItem(ACCESS_TOKEN_KEY)!;
@@ -21,6 +24,7 @@ export function tokenGetter(): string {
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    IonicStorageModule.forRoot(),
     IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
@@ -34,6 +38,8 @@ export function tokenGetter(): string {
   ],
   providers: [
     AndroidPermissions,
+    BluetoothSerial,
+    Storage,
     {
       provide: RouteReuseStrategy,
       useClass: IonicRouteStrategy,
