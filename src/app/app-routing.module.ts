@@ -38,67 +38,100 @@ const routes: Routes = [
         (m) => m.ConnectMacPageModule
       ),
     canActivate: [AuthGuard],
-  },  {
+  },
+  {
     path: 'hos',
-    loadChildren: () => import('./pages/hos/hos.module').then( m => m.HosPageModule)
+    loadChildren: () =>
+      import('./pages/hos/hos.module').then((m) => m.HosPageModule),
   },
   {
     path: 'dvir',
-    loadChildren: () => import('./pages/dvir/dvir.module').then( m => m.DvirPageModule)
+    loadChildren: () =>
+      import('./pages/dvir/dvir.module').then((m) => m.DvirPageModule),
   },
   {
     path: 'inspection',
-    loadChildren: () => import('./pages/inspection/inspection.module').then( m => m.InspectionPageModule)
+    loadChildren: () =>
+      import('./pages/inspection/inspection.module').then(
+        (m) => m.InspectionPageModule
+      ),
   },
   {
     path: 'others',
-    loadChildren: () => import('./pages/others/others.module').then( m => m.OthersPageModule)
+    loadChildren: () =>
+      import('./pages/others/others.module').then((m) => m.OthersPageModule),
   },
   {
     path: 'unitab',
-    loadChildren: () => import('./pages/unitab/unitab.module').then( m => m.UnitabPageModule)
+    loadChildren: () =>
+      import('./pages/unitab/unitab.module').then((m) => m.UnitabPageModule),
   },
   {
     path: 'co-driver',
-    loadChildren: () => import('./pages/co-driver/co-driver.module').then( m => m.CoDriverPageModule)
+    loadChildren: () =>
+      import('./pages/co-driver/co-driver.module').then(
+        (m) => m.CoDriverPageModule
+      ),
   },
   {
     path: 'account',
-    loadChildren: () => import('./pages/account/account.module').then( m => m.AccountPageModule)
+    loadChildren: () =>
+      import('./pages/account/account.module').then((m) => m.AccountPageModule),
   },
   {
     path: 'rules',
-    loadChildren: () => import('./pages/rules/rules.module').then( m => m.RulesPageModule)
+    loadChildren: () =>
+      import('./pages/rules/rules.module').then((m) => m.RulesPageModule),
   },
   {
     path: 'information',
-    loadChildren: () => import('./pages/information/information.module').then( m => m.InformationPageModule)
+    loadChildren: () =>
+      import('./pages/information/information.module').then(
+        (m) => m.InformationPageModule
+      ),
   },
   {
     path: 'send-logs',
-    loadChildren: () => import('./pages/send-logs/send-logs.module').then( m => m.SendLogsPageModule)
+    loadChildren: () =>
+      import('./pages/send-logs/send-logs.module').then(
+        (m) => m.SendLogsPageModule
+      ),
   },
   {
     path: 'inspection-preview',
-    loadChildren: () => import('./pages/inspection-preview/inspection-preview.module').then( m => m.InspectionPreviewPageModule)
+    loadChildren: () =>
+      import('./pages/inspection-preview/inspection-preview.module').then(
+        (m) => m.InspectionPreviewPageModule
+      ),
   },
   {
     path: 'user-manual',
-    loadChildren: () => import('./pages/user-manual/user-manual.module').then( m => m.UserManualPageModule)
+    loadChildren: () =>
+      import('./pages/user-manual/user-manual.module').then(
+        (m) => m.UserManualPageModule
+      ),
   },
   {
     path: 'instructions',
-    loadChildren: () => import('./pages/instructions/instructions.module').then( m => m.InstructionsPageModule)
+    loadChildren: () =>
+      import('./pages/instructions/instructions.module').then(
+        (m) => m.InstructionsPageModule
+      ),
   },
   {
     path: 'insert-dvir',
-    loadChildren: () => import('./pages/insert-dvir/insert-dvir.module').then( m => m.InsertDvirPageModule)
+    loadChildren: () =>
+      import('./pages/insert-dvir/insert-dvir.module').then(
+        (m) => m.InsertDvirPageModule
+      ),
   },
   {
     path: 'edit-dvir',
-    loadChildren: () => import('./pages/edit-dvir/edit-dvir.module').then( m => m.EditDvirPageModule)
+    loadChildren: () =>
+      import('./pages/edit-dvir/edit-dvir.module').then(
+        (m) => m.EditDvirPageModule
+      ),
   },
-
 ];
 @NgModule({
   imports: [

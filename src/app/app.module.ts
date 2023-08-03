@@ -1,18 +1,16 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { ACCESS_TOKEN_KEY } from './services/auth.service';
 import { JwtModule } from '@auth0/angular-jwt';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { AUTH_API_URL } from './app-injection-tokens';
 import { environment } from 'src/environments/environment';
-import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
-import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
 import { Storage } from '@ionic/storage';
 import { IonicStorageModule } from '@ionic/storage-angular';
 
@@ -27,6 +25,8 @@ export function tokenGetter(): string {
     IonicStorageModule.forRoot(),
     IonicModule.forRoot(),
     AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     ReactiveFormsModule,
     JwtModule.forRoot({
@@ -37,8 +37,6 @@ export function tokenGetter(): string {
     }),
   ],
   providers: [
-    AndroidPermissions,
-    BluetoothSerial,
     Storage,
     {
       provide: RouteReuseStrategy,

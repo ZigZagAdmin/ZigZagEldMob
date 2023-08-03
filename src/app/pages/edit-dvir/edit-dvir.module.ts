@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NavParams } from '@ionic/angular';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -13,8 +14,10 @@ import { EditDvirPage } from './edit-dvir.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    EditDvirPageRoutingModule
+    EditDvirPageRoutingModule,
+    ReactiveFormsModule,
   ],
-  declarations: [EditDvirPage]
+  declarations: [EditDvirPage],
+  providers: [NavParams],
 })
 export class EditDvirPageModule {}

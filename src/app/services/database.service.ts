@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { SQLite, SQLiteObject } from '@awesome-cordova-plugins/sqlite/ngx';
 import { Storage } from '@ionic/storage';
 import {
   Observable,
   from,
   throwError,
-  Subject,
   Subscription,
   BehaviorSubject,
 } from 'rxjs';
@@ -32,9 +30,20 @@ export class DatabaseService {
   }
 
   async create(): Promise<void> {
-    await this.storage.create();
-    this.databaseReady = true;
-    this.databaseReadySubject.next(true);
+    try {
+      await this.storage.create();
+      this.databaseReady = true;
+      this.databaseReadySubject.next(true);
+
+      const offlineArray = await this.storage.get('offlineArray');
+      console.log('offlineArray ', offlineArray);
+      if (!offlineArray) {
+        await this.storage.set('offlineArray', []);
+        console.log('offlineArrayCreated');
+      }
+    } catch (error) {
+      console.error('Error creating offlineArray  :', error);
+    }
   }
 
   isDatabaseReady(): Observable<boolean> {

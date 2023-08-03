@@ -6,8 +6,8 @@ import { EditDvirPage } from './edit-dvir.page';
 const routes: Routes = [
   {
     path: '',
-    component: EditDvirPage
-  }
+    component: EditDvirPage,
+  },
 ];
 
 @NgModule({

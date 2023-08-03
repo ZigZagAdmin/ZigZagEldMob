@@ -86,6 +86,7 @@ export class LoginPage implements OnInit {
         switchMap((res) => {
           this.authUser = res;
           this.storage.set('accessToken', res.AccessToken);
+          this.storage.set('driverId', res.DriverId);
           localStorage.setItem('accessToken', res.AccessToken);
           return this.saveAuthUser(res);
         }),

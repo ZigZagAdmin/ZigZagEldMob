@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
 import { Storage } from '@ionic/storage';
 import { NavController } from '@ionic/angular';
 
@@ -11,11 +10,7 @@ import { NavController } from '@ionic/angular';
 export class ConnectMacPage implements OnInit {
   pickedVehicle!: string;
   macAddress: string = '';
-  constructor(
-    private bluetoothLE: BluetoothLE,
-    private storage: Storage,
-    private navCtrl: NavController
-  ) {}
+  constructor(private storage: Storage, private navCtrl: NavController) {}
 
   ngOnInit() {}
 
@@ -23,24 +18,6 @@ export class ConnectMacPage implements OnInit {
     this.storage.get('pickedVehicle').then((pickedVehicle) => {
       this.pickedVehicle = pickedVehicle;
     });
-  }
-
-  connectToDevice() {
-    const params = {
-      address: this.macAddress,
-    };
-
-    this.bluetoothLE.connect(params).subscribe(
-      (success) => {
-        alert(params);
-        alert('Connected to PT-30U' + success);
-        // Дальнейшая обработка успешного подключения
-      },
-      (error) => {
-        alert('Failed to connect to PT-30U' + error.message);
-        // Обработка ошибки подключения
-      }
-    );
   }
 
   continueDisconected() {

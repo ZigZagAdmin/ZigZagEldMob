@@ -6,10 +6,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./unitab.page.scss'],
 })
 export class UnitabPage implements OnInit {
+  constructor() {}
 
-  constructor() { }
+  ngOnInit() {}
 
-  ngOnInit() {
+  ionViewWillEnter() {
+    // Код, который должен выполняться при каждом отображении UnitabPage
+    console.log('ionViewWillEnter - UnitabPage');
+    // Здесь вы можете обновить данные или выполнить другие действия при возвращении с EditDvirPage
+    // Например, обновить список DVIRs
   }
-
 }

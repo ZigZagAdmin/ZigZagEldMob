@@ -10,15 +10,18 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./dvir.page.scss'],
 })
 export class DvirPage implements OnInit {
+  bLoading: boolean = true;
   bReady: boolean = false;
   dvirs: DVIRs[] = [];
   databaseSubscription: Subscription | undefined;
+  pickedVehicle: String = '';
   constructor(
     private navCtrl: NavController,
     private databaseService: DatabaseService
   ) {}
 
   ngOnInit() {
+    console.log('init dvirs');
     this.databaseSubscription =
       this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
         if (ready) {
@@ -27,13 +30,14 @@ export class DvirPage implements OnInit {
             .getDvirs()
             .subscribe((dvirs) => {
               this.dvirs = dvirs;
-              console.log(this.dvirs);
+              this.bLoading = false;
             });
         }
       });
   }
 
   ionViewWillEnter() {
+    console.log('willEnter dvirs');
     if (this.bReady) {
       this.databaseSubscription = this.databaseService
         .getDvirs()
@@ -42,6 +46,22 @@ export class DvirPage implements OnInit {
           console.log(this.dvirs);
         });
     }
+  }
+
+  ionViewDidEnter() {
+    console.log('didEnter dvirs');
+    if (this.bReady) {
+      this.databaseSubscription = this.databaseService
+        .getDvirs()
+        .subscribe((dvirs) => {
+          this.dvirs = dvirs;
+        });
+    }
+  }
+
+  editDvir(dvir: DVIRs) {
+    console.log(dvir.DVIRId);
+    this.navCtrl.navigateForward(['/edit-dvir', { dvirId: dvir.DVIRId }]);
   }
 
   insertDvir() {

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { ConnectMacPageRoutingModule } from './connect-mac-routing.module';
 import { ConnectMacPage } from './connect-mac.page';
-import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
 
 @NgModule({
   imports: [
@@ -13,7 +12,7 @@ import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
     IonicModule,
     ConnectMacPageRoutingModule,
   ],
-  providers: [BluetoothLE],
+  providers: [],
   declarations: [ConnectMacPage],
 })
 export class ConnectMacPageModule {}

@@ -57,7 +57,6 @@ export class SelectVehiclePage implements OnInit {
 
   handleRefresh(event: any) {
     setTimeout(() => {
-      // Any calls to load data go here
       event.target.complete();
     }, 1000);
   }
@@ -67,14 +66,16 @@ export class SelectVehiclePage implements OnInit {
       console.log('Selected vehicle:', vehicle);
       this.pickedVehicle = vehicle.VehicleUnit;
       this.storage.set('pickedVehicle', this.pickedVehicle);
+      this.storage.set('vehicleId', vehicle.VehicleId);
       localStorage.setItem('pickedVehicle', this.pickedVehicle);
       this.navCtrl.navigateForward('/connect-mac');
     } else {
       console.log('Selected vehicle:', vehicle);
       this.pickedVehicle = vehicle.VehicleUnit;
+      this.storage.set('vehicleId', vehicle.VehicleId);
       this.storage.set('pickedVehicle', this.pickedVehicle);
       localStorage.setItem('pickedVehicle', this.pickedVehicle);
-      this.navCtrl.navigateBack('/others');
+      this.navCtrl.navigateBack('/unitab/others');
     }
   }
 }

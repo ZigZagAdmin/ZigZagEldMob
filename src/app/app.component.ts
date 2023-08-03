@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { DatabaseService } from './services/database.service';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
-import { ManageService } from './services/manage.service';
-import { forkJoin, Observable, throwError } from 'rxjs';
+import { forkJoin, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 import { ToastController, LoadingController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { InternetService } from './services/internet.service';
+
+import { ManageService } from './services/manage.service';
+import { DatabaseService } from './services/database.service';
 
 @Component({
   selector: 'app-root',
@@ -16,26 +18,38 @@ import { Subscription } from 'rxjs';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  loading: boolean = false;
+  pickedVehicle!: string;
   databaseSubscription: Subscription | undefined;
+  networkStatus = false;
+  networkSub!: Subscription;
   constructor(
     private navCtrl: NavController,
     private storage: Storage,
     private databaseService: DatabaseService,
     private authService: AuthService,
     private manageService: ManageService,
+    private internetService: InternetService,
     private toastController: ToastController,
     private loadingController: LoadingController
   ) {}
-  loading: boolean = false;
 
   async ngOnInit() {
+    this.networkSub = this.internetService.internetStatus$.subscribe(
+      (status) => {
+        this.networkStatus = status;
+      }
+    );
+
     this.loading = true; // Показать прогрузочное окно
+    console.log(this.loading);
     this.databaseSubscription = this.databaseService
       .isDatabaseReady()
       .subscribe(async (ready: boolean) => {
         if (ready) {
           const accessToken = await this.storage.get('accessToken');
           const pickedVehicle = await this.storage.get('pickedVehicle');
+          this.pickedVehicle = pickedVehicle;
           const user = await this.storage.get('user');
           const driverId = user?.DriverId;
           if (accessToken) {
@@ -60,6 +74,8 @@ export class AppComponent implements OnInit {
                   catchError((error) => {
                     const errorMessage = 'Error fetching data';
                     this.presentToast(errorMessage); // Отобразить toast с ошибкой
+                    this.loading = false;
+                    loading.dismiss();
                     return throwError(errorMessage);
                   }),
                   switchMap(
@@ -92,7 +108,8 @@ export class AppComponent implements OnInit {
                         }),
                         tap(() => {
                           loading.dismiss();
-                          this.loading = false; // Скрыть прогрузочное окно
+                          this.loading = false;
+                          console.log(this.loading); // Скрыть прогрузочное окно
                           if (pickedVehicle) {
                             this.navCtrl.navigateForward('/connect-mac');
                           } else {
@@ -112,8 +129,9 @@ export class AppComponent implements OnInit {
                   }
                 );
             } else {
-              await this.storage.clear();
+              await this.storage.remove('accessToken');
               this.loading = false;
+              console.log(this.loading);
               this.navCtrl.navigateForward('/login');
               this.presentToast(
                 'Access token has expired. Please log in again.',
@@ -121,13 +139,26 @@ export class AppComponent implements OnInit {
               );
             }
           } else {
-            await this.storage.clear();
+            await this.storage.remove('accessToken');
             this.loading = false;
+            console.log(this.loading);
             this.navCtrl.navigateForward('/login');
           }
         }
       });
+
+    // this.loading = true;
+    // console.log(this.loading);
+    // if (this.pickedVehicle) {
+    //   this.navCtrl.navigateForward('/connect-mac');
+    // } else {
+    //   this.navCtrl.navigateForward('/select-vehicle');
+    // }
+    // this.presentToast('Welcome Back!', 'success');
+    // this.loading = false;
+    // console.log(this.loading);
   }
+
   private async presentToast(message: string, color: string = 'danger') {
     const toast = await this.toastController.create({
       message: message,
@@ -149,5 +180,6 @@ export class AppComponent implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+    this.networkSub.unsubscribe();
   }
 }
