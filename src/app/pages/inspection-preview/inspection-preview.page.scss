@@ -1,0 +1,25 @@
+ion-grid {
+  padding: 0;
+  margin: 0;
+}
+
+ion-col {
+  color: #ffffff;
+  font-size: 12px;
+  text-align: center;
+}
+
+ion-col:nth-child(6n-3),
+ion-col:nth-child(6n-4),
+ion-col:nth-child(6n-5) {
+  color: #000000;
+}
+
+.row {
+  background-color: #a7a7a7;
+}
+
+.row:nth-child(2n) {
+  background-color: #ffffff;
+  text-align: center;
+}
