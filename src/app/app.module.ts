@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { ACCESS_TOKEN_KEY } from './services/auth.service';
 import { JwtModule } from '@auth0/angular-jwt';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -48,5 +47,6 @@ export function tokenGetter(): string {
     },
   ],
   bootstrap: [AppComponent],
+  exports: [],
 })
 export class AppModule {}

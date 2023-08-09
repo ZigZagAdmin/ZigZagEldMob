@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { UnitabPage } from './unitab.page';
+import { DvirPageModule } from '../dvir/dvir.module';
+import { DvirPage } from '../dvir/dvir.page';
 
 const routes: Routes = [
   {
@@ -14,8 +16,7 @@ const routes: Routes = [
       },
       {
         path: 'dvir',
-        loadChildren: () =>
-          import('../dvir/dvir.module').then((m) => m.DvirPageModule),
+        component: DvirPage,
       },
       {
         path: 'inspection',

@@ -35,12 +35,11 @@ export class AppComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.networkSub = this.internetService.internetStatus$.subscribe(
-      (status) => {
-        this.networkStatus = status;
-      }
-    );
-
+    // this.networkSub = this.internetService.internetStatus$.subscribe(
+    //   (status) => {
+    //     this.networkStatus = status;
+    //   }
+    // );
     // this.loading = true; // Показать прогрузочное окно
     // console.log(this.loading);
     // this.databaseSubscription = this.databaseService
@@ -146,7 +145,6 @@ export class AppComponent implements OnInit {
     //       }
     //     }
     //   });
-
     // this.loading = true;
     // console.log(this.loading);
     // if (this.pickedVehicle) {

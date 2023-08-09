@@ -132,6 +132,13 @@ const routes: Routes = [
         (m) => m.EditDvirPageModule
       ),
   },
+  {
+    path: 'log-item',
+    loadChildren: () =>
+      import('./pages/log-item/log-item.module').then(
+        (m) => m.LogItemPageModule
+      ),
+  },
 ];
 @NgModule({
   imports: [

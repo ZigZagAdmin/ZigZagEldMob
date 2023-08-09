@@ -9,4 +9,313 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true"> </ion-content>
+<ion-content [fullscreen]="true">
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-button id="open-modal" expand="block" color="warning">
+          <div
+            style="
+              width: 100%;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            Current Status: {{ message }}
+            <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+          </div>
+        </ion-button>
+        <ion-modal trigger="open-modal" (willDismiss)="onWillDismiss($event)">
+          <ng-template>
+            <ion-header>
+              <ion-toolbar>
+                <ion-title color="dark">Switch Status</ion-title>
+                <ion-buttons slot="start">
+                  <ion-button (click)="cancel()">Cancel</ion-button>
+                </ion-buttons>
+                <ion-buttons slot="end">
+                  <ion-button (click)="confirm()" [strong]="true"
+                    >Confirm</ion-button
+                  >
+                </ion-buttons>
+              </ion-toolbar>
+            </ion-header>
+            <ion-content>
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-button
+                      class="statusBtn"
+                      color="light"
+                      fill="solid"
+                      expand="full"
+                      [class.selected]="selectedButton === 'off'"
+                    >
+                      <div class="button-content">
+                        <div class="button-code">OFF</div>
+                        <div class="button-status">Off Duty</div>
+                      </div>
+                    </ion-button>
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-button
+                      color="light"
+                      fill="solid"
+                      expand="full"
+                      [class.selected]="selectedButton === 'on'"
+                    >
+                      <div class="button-content">
+                        <div class="button-code">ON</div>
+                        <div class="button-status">On Duty</div>
+                      </div>
+                    </ion-button>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-button
+                      color="light"
+                      fill="solid"
+                      expand="full"
+                      [class.selected]="selectedButton === 'off'"
+                    >
+                      <div class="button-content">
+                        <div class="button-code">OFF</div>
+                        <div class="button-status">Off Duty</div>
+                      </div>
+                    </ion-button>
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-button
+                      color="light"
+                      fill="solid"
+                      expand="full"
+                      [class.selected]="selectedButton === 'on'"
+                    >
+                      <div class="button-content">
+                        <div class="button-code">ON</div>
+                        <div class="button-status">On Duty</div>
+                      </div>
+                    </ion-button>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-button
+                      color="light"
+                      fill="solid"
+                      expand="full"
+                      [class.selected]="selectedButton === 'off'"
+                    >
+                      <div class="button-content">
+                        <div class="button-code">OFF</div>
+                        <div class="button-status">Off Duty</div>
+                      </div>
+                    </ion-button>
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-button
+                      color="light"
+                      fill="solid"
+                      expand="full"
+                      [class.selected]="selectedButton === 'on'"
+                    >
+                      <div class="button-content">
+                        <div class="button-code">ON</div>
+                        <div class="button-status">On Duty</div>
+                      </div>
+                    </ion-button>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <ion-input placeholder="Location"></ion-input>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <ion-input placeholder="Notes"></ion-input>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <ion-button color="success" expand="full">Save</ion-button>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-content>
+          </ng-template>
+        </ion-modal>
+      </ion-col>
+    </ion-row>
+    <div event="event-circles">
+      <ion-row>
+        <ion-col
+          ><ion-text
+            ><span style="font-size: 15px">Hours Remaining</span></ion-text
+          ></ion-col
+        >
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <circle-progress
+            [percent]="99"
+            [radius]="60"
+            [space]="-10"
+            [outerStrokeWidth]="10"
+            [outerStrokeColor]="'#FDB022'"
+            [innerStrokeColor]="'#e7e8ea'"
+            [innerStrokeWidth]="10"
+            [subtitle]="'Break'"
+            [animateTitle]="false"
+            [animationDuration]="500"
+            [showBackground]="false"
+            [outerStrokeLinecap]="'butt'"
+          ></circle-progress>
+        </ion-col>
+
+        <ion-col>
+          <circle-progress
+            [percent]="9"
+            [radius]="60"
+            [space]="-10"
+            [outerStrokeWidth]="10"
+            [outerStrokeColor]="'#039855'"
+            [innerStrokeColor]="'#e7e8ea'"
+            [innerStrokeWidth]="10"
+            [subtitle]="'Break'"
+            [animateTitle]="false"
+            [animationDuration]="500"
+            [showBackground]="false"
+            [outerStrokeLinecap]="'butt'"
+          ></circle-progress>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <circle-progress
+            [percent]="25"
+            [radius]="60"
+            [space]="-10"
+            [outerStrokeWidth]="10"
+            [outerStrokeColor]="'#7A5AF8'"
+            [innerStrokeColor]="'#e7e8ea'"
+            [innerStrokeWidth]="10"
+            [subtitle]="'Break'"
+            [animateTitle]="false"
+            [animationDuration]="500"
+            [showBackground]="false"
+            [outerStrokeLinecap]="'butt'"
+          ></circle-progress>
+        </ion-col>
+        <ion-col>
+          <circle-progress
+            [percent]="64"
+            [radius]="60"
+            [space]="-10"
+            [outerStrokeWidth]="10"
+            [outerStrokeColor]="'#FB6514'"
+            [innerStrokeColor]="'#e7e8ea'"
+            [innerStrokeWidth]="10"
+            [subtitle]="'Break'"
+            [animateTitle]="false"
+            [animationDuration]="500"
+            [showBackground]="false"
+            [outerStrokeLinecap]="'butt'"
+          ></circle-progress>
+        </ion-col>
+      </ion-row>
+    </div>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" color="secondary">
+          Rest Mode
+          <ion-icon slot="end" name="moon-outline"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div class="timeWorkedRecap">
+          <div>Last 7 Days (hours worked): 08h 33m</div>
+          <div>Hours Recap: + 00h 00m</div>
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col style="margin-top: 7px">
+        <ion-toggle class="custom-toggle">
+          <ion-label>Split Sleeper Berth</ion-label>
+        </ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-grid>
+    <ion-row>
+      <ion-col style="padding: 0; padding-bottom: 3px"
+        ><div class="logsRecap">
+          <span>Logs and Recap Hours</span>
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col style="padding: 0">
+        <div class="logsSubtitle">
+          <span style="padding-left: 5px">Day</span>
+          <span>Date</span>
+          <span style="padding-right: 5px">Hours Worked</span>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-card style="margin: 5px 0" *ngFor="let logDaily of logDailies">
+    <ion-grid>
+      <ion-row>
+        <ion-col style="padding: 0">
+          <div class="logsInfo">
+            <span style="padding-left: 5px"
+              >{{ logDaily.Day | date:'EEEE' }}</span
+            >
+            <span>{{ logDaily.Day | date:'mediumDate' }}</span>
+            <span style="padding-right: 5px"
+              >{{ logDaily.HoursWorked | milisecToHoursAndMinutes }}</span
+            >
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <span>
+            Form
+            <ion-icon
+              *ngIf="logDaily.FormManner"
+              name="checkmark-circle-outline"
+              color="success"
+            ></ion-icon>
+            <ion-icon
+              *ngIf="!logDaily.FormManner"
+              name="checkmark-circle-outline"
+              color="danger"
+            ></ion-icon>
+          </span>
+        </ion-col>
+        <ion-col>
+          <span>
+            Certify
+            <ion-icon
+              *ngIf="logDaily.Certified"
+              name="checkmark-circle-outline"
+              color="success"
+            ></ion-icon>
+            <ion-icon
+              *ngIf="!logDaily.Certified"
+              name="checkmark-circle-outline"
+              color="danger"
+            ></ion-icon>
+          </span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+</ion-content>

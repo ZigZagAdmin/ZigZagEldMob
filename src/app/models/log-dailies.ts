@@ -1,5 +1,6 @@
 export class LogDailies {
   Id!: number;
+  Certified!: boolean;
   DriverId!: string;
   VehicleId!: string;
   LogDailiesId!: string;

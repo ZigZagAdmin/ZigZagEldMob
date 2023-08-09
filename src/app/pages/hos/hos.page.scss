@@ -1,0 +1,55 @@
+ion-grid {
+  margin: 0;
+}
+
+ion-col {
+  font-size: 15px;
+  text-align: center;
+}
+
+.custom-col {
+  margin: 0 15%;
+}
+
+.custom-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logsRecap {
+  background: #3880ff;
+  height: 3em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.logsSubtitle {
+  background: #3880ff;
+  height: 1.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.logsInfo {
+  height: 1.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.statusBtn {
+  height: 100px;
+}
