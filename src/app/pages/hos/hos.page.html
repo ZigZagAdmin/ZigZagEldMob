@@ -49,8 +49,9 @@
                       class="statusBtn"
                       color="light"
                       fill="solid"
-                      expand="full"
-                      [class.selected]="selectedButton === 'off'"
+                      expand="block"
+                      [ngClass]="{ 'selected': selectedButton === 'Off Duty' }"
+                      (click)="selectButton('Off Duty')"
                     >
                       <div class="button-content">
                         <div class="button-code">OFF</div>
@@ -60,10 +61,12 @@
                   </ion-col>
                   <ion-col size="6">
                     <ion-button
+                      class="statusBtn"
                       color="light"
                       fill="solid"
-                      expand="full"
-                      [class.selected]="selectedButton === 'on'"
+                      expand="block"
+                      [class.selected]="selectedButton === 'On Duty'"
+                      (click)="selectButton('On Duty')"
                     >
                       <div class="button-content">
                         <div class="button-code">ON</div>
@@ -75,27 +78,31 @@
                 <ion-row>
                   <ion-col size="6">
                     <ion-button
+                      class="statusBtn"
                       color="light"
                       fill="solid"
-                      expand="full"
-                      [class.selected]="selectedButton === 'off'"
+                      expand="block"
+                      [class.selected]="selectedButton === 'Sleeper Berth'"
+                      (click)="selectButton('Sleeper Berth')"
                     >
                       <div class="button-content">
-                        <div class="button-code">OFF</div>
-                        <div class="button-status">Off Duty</div>
+                        <div class="button-code">SB</div>
+                        <div class="button-status">Sleeper Berth</div>
                       </div>
                     </ion-button>
                   </ion-col>
                   <ion-col size="6">
                     <ion-button
+                      class="statusBtn"
                       color="light"
                       fill="solid"
-                      expand="full"
-                      [class.selected]="selectedButton === 'on'"
+                      expand="block"
+                      [class.selected]="selectedButton === 'Driving'"
+                      (click)="selectButton('Driving')"
                     >
                       <div class="button-content">
-                        <div class="button-code">ON</div>
-                        <div class="button-status">On Duty</div>
+                        <div class="button-code">D</div>
+                        <div class="button-status">Driving</div>
                       </div>
                     </ion-button>
                   </ion-col>
@@ -103,44 +110,52 @@
                 <ion-row>
                   <ion-col size="6">
                     <ion-button
+                      class="statusBtn"
                       color="light"
                       fill="solid"
-                      expand="full"
-                      [class.selected]="selectedButton === 'off'"
+                      expand="block"
+                      [class.selected]="selectedButton === 'Personal Conveyance'"
+                      (click)="selectButton('Personal Conveyance')"
                     >
                       <div class="button-content">
-                        <div class="button-code">OFF</div>
-                        <div class="button-status">Off Duty</div>
+                        <div class="button-code">PC</div>
+                        <div class="button-status">Personal Conveyance</div>
                       </div>
                     </ion-button>
                   </ion-col>
                   <ion-col size="6">
                     <ion-button
+                      class="statusBtn"
                       color="light"
                       fill="solid"
-                      expand="full"
-                      [class.selected]="selectedButton === 'on'"
+                      expand="block"
+                      [class.selected]="selectedButton === 'Yard Moves'"
+                      (click)="selectButton('Yard Moves')"
                     >
                       <div class="button-content">
-                        <div class="button-code">ON</div>
-                        <div class="button-status">On Duty</div>
+                        <div class="button-code">YM</div>
+                        <div class="button-status">Yard Moves</div>
                       </div>
                     </ion-button>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <ion-input placeholder="Location"></ion-input>
+                    <ion-item>
+                      <ion-icon name="location-outline" slot="start"></ion-icon>
+                      <ion-input placeholder="Location"></ion-input>
+                    </ion-item>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <ion-input placeholder="Notes"></ion-input>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col>
-                    <ion-button color="success" expand="full">Save</ion-button>
+                    <ion-item>
+                      <ion-icon
+                        name="chatbox-ellipses-outline"
+                        slot="start"
+                      ></ion-icon>
+                      <ion-input placeholder="Notes"></ion-input>
+                    </ion-item>
                   </ion-col>
                 </ion-row>
               </ion-grid>
