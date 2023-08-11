@@ -22,7 +22,7 @@
               align-items: center;
             "
           >
-            Current Status: {{ message }}
+            Current Status: {{currentStatus}} ({{currentStatusTime}})
             <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
           </div>
         </ion-button>
@@ -175,14 +175,18 @@
       <ion-row>
         <ion-col>
           <circle-progress
-            [percent]="99"
+            [percent]="percentBreak"
             [radius]="60"
             [space]="-10"
             [outerStrokeWidth]="10"
             [outerStrokeColor]="'#FDB022'"
             [innerStrokeColor]="'#e7e8ea'"
             [innerStrokeWidth]="10"
+            [title]="convertSecondToHours(titleBreak)"
             [subtitle]="'Break'"
+            [showUnits]="false"
+            [subtitleFontSize]="'15'"
+            [clockwise]="false"
             [animateTitle]="false"
             [animationDuration]="500"
             [showBackground]="false"
@@ -192,14 +196,18 @@
 
         <ion-col>
           <circle-progress
-            [percent]="9"
+            [percent]="percentDriving"
             [radius]="60"
             [space]="-10"
             [outerStrokeWidth]="10"
             [outerStrokeColor]="'#039855'"
             [innerStrokeColor]="'#e7e8ea'"
             [innerStrokeWidth]="10"
-            [subtitle]="'Break'"
+            [title]="convertSecondToHours(titleDriving)"
+            [subtitle]="'Drive'"
+            [showUnits]="false"
+            [subtitleFontSize]="'15'"
+            [clockwise]="false"
             [animateTitle]="false"
             [animationDuration]="500"
             [showBackground]="false"
@@ -210,14 +218,18 @@
       <ion-row>
         <ion-col>
           <circle-progress
-            [percent]="25"
+            [percent]="percentShift"
             [radius]="60"
             [space]="-10"
             [outerStrokeWidth]="10"
             [outerStrokeColor]="'#7A5AF8'"
             [innerStrokeColor]="'#e7e8ea'"
             [innerStrokeWidth]="10"
-            [subtitle]="'Break'"
+            [title]="convertSecondToHours(titleShift)"
+            [subtitle]="'Shift'"
+            [showUnits]="false"
+            [subtitleFontSize]="'15'"
+            [clockwise]="false"
             [animateTitle]="false"
             [animationDuration]="500"
             [showBackground]="false"
@@ -226,14 +238,18 @@
         </ion-col>
         <ion-col>
           <circle-progress
-            [percent]="64"
+            [percent]="percentCycle"
             [radius]="60"
             [space]="-10"
             [outerStrokeWidth]="10"
             [outerStrokeColor]="'#FB6514'"
             [innerStrokeColor]="'#e7e8ea'"
             [innerStrokeWidth]="10"
-            [subtitle]="'Break'"
+            [title]="convertSecondToHours(titleCycle)"
+            [subtitle]="'Cycle'"
+            [showUnits]="false"
+            [subtitleFontSize]="'15'"
+            [clockwise]="false"
             [animateTitle]="false"
             [animationDuration]="500"
             [showBackground]="false"

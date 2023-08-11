@@ -4,6 +4,8 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { Driver } from 'src/app/models/driver';
+import { Company } from 'src/app/models/company';
 
 @Component({
   selector: 'app-select-vehicle',
@@ -16,6 +18,8 @@ export class SelectVehiclePage implements OnInit {
   showBackButton: boolean = false;
   pickedVehicle = '';
   vehicles: Vehicle[] = [];
+  driver!: Driver;
+  company!: Company;
   constructor(
     private navCtrl: NavController,
     private databaseService: DatabaseService,
@@ -32,6 +36,21 @@ export class SelectVehiclePage implements OnInit {
             this.vehicles = vehicles;
             console.log(this.vehicles);
           });
+          this.databaseService.getDrivers().subscribe((driver) => {
+            this.driver = driver;
+            this.storage.set(
+              'HoursOfServiceRuleDays',
+              this.driver.HoursOfServiceRuleDays
+            );
+            this.storage.set(
+              'HoursOfServiceRuleHours',
+              this.driver.HoursOfServiceRuleHours
+            );
+          });
+          this.databaseService.getCompany().subscribe((company) => {
+            this.company = company;
+            this.storage.set('TimeZoneCity', this.company.TimeZoneCity);
+          });
         }
       });
   }
@@ -43,7 +62,6 @@ export class SelectVehiclePage implements OnInit {
     if (this.bReady) {
       this.databaseService.getVehicles().subscribe((vehicles) => {
         this.vehicles = vehicles;
-        console.log(this.vehicles);
       });
     }
   }

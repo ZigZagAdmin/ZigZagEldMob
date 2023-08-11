@@ -1660,6 +1660,7 @@ public class HoSFragment extends Fragment implements View.OnClickListener
                                     obj.put("Certified", cLogDailies.getString(cLogDailies.getColumnIndex("certified")));
                                     obj.put("CertifyTimestamp", cLogDailies.getString(cLogDailies.getColumnIndex("certify_timestamp")));
                                     obj.put("Signature", cLogDailies.getString(cLogDailies.getColumnIndex("signature")));
+
                                 }
                                 catch (JSONException e)
                                 {

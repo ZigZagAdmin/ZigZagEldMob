@@ -20,6 +20,8 @@ export class Driver {
   VehicleMotionThresholdCode!: string;
   HoursOfServiceRuleCode!: string;
   HoursOfServiceRuleName!: string;
+  HoursOfServiceRuleDays!: number;
+  HoursOfServiceRuleHours!: number;
   CargoTypeCode!: string;
   RestartHoursCode!: string;
   RestBreakCode!: string;

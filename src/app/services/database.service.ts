@@ -50,7 +50,7 @@ export class DatabaseService {
     return this.databaseReadySubject.asObservable();
   }
 
-  saveDrivers(drivers: Driver[]): Observable<void> {
+  saveDrivers(drivers: Driver): Observable<void> {
     if (!this.databaseReady) {
       return throwError(
         'База данных не создана. Сначала вызовите метод create()'
@@ -59,7 +59,7 @@ export class DatabaseService {
     return from(this.storage.set('drivers', drivers));
   }
 
-  getDrivers(): Observable<Driver[]> {
+  getDrivers(): Observable<Driver> {
     if (!this.databaseReady) {
       return throwError(
         'База данных не создана. Сначала вызовите метод create()'

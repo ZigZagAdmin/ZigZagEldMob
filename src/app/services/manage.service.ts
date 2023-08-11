@@ -20,9 +20,9 @@ export class ManageService {
     @Inject(AUTH_API_URL) private apiUrl: string
   ) {}
 
-  getDrivers(): Observable<Driver[]> {
+  getDrivers(): Observable<Driver> {
     const httpParams = new HttpParams();
-    return this.http.get<Driver[]>(this.apiUrl + 'api/EldManage/drivers', {
+    return this.http.get<Driver>(this.apiUrl + 'api/EldManage/driver', {
       params: httpParams,
     });
   }

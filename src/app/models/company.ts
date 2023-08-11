@@ -8,6 +8,7 @@ export class Company {
   City!: string;
   ZipCode!: string;
   CountryCode!: string;
+  TimeZoneCity!: string;
   StateProvinceCode!: string;
   ComplianceModeCode!: string;
   ComplianceModeName!: string;

@@ -87,6 +87,8 @@ export class LoginPage implements OnInit {
           this.authUser = res;
           this.storage.set('accessToken', res.AccessToken);
           this.storage.set('driverId', res.DriverId);
+          this.storage.set('companyId', res.CompanyId);
+          this.storage.set('name', res.Name);
           localStorage.setItem('accessToken', res.AccessToken);
           return this.saveAuthUser(res);
         }),
@@ -126,7 +128,7 @@ export class LoginPage implements OnInit {
             logHistories,
           ]) => {
             const saveRequests = [
-              this.saveDrivers(drivers as Driver[]),
+              this.saveDrivers(drivers as Driver),
               this.saveCompany(company as Company),
               this.saveVehicles(vehicles as Vehicle[]),
               this.saveTerminals(terminals as Terminal[]),
@@ -174,7 +176,7 @@ export class LoginPage implements OnInit {
     );
   }
 
-  private saveDrivers(drivers: Driver[]): Observable<any> {
+  private saveDrivers(drivers: Driver): Observable<any> {
     return this.databaseService.saveDrivers(drivers).pipe(
       catchError((error) => {
         const errorMessage = 'Error saving drivers to database';
