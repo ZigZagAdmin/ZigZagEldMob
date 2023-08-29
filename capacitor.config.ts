@@ -4,16 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.zigzag.plus',
   appName: 'ZigZag Plus',
   webDir: 'www',
-  bundledWebRuntime: false,
-  server: {
-    androidScheme: 'http',
-    allowNavigation: ['api.zigzagplus.com'],
-  },
-  plugins: {
-    CapacitorHttp: {
-      enabled: true,
-    },
-  },
+  bundledWebRuntime: false
 };
 
 export default config;

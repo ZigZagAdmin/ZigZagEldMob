@@ -21,6 +21,7 @@ import { ELD } from 'src/app/models/eld';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { LogHistories } from 'src/app/models/log-histories';
 import { DVIRs } from 'src/app/models/dvirs';
+import { PlacesCity } from 'src/app/models/places-city';
 
 @Component({
   selector: 'app-login',
@@ -106,6 +107,7 @@ export class LoginPage implements OnInit {
               14
             ),
             this.manageService.getLogHistories14Days(this.authUser.DriverId),
+            this.manageService.getPlacesCity(),
           ];
 
           return forkJoin(fetchRequests).pipe(
@@ -126,6 +128,7 @@ export class LoginPage implements OnInit {
             dvirs,
             logDailies,
             logHistories,
+            placesCity,
           ]) => {
             const saveRequests = [
               this.saveDrivers(drivers as Driver),
@@ -136,6 +139,7 @@ export class LoginPage implements OnInit {
               this.saveELDs(elds as ELD[]),
               this.saveLogDailies(logDailies as LogDailies[]),
               this.saveLogHistories(logHistories as LogHistories[]),
+              this.savePlacesCity(placesCity as PlacesCity[]),
             ];
 
             return forkJoin(saveRequests).pipe(
@@ -154,6 +158,7 @@ export class LoginPage implements OnInit {
       .subscribe(
         () => {
           // Все запросы и сохранения выполнены успешно
+          this.storage.set('bAuthorized', false);
           this.presentToast('Login successful', 'success'); // Отобразить toast с сообщением об успешном входе
           this.navCtrl.navigateForward('/select-vehicle');
         },
@@ -230,6 +235,16 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveDvirs(dvirs).pipe(
       catchError((error) => {
         const errorMessage = 'Error saving dvirs to database';
+        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        return throwError(errorMessage);
+      })
+    );
+  }
+
+  private savePlacesCity(placesCity: PlacesCity[]): Observable<any> {
+    return this.databaseService.savePlacesCity(placesCity).pipe(
+      catchError((error) => {
+        const errorMessage = 'Error saving logMaps to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })

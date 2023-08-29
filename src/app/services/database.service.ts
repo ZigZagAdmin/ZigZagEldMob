@@ -17,6 +17,7 @@ import { LogHistories } from '../models/log-histories';
 import { User } from '../models/user';
 import { AuthUser } from '../models/auth-user';
 import { DVIRs } from '../models/dvirs';
+import { PlacesCity } from '../models/places-city';
 
 @Injectable({
   providedIn: 'root',
@@ -210,6 +211,15 @@ export class DatabaseService {
       );
     }
     return from(this.storage.get('dvirs'));
+  }
+
+  savePlacesCity(placesCity: PlacesCity[]): Observable<void> {
+    if (!this.databaseReady) {
+      return throwError(
+        'База данных не создана. Сначала вызовите метод create()'
+      );
+    }
+    return from(this.storage.set('placesCity', placesCity));
   }
 }
 

@@ -1,0 +1,15 @@
+{
+    "appId": "com.zigzag.plus",
+    "appName": "ZigZag Plus",
+    "bundledWebRuntime": false,
+    "npmClient": "npm",
+    "webDir": "www",
+    "cordova": {},
+    "linuxAndroidStudioPath": "~/Android/Sdk",
+    "macAndroidStudioPath": "/Applications/Android Studio.app",
+    "windowsAndroidStudioPath": "C:\\Program Files\\Android\\Android Studio",
+    "plugins": {},
+    "android": {
+        "useDefaultKeystore": true
+    }
+}

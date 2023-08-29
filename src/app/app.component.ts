@@ -152,7 +152,6 @@ export class AppComponent implements OnInit {
     } else {
       this.navCtrl.navigateForward('/select-vehicle');
     }
-    this.presentToast('Welcome Back!', 'success');
     this.loading = false;
     console.log(this.loading);
   }

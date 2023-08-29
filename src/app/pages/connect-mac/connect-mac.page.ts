@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { NavController } from '@ionic/angular';
+import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
   selector: 'app-connect-mac',
@@ -10,6 +11,7 @@ import { NavController } from '@ionic/angular';
 export class ConnectMacPage implements OnInit {
   pickedVehicle!: string;
   macAddress: string = '';
+
   constructor(private storage: Storage, private navCtrl: NavController) {}
 
   ngOnInit() {}
@@ -18,6 +20,11 @@ export class ConnectMacPage implements OnInit {
     this.storage.get('pickedVehicle').then((pickedVehicle) => {
       this.pickedVehicle = pickedVehicle;
     });
+  }
+
+  async getLocation() {
+    const location = await Geolocation.getCurrentPosition();
+    console.log('location = ', location);
   }
 
   continueDisconected() {

@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { HosPageRoutingModule } from './hos-routing.module';
 import { HosPage } from './hos.page';
 import { MilisecToHoursAndMinutesPipe } from 'src/app/pipe/milisec-to-hours-and-minutes.pipe';
+import { ConvertSecondsToHoursAndMinutesPipe } from 'src/app/pipe/convert-secotds-to-hours-and-minutes.pipe';
 @NgModule({
   imports: [
     CommonModule,
@@ -14,6 +15,10 @@ import { MilisecToHoursAndMinutesPipe } from 'src/app/pipe/milisec-to-hours-and-
     HosPageRoutingModule,
     NgCircleProgressModule.forRoot(),
   ],
-  declarations: [HosPage, MilisecToHoursAndMinutesPipe],
+  declarations: [
+    HosPage,
+    MilisecToHoursAndMinutesPipe,
+    ConvertSecondsToHoursAndMinutesPipe,
+  ],
 })
 export class HosPageModule {}

@@ -12,14 +12,13 @@ import { AUTH_API_URL } from './app-injection-tokens';
 import { environment } from 'src/environments/environment';
 import { Storage } from '@ionic/storage';
 import { IonicStorageModule } from '@ionic/storage-angular';
-import { ConvertSecotdsToHoursAndMinutesPipe } from './pipe/convert-secotds-to-hours-and-minutes.pipe';
 
 export function tokenGetter(): string {
   return localStorage.getItem(ACCESS_TOKEN_KEY)!;
 }
 
 @NgModule({
-  declarations: [AppComponent, ConvertSecotdsToHoursAndMinutesPipe],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     IonicStorageModule.forRoot(),
@@ -48,8 +47,6 @@ export function tokenGetter(): string {
     },
   ],
   bootstrap: [AppComponent],
-  exports: [
-    ConvertSecotdsToHoursAndMinutesPipe
-  ],
+  exports: [],
 })
 export class AppModule {}

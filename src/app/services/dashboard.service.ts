@@ -4,6 +4,7 @@ import { AUTH_API_URL } from '../app-injection-tokens';
 import { Observable } from 'rxjs';
 import { DVIRs } from '../models/dvirs';
 import { LogDailies } from '../models/log-dailies';
+import { LogHistories } from '../models/log-histories';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,13 @@ export class DashboardService {
     return this.http.post(
       this.apiUrl + 'api/eldDashboard/UploadLogDailies',
       logDaily
+    );
+  }
+
+  updateLogHistory(logHistory: LogHistories): Observable<object> {
+    return this.http.post(
+      this.apiUrl + 'api/eldDashboard/UploadLogHistories',
+      logHistory
     );
   }
 }

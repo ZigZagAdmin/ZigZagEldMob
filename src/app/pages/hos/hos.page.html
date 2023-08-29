@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Name Surname - Vehicle Unit</ion-title>
+    <ion-title>{{name}} - {{pickedVehicle}}</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-header *ngIf="someErrors">
@@ -13,7 +13,12 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <ion-button id="open-modal" expand="block" color="warning">
+        <ion-button
+          id="open-modal"
+          expand="block"
+          (click)="toggleModal()"
+          [color]="redCircle > 0 ? 'danger' : getStatusColor(currentStatus.statusName)"
+        >
           <div
             style="
               width: 100%;
@@ -22,11 +27,11 @@
               align-items: center;
             "
           >
-            Current Status: {{currentStatus}} ({{currentStatusTime}})
+            Current Status: {{currentStatus.statusName}} ({{currentStatusTime}})
             <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
           </div>
         </ion-button>
-        <ion-modal trigger="open-modal" (willDismiss)="onWillDismiss($event)">
+        <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
           <ng-template>
             <ion-header>
               <ion-toolbar>
@@ -35,7 +40,10 @@
                   <ion-button (click)="cancel()">Cancel</ion-button>
                 </ion-buttons>
                 <ion-buttons slot="end">
-                  <ion-button (click)="confirm()" [strong]="true"
+                  <ion-button
+                    (click)="confirm()"
+                    [strong]="true"
+                    [disabled]="!isConfirmButtonActive"
                     >Confirm</ion-button
                   >
                 </ion-buttons>
@@ -46,12 +54,11 @@
                 <ion-row>
                   <ion-col size="6">
                     <ion-button
-                      class="statusBtn"
-                      color="light"
+                      class="statusBtn off"
                       fill="solid"
                       expand="block"
-                      [ngClass]="{ 'selected': selectedButton === 'Off Duty' }"
-                      (click)="selectButton('Off Duty')"
+                      [ngClass]="{ 'selected': selectedButton === 'OFF' }"
+                      (click)="selectButton('OFF')"
                     >
                       <div class="button-content">
                         <div class="button-code">OFF</div>
@@ -61,29 +68,11 @@
                   </ion-col>
                   <ion-col size="6">
                     <ion-button
-                      class="statusBtn"
-                      color="light"
+                      class="statusBtn sb"
                       fill="solid"
                       expand="block"
-                      [class.selected]="selectedButton === 'On Duty'"
-                      (click)="selectButton('On Duty')"
-                    >
-                      <div class="button-content">
-                        <div class="button-code">ON</div>
-                        <div class="button-status">On Duty</div>
-                      </div>
-                    </ion-button>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-button
-                      class="statusBtn"
-                      color="light"
-                      fill="solid"
-                      expand="block"
-                      [class.selected]="selectedButton === 'Sleeper Berth'"
-                      (click)="selectButton('Sleeper Berth')"
+                      [class.selected]="selectedButton === 'SB'"
+                      (click)="selectButton('SB')"
                     >
                       <div class="button-content">
                         <div class="button-code">SB</div>
@@ -91,14 +80,29 @@
                       </div>
                     </ion-button>
                   </ion-col>
+                </ion-row>
+                <ion-row>
                   <ion-col size="6">
                     <ion-button
-                      class="statusBtn"
-                      color="light"
+                      class="statusBtn on"
                       fill="solid"
                       expand="block"
-                      [class.selected]="selectedButton === 'Driving'"
-                      (click)="selectButton('Driving')"
+                      [class.selected]="selectedButton === 'ON'"
+                      (click)="selectButton('ON')"
+                    >
+                      <div class="button-content">
+                        <div class="button-code">ON</div>
+                        <div class="button-status">On Duty</div>
+                      </div>
+                    </ion-button>
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-button
+                      class="statusBtn d"
+                      fill="solid"
+                      expand="block"
+                      [class.selected]="selectedButton === 'D'"
+                      (click)="selectButton('D')"
                     >
                       <div class="button-content">
                         <div class="button-code">D</div>
@@ -110,12 +114,11 @@
                 <ion-row>
                   <ion-col size="6">
                     <ion-button
-                      class="statusBtn"
-                      color="light"
+                      class="statusBtn pc"
                       fill="solid"
                       expand="block"
-                      [class.selected]="selectedButton === 'Personal Conveyance'"
-                      (click)="selectButton('Personal Conveyance')"
+                      [class.selected]="selectedButton === 'PC'"
+                      (click)="selectButton('PC')"
                     >
                       <div class="button-content">
                         <div class="button-code">PC</div>
@@ -125,12 +128,11 @@
                   </ion-col>
                   <ion-col size="6">
                     <ion-button
-                      class="statusBtn"
-                      color="light"
+                      class="statusBtn ym"
                       fill="solid"
                       expand="block"
-                      [class.selected]="selectedButton === 'Yard Moves'"
-                      (click)="selectButton('Yard Moves')"
+                      [class.selected]="selectedButton === 'YM'"
+                      (click)="selectButton('YM')"
                     >
                       <div class="button-content">
                         <div class="button-code">YM</div>
@@ -164,108 +166,171 @@
         </ion-modal>
       </ion-col>
     </ion-row>
-    <div event="event-circles">
-      <ion-row>
-        <ion-col
-          ><ion-text
-            ><span style="font-size: 15px">Hours Remaining</span></ion-text
-          ></ion-col
-        >
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <circle-progress
-            [percent]="percentBreak"
-            [radius]="60"
-            [space]="-10"
-            [outerStrokeWidth]="10"
-            [outerStrokeColor]="'#FDB022'"
-            [innerStrokeColor]="'#e7e8ea'"
-            [innerStrokeWidth]="10"
-            [title]="convertSecondToHours(titleBreak)"
-            [subtitle]="'Break'"
-            [showUnits]="false"
-            [subtitleFontSize]="'15'"
-            [clockwise]="false"
-            [animateTitle]="false"
-            [animationDuration]="500"
-            [showBackground]="false"
-            [outerStrokeLinecap]="'butt'"
-          ></circle-progress>
-        </ion-col>
+    <div class="drive_mode" id="driveModeContainer">
+      <div event="event-circles">
+        <ion-row>
+          <ion-col
+            ><ion-text
+              ><span style="font-size: 15px">Hours Remaining</span></ion-text
+            ></ion-col
+          >
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <circle-progress
+              [percent]="percentBreak"
+              [radius]="60"
+              [space]="-10"
+              [outerStrokeWidth]="10"
+              [outerStrokeColor]="percentBreak <= 100 ? (percentBreak <= 6.25 ? '#FFEE59' : '#22b8fd') : 'red'"
+              [innerStrokeColor]="'#e7e8ea'"
+              [innerStrokeWidth]="10"
+              [title]="convertSecondToHours(titleBreak)"
+              [subtitle]="'Break'"
+              [subtitleColor]="percentBreak <= 100 ? (percentBreak <= 6.25 ? '#FFEE59' : '#A9A9A9') : 'red'"
+              [showUnits]="false"
+              [subtitleFontSize]="'15'"
+              [clockwise]="false"
+              [animateTitle]="false"
+              [animationDuration]="500"
+              [showBackground]="false"
+              [outerStrokeLinecap]="'butt'"
+            ></circle-progress>
+          </ion-col>
 
-        <ion-col>
-          <circle-progress
-            [percent]="percentDriving"
-            [radius]="60"
-            [space]="-10"
-            [outerStrokeWidth]="10"
-            [outerStrokeColor]="'#039855'"
-            [innerStrokeColor]="'#e7e8ea'"
-            [innerStrokeWidth]="10"
-            [title]="convertSecondToHours(titleDriving)"
-            [subtitle]="'Drive'"
-            [showUnits]="false"
-            [subtitleFontSize]="'15'"
-            [clockwise]="false"
-            [animateTitle]="false"
-            [animationDuration]="500"
-            [showBackground]="false"
-            [outerStrokeLinecap]="'butt'"
-          ></circle-progress>
-        </ion-col>
-      </ion-row>
+          <ion-col>
+            <circle-progress
+              [percent]="percentDriving"
+              [radius]="60"
+              [space]="-10"
+              [outerStrokeWidth]="10"
+              [outerStrokeColor]="percentDriving <= 100 ? (percentDriving <= 4.55 ? '#FFEE59' : '#22b8fd') : 'red'"
+              [innerStrokeColor]="'#e7e8ea'"
+              [innerStrokeWidth]="10"
+              [title]="convertSecondToHours(titleDriving)"
+              [subtitle]="'Drive'"
+              [subtitleColor]="percentDriving <= 100 ? (percentDriving <= 4.55 ? '#FFEE59' : '#A9A9A9') : 'red'"
+              [showUnits]="false"
+              [subtitleFontSize]="'15'"
+              [clockwise]="false"
+              [animateTitle]="false"
+              [animationDuration]="500"
+              [showBackground]="false"
+              [outerStrokeLinecap]="'butt'"
+            ></circle-progress>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <circle-progress
+              [percent]="percentShift"
+              [radius]="60"
+              [space]="-10"
+              [outerStrokeWidth]="10"
+              [outerStrokeColor]="percentShift <= 100 ? (percentShift <= 3.57 ? '#FFEE59' : '#22b8fd') : 'red'"
+              [innerStrokeColor]="'#e7e8ea'"
+              [innerStrokeWidth]="10"
+              [title]="convertSecondToHours(titleShift)"
+              [subtitle]="'Shift'"
+              [subtitleColor]="percentShift <= 100 ? (percentShift <= 3.57 ? '#FFEE59' : '#A9A9A9') : 'red'"
+              [showUnits]="false"
+              [subtitleFontSize]="'15'"
+              [clockwise]="false"
+              [animateTitle]="false"
+              [animationDuration]="500"
+              [showBackground]="false"
+              [outerStrokeLinecap]="'butt'"
+            ></circle-progress>
+          </ion-col>
+          <ion-col>
+            <circle-progress
+              [percent]="percentCycle"
+              [radius]="60"
+              [space]="-10"
+              [outerStrokeWidth]="10"
+              [outerStrokeColor]="percentCycle <= 100 ? (percentCycle <= 0.71 ? '#FFEE59' : '#22b8fd') : 'red'"
+              [innerStrokeColor]="'#e7e8ea'"
+              [innerStrokeWidth]="10"
+              [title]="convertSecondToHours(titleCycle)"
+              [subtitle]="'Cycle'"
+              [subtitleColor]="percentCycle <= 100 ? (percentCycle <= 0.71 ? '#FFEE59' : '#A9A9A9') : 'red'"
+              [showUnits]="false"
+              [subtitleFontSize]="'15'"
+              [clockwise]="false"
+              [animateTitle]="false"
+              [animationDuration]="500"
+              [showBackground]="false"
+              [outerStrokeLinecap]="'butt'"
+            ></circle-progress>
+          </ion-col>
+        </ion-row>
+      </div>
       <ion-row>
         <ion-col>
-          <circle-progress
-            [percent]="percentShift"
-            [radius]="60"
-            [space]="-10"
-            [outerStrokeWidth]="10"
-            [outerStrokeColor]="'#7A5AF8'"
-            [innerStrokeColor]="'#e7e8ea'"
-            [innerStrokeWidth]="10"
-            [title]="convertSecondToHours(titleShift)"
-            [subtitle]="'Shift'"
-            [showUnits]="false"
-            [subtitleFontSize]="'15'"
-            [clockwise]="false"
-            [animateTitle]="false"
-            [animationDuration]="500"
-            [showBackground]="false"
-            [outerStrokeLinecap]="'butt'"
-          ></circle-progress>
-        </ion-col>
-        <ion-col>
-          <circle-progress
-            [percent]="percentCycle"
-            [radius]="60"
-            [space]="-10"
-            [outerStrokeWidth]="10"
-            [outerStrokeColor]="'#FB6514'"
-            [innerStrokeColor]="'#e7e8ea'"
-            [innerStrokeWidth]="10"
-            [title]="convertSecondToHours(titleCycle)"
-            [subtitle]="'Cycle'"
-            [showUnits]="false"
-            [subtitleFontSize]="'15'"
-            [clockwise]="false"
-            [animateTitle]="false"
-            [animationDuration]="500"
-            [showBackground]="false"
-            [outerStrokeLinecap]="'butt'"
-          ></circle-progress>
+          <ion-button expand="block" color="secondary" (click)="toggleMode()">
+            Rest Mode
+            <ion-icon slot="end" name="moon-outline"></ion-icon>
+          </ion-button>
         </ion-col>
       </ion-row>
     </div>
-    <ion-row>
-      <ion-col>
-        <ion-button expand="block" color="secondary">
-          Rest Mode
-          <ion-icon slot="end" name="moon-outline"></ion-icon>
-        </ion-button>
-      </ion-col>
-    </ion-row>
+    <div class="rest_mode" id="restModeContainer" style="display: none">
+      <ion-grid>
+        <ion-row>
+          <ion-col style="padding-top: 0px"
+            ><ion-text
+              ><span style="font-size: 15px">Hours Remaining</span></ion-text
+            ></ion-col
+          >
+        </ion-row>
+        <div class="rest_mode_item">
+          <ion-row>
+            <ion-col>Minimum Break Required</ion-col>
+            <ion-col>{{restBreak}} / 00:30</ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-progress-bar
+              reversed="true"
+              [value]="progressBreak"
+            ></ion-progress-bar>
+          </ion-row>
+        </div>
+
+        <div class="rest_mode_item">
+          <ion-row>
+            <ion-col>Until shift reset</ion-col>
+            <ion-col>{{restShift}} / 10:00</ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-progress-bar
+              reversed="true"
+              [value]="progressShift"
+            ></ion-progress-bar>
+          </ion-row>
+        </div>
+
+        <div class="rest_mode_item">
+          <ion-row>
+            <ion-col>Until cycle reset</ion-col>
+            <ion-col>{{restCycle}} / 34:00</ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-progress-bar
+              reversed="true"
+              [value]="progressCycle"
+            ></ion-progress-bar>
+          </ion-row>
+        </div>
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" color="secondary" (click)="toggleMode()">
+              Drive Mode
+              <ion-icon slot="end" name="rocket-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
     <ion-row>
       <ion-col>
         <div class="timeWorkedRecap">
@@ -282,6 +347,7 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
   <ion-grid>
     <ion-row>
       <ion-col style="padding: 0; padding-bottom: 3px"
@@ -300,17 +366,24 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-card style="margin: 5px 0" *ngFor="let logDaily of logDailies">
+  <ion-card
+    class="ion-activatable ripple-parent"
+    style="margin: 5px 0"
+    *ngFor="let logDaily of logDailies"
+    (click)="selectLog(logDaily)"
+  >
+    <ion-ripple-effect></ion-ripple-effect>
     <ion-grid>
       <ion-row>
         <ion-col style="padding: 0">
           <div class="logsInfo">
-            <span style="padding-left: 5px"
+            <span class="left" style="padding-left: 5px"
               >{{ logDaily.Day | date:'EEEE' }}</span
             >
-            <span>{{ logDaily.Day | date:'mediumDate' }}</span>
-            <span style="padding-right: 5px"
-              >{{ logDaily.HoursWorked | milisecToHoursAndMinutes }}</span
+            <span class="center">{{ logDaily.Day | date:'mediumDate' }}</span>
+            <span class="right" style="padding-right: 5px"
+              >{{ logDaily.HoursWorked | convertSecotdsToHoursAndMinutes
+              }}</span
             >
           </div>
         </ion-col>

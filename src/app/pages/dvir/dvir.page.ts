@@ -33,7 +33,6 @@ export class DvirPage implements OnInit {
             .getDvirs()
             .subscribe((dvirs) => {
               this.dvirs = dvirs;
-              this.bLoading = false;
             });
         }
       });

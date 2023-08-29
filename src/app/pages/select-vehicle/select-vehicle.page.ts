@@ -66,13 +66,6 @@ export class SelectVehiclePage implements OnInit {
     }
   }
 
-  ionViewWillLeave() {
-    localStorage.removeItem('showBackButton');
-    if (this.databaseSubscription) {
-      this.databaseSubscription.unsubscribe();
-    }
-  }
-
   handleRefresh(event: any) {
     setTimeout(() => {
       event.target.complete();
@@ -94,6 +87,13 @@ export class SelectVehiclePage implements OnInit {
       this.storage.set('pickedVehicle', this.pickedVehicle);
       localStorage.setItem('pickedVehicle', this.pickedVehicle);
       this.navCtrl.navigateBack('/unitab/others');
+    }
+  }
+
+  ionViewWillLeave() {
+    localStorage.removeItem('showBackButton');
+    if (this.databaseSubscription) {
+      this.databaseSubscription.unsubscribe();
     }
   }
 }

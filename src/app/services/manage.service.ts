@@ -10,6 +10,7 @@ import { Driver } from '../models/driver';
 import { LogDailies } from '../models/log-dailies';
 import { Vehicle } from '../models/vehicle';
 import { DVIRs } from '../models/dvirs';
+import { PlacesCity } from '../models/places-city';
 
 @Injectable({
   providedIn: 'root',
@@ -60,6 +61,16 @@ export class ManageService {
     return this.http.get<DVIRs[]>(this.apiUrl + 'api/EldDashboard/DVIRs', {
       params: httpParams,
     });
+  }
+
+  getPlacesCity(): Observable<PlacesCity[]> {
+    const httpParams = new HttpParams();
+    return this.http.get<PlacesCity[]>(
+      this.apiUrl + 'api/EldDirectory/PlacesCity',
+      {
+        params: httpParams,
+      }
+    );
   }
 
   getLogDailies(
