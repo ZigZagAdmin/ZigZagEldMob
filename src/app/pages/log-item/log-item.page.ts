@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { DashboardService } from 'src/app/services/dashboard.service';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { LogHistories } from 'src/app/models/log-histories';
@@ -90,26 +90,65 @@ export class LogItemPage implements OnInit {
       this.LogDailiesId = params.get('logId');
       console.log(this.LogDailiesId);
     });
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getLogDailies().subscribe((logDailies) => {
+
+    // this.databaseSubscription =
+    // this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+    //   if (ready) {
+    //     this.bReady = ready;
+    //     this.databaseService.getLogDailies().subscribe((logDailies) => {
+    //       this.logDailies = logDailies;
+    //       this.logDaily = this.logDailies.find(
+    //         (item) => item.LogDailiesId === this.LogDailiesId
+    //       );
+    //       if (this.logDaily) {
+    //         console.log(this.logDaily);
+    //         this.currentDay = this.logDaily.Day;
+    //         this.fillFormWithLogDailyData();
+    //       }
+    //     });
+    //     this.databaseService.getLogHistories().subscribe((logHistories) => {
+    //       // const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+    //       // this.logHistories = logHistories.filter((item) =>
+    //       //   allSt.includes(item.EventTypeCode)
+    //       // );
+    //       this.logHistories = logHistories;
+    //       this.logHistories.forEach((log) => {
+    //         if (log.DateEnd === '0001-01-01T00:00:00') {
+    //           log.DateEnd = formatDate(
+    //             new Date().toLocaleString('en-US', {
+    //               timeZone: this.TimeZoneCity,
+    //             }),
+    //             'yyyy-MM-ddTHH:mm:ss',
+    //             'en_US'
+    //           );
+    //         }
+    //       });
+    //       console.log(this.logHistories);
+    //       this.drawGraph();
+    //     });
+    //   }
+    // });
+
+    this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+
+        const logDailies$ = this.databaseService.getLogDailies();
+        const logHistories$ = this.databaseService.getLogHistories();
+
+        forkJoin([logDailies$, logHistories$]).subscribe(
+          ([logDailies, logHistories]) => {
             this.logDailies = logDailies;
+            this.logHistories = logHistories;
+
             this.logDaily = this.logDailies.find(
               (item) => item.LogDailiesId === this.LogDailiesId
             );
             if (this.logDaily) {
               console.log(this.logDaily);
+              this.currentDay = this.logDaily.Day;
               this.fillFormWithLogDailyData();
             }
-          });
-          this.databaseService.getLogHistories().subscribe((logHistories) => {
-            // const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
-            // this.logHistories = logHistories.filter((item) =>
-            //   allSt.includes(item.EventTypeCode)
-            // );
-            this.logHistories = logHistories;
             this.logHistories.forEach((log) => {
               if (log.DateEnd === '0001-01-01T00:00:00') {
                 log.DateEnd = formatDate(
@@ -122,10 +161,13 @@ export class LogItemPage implements OnInit {
               }
             });
             console.log(this.logHistories);
+            console.log(this.logDaily);
             this.drawGraph();
-          });
-        }
-      });
+            this.fillFormWithLogDailyData();
+          }
+        );
+      }
+    });
 
     this.networkSub = this.internetService.internetStatus$.subscribe(
       (status) => {

@@ -26,14 +26,14 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-grid>
+  <ion-grid *ngIf="logDaily">
     <ion-row class="row">
       <ion-col>Driver Name</ion-col>
       <ion-col>Driver ID</ion-col>
       <ion-col>Driver License</ion-col>
     </ion-row>
     <ion-row class="row">
-      <ion-col>Nazarco Tihon</ion-col>
+      <ion-col>{{logDaily.DriverName}}</ion-col>
       <ion-col>111</ion-col>
       <ion-col>3333</ion-col>
     </ion-row>
@@ -83,14 +83,14 @@
     </ion-row>
     <ion-row class="row">
       <ion-col>00:00</ion-col>
-      <ion-col>No</ion-col>
+      <ion-col>{{logDaily.Certified ? 'Yes' : 'No'}}</ion-col>
     </ion-row>
     <ion-row class="row">
       <ion-col>Vehicle</ion-col>
       <ion-col>VIN</ion-col>
     </ion-row>
     <ion-row class="row">
-      <ion-col>1111</ion-col>
+      <ion-col>{{logDaily.VehicleUnit}}</ion-col>
       <ion-col>VIN123456</ion-col>
     </ion-row>
     <ion-row class="row">
@@ -108,8 +108,8 @@
       <ion-col>Shipping Documents</ion-col>
     </ion-row>
     <ion-row class="row">
-      <ion-col></ion-col>
-      <ion-col></ion-col>
+      <ion-col>{{logDaily.Trailers || "-"}}</ion-col>
+      <ion-col>{{logDaily.ShippingDoc || "-"}}</ion-col>
     </ion-row>
     <ion-row class="row">
       <ion-col>Carrier</ion-col>
@@ -117,9 +117,9 @@
       <ion-col>Home Terminal</ion-col>
     </ion-row>
     <ion-row class="row">
-      <ion-col>ZigzagPlus</ion-col>
-      <ion-col>NY</ion-col>
-      <ion-col>1 main, New York, NY, 2075</ion-col>
+      <ion-col>{{logDaily.Company.Name}}</ion-col>
+      <ion-col>{{logDaily.Company.StateProvinceCode}}</ion-col>
+      <ion-col>{{logDaily.Company.FullAddress}}</ion-col>
     </ion-row>
   </ion-grid>
   <ion-grid>

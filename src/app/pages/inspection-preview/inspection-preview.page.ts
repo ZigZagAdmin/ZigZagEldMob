@@ -38,6 +38,7 @@ export class InspectionPreviewPage implements OnInit {
   databaseSubscription: Subscription | undefined;
   driverId: string = '';
   vehicleId: string = '';
+  previousPage!: string | null;
   today = new Date();
 
   constructor(
@@ -54,6 +55,7 @@ export class InspectionPreviewPage implements OnInit {
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
     this.activatedRoute.paramMap.subscribe((params) => {
       this.LogDailiesId = params.get('logId');
+      this.previousPage = params.get('page');
       console.log(this.LogDailiesId);
     });
     this.databaseSubscription =
@@ -62,6 +64,9 @@ export class InspectionPreviewPage implements OnInit {
           this.bReady = ready;
           this.databaseService.getLogDailies().subscribe((logDailies) => {
             this.logDailies = logDailies;
+            if (this.previousPage === 'inspection') {
+              this.logDailies = logDailies.slice(0, 7);
+            }
             this.logDaily = this.logDailies.find(
               (item) => item.LogDailiesId === this.LogDailiesId
             );

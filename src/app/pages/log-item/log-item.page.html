@@ -509,15 +509,21 @@
     </ion-card>
     <ion-row>
       <ion-col *ngIf="logDaily">
-        <ion-button
+        <div
           *ngIf="(logDaily.Day | date:'yyyy-MM-dd') !== (today | date:'yyyy-MM-dd')"
-          (click)="openModal()"
-          id="open-modal"
-          color="tertiary"
-          expand="block"
-          [disabled]="this.logDaily.Certified"
-          >Certify</ion-button
         >
+          <ion-button
+            (click)="openModal()"
+            id="open-modal"
+            color="tertiary"
+            expand="block"
+            [disabled]="this.logDaily.Certified || !this.logDaily.FormManner"
+            >Certify</ion-button
+          >
+          <span *ngIf=" !this.logDaily.FormManner" style="color: red"
+            >You need to fill and save form first</span
+          >
+        </div>
         <ion-modal trigger="open-modal" (willDismiss)="onWillDismiss($event)">
           <ng-template>
             <ion-header>

@@ -28,8 +28,7 @@ export class InspectionPage implements OnInit {
           this.bReady = ready;
           this.databaseService.getLogDailies().subscribe((logDailies) => {
             this.logDailies = logDailies;
-            this.LogDailiesId =
-              this.logDailies[this.logDailies.length - 1].LogDailiesId;
+            this.LogDailiesId = this.logDailies[0].LogDailiesId;
             console.log(this.LogDailiesId);
           });
         }
@@ -37,7 +36,13 @@ export class InspectionPage implements OnInit {
   }
 
   onStartInspectionClick() {
-    this.navCtrl.navigateForward('/inspection-preview');
+    this.navCtrl.navigateForward([
+      '/inspection-preview',
+      {
+        logId: this.LogDailiesId,
+        page: 'inspection',
+      },
+    ]);
   }
   onSendLogsClick() {
     this.navCtrl.navigateForward('/send-logs');
