@@ -5,7 +5,6 @@ import { IonicModule } from '@ionic/angular';
 import { LoginPageRoutingModule } from './login-routing.module';
 import { LoginPage } from './login.page';
 import { DatabaseService } from 'src/app/services/database.service';
-import { SQLite } from '@awesome-cordova-plugins/sqlite/ngx';
 import { Storage } from '@ionic/storage';
 
 @NgModule({
@@ -17,6 +16,6 @@ import { Storage } from '@ionic/storage';
     LoginPageRoutingModule,
   ],
   declarations: [LoginPage],
-  providers: [DatabaseService, SQLite, Storage],
+  providers: [DatabaseService, Storage],
 })
 export class LoginPageModule {}

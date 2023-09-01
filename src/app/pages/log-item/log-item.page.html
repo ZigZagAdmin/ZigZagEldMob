@@ -452,11 +452,14 @@
       <ion-toolbar color="primary">
         <ion-title>Logs</ion-title>
         <ion-buttons slot="end">
-          <ion-button><ion-icon name="add"></ion-icon> </ion-button>
+          <ion-button (click)="navigateToInsertDutyStatus()"
+            ><ion-icon name="add"></ion-icon>
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-row>
     <ion-card
+      (click)="navigateToEditDutyStatus()"
       class="custom-card"
       style="padding-left: 10px"
       *ngFor="let logStatus of statusesOnDay; let first = first"

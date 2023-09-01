@@ -373,6 +373,10 @@ export class LogItemPage implements OnInit {
     });
   }
 
+  navigateToInsertDutyStatus() {}
+
+  navigateToEditDutyStatus() {}
+
   goToNextLog() {
     const currentIndex = this.logDailies.findIndex(
       (item) => item.LogDailiesId === this.logDaily.LogDailiesId
