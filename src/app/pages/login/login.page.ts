@@ -34,6 +34,9 @@ export class LoginPage implements OnInit {
     password: new FormControl(''),
   });
 
+  email: string = ''
+  password: string = ''
+
   constructor(
     private authService: AuthService,
     private manageService: ManageService,
@@ -278,6 +281,14 @@ export class LoginPage implements OnInit {
       color: color,
     });
     toast.present();
+  }
+
+  receiveField({field, label}: any) {
+    if (label === 'Username') {
+      this.email = field
+    } else if (label === 'Password') {
+      this.password = field
+    }
   }
 
   //   login(username: string, password: string) {

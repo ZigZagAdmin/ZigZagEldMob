@@ -6,6 +6,7 @@ import { LoginPageRoutingModule } from './login-routing.module';
 import { LoginPage } from './login.page';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { Storage } from '@ionic/storage';
     ReactiveFormsModule,
     IonicModule,
     LoginPageRoutingModule,
+    SharedModule
   ],
   declarations: [LoginPage],
   providers: [DatabaseService, Storage],

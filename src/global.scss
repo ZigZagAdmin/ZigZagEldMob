@@ -57,3 +57,21 @@ hr {
   margin: 0 auto;
   height: 40px;
 }
+
+.title {
+  color: #344054;
+  text-align: center;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 150%; /* 33px */
+  letter-spacing: -0.506px;
+}
+
+.primary-btn-color {
+  color: var(--gray-25);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
