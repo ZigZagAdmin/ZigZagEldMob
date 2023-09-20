@@ -1,8 +1,5 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
-    <!-- <ion-buttons slot="start">
-      <ion-back-button defaultHref="/select-vehicle"></ion-back-button>
-    </ion-buttons> -->
     <ion-title>Connect to ELD</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -51,5 +48,27 @@
         <ion-ripple-effect></ion-ripple-effect>
       </ion-button>
     </div>
+  </div>
+</ion-content> -->
+
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/select-vehicle"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Connect to ELD</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" *ngIf="vehicle">
+  <div class="connect-wrapper">
+    <p class="subtitle">Vehicle Unit: {{ vehicle.VehicleUnit }}</p>
+    <div class="input-block">
+      <label class="label">MAC Address</label>
+      <input class="input" [(ngModel)]="macAddress" type="text" name="macAddress" />
+    </div>
+    <button class="btn primary-btn">Connect</button>
+    <button class="btn secondary-btn" (click)="continueDisconected()">Continue disconnected</button>
   </div>
 </ion-content>

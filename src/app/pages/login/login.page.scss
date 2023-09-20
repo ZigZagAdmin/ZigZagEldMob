@@ -123,15 +123,9 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
-    .input-block {
-      display: flex;
-      flex-direction: column;
-    }
     .btn-login {
       width: 100%;
       height: 50px;
-      background-color: var(--primary-600);
-      color: var(--gray-25);
       border-radius: 41px;
     }
   }
