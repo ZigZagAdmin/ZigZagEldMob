@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user';
-import { FormGroup, FormControl } from '@angular/forms';
 import { Observable, forkJoin, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
@@ -29,13 +28,12 @@ import { PlacesCity } from 'src/app/models/places-city';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
-  loginForm = new FormGroup({
-    username: new FormControl(''),
-    password: new FormControl(''),
-  });
 
-  email: string = ''
-  password: string = ''
+  username = ''
+  password = ''
+  loading = false
+  focused = false
+  authUser!: AuthUser
 
   constructor(
     private authService: AuthService,
@@ -46,32 +44,7 @@ export class LoginPage implements OnInit {
     private navCtrl: NavController
   ) {}
 
-  loading: boolean = false;
-  focused = false;
-  authUser!: AuthUser;
-
-  ngOnInit() {
-    // this.checkBluetoothStatus();
-  }
-
-  // checkBluetoothStatus() {
-  //   BleClient.isEnabled()
-  //     .then((isEnabled) => {
-  //       if (isEnabled) {
-  //         console.log('Bluetooth is enabled');
-  //         // Продолжайте логику входа (login) здесь
-  //       } else {
-  //         console.log('Bluetooth is disabled');
-  //         // Выводите системное окно с запросом включения Bluetooth здесь
-  //         // Продолжайте логику входа (login) независимо от ответа пользователя
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error checking Bluetooth status:', error);
-  //       // Обработка ошибки при проверке состояния Bluetooth
-  //       // Продолжайте логику входа (login) здесь или обработайте ошибку соответствующим образом
-  //     });
-  // }
+  ngOnInit() {}
 
   onBlur(event: any) {
     const value = event.target.value;
@@ -283,13 +256,13 @@ export class LoginPage implements OnInit {
     toast.present();
   }
 
-  receiveField({field, label}: any) {
-    if (label === 'Username') {
-      this.email = field
-    } else if (label === 'Password') {
-      this.password = field
-    }
-  }
+  // receiveField({field, label}: any) {
+  //   if (label === 'Username') {
+  //     this.email = field
+  //   } else if (label === 'Password') {
+  //     this.password = field
+  //   }
+  // }
 
   //   login(username: string, password: string) {
   //     this.loading = true;

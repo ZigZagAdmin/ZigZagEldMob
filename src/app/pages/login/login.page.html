@@ -47,25 +47,29 @@
   </form>
 </ion-content> -->
 
-<img src="assets/imgs/login-img.png" alt="truck" />
 
 <ion-content class="ion-padding">
   <div class="login-wrapper">
+    <img class="image" src="assets/imgs/login-img.png" alt="truck" />
+
     <h4 class="title">
       Welcome to ZigZag Plus
       <br/>
       ELD
     </h4>
-    <form class="form-login">
+    <form class="form-login" (ngSubmit)="login(username, password)">
       <div class="input-block">
-        <label for="email">Email</label>
-        <input class="input" type="email" />
+        <label class="label" for="email">Email</label>
+        <input class="input" [(ngModel)]="username" type="email" name="username" />
       </div>
       <div class="input-block">
-        <label for="password">Password</label>
-        <input class="input" type="password" />
+        <label class="label" for="password">Password</label>
+        <input class="input" [(ngModel)]="password" type="password" name="password" />
       </div>
-      <button class="btn-login primary-btn-color">Login</button>
+      <button class="btn-login primary-btn-color" type="submit">
+        <span *ngIf="!loading">Login</span>
+        <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      </button>
     </form>
   </div>
 </ion-content>
