@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons *ngIf="showBackButton" slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
@@ -7,11 +7,16 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-  <ion-card
+
+  <ng-container *ngFor="let vehicle of vehicles">
+    <app-card [vehicle]="vehicle" (click)="selectVehicle(vehicle)"></app-card>
+  </ng-container>
+
+  <!-- <ion-card
     *ngFor="let vehicle of vehicles"
     (click)="selectVehicle(vehicle)"
     class="ion-activatable ripple-parent"
@@ -25,7 +30,7 @@
     <ion-card-content>
       Year: {{ vehicle.Year }}, Model: {{ vehicle.Model }}
     </ion-card-content>
-  </ion-card>
+  </ion-card> -->
 </ion-content>
 
 <!-- <ion-header>
