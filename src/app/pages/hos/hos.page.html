@@ -1,4 +1,4 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
     <ion-title>{{name}} - {{pickedVehicle}}</ion-title>
   </ion-toolbar>
@@ -422,4 +422,113 @@
       </ion-row>
     </ion-grid>
   </ion-card>
+</ion-content> -->
+
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{name}} - {{pickedVehicle}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-header *ngIf="someErrors">
+  <ion-toolbar color="danger">
+    <ion-title size="small">Some Errors</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="hos-wrapper">
+    <div class="hos-header">
+      <img src="assets/icon/point-green.svg" alt="point">
+      <div class="hos-name">
+        <p class="subtitle">{{ name }}</p>
+        <p class="text-1">Vehicle Unit: {{ vehicle.VehicleUnit }}</p>
+      </div>
+      <img src="assets/icon/bluetooth-red.svg" alt="bluetooth">
+    </div>
+
+    <div class="warning">
+      <img src="assets/icon/warning.svg" alt="warning">
+      <div class="warning-text">
+        <p class="subtitle">Warning</p>
+        <p class="text-1">Make sure that ELD hardware is properly installed and Vehicle power is ON</p>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <p class="subtitle">Current Status</p>
+      <div class="green" (click)="toggleModal()">
+        {{currentStatus.statusName}}
+        <img src="assets/icon/arrow-bottom.svg" alt="arrow">
+      </div>
+      <div class="green">{{currentStatusTime}}</div>
+    </div>
+
+    <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="cancel()">Cancel</ion-button>
+            </ion-buttons>
+            <ion-title color="dark">Select Duty Status</ion-title>
+            <!-- <ion-buttons slot="end">
+              <ion-button
+                (click)="confirm()"
+                [strong]="true"
+                [disabled]="!isConfirmButtonActive"
+                >Confirm</ion-button
+              >
+            </ion-buttons> -->
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <div class="modal-content">
+            <div class="select-statuses">
+              <div class="select-status">
+                <img src="assets/icon/circle-gray.svg" alt="circle">
+                <p class="subtitle">Off Duty</p>
+                <img src="assets/icon/circle-white.svg" alt="circle">
+              </div>
+              <div class="select-status">
+                <img src="assets/icon/circle-blue.svg" alt="circle">
+                <p class="subtitle">Sleeper Berth</p>
+                <img src="assets/icon/circle-white.svg" alt="circle">
+              </div>
+              <div class="select-status">
+                <img src="assets/icon/circle-green.svg" alt="circle">
+                <p class="subtitle">On Duty</p>
+                <img src="assets/icon/circle-white.svg" alt="circle">
+              </div>
+              <div class="select-status">
+                <img src="assets/icon/circle-orange.svg" alt="circle">
+                <p class="subtitle">Driving</p>
+                <img src="assets/icon/circle-white.svg" alt="circle">
+              </div>
+              <div class="select-status">
+                <img src="assets/icon/circle-purple.svg" alt="circle">
+                <p class="subtitle">Personal Conveyance</p>
+                <img src="assets/icon/circle-white.svg" alt="circle">
+              </div>
+              <div class="select-status">
+                <img src="assets/icon/circle-red.svg" alt="circle">
+                <p class="subtitle">Yard Moves</p>
+                <img src="assets/icon/circle-white.svg" alt="circle">
+              </div>
+            </div>
+            <div class="input-block">
+              <label class="label">Location</label>
+              <input class="input" [(ngModel)]="location" type="text" name="location" />
+            </div>
+            <div class="input-block">
+              <label class="label">Comments</label>
+              <textarea class="input textarea" [(ngModel)]="comments" type="text" name="location" ></textarea>
+            </div>
+            <button class="btn primary-btn">Save</button>
+          </div>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+  </div>
 </ion-content>

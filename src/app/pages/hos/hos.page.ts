@@ -12,6 +12,7 @@ import { InternetService } from 'src/app/services/internet.service';
 import { formatDate } from '@angular/common';
 import { ModalController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Vehicle } from 'src/app/models/vehicle';
 
 @Component({
   selector: 'app-hos',
@@ -64,6 +65,10 @@ export class HosPage implements OnInit {
   currentStatus = { statusCode: '', statusName: '' };
   currentStatusTime = '';
 
+  vehicle!: Vehicle
+  location = ''
+  comments = ''
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -71,10 +76,12 @@ export class HosPage implements OnInit {
     private dashboardService: DashboardService,
     private internetService: InternetService,
     private storage: Storage,
-    public modalController: ModalController
+    public modalController: ModalController,
+    private storageService: DatabaseService
   ) {}
 
   async ngOnInit() {
+    this.getVehicle()
     console.log('init hos');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
@@ -236,6 +243,12 @@ export class HosPage implements OnInit {
           });
       }
     });
+  }
+
+  getVehicle() {
+    this.storageService.getVehicles().subscribe(res => {
+      this.vehicle = res[0]
+    }, error => console.log(error))
   }
 
   // Вызывайте эту функцию при заходе на страницу или событии, когда вам нужно местоположение.
