@@ -446,7 +446,6 @@
       </div>
       <img src="assets/icon/bluetooth-red.svg" alt="bluetooth">
     </div>
-
     <div class="warning">
       <img src="assets/icon/warning.svg" alt="warning">
       <div class="warning-text">
@@ -454,7 +453,6 @@
         <p class="text-1">Make sure that ELD hardware is properly installed and Vehicle power is ON</p>
       </div>
     </div>
-
     <div class="status-bar">
       <p class="subtitle">Current Status</p>
       <div class="green" (click)="toggleModal()">
@@ -463,7 +461,6 @@
       </div>
       <div class="green">{{currentStatusTime}}</div>
     </div>
-
     <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
       <ng-template>
         <ion-header>
@@ -530,100 +527,171 @@
         </ion-content>
       </ng-template>
     </ion-modal>
-    <div class="circles-block">
-      <div class="circle-block">
-        <circle-progress
-          [percent]="percentBreak"
-          [responsive]="true"
-          [space]="-15"
-          [outerStrokeWidth]="15"
-          outerStrokeColor="rgb(254, 200, 75)"
-          innerStrokeColor="rgba(228, 231, 236, 1)"
-          [innerStrokeWidth]="15"
-          titleFontSize="22"
-          [title]="convertSecondToHours(titleBreak)"
-          titleColor="rgb(254, 200, 75)"
-          titleFontWeight="600"
-          subtitle="Break"
-          subtitleFontWeight="500"
-          subtitleColor="rgba(152, 162, 179, 1)"
-          subtitleFontSize="22"
-          [showUnits]="false"
-          [animationDuration]="500"
-          outerStrokeLinecap="round"
-        >
-        </circle-progress>
-      </div>
-      <div class="circle-block">
-        <circle-progress
-          [percent]="percentDriving"
-          [responsive]="true"
-          [space]="-15"
-          [outerStrokeWidth]="15"
-          outerStrokeColor="rgba(18, 183, 106, 1)"
-          innerStrokeColor="rgba(228, 231, 236, 1)"
-          [innerStrokeWidth]="15"
-          titleFontSize="22"
-          [title]="convertSecondToHours(titleDriving)"
-          titleColor="rgba(18, 183, 106, 1)"
-          titleFontWeight="600"
-          subtitle="Driving"
-          subtitleFontWeight="500"
-          subtitleColor="rgba(152, 162, 179, 1)"
-          subtitleFontSize="22"
-          [showUnits]="false"
-          [animationDuration]="500"
-          outerStrokeLinecap="round"
-        >
-        </circle-progress>
-      </div>
-      <div class="circle-block">
-        <circle-progress
-          [percent]="percentShift"
-          [responsive]="true"
-          [space]="-15"
-          [outerStrokeWidth]="15"
-          outerStrokeColor="rgba(155, 138, 251, 1)"
-          innerStrokeColor="rgba(228, 231, 236, 1)"
-          [innerStrokeWidth]="15"
-          titleFontSize="22"
-          [title]="convertSecondToHours(titleShift)"
-          titleColor="rgba(155, 138, 251, 1)"
-          titleFontWeight="600"
-          subtitle="Shift"
-          subtitleFontWeight="500"
-          subtitleColor="rgba(152, 162, 179, 1)"
-          subtitleFontSize="22"
-          [showUnits]="false"
-          [animationDuration]="500"
-          outerStrokeLinecap="round"
-        >
-        </circle-progress>
-      </div>
-      <div class="circle-block">
-        <circle-progress
-          [percent]="percentCycle"
-          [responsive]="true"
-          [space]="-15"
-          [outerStrokeWidth]="15"
-          outerStrokeColor="rgba(250, 26, 26, 1)"
-          innerStrokeColor="rgba(228, 231, 236, 1)"
-          [innerStrokeWidth]="15"
-          titleFontSize="22"
-          [title]="convertSecondToHours(titleCycle)"
-          titleColor="rgba(250, 26, 26, 1)"
-          titleFontWeight="600"
-          subtitle="Cycle"
-          subtitleFontWeight="500"
-          subtitleColor="rgba(152, 162, 179, 1)"
-          subtitleFontSize="22"
-          [showUnits]="false"
-          [animationDuration]="500"
-          outerStrokeLinecap="round"
-        >
-        </circle-progress>
+    <div class="circles">
+      <p class="text-2">Hours Remaining</p>
+      <div class="circles-block" *ngIf="!restMode">
+        <div class="circle-block">
+          <circle-progress
+            [percent]="percentBreak"
+            [responsive]="true"
+            [space]="-15"
+            [outerStrokeWidth]="15"
+            outerStrokeColor="rgb(254, 200, 75)"
+            innerStrokeColor="rgba(228, 231, 236, 1)"
+            [innerStrokeWidth]="15"
+            titleFontSize="22"
+            [title]="convertSecondToHours(titleBreak)"
+            titleColor="rgb(254, 200, 75)"
+            titleFontWeight="600"
+            subtitle="Break"
+            subtitleFontWeight="500"
+            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleFontSize="22"
+            [showUnits]="false"
+            [animationDuration]="500"
+            outerStrokeLinecap="round"
+          >
+          </circle-progress>
+        </div>
+        <div class="circle-block">
+          <circle-progress
+            [percent]="percentDriving"
+            [responsive]="true"
+            [space]="-15"
+            [outerStrokeWidth]="15"
+            outerStrokeColor="rgba(18, 183, 106, 1)"
+            innerStrokeColor="rgba(228, 231, 236, 1)"
+            [innerStrokeWidth]="15"
+            titleFontSize="22"
+            [title]="convertSecondToHours(titleDriving)"
+            titleColor="rgba(18, 183, 106, 1)"
+            titleFontWeight="600"
+            subtitle="Driving"
+            subtitleFontWeight="500"
+            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleFontSize="22"
+            [showUnits]="false"
+            [animationDuration]="500"
+            outerStrokeLinecap="round"
+          >
+          </circle-progress>
+        </div>
+        <div class="circle-block">
+          <circle-progress
+            [percent]="percentShift"
+            [responsive]="true"
+            [space]="-15"
+            [outerStrokeWidth]="15"
+            outerStrokeColor="rgba(155, 138, 251, 1)"
+            innerStrokeColor="rgba(228, 231, 236, 1)"
+            [innerStrokeWidth]="15"
+            titleFontSize="22"
+            [title]="convertSecondToHours(titleShift)"
+            titleColor="rgba(155, 138, 251, 1)"
+            titleFontWeight="600"
+            subtitle="Shift"
+            subtitleFontWeight="500"
+            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleFontSize="22"
+            [showUnits]="false"
+            [animationDuration]="500"
+            outerStrokeLinecap="round"
+          >
+          </circle-progress>
+        </div>
+        <div class="circle-block">
+          <circle-progress
+            [percent]="percentCycle"
+            [responsive]="true"
+            [space]="-15"
+            [outerStrokeWidth]="15"
+            outerStrokeColor="rgba(250, 26, 26, 1)"
+            innerStrokeColor="rgba(228, 231, 236, 1)"
+            [innerStrokeWidth]="15"
+            titleFontSize="22"
+            [title]="convertSecondToHours(titleCycle)"
+            titleColor="rgba(250, 26, 26, 1)"
+            titleFontWeight="600"
+            subtitle="Cycle"
+            subtitleFontWeight="500"
+            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleFontSize="22"
+            [showUnits]="false"
+            [animationDuration]="500"
+            outerStrokeLinecap="round"
+          >
+          </circle-progress>
+        </div>
       </div>
     </div>
+    <div class="rest-mode" *ngIf="restMode">
+      <div class="rest-row">
+        <div class="row-1">
+          <p class="subtitle">Minimum Break Required</p>
+          <p class="subtitle">{{ restBreak }} / 00:30</p>
+        </div>
+        <div class="progress-bar-outer">
+          <div id="inner-1" class="progress-bar-inner" [style]="'width: ' + progressBreak * 100 + '%'"></div>
+        </div>
+      </div>
 
+      <div class="rest-row">
+        <div class="row-1">
+          <p class="subtitle">Until shift reset</p>
+          <p class="subtitle">{{ restShift }} / 00:30</p>
+        </div>
+        <div class="progress-bar-outer">
+          <div id="inner-2" class="progress-bar-inner" [style]="'width: ' + progressShift * 100 + '%'"></div>
+        </div>
+      </div>
+
+      <div class="rest-row">
+        <div class="row-1">
+          <p class="subtitle">Until Cycle Reset</p>
+          <p class="subtitle">{{ restCycle }} / 00:30</p>
+        </div>
+        <div class="progress-bar-outer">
+          <div id="inner-3" class="progress-bar-inner" [style]="'width: ' + progressCycle * 100 + '%'"></div>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="time">
+      <div class="time-block">
+        <p class="subtitle">8 h 33 m</p>
+        <p class="text-1">WH Last 7 Days</p>
+      </div>
+      <div class="time-block">
+        <p class="subtitle">+ 00h 00h</p>
+        <p class="text-1">Hours Recap</p>
+      </div>
+    </div>
+    <div class="switch-sleep">
+      <p class="subtitle">Split Sleeper Berth</p>
+      <ion-toggle></ion-toggle>
+    </div>
+    <button class="btn primary-btn" (click)="switchMode()">
+      <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon">
+      <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon">
+      {{ restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode' }}
+    </button>
+    <p class="subtitle">Logs and Recap Hours</p>
+    <div class="log-dailies">
+      <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
+        <div class="log-left">
+          <p class="subtitle">{{ logDaily.Day | date:'EEEE' }}, {{ logDaily.Day | date: 'MMMM dd' }}</p>
+          <div class="sub-info">
+            <img src="assets/icon/red-point.svg" alt="point">
+            <p>Form</p>
+            <img src="assets/icon/red-point.svg" alt="point">
+            <p>Certify</p>
+          </div>
+        </div>
+        <div class="log-right">
+          <p class="hours-worked">{{ logDaily.HoursWorked | convertSecotdsToHoursAndMinutes }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content>

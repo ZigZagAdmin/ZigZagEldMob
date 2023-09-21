@@ -68,6 +68,7 @@ export class HosPage implements OnInit {
   vehicle!: Vehicle
   location = ''
   comments = ''
+  restMode = false
 
   constructor(
     private navCtrl: NavController,
@@ -243,14 +244,16 @@ export class HosPage implements OnInit {
           });
       }
     });
-
-    console.log(this.currentStatus)
   }
 
   getVehicle() {
     this.storageService.getVehicles().subscribe(res => {
       this.vehicle = res[0]
     }, error => console.log(error))
+  }
+
+  switchMode() {
+    this.restMode = !this.restMode
   }
 
   // Вызывайте эту функцию при заходе на страницу или событии, когда вам нужно местоположение.
@@ -884,9 +887,9 @@ export class HosPage implements OnInit {
         logDay.Day.includes(dateString)
       );
 
-      console.log(dateString);
-      console.log(foundLogDayIndex);
-      console.log(this.logDailies[foundLogDayIndex]);
+      // console.log(dateString);
+      // console.log(foundLogDayIndex);
+      // console.log(this.logDailies[foundLogDayIndex]);
 
       if (foundLogDayIndex !== -1) {
         this.countDays.push(this.logDailies[foundLogDayIndex]);
@@ -962,7 +965,7 @@ export class HosPage implements OnInit {
     console.log(this.logDailies);
     for (let i = 0; i < this.logDailies.length; i++) {
       let currentDay = this.logDailies[i].Day;
-      console.log(currentDay);
+      // console.log(currentDay);
 
       durationsOFF = 0;
       durationsSB = 0;
@@ -982,7 +985,7 @@ export class HosPage implements OnInit {
             formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <=
               formatDate(new Date(event.DateEnd), 'yyyy-MM-dd', 'en_US')
           ) {
-            console.log('event', event);
+            // console.log('event', event);
 
             dateBgn = new Date(event.DateBgn);
             if (
@@ -1024,11 +1027,11 @@ export class HosPage implements OnInit {
                 break;
             }
 
-            console.log('Duration OFF', durationsOFF);
-            console.log('Duration SB', durationsSB);
-            console.log('Duration D', durationsD);
-            console.log('Duration ON', durationsON);
-            console.log('hours worked', (durationsD + durationsON) / 60 / 60);
+            // console.log('Duration OFF', durationsOFF);
+            // console.log('Duration SB', durationsSB);
+            // console.log('Duration D', durationsD);
+            // console.log('Duration ON', durationsON);
+            // console.log('hours worked', (durationsD + durationsON) / 60 / 60);
           }
         }
       });
