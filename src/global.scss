@@ -115,7 +115,6 @@ p {margin: 0}
   font-weight: 400;
 }
 
-
 .select-statuses {
   display: flex;
   flex-direction: column;
@@ -132,4 +131,10 @@ p {margin: 0}
       flex-grow: 1;
     }
   }
+}
+
+.btns-flex {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }

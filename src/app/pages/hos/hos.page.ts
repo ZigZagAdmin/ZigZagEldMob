@@ -243,6 +243,8 @@ export class HosPage implements OnInit {
           });
       }
     });
+
+    console.log(this.currentStatus)
   }
 
   getVehicle() {
@@ -676,7 +678,6 @@ export class HosPage implements OnInit {
 
   selectButton(button: string) {
     this.selectedButton = button;
-    console.log(this.selectedButton);
     if (this.selectedButton === this.currentStatus.statusCode) {
       this.isConfirmButtonActive = false;
     } else {

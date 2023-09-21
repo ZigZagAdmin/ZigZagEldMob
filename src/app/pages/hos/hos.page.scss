@@ -169,6 +169,18 @@
       padding: 5px 10px;
     }
   }
+  .circles-block {
+    display: flex; 
+    justify-content: space-around; 
+    flex-wrap: wrap; 
+    max-width: 80%; 
+    min-width: 60%; 
+    margin: 0 auto;
+    .circle-block {
+      width: 45%; 
+      max-width: 140px;
+    }
+  }
 }
 
 .modal-content {

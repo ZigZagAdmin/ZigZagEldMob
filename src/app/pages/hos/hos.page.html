@@ -437,7 +437,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="hos-wrapper">
+  <div class="hos-wrapper" *ngIf="vehicle">
     <div class="hos-header">
       <img src="assets/icon/point-green.svg" alt="point">
       <div class="hos-name">
@@ -472,48 +472,46 @@
               <ion-button (click)="cancel()">Cancel</ion-button>
             </ion-buttons>
             <ion-title color="dark">Select Duty Status</ion-title>
-            <!-- <ion-buttons slot="end">
-              <ion-button
-                (click)="confirm()"
-                [strong]="true"
-                [disabled]="!isConfirmButtonActive"
-                >Confirm</ion-button
-              >
-            </ion-buttons> -->
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
           <div class="modal-content">
             <div class="select-statuses">
-              <div class="select-status">
+              <div class="select-status" (click)="selectButton('OFF')">
                 <img src="assets/icon/circle-gray.svg" alt="circle">
                 <p class="subtitle">Off Duty</p>
-                <img src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton !== 'OFF'" src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton === 'OFF'" src="assets/icon/check-mark.svg" alt="circle">
               </div>
-              <div class="select-status">
+              <div class="select-status" (click)="selectButton('SB')">
                 <img src="assets/icon/circle-blue.svg" alt="circle">
                 <p class="subtitle">Sleeper Berth</p>
-                <img src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton !== 'SB'" src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton === 'SB'" src="assets/icon/check-mark.svg" alt="circle">
               </div>
-              <div class="select-status">
+              <div class="select-status" (click)="selectButton('ON')">
                 <img src="assets/icon/circle-green.svg" alt="circle">
                 <p class="subtitle">On Duty</p>
-                <img src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton !== 'ON'" src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton === 'ON'" src="assets/icon/check-mark.svg" alt="circle">
               </div>
-              <div class="select-status">
+              <div class="select-status" (click)="selectButton('D')">
                 <img src="assets/icon/circle-orange.svg" alt="circle">
                 <p class="subtitle">Driving</p>
-                <img src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton !== 'D'" src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton === 'D'" src="assets/icon/check-mark.svg" alt="circle">
               </div>
-              <div class="select-status">
+              <div class="select-status" (click)="selectButton('PC')">
                 <img src="assets/icon/circle-purple.svg" alt="circle">
                 <p class="subtitle">Personal Conveyance</p>
-                <img src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton !== 'PC'" src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton === 'PC'" src="assets/icon/check-mark.svg" alt="circle">
               </div>
-              <div class="select-status">
+              <div class="select-status" (click)="selectButton('YM')">
                 <img src="assets/icon/circle-red.svg" alt="circle">
                 <p class="subtitle">Yard Moves</p>
-                <img src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton !== 'YM'" src="assets/icon/circle-white.svg" alt="circle">
+                <img *ngIf="selectedButton === 'YM'" src="assets/icon/check-mark.svg" alt="circle">
               </div>
             </div>
             <div class="input-block">
@@ -524,11 +522,108 @@
               <label class="label">Comments</label>
               <textarea class="input textarea" [(ngModel)]="comments" type="text" name="location" ></textarea>
             </div>
-            <button class="btn primary-btn">Save</button>
+            <div class="btns-flex">
+              <button class="btn secondary-btn" (click)="cancel()">Back</button>
+              <button class="btn primary-btn" (click)="confirm()" [disabled]="!isConfirmButtonActive">Save</button>
+            </div>
           </div>
         </ion-content>
       </ng-template>
     </ion-modal>
+    <div class="circles-block">
+      <div class="circle-block">
+        <circle-progress
+          [percent]="percentBreak"
+          [responsive]="true"
+          [space]="-15"
+          [outerStrokeWidth]="15"
+          outerStrokeColor="rgb(254, 200, 75)"
+          innerStrokeColor="rgba(228, 231, 236, 1)"
+          [innerStrokeWidth]="15"
+          titleFontSize="22"
+          [title]="convertSecondToHours(titleBreak)"
+          titleColor="rgb(254, 200, 75)"
+          titleFontWeight="600"
+          subtitle="Break"
+          subtitleFontWeight="500"
+          subtitleColor="rgba(152, 162, 179, 1)"
+          subtitleFontSize="22"
+          [showUnits]="false"
+          [animationDuration]="500"
+          outerStrokeLinecap="round"
+        >
+        </circle-progress>
+      </div>
+      <div class="circle-block">
+        <circle-progress
+          [percent]="percentDriving"
+          [responsive]="true"
+          [space]="-15"
+          [outerStrokeWidth]="15"
+          outerStrokeColor="rgba(18, 183, 106, 1)"
+          innerStrokeColor="rgba(228, 231, 236, 1)"
+          [innerStrokeWidth]="15"
+          titleFontSize="22"
+          [title]="convertSecondToHours(titleDriving)"
+          titleColor="rgba(18, 183, 106, 1)"
+          titleFontWeight="600"
+          subtitle="Driving"
+          subtitleFontWeight="500"
+          subtitleColor="rgba(152, 162, 179, 1)"
+          subtitleFontSize="22"
+          [showUnits]="false"
+          [animationDuration]="500"
+          outerStrokeLinecap="round"
+        >
+        </circle-progress>
+      </div>
+      <div class="circle-block">
+        <circle-progress
+          [percent]="percentShift"
+          [responsive]="true"
+          [space]="-15"
+          [outerStrokeWidth]="15"
+          outerStrokeColor="rgba(155, 138, 251, 1)"
+          innerStrokeColor="rgba(228, 231, 236, 1)"
+          [innerStrokeWidth]="15"
+          titleFontSize="22"
+          [title]="convertSecondToHours(titleShift)"
+          titleColor="rgba(155, 138, 251, 1)"
+          titleFontWeight="600"
+          subtitle="Shift"
+          subtitleFontWeight="500"
+          subtitleColor="rgba(152, 162, 179, 1)"
+          subtitleFontSize="22"
+          [showUnits]="false"
+          [animationDuration]="500"
+          outerStrokeLinecap="round"
+        >
+        </circle-progress>
+      </div>
+      <div class="circle-block">
+        <circle-progress
+          [percent]="percentCycle"
+          [responsive]="true"
+          [space]="-15"
+          [outerStrokeWidth]="15"
+          outerStrokeColor="rgba(250, 26, 26, 1)"
+          innerStrokeColor="rgba(228, 231, 236, 1)"
+          [innerStrokeWidth]="15"
+          titleFontSize="22"
+          [title]="convertSecondToHours(titleCycle)"
+          titleColor="rgba(250, 26, 26, 1)"
+          titleFontWeight="600"
+          subtitle="Cycle"
+          subtitleFontWeight="500"
+          subtitleColor="rgba(152, 162, 179, 1)"
+          subtitleFontSize="22"
+          [showUnits]="false"
+          [animationDuration]="500"
+          outerStrokeLinecap="round"
+        >
+        </circle-progress>
+      </div>
+    </div>
 
   </div>
 </ion-content>
