@@ -2,3 +2,22 @@
   text-decoration: underline;
   color: #0000ff;
 }
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.text-success {
+  flex-grow: 1;
+  color: var(--success-500);
+  font-size: 16px;
+  font-weight: 500;
+}
+.text-error {
+  flex-grow: 1;
+  color: var(--error-500);
+  font-size: 16px;
+  font-weight: 600;
+}

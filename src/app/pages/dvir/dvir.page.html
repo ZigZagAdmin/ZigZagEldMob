@@ -119,6 +119,6 @@
 
 <ion-content class="ion-padding">
   <div class="dvirs-list">
-    <app-card *ngFor="let dvir of dvirs" [dvir]="dvir"></app-card>
+    <app-card *ngFor="let dvir of dvirs" [dvir]="dvir" (click)="editDvir(dvir)"></app-card>
   </div>
 </ion-content>

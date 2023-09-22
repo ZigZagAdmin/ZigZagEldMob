@@ -1,13 +1,13 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>Edit Dvir</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content [fullscreen]="true">
+<!-- <ion-content [fullscreen]="true">
   <form [formGroup]="form">
     <ion-row class="ion-align-items-center ion-justify-content-center">
       <ion-col size="4">
@@ -293,5 +293,107 @@
         </ion-button>
       </ion-col>
     </ion-row>
+  </form>
+</ion-content> -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Edit Dvir</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form class="edit-form" [formGroup]="form">
+    <p class="subtitle-lg">General Info</p>
+    <div class="edit-dvir-block">
+      <div class="input-block-2">
+        <p class="text-2">Company</p>
+        <input class="input-2 readonly" type="text" [value]="company?.Name" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Time</p>
+        <div class="two-inputs">
+          <input class="input-2 readonly width-50" type="text" formControlName="Date" readonly />
+          <input class="input-2 readonly width-50" type="text" formControlName="Time" readonly />
+        </div>
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Location</p>
+        <input class="input-2 readonly" type="text" formControlName="LocationDescription" readonly />
+      </div>
+    </div>
+    <p class="subtitle-lg">Vehicle Info</p>
+    <div class="edit-dvir-block">
+      <div class="input-block-2">
+        <p class="text-2">Vehicle Name</p>
+        <input class="input-2 readonly" type="text" formControlName="VehicleUnit" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Odometer</p>
+        <input class="input-2 readonly" type="text" formControlName="Odometer" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Vehicle Defects (Optional)</p>
+        <select class="input-2 select" type="text" formControlName="DefectsVehicle">
+          <option
+            *ngFor="let defect of defectsVehicle"
+            [value]="defect"
+          >
+            {{ defect }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <p class="subtitle-lg">Trailer Info</p>
+    <div class="edit-dvir-block">
+      <div class="input-block-2">
+        <p class="text-2">Trailer Name</p>
+        <input class="input-2" type="text" formControlName="Trailers" />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Trailer Defects (Optional)</p>
+        <select class="input-2 select" type="text" formControlName="DefectsTrailers">
+          <option
+            *ngFor="let defect of defectsTrailers"
+            [value]="defect"
+          >
+            {{ defect }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <p class="subtitle-lg">Status</p>
+    <div class="edit-dvir-block">
+      <div class="input-block-2">
+        <p class="text-2">Status</p>
+        <div class="statuses">
+          <div class="status">
+            <img src="assets/icon/satis-success.svg" alt="ok">
+            <p class="text-success">Satisfactory Condition</p>
+            <img src="assets/icon/circle-white.svg" alt="circle">
+          </div>
+          <div class="status">
+            <img src="assets/icon/satis-error.svg" alt="ok">
+            <p class="text-error">Has Defects</p>
+            <img src="assets/icon/circle-white.svg" alt="circle">
+          </div>
+          <div class="status">
+            <img src="assets/icon/satis-success.svg" alt="ok">
+            <p class="text-success">Defects Corrected</p>
+            <img src="assets/icon/circle-white.svg" alt="circle">
+          </div>
+          <div class="status">
+            <img src="assets/icon/satis-error.svg" alt="ok">
+            <p class="text-error">Defects Need Not To Be Corrected</p>
+            <img src="assets/icon/circle-white.svg" alt="circle">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </form>
 </ion-content>
