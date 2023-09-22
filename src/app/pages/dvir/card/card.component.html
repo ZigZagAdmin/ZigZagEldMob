@@ -1,6 +1,7 @@
 <div class="dvir-card">
   <div class="date-block">
-    <img src="assets/icon/dvir-has-defects.svg" alt="defect">
+    <img *ngIf="dvir.DefectsVehicle || dvir.DefectsTrailers" src="assets/icon/dvir-has-defects.svg" alt="defect">
+    <img *ngIf="dvir.StatusCode === 'VCS'" src="assets/icon/green-point.svg" alt="no-defects">
     <p class="subtitle">{{ dvir.CreateDate | date: 'EEE, MMM'}} {{ dvir.CreateDate | date: 'd' | ordinal }} {{ dvir.CreateDate | date:'y' }}</p>
     <p class="text-14-600">{{ dvir.CreateDate | date: 'hh:mm a' }}</p>
   </div>
