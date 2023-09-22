@@ -4,9 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { DvirPageRoutingModule } from './dvir-routing.module';
 import { DvirPage } from './dvir.page';
+import { CardComponent } from './card/card.component';
+import { OrdinalPipe } from 'src/app/pipe/ordinal.pipe';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, DvirPageRoutingModule],
-  declarations: [DvirPage],
+  declarations: [DvirPage, CardComponent, OrdinalPipe]
 })
 export class DvirPageModule {}
