@@ -132,6 +132,7 @@ export class InsertDvirPage implements OnInit {
       Remarks: [''],
       StatusName: ['Vehicle Condition Satisfactory', Validators.required],
       StatusCode: ['VCS', Validators.required],
+      Comments: [''],
       Signature: ['', Validators.required],
     });
   }
@@ -186,6 +187,10 @@ export class InsertDvirPage implements OnInit {
         console.log('Intenet Status' + status);
       }
     );
+  }
+
+  switchStatus(status: string) {
+    this.form.value.StatusCode = status
   }
 
   updateDvirStatusCode(defectsVehicle: any[], defectsTrailers: any[]) {

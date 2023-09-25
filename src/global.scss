@@ -103,6 +103,12 @@ p {margin: 0}
   outline-color: var(--gray-300);
 }
 
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
 .edit-dvir-block {
   display: flex;
   flex-direction: column;

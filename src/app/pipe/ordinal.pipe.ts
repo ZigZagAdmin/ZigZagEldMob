@@ -9,8 +9,6 @@ export class OrdinalPipe implements PipeTransform {
 
     let s: string
 
-    console.log(value)
-
     switch(Number(value) % 10) {
       case 1: {
         s = 'st'
