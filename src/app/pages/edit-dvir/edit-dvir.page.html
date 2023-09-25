@@ -5,9 +5,9 @@
     </ion-buttons>
     <ion-title>Edit Dvir</ion-title>
   </ion-toolbar>
-</ion-header> -->
+</ion-header>
 
-<!-- <ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true">
   <form [formGroup]="form">
     <ion-row class="ion-align-items-center ion-justify-content-center">
       <ion-col size="4">
@@ -370,30 +370,72 @@
       <div class="input-block-2">
         <p class="text-2">Status</p>
         <div class="statuses">
-          <div class="status">
+          <div class="status" (click)="switchStatus('VCS')">
             <img src="assets/icon/satis-success.svg" alt="ok">
             <p class="text-success">Satisfactory Condition</p>
-            <img src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'VCS'" src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode === 'VCS'" src="assets/icon/check-mark.svg" alt="circle">
           </div>
-          <div class="status">
+          <div class="status" (click)="switchStatus('D')">
             <img src="assets/icon/satis-error.svg" alt="ok">
             <p class="text-error">Has Defects</p>
-            <img src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'D'" src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode === 'D'" src="assets/icon/check-mark.svg" alt="circle">
           </div>
-          <div class="status">
+          <div class="status" (click)="switchStatus('DC')">
             <img src="assets/icon/satis-success.svg" alt="ok">
             <p class="text-success">Defects Corrected</p>
-            <img src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'DC'" src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode === 'DC'" src="assets/icon/check-mark.svg" alt="circle">
           </div>
-          <div class="status">
+          <div class="status" (click)="switchStatus('DNNBC')">
             <img src="assets/icon/satis-error.svg" alt="ok">
             <p class="text-error">Defects Need Not To Be Corrected</p>
-            <img src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'DNNBC'" src="assets/icon/circle-white.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode === 'DNNBC'" src="assets/icon/check-mark.svg" alt="circle">
           </div>
         </div>
       </div>
+      <div class="input-block-2">
+        <p class="text-2">Comments</p>
+        <textarea class="input-2" formControlName="Comments" name="comments" id="" cols="30" rows="10"></textarea>
+      </div>
 
     </div>
+    <p class="subtitle-lg">Signature</p>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="auto">
+        <canvas
+          #sPad
+          width="250"
+          height="200"
+          style="touch-action: none; border: 1px solid black"
+        ></canvas>
+      </ion-col>
+    </ion-row>
+
+    <p class="subtitle-lg">Mechanical Signature</p>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="auto">
+        <canvas
+          *ngIf="form.value.StatusCode === 'DC'"
+          required
+          #mechanicSPad
+          width="250"
+          height="200"
+          style="touch-action: none; border: 1px solid black"
+        ></canvas>
+      </ion-col>
+    </ion-row>
+    <button
+      class="btn primary-btn"
+      [disabled]="!form.valid"
+      color="success"
+      (click)="onSubmit()"
+      expand="block"
+    >
+      Save
+    </button>
 
   </form>
 </ion-content>
