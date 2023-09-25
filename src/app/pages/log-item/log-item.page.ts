@@ -175,6 +175,9 @@ export class LogItemPage implements OnInit {
         console.log('Intenet Status' + status);
       }
     );
+    setTimeout(() => {
+      console.log(this.statusesOnDay)
+    }, 2000)
   }
 
   fillFormWithLogDailyData() {
