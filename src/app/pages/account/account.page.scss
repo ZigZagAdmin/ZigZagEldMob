@@ -1,3 +1,25 @@
-.custom-label {
-  font-size: small;
+// .custom-label {
+//   font-size: small;
+// }
+
+.three-inputs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+.reminder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--success-500);
+  border-radius: 10px;
+  padding: 10px;
+  .reminder-text {
+    color: #FFF;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 20px;
+  }
 }
