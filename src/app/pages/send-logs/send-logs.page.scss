@@ -1,6 +1,18 @@
-.custom-button {
-  width: 250px;
-  margin: 0 auto;
-  height: 40px;
-  margin-top: 30px;
+// .custom-button {
+//   width: 250px;
+//   margin: 0 auto;
+//   height: 40px;
+//   margin-top: 30px;
+// }
+
+.btn {
+  border-radius: 30px;
+  padding: 10px 15px;
+}
+.btns-flex {
+  width: 100%;
+  .btn {
+    flex-grow: 1;
+    height: 50px;
+  }
 }

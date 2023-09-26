@@ -113,38 +113,38 @@ p {margin: 0}
   display: flex;
   flex-direction: column;
   gap: 15px;
-  .input-block-2 {
+}
+.input-block-2 {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  .two-inputs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .input-2 {
+    width: 100%;
+    height: 45px;
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+    padding: 15px;
+    outline-color: var(--gray-300);
+    background-color: var(--gray-100);
+  }
+  .statuses {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    .two-inputs {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-    .input-2 {
+    gap: 10px;
+    .status {
       width: 100%;
-      height: 45px;
-      border-radius: 10px;
-      border: 1px solid var(--gray-200);
-      padding: 15px;
-      outline-color: var(--gray-300);
-      background-color: var(--gray-100);
-    }
-    .statuses {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      .status {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        background-color: var(--gray-100);
-        border-radius: 10px;
-        padding: 10px;
-      }
+      align-items: center;
+      gap: 5px;
+      background-color: var(--gray-100);
+      border-radius: 10px;
+      padding: 10px;
     }
   }
 }
@@ -213,4 +213,5 @@ p {margin: 0}
 .flex-b {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
