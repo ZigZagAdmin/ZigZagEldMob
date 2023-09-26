@@ -83,7 +83,18 @@ p {margin: 0}
   font-size: 14px;
   font-weight: 600;
 }
-
+.success-btn {
+  background-color: var(--success-500);
+  color: var(--success-25);
+  font-size: 16px;
+  font-weight: 600;
+}
+.error-btn {
+  background-color: var(--error-500);
+  color: var(--error-25);
+  font-size: 16px;
+  font-weight: 600;
+}
 .input-block {
   display: flex;
   flex-direction: column;
@@ -214,4 +225,19 @@ p {margin: 0}
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.reminder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--success-500);
+  border-radius: 10px;
+  padding: 10px;
+  .reminder-text {
+    color: #FFF;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 20px;
+  }
 }
