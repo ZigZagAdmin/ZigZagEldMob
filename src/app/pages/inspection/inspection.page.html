@@ -1,13 +1,13 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>DOT Inspection</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content [fullscreen]="true">
+<!-- <ion-content [fullscreen]="true">
   <ion-text class="ion-text-center"
     ><p>
       Inspect logs for the 24-hour period and the previous days for one HOS
@@ -35,4 +35,35 @@
   <ion-button (click)="onSendLogsClick()" class="custom-button" expand="block"
     >Send Logs</ion-button
   >
+</ion-content> -->
+
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>DOT Inspection</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="edit-form">
+    <p class="title">DOT Inspection</p>
+    <div class="flex-b">
+      <p class="subtitle">Inspection</p>
+      <button class="btn primary-btn" (click)="onStartInspectionClick()">Start Inspection</button>
+    </div>
+    <p class="subtitle">Inspect logs for the 24-hour period and the previous days for one HOS cycle</p>
+    <button class="btn secondary-btn">7 Days + Today</button>
+    <p class="text-2">Press on “Start Inspection” Button and give your phone to the officer</p>
+    <hr>
+    <div class="flex-b">
+      <p class="subtitle">Send Logs</p>
+      <button class="btn primary-btn" (click)="onSendLogsClick()">Send Logs</button>
+    </div>
+    <p class="subtitle">Send logs for 24-hour period and the previous days for one HOS cycle</p>
+    <button class="btn secondary-btn">7 Days + Today</button>
+    <p class="text-2">Send your logs to the officer if they request</p>
+  </div>
 </ion-content>
