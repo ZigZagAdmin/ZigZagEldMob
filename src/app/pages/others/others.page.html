@@ -1,10 +1,10 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
     <ion-title>Others</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content [fullscreen]="true">
+<!-- <ion-content [fullscreen]="true">
   <ion-grid>
     <ion-row>
       <ion-col size="12">
@@ -85,4 +85,46 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+</ion-content> -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Others</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="edit-form">
+    <p class="title">Other</p>
+    <div class="other-items">
+      <div class="other-item" (click)="onVehicleClick()">
+        <img src="assets/icon/truck.svg" alt="vehicle">
+        <p class="text-14-600">Vehicle</p>
+      </div>
+      <div class="other-item" (click)="onCoDriverClick()">
+        <img src="assets/icon/co-driver.svg" alt="co-driver">
+        <p class="text-14-600">Co-Driver</p>
+      </div>
+    </div>
+    <div class="other-items">
+      <div class="other-item" (click)="onAccountClick()">
+        <img src="assets/icon/my-account.svg" alt="my account">
+        <p class="text-14-600">My Account</p>
+      </div>
+      <div class="other-item" (click)="onRulesClick()">
+        <img src="assets/icon/rules.svg" alt="rules">
+        <p class="text-14-600">Rules</p>
+      </div>
+    </div>
+    <div class="other-items">
+      <div class="other-item" (click)="onInformationClick()">
+        <img src="assets/icon/information.svg" alt="information">
+        <p class="text-14-600">Information</p>
+      </div>
+      <div class="other-item" (click)="onLogoutClick()">
+        <img src="assets/icon/logout.svg" alt="logout">
+        <p class="text-14-600">Logout</p>
+      </div>
+    </div>
+  </div>
 </ion-content>

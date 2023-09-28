@@ -13,7 +13,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { NavController } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Storage } from '@ionic/storage';
 import { Company } from 'src/app/models/company';
 import { DVIRs } from 'src/app/models/dvirs';
@@ -26,8 +26,7 @@ import SignaturePad from 'signature_pad';
 })
 export class EditDvirPage implements OnInit, AfterViewChecked {
   @ViewChild('sPad', { static: false }) signaturePadElement!: ElementRef;
-  @ViewChild('mechanicSPad', { static: false })
-  mechanicSignaturePadElement!: ElementRef;
+  @ViewChild('mechanicSPad', { static: false }) mechanicSignaturePadElement!: ElementRef;
 
   defectsVehicle = [
     'Air Compressor',
@@ -108,7 +107,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
 
   databaseSubscription: Subscription | undefined;
   signaturePad!: SignaturePad;
-  mechanicSignaturePad!: SignaturePad;
+  mechanicSignaturePad!: SignaturePad | null
   company: Company | undefined;
   dvirs: DVIRs[] = [];
   dvir: any;
@@ -127,7 +126,8 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
     private dashboardService: DashboardService,
     private internetService: InternetService,
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private router: Router
   ) {
     this.form = this.formBuilder.group({
       Date: [''],
@@ -141,6 +141,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
       Remarks: [''],
       StatusName: ['', Validators.required],
       StatusCode: ['', Validators.required],
+      Comments: [''],
       Signature: ['', Validators.required],
       MechanicSignature: [''],
     });
@@ -189,6 +190,17 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         console.log('Intenet Status' + status);
       }
     );
+  }
+
+  switchStatus(status: string) {
+    if (status !== 'DC') {
+      this.mechanicSignaturePad = null
+    }
+    this.form.value.StatusCode = status
+  }
+
+  navigateBack() {
+    this.router.navigate(['/unitab/dvir'])
   }
 
   ngAfterViewChecked() {

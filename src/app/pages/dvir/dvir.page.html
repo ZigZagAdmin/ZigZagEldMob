@@ -1,4 +1,4 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="end">
       <ion-button (click)="insertDvir()"
@@ -7,9 +7,9 @@
     </ion-buttons>
     <ion-title>DVIRs</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content [fullscreen]="true">
+<!-- <ion-content [fullscreen]="true">
   <ion-card
     class="custom-card ion-activatable"
     *ngFor="let dvir of dvirs"
@@ -103,5 +103,22 @@
   </ion-card>
   <div *ngIf="!bLoading && dvirs.length === 0" class="nodata ion-text-center">
     <p style="color: #a5a5a5">No Records Found</p>
+  </div>
+</ion-content> -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="insertDvir()">
+        <img src="assets/icon/add-square.svg" alt="add">
+      </ion-button>
+    </ion-buttons>
+    <ion-title>DVIRs</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="dvirs-list">
+    <app-card *ngFor="let dvir of dvirs" [dvir]="dvir" (click)="editDvir(dvir)"></app-card>
   </div>
 </ion-content>

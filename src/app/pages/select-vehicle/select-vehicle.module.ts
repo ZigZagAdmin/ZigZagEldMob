@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { SelectVehiclePageRoutingModule } from './select-vehicle-routing.module';
 import { SelectVehiclePage } from './select-vehicle.page';
 import { DatabaseService } from 'src/app/services/database.service';
+import { CardComponent } from './card/card.component';
 
 @NgModule({
   imports: [
@@ -14,7 +15,7 @@ import { DatabaseService } from 'src/app/services/database.service';
     IonicModule,
     SelectVehiclePageRoutingModule,
   ],
-  declarations: [SelectVehiclePage],
+  declarations: [SelectVehiclePage, CardComponent],
   providers: [Storage, DatabaseService],
 })
 export class SelectVehiclePageModule {}

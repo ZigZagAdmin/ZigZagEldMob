@@ -1,3 +1,19 @@
-.custom-label {
-  font-size: small;
+// .custom-label {
+//   font-size: small;
+// }
+
+.three-inputs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.edit-dvir-block {
+  height: 100%;
+  position: relative;
+}
+.reminder {
+  position: absolute;
+  bottom: 0;
 }

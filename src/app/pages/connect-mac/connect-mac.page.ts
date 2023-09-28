@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { NavController } from '@ionic/angular';
 import { Geolocation } from '@capacitor/geolocation';
+import { Vehicle } from 'src/app/models/vehicle';
+import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
   selector: 'app-connect-mac',
@@ -11,12 +13,27 @@ import { Geolocation } from '@capacitor/geolocation';
 export class ConnectMacPage implements OnInit {
   pickedVehicle!: string;
   macAddress: string = '';
+  vehicle!: Vehicle
 
-  constructor(private storage: Storage, private navCtrl: NavController) {}
+  constructor(
+    private storage: Storage, 
+    private navCtrl: NavController,
+    private storageService: DatabaseService
+  ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
+
+  getVehicle() {
+    this.storageService.getVehicles().subscribe(res => {
+      this.vehicle = res[0]
+      console.log(res)
+    }, error => console.log(error))
+  }
 
   ionViewWillEnter() {
+    this.getVehicle()
+
     this.storage.get('pickedVehicle').then((pickedVehicle) => {
       this.pickedVehicle = pickedVehicle;
     });

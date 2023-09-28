@@ -1,13 +1,13 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/others"></ion-back-button>
     </ion-buttons>
     <ion-title>Account</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content [fullscreen]="true">
+<!-- <ion-content [fullscreen]="true">
   <ion-item lines="full">
     <ion-label class="custom-label" slot="start">Name</ion-label>
     <ion-label class="custom-label" slot="end">Nazarco Andrei</ion-label>
@@ -46,12 +46,72 @@
     <ion-label class="custom-label" slot="start">Language</ion-label>
     <ion-label class="custom-label" slot="end">English</ion-label>
   </ion-item>
-</ion-content>
-<ion-footer>
+</ion-content> -->
+<!-- <ion-footer>
   <ion-toolbar class="ion-text-center" color="medium">
     <span
       >Please contact your fleet manager to change your account
       information</span
     >
   </ion-toolbar>
-</ion-footer>
+</ion-footer> -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/others"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Account</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="edit-dvir-block">
+    <div class="input-block-2">
+      <p class="text-2">Name</p>
+      <input class="input-2 readonly" type="text" value="Nazarco Andrei" readonly />
+    </div>
+    <div class="input-block-2">
+      <p class="text-2">Email</p>
+      <input class="input-2 readonly" type="text" value="123@gmail.com" readonly />
+    </div>
+    <div class="input-block-2">
+      <p class="text-2">Phone Number</p>
+      <input class="input-2 readonly" type="text" value="+1234567" readonly />
+    </div>
+    <div class="three-inputs">
+      <div class="input-block-2">
+        <p class="text-2">License</p>
+        <input class="input-2 readonly" type="text" value="AR, 3333" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Time Zone</p>
+        <input class="input-2 readonly" type="text" value="CT" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Odometer</p>
+        <input class="input-2 readonly" type="text" value="124344" readonly />
+      </div>
+    </div>
+    <div class="input-block-2">
+      <p class="text-2">Carrier</p>
+      <input class="input-2 readonly" type="text" value="ZigZag Plus" readonly />
+    </div>
+    <div class="input-block-2">
+      <p class="text-2">Main Office Address</p>
+      <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
+    </div>
+    <div class="input-block-2">
+      <p class="text-2">Home Terminal Address</p>
+      <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
+    </div>
+    <div class="input-block-2">
+      <p class="text-2">Language</p>
+      <input class="input-2 readonly" type="text" value="English" readonly />
+    </div>
+    <div class="reminder">
+      <img src="assets/icon/reminder.svg" alt="reminder">
+      <p class="reminder-text">In order to change your information please contact your fleet manager</p>
+    </div>
+  </div>
+</ion-content>
