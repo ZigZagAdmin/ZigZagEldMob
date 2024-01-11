@@ -13,26 +13,32 @@ import { DatabaseService } from 'src/app/services/database.service';
 export class ConnectMacPage implements OnInit {
   pickedVehicle!: string;
   macAddress: string = '';
-  vehicle!: Vehicle
+  vehicle: Vehicle;
 
   constructor(
-    private storage: Storage, 
+    private storage: Storage,
     private navCtrl: NavController,
     private storageService: DatabaseService
   ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   getVehicle() {
-    this.storageService.getVehicles().subscribe(res => {
-      this.vehicle = res[0]
-      console.log(res)
-    }, error => console.log(error))
+    this.storageService.getVehicles().subscribe(
+      (res) => {
+        this.vehicle = res[0];
+        console.log(res);
+      },
+      (error) => console.log(error)
+    );
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('/select-vehicle');
   }
 
   ionViewWillEnter() {
-    this.getVehicle()
+    this.getVehicle();
 
     this.storage.get('pickedVehicle').then((pickedVehicle) => {
       this.pickedVehicle = pickedVehicle;

@@ -47,34 +47,49 @@
   </form>
 </ion-content> -->
 
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-title>Login</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding">
+<ion-content forceOverscroll="false">
   <div class="login-wrapper">
     <img class="image" src="assets/imgs/login-img.png" alt="truck" />
-
-    <h4 class="title">
-      Welcome to ZigZag Plus
-      <br/>
-      ELD
-    </h4>
-    <form class="form-login" (ngSubmit)="login(username, password)">
-      <div class="input-block">
-        <label class="label" for="email">Email</label>
-        <input class="input" [(ngModel)]="username" type="email" name="username" />
+    <div class="login-form-container">
+      <div class="title">Welcome to ZigZag ELD</div>
+      <div class="form-login">
+        <div class="input-block">
+          <div class="label">Email</div>
+          <input
+            class="input"
+            [(ngModel)]="username"
+            type="email"
+            name="username"
+          />
+        </div>
+        <div class="input-block">
+          <div class="label">Password</div>
+          <input
+            class="input"
+            [(ngModel)]="password"
+            type="password"
+            name="password"
+          />
+          <div class="forgot-password" (click)="forgotPassword()">Forgot Password?</div>
+        </div>
+        <button
+          class="btn-login primary-btn f-submit-button"
+          (click)="login(username, password)"
+        >
+          <span *ngIf="!loading">Login</span>
+          <ion-spinner
+            *ngIf="loading"
+            name="circular"
+            color="light"
+          ></ion-spinner>
+        </button>
       </div>
-      <div class="input-block">
-        <label class="label" for="password">Password</label>
-        <input class="input" [(ngModel)]="password" type="password" name="password" />
-      </div>
-      <button class="btn-login primary-btn" type="submit">
-        <span *ngIf="!loading">Login</span>
-        <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
-      </button>
-    </form>
+    </div>
   </div>
 </ion-content>

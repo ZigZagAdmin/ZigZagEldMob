@@ -1,4 +1,4 @@
-package com.zigzag.plus;
+package com.example.app;
 
 import com.getcapacitor.BridgeActivity;
 

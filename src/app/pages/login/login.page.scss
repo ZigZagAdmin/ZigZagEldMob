@@ -2,24 +2,24 @@
 //     margin: 0;
 //     padding: 0;
 //   }
-  
+
 //   h1 {
 //     margin-top: 15%;
 //     margin-bottom: 10px;
 //     font-size: 32px;
 //     font-weight: 700;
 //   }
-  
+
 //   h3 {
 //     color: #939fab;
 //     font-weight: 600;
 //   }
-  
+
 //   form {
 //     display: flex;
 //     flex-direction: column;
 //     margin-top: 6rem;
-  
+
 //     .forgot-password-link {
 //       text-decoration: none;
 //       display: inline-block;
@@ -31,18 +31,18 @@
 //       align-self: flex-end;
 //       padding: 6px;
 //     }
-  
+
 //     app-button {
 //       display: block;
 //       margin-top: 3rem;
 //     }
 //   }
-  
+
 //   .footer-text {
 //     text-align: center;
 //     font-size: 17px;
 //     margin-top: 50%;
-  
+
 //     a {
 //       text-decoration: none;
 //       font-weight: 600;
@@ -54,7 +54,7 @@
 //     position: relative;
 //     margin-bottom: 1rem;
 //     height: 50px;
-  
+
 //     label {
 //       position: absolute;
 //       left: 1rem;
@@ -64,7 +64,7 @@
 //       font-size: 1rem;
 //       transition: 0.3s;
 //     }
-  
+
 //     input {
 //       position: absolute;
 //       top: 0;
@@ -81,11 +81,11 @@
 //       z-index: 1;
 //       color: #171c25;
 //     }
-  
+
 //     input:focus {
 //       border-color: #fa578e;
 //     }
-  
+
 //     .label-focused {
 //       top: -0.4rem;
 //       left: 0.8rem;
@@ -118,9 +118,12 @@
   gap: 30px;
   .title {
     text-align: center;
+    margin-bottom: 30px;
   }
   .image {
-    border-radius: 25px;
+    // border-radius: 25px;
+    border-radius: unset;
+    width: 100%;
   }
   .form-login {
     display: flex;
@@ -129,7 +132,29 @@
     .btn-login {
       width: 100%;
       height: 50px;
-      border-radius: 41px;
+      border-radius: 40px;
     }
   }
+}
+
+.login-form-container {
+  padding: 0 30px;
+}
+
+.f-submit-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.forgot-password {
+  align-self: flex-end;
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--gray-500);
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
 }

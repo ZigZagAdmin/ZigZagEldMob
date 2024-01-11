@@ -51,24 +51,46 @@
   </div>
 </ion-content> -->
 
-
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/select-vehicle"></ion-back-button>
     </ion-buttons>
     <ion-title>Connect to ELD</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding" *ngIf="vehicle">
-  <div class="connect-wrapper">
-    <p class="subtitle">Vehicle Unit: {{ vehicle.VehicleUnit }}</p>
-    <div class="input-block">
-      <label class="label">MAC Address</label>
-      <input class="input" [(ngModel)]="macAddress" type="text" name="macAddress" />
+<ion-content [forceOverscroll]="false" [fullscreen]="true">
+  <div class="title-container padding-g">
+    <div class="title-back">
+      <img (click)="goBack()" src="../../../assets/imgs/back-arrow.png" />
+      <div class="page-title">Connect to ELD</div>
     </div>
-    <button class="btn primary-btn">Connect</button>
-    <button class="btn secondary-btn" (click)="continueDisconected()">Continue disconnected</button>
+    <div class="subtitle custom-subtitle">
+      {{'Vehicle Unit: ' + vehicle?.vehicleUnit}}
+    </div>
+  </div>
+
+  <div class="connect-wrapper padding-g">
+    <div class="input-container">
+      <div class="input-block custom-block">
+        <label class="label">MAC Address</label>
+        <input
+          class="input"
+          [(ngModel)]="macAddress"
+          type="text"
+          name="macAddress"
+        />
+      </div>
+      <button class="btn primary-btn custom-button">Connect</button>
+    </div>
+    <div class="or-container">
+      <div class="line"></div>
+      <div class="word">or</div>
+      <div class="line"></div>
+    </div>
+    <button class="btn secondary-btn" (click)="continueDisconected()">
+      Continue disconnected
+    </button>
   </div>
 </ion-content>

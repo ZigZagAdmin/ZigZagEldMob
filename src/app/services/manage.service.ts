@@ -23,7 +23,7 @@ export class ManageService {
 
   getDrivers(): Observable<Driver> {
     const httpParams = new HttpParams();
-    return this.http.get<Driver>(this.apiUrl + 'api/EldManage/driver', {
+    return this.http.get<Driver>(this.apiUrl + 'api/EldManage/drivers', {
       params: httpParams,
     });
   }

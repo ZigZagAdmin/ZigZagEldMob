@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Vehicle } from 'src/app/models/vehicle';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
-import { NavController } from '@ionic/angular';
+import { AnimationBuilder, NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { Driver } from 'src/app/models/driver';
 import { Company } from 'src/app/models/company';
@@ -49,7 +49,7 @@ export class SelectVehiclePage implements OnInit {
           });
           this.databaseService.getCompany().subscribe((company) => {
             this.company = company;
-            this.storage.set('TimeZoneCity', this.company.TimeZoneCity);
+            this.storage.set('TimeZoneCity', this.company.mainOffice.city);
           });
         }
       });
@@ -75,15 +75,18 @@ export class SelectVehiclePage implements OnInit {
   selectVehicle(vehicle: Vehicle) {
     if (!this.showBackButton) {
       console.log('Selected vehicle:', vehicle);
-      this.pickedVehicle = vehicle.VehicleUnit;
+      this.pickedVehicle = vehicle.vehicleId;
       this.storage.set('pickedVehicle', this.pickedVehicle);
-      this.storage.set('vehicleId', vehicle.VehicleId);
+      this.storage.set('vehicleId', vehicle.vehicleId);
       localStorage.setItem('pickedVehicle', this.pickedVehicle);
-      this.navCtrl.navigateForward('/connect-mac');
+      this.navCtrl.navigateForward('/connect-mac', {
+        animated: true,
+        animationDirection: 'forward',
+      });
     } else {
       console.log('Selected vehicle:', vehicle);
-      this.pickedVehicle = vehicle.VehicleUnit;
-      this.storage.set('vehicleId', vehicle.VehicleId);
+      this.pickedVehicle = vehicle.vehicleUnit;
+      this.storage.set('vehicleId', vehicle.vehicleId);
       this.storage.set('pickedVehicle', this.pickedVehicle);
       localStorage.setItem('pickedVehicle', this.pickedVehicle);
       this.navCtrl.navigateBack('/unitab/others');

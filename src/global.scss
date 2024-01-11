@@ -45,7 +45,9 @@ hr {
   visibility: visible !important;
 }
 
-p {margin: 0}
+p {
+  margin: 0;
+}
 
 .custom-card {
   margin-inline: 1px;
@@ -160,13 +162,17 @@ p {margin: 0}
   }
 }
 
-.readonly {outline-width: 0}
-.width-50 {width: 50%}
+.readonly {
+  outline-width: 0;
+}
+.width-50 {
+  width: 50%;
+}
 .select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background: url('assets/icon/arrow-bottom-2.svg') no-repeat;
+  background: url("assets/icon/arrow-bottom-2.svg") no-repeat;
   background-position: right 10px center;
   padding: 10px !important;
 }
@@ -174,12 +180,12 @@ p {margin: 0}
 .subtitle {
   color: var(--gray-700);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
 }
 .subtitle-lg {
   color: var(--gray-700);
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 500;
 }
 .text-1 {
   color: var(--gray-500);
@@ -234,10 +240,20 @@ p {margin: 0}
   border-radius: 10px;
   padding: 10px;
   .reminder-text {
-    color: #FFF;
+    color: #fff;
     font-size: 14px;
     font-weight: 400;
     letter-spacing: 1px;
     line-height: 20px;
   }
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.padding-g {
+  padding: 30px;
 }

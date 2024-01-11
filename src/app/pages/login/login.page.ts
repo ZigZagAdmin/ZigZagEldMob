@@ -28,12 +28,11 @@ import { PlacesCity } from 'src/app/models/places-city';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
-
-  username = ''
-  password = ''
-  loading = false
-  focused = false
-  authUser!: AuthUser
+  username = '';
+  password = '';
+  loading = false;
+  focused = false;
+  authUser!: AuthUser;
 
   constructor(
     private authService: AuthService,
@@ -255,6 +254,8 @@ export class LoginPage implements OnInit {
     });
     toast.present();
   }
+
+  forgotPassword() {}
 
   // receiveField({field, label}: any) {
   //   if (label === 'Username') {

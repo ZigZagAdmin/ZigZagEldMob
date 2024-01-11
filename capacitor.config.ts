@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.zigzag.plus',
-  appName: 'ZigZag Plus',
+  appId: 'com.example.app',
+  appName: 'eld_mob',
   webDir: 'www',
   bundledWebRuntime: false
 };
