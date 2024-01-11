@@ -68,7 +68,7 @@ export class InspectionPreviewPage implements OnInit {
               this.logDailies = logDailies.slice(0, 7);
             }
             this.logDaily = this.logDailies.find(
-              (item) => item.LogDailiesId === this.LogDailiesId
+              (item) => item.logDailyId === this.LogDailiesId
             );
             if (this.logDaily) {
             }
@@ -280,7 +280,7 @@ export class InspectionPreviewPage implements OnInit {
 
   goToNextLog() {
     const currentIndex = this.logDailies.findIndex(
-      (item) => item.LogDailiesId === this.logDaily.LogDailiesId
+      (item) => item.logDailyId === this.logDaily.LogDailiesId
     );
     const nextIndex = currentIndex + 1;
 
@@ -292,7 +292,7 @@ export class InspectionPreviewPage implements OnInit {
 
   goToPreviousLog() {
     const currentIndex = this.logDailies.findIndex(
-      (item) => item.LogDailiesId === this.logDaily.LogDailiesId
+      (item) => item.logDailyId === this.logDaily.LogDailiesId
     );
     const previousIndex = currentIndex - 1;
 

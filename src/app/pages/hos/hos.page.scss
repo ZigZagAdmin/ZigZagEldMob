@@ -120,6 +120,7 @@
   display: flex;
   flex-direction: column;
   gap: 30px;
+  padding: 30px;
   .hos-header {
     width: 100%;
     display: flex;
@@ -171,14 +172,14 @@
     }
   }
   .circles-block {
-    display: flex; 
-    justify-content: space-around; 
-    flex-wrap: wrap; 
-    max-width: 80%; 
-    min-width: 60%; 
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    max-width: 80%;
+    min-width: 60%;
     margin: 0 auto;
     .circle-block {
-      width: 45%; 
+      width: 45%;
       max-width: 140px;
     }
   }
@@ -206,9 +207,15 @@
           height: 10px;
           border-radius: 20px;
         }
-        #inner-1 {background-color: #FEC84B}
-        #inner-2 {background-color: #9B8AFB}
-        #inner-3 {background-color: #FB6514}
+        #inner-1 {
+          background-color: #fec84b;
+        }
+        #inner-2 {
+          background-color: #9b8afb;
+        }
+        #inner-3 {
+          background-color: #fb6514;
+        }
       }
     }
   }
@@ -280,7 +287,7 @@
         border-radius: 30px;
         padding: 5px 10px;
         .hours-worked {
-          color: #FFF;
+          color: #fff;
           font-size: 14px;
           font-weight: 500;
         }
@@ -306,8 +313,18 @@
 
 ion-progress-bar {
   --background: var(--gray-200);
-  --progress-background: #9B8AFB;
+  --progress-background: #9b8afb;
 }
-ion-progress-bar #progress-break {--progress-background: #FEC84B}
-ion-progress-bar #progress-shift {--progress-background: #9B8AFB}
-ion-progress-bar #progress-cycle {--progress-background: #FB6514}
+ion-progress-bar #progress-break {
+  --progress-background: #fec84b;
+}
+ion-progress-bar #progress-shift {
+  --progress-background: #9b8afb;
+}
+ion-progress-bar #progress-cycle {
+  --progress-background: #fb6514;
+}
+
+.custom-toggle {
+  zoom: 0.8;
+}

@@ -142,7 +142,7 @@ export class LogItemPage implements OnInit {
             this.logHistories = logHistories;
 
             this.logDaily = this.logDailies.find(
-              (item) => item.LogDailiesId === this.LogDailiesId
+              (item) => item.logDailyId === this.LogDailiesId
             );
             if (this.logDaily) {
               console.log(this.logDaily);
@@ -379,7 +379,7 @@ export class LogItemPage implements OnInit {
 
   goToNextLog() {
     const currentIndex = this.logDailies.findIndex(
-      (item) => item.LogDailiesId === this.logDaily.LogDailiesId
+      (item) => item.logDailyId === this.logDaily.LogDailiesId
     );
     const nextIndex = currentIndex + 1;
 
@@ -392,7 +392,7 @@ export class LogItemPage implements OnInit {
 
   goToPreviousLog() {
     const currentIndex = this.logDailies.findIndex(
-      (item) => item.LogDailiesId === this.logDaily.LogDailiesId
+      (item) => item.logDailyId === this.logDaily.LogDailiesId
     );
     const previousIndex = currentIndex - 1;
 
@@ -443,7 +443,7 @@ export class LogItemPage implements OnInit {
         console.log('Pushed in offlineArray');
       }
       const index = this.logDailies.findIndex(
-        (item) => item.LogDailiesId === this.logDaily.LogDailiesId
+        (item) => item.logDailyId === this.logDaily.LogDailiesId
       );
       if (index !== -1) {
         this.logDailies[index] = this.logDaily;
@@ -469,11 +469,11 @@ export class LogItemPage implements OnInit {
 
   restoreSignature() {
     const firstNonEmptySignature = this.logDailies.find(
-      (log) => log.Signature !== ''
+      (log) => log.form.signatureId !== ''
     );
 
     if (firstNonEmptySignature) {
-      this.renderSignature(firstNonEmptySignature.Signature);
+      this.renderSignature(firstNonEmptySignature.form.signatureId);
     }
   }
 
@@ -651,7 +651,7 @@ export class LogItemPage implements OnInit {
 
       this.logHistories.push(CetificationLogHistory);
       const index = this.logDailies.findIndex(
-        (item) => item.LogDailiesId === this.logDaily.LogDailiesId
+        (item) => item.logDailyId === this.logDaily.LogDailiesId
       );
       if (index !== -1) {
         this.logDailies[index] = this.logDaily;

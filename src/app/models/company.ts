@@ -22,8 +22,8 @@ export interface IMainOffice {
 }
 
 export interface ISettings {
-  complianceMode: ICodeName;
-  vehicleMotionThreshold: ICodeName;
+  complianceMode?: ICodeName;
+  vehicleMotionThreshold?: ICodeName;
   hoursOfService: IHoursOfService;
   cargoType: ICodeName;
   restartHours: ICodeName;

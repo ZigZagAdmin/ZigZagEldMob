@@ -38,6 +38,7 @@ export class HosPage implements OnInit {
   isConfirmButtonActive: boolean = true;
   vehicleId: string = '';
   driverId: string = '';
+  driverName: string = '';
   companyId: string = '';
   name: string = '';
   pickedVehicle: string = '';
@@ -65,10 +66,10 @@ export class HosPage implements OnInit {
   currentStatus = { statusCode: '', statusName: '' };
   currentStatusTime = '';
 
-  vehicle!: Vehicle
-  location = ''
-  comments = ''
-  restMode = false
+  vehicle!: Vehicle;
+  location = '';
+  comments = '';
+  restMode = false;
 
   constructor(
     private navCtrl: NavController,
@@ -82,10 +83,11 @@ export class HosPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.getVehicle()
+    this.getVehicle();
     console.log('init hos');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
+    this.driverName = await this.storage.get('driverName');
     this.companyId = await this.storage.get('companyId');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
     this.bAuthorized = await this.storage.get('bAuthorized');
@@ -103,6 +105,7 @@ export class HosPage implements OnInit {
             ([logDailies, logHistories]) => {
               this.logDailies = logDailies;
               this.logHistories = logHistories;
+              console.log(logHistories);
 
               if (this.bAuthorized === false) {
                 const lastLogHistory =
@@ -247,13 +250,16 @@ export class HosPage implements OnInit {
   }
 
   getVehicle() {
-    this.storageService.getVehicles().subscribe(res => {
-      this.vehicle = res[0]
-    }, error => console.log(error))
+    this.storageService.getVehicles().subscribe(
+      (res) => {
+        this.vehicle = res[0];
+      },
+      (error) => console.log(error)
+    );
   }
 
   switchMode() {
-    this.restMode = !this.restMode
+    this.restMode = !this.restMode;
   }
 
   // Вызывайте эту функцию при заходе на страницу или событии, когда вам нужно местоположение.
@@ -676,7 +682,7 @@ export class HosPage implements OnInit {
   }
 
   selectLog(log: LogDailies) {
-    this.navCtrl.navigateForward(['/log-item', { logId: log.LogDailiesId }]);
+    this.navCtrl.navigateForward(['/log-item', { logId: log.logDailyId }]);
   }
 
   selectButton(button: string) {
@@ -884,7 +890,7 @@ export class HosPage implements OnInit {
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0];
       const foundLogDayIndex = this.logDailies.findIndex((logDay) =>
-        logDay.Day.includes(dateString)
+        logDay.logDate.includes(dateString)
       );
 
       // console.log(dateString);
@@ -894,30 +900,29 @@ export class HosPage implements OnInit {
       if (foundLogDayIndex !== -1) {
         this.countDays.push(this.logDailies[foundLogDayIndex]);
       } else {
-        let newLogDaily = {
-          CompanyId: this.companyId,
-          Id: 0,
-          Certified: false,
-          CertifyTimestamp: '',
-          DriverId: this.driverId,
-          VehicleId: this.vehicleId,
-          LogDailiesId: this.uuidv4(),
-          DriverName: '',
-          Day: dateString + 'T00:00:00',
-          HoursOffDuty: 0,
-          HoursSleeper: 0,
-          HoursDriving: 0,
-          HoursWorked: 0,
-          HoursOnDuty: 0,
-          Violations: '',
-          FormManner: false,
-          Trailers: '',
-          ShippingDoc: '',
-          FromAddress: '',
-          ToAddress: '',
-          Signature: '',
-          Type: '',
+        let newLogDaily: LogDailies = {
+          logDailyId: '00000000-0000-0000-0000-000000000000',
+          companyId: this.companyId,
+          driverId: this.driverId,
+          driverName: '',
+          logDate: dateString + 'T00:00:00',
+          timeOffDuty: 0,
+          timeSleeper: 0,
+          timeDriving: 0,
+          timeOnDuty: 0,
+          timeWorked: 0,
+          violations: [],
+          formManner: false,
+          certified: false,
+          form: {
+            trailers: '',
+            shippingDoc: '',
+            fromAddress: '',
+            toAddress: '',
+            signatureId: '00000000-0000-0000-0000-000000000000',
+          },
         };
+
         this.countDays.push(newLogDaily);
 
         this.dashboardService.updateLogDaily(newLogDaily).subscribe(
@@ -964,7 +969,7 @@ export class HosPage implements OnInit {
 
     console.log(this.logDailies);
     for (let i = 0; i < this.logDailies.length; i++) {
-      let currentDay = this.logDailies[i].Day;
+      let currentDay = this.logDailies[i].logDate;
       // console.log(currentDay);
 
       durationsOFF = 0;
@@ -972,10 +977,10 @@ export class HosPage implements OnInit {
       durationsD = 0;
       durationsON = 0;
 
-      durationsBaseOFF = this.logDailies[i].HoursOffDuty;
-      durationsBaseSB = this.logDailies[i].HoursSleeper;
-      durationsBaseD = this.logDailies[i].HoursDriving;
-      durationsBaseON = this.logDailies[i].HoursOnDuty;
+      durationsBaseOFF = this.logDailies[i].timeOffDuty;
+      durationsBaseSB = this.logDailies[i].timeSleeper;
+      durationsBaseD = this.logDailies[i].timeDriving;
+      durationsBaseON = this.logDailies[i].timeOnDuty;
 
       this.logHistories.forEach((event) => {
         if (allSt.includes(event.EventTypeCode)) {
@@ -1042,11 +1047,11 @@ export class HosPage implements OnInit {
         durationsBaseD != durationsD ||
         durationsBaseON != durationsON
       ) {
-        this.logDailies[i].HoursOffDuty = durationsOFF;
-        this.logDailies[i].HoursSleeper = durationsSB;
-        this.logDailies[i].HoursDriving = durationsD;
-        this.logDailies[i].HoursOnDuty = durationsON;
-        this.logDailies[i].HoursWorked = durationsD + durationsON;
+        this.logDailies[i].timeOffDuty = durationsOFF;
+        this.logDailies[i].timeSleeper = durationsSB;
+        this.logDailies[i].timeDriving = durationsD;
+        this.logDailies[i].timeOnDuty = durationsON;
+        this.logDailies[i].timeWorked = durationsD + durationsON;
 
         this.dashboardService.updateLogDaily(this.logDailies[i]).subscribe(
           (response) => {

@@ -424,7 +424,7 @@
   </ion-card>
 </ion-content> -->
 
-
+<!-- 
 <ion-header>
   <ion-toolbar>
     <ion-title>{{name}} - {{pickedVehicle}}</ion-title>
@@ -434,30 +434,33 @@
   <ion-toolbar color="danger">
     <ion-title size="small">Some Errors</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding">
+<ion-content [forceOverscroll]="false">
   <div class="hos-wrapper" *ngIf="vehicle">
     <div class="hos-header">
-      <img src="assets/icon/point-green.svg" alt="point">
+      <img src="assets/icon/point-green.svg" alt="point" />
       <div class="hos-name">
         <p class="subtitle">{{ name }}</p>
         <p class="text-1">Vehicle Unit: {{ vehicle.vehicleUnit }}</p>
       </div>
-      <img src="assets/icon/bluetooth-red.svg" alt="bluetooth">
+      <img src="assets/icon/bluetooth-red.svg" alt="bluetooth" />
     </div>
     <div class="warning">
-      <img src="assets/icon/warning.svg" alt="warning">
+      <img src="assets/icon/warning.svg" alt="warning" />
       <div class="warning-text">
         <p class="subtitle">Warning</p>
-        <p class="text-1">Make sure that ELD hardware is properly installed and Vehicle power is ON</p>
+        <p class="text-1">
+          Make sure that ELD hardware is properly installed and Vehicle power is
+          ON
+        </p>
       </div>
     </div>
     <div class="status-bar">
       <p class="subtitle">Current Status</p>
       <div class="green" (click)="toggleModal()">
         {{currentStatus.statusName}}
-        <img src="assets/icon/arrow-bottom.svg" alt="arrow">
+        <img src="assets/icon/arrow-bottom.svg" alt="arrow" />
       </div>
       <div class="green">{{currentStatusTime}}</div>
     </div>
@@ -475,53 +478,117 @@
           <div class="modal-content">
             <div class="select-statuses">
               <div class="select-status" (click)="selectButton('OFF')">
-                <img src="assets/icon/circle-gray.svg" alt="circle">
+                <img src="assets/icon/circle-gray.svg" alt="circle" />
                 <p class="subtitle">Off Duty</p>
-                <img *ngIf="selectedButton !== 'OFF'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'OFF'" src="assets/icon/check-mark.svg" alt="circle">
+                <img
+                  *ngIf="selectedButton !== 'OFF'"
+                  src="assets/icon/circle-white.svg"
+                  alt="circle"
+                />
+                <img
+                  *ngIf="selectedButton === 'OFF'"
+                  src="assets/icon/check-mark.svg"
+                  alt="circle"
+                />
               </div>
               <div class="select-status" (click)="selectButton('SB')">
-                <img src="assets/icon/circle-blue.svg" alt="circle">
+                <img src="assets/icon/circle-blue.svg" alt="circle" />
                 <p class="subtitle">Sleeper Berth</p>
-                <img *ngIf="selectedButton !== 'SB'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'SB'" src="assets/icon/check-mark.svg" alt="circle">
+                <img
+                  *ngIf="selectedButton !== 'SB'"
+                  src="assets/icon/circle-white.svg"
+                  alt="circle"
+                />
+                <img
+                  *ngIf="selectedButton === 'SB'"
+                  src="assets/icon/check-mark.svg"
+                  alt="circle"
+                />
               </div>
               <div class="select-status" (click)="selectButton('ON')">
-                <img src="assets/icon/circle-green.svg" alt="circle">
+                <img src="assets/icon/circle-green.svg" alt="circle" />
                 <p class="subtitle">On Duty</p>
-                <img *ngIf="selectedButton !== 'ON'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'ON'" src="assets/icon/check-mark.svg" alt="circle">
+                <img
+                  *ngIf="selectedButton !== 'ON'"
+                  src="assets/icon/circle-white.svg"
+                  alt="circle"
+                />
+                <img
+                  *ngIf="selectedButton === 'ON'"
+                  src="assets/icon/check-mark.svg"
+                  alt="circle"
+                />
               </div>
               <div class="select-status" (click)="selectButton('D')">
-                <img src="assets/icon/circle-orange.svg" alt="circle">
+                <img src="assets/icon/circle-orange.svg" alt="circle" />
                 <p class="subtitle">Driving</p>
-                <img *ngIf="selectedButton !== 'D'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'D'" src="assets/icon/check-mark.svg" alt="circle">
+                <img
+                  *ngIf="selectedButton !== 'D'"
+                  src="assets/icon/circle-white.svg"
+                  alt="circle"
+                />
+                <img
+                  *ngIf="selectedButton === 'D'"
+                  src="assets/icon/check-mark.svg"
+                  alt="circle"
+                />
               </div>
               <div class="select-status" (click)="selectButton('PC')">
-                <img src="assets/icon/circle-purple.svg" alt="circle">
+                <img src="assets/icon/circle-purple.svg" alt="circle" />
                 <p class="subtitle">Personal Conveyance</p>
-                <img *ngIf="selectedButton !== 'PC'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'PC'" src="assets/icon/check-mark.svg" alt="circle">
+                <img
+                  *ngIf="selectedButton !== 'PC'"
+                  src="assets/icon/circle-white.svg"
+                  alt="circle"
+                />
+                <img
+                  *ngIf="selectedButton === 'PC'"
+                  src="assets/icon/check-mark.svg"
+                  alt="circle"
+                />
               </div>
               <div class="select-status" (click)="selectButton('YM')">
-                <img src="assets/icon/circle-red.svg" alt="circle">
+                <img src="assets/icon/circle-red.svg" alt="circle" />
                 <p class="subtitle">Yard Moves</p>
-                <img *ngIf="selectedButton !== 'YM'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'YM'" src="assets/icon/check-mark.svg" alt="circle">
+                <img
+                  *ngIf="selectedButton !== 'YM'"
+                  src="assets/icon/circle-white.svg"
+                  alt="circle"
+                />
+                <img
+                  *ngIf="selectedButton === 'YM'"
+                  src="assets/icon/check-mark.svg"
+                  alt="circle"
+                />
               </div>
             </div>
             <div class="input-block">
               <label class="label">Location</label>
-              <input class="input" [(ngModel)]="location" type="text" name="location" />
+              <input
+                class="input"
+                [(ngModel)]="location"
+                type="text"
+                name="location"
+              />
             </div>
             <div class="input-block">
               <label class="label">Comments</label>
-              <textarea class="input textarea" [(ngModel)]="comments" type="text" name="location" ></textarea>
+              <textarea
+                class="input textarea"
+                [(ngModel)]="comments"
+                type="text"
+                name="location"
+              ></textarea>
             </div>
             <div class="btns-flex">
               <button class="btn secondary-btn" (click)="cancel()">Back</button>
-              <button class="btn primary-btn" (click)="confirm()" [disabled]="!isConfirmButtonActive">Save</button>
+              <button
+                class="btn primary-btn"
+                (click)="confirm()"
+                [disabled]="!isConfirmButtonActive"
+              >
+                Save
+              </button>
             </div>
           </div>
         </ion-content>
@@ -631,7 +698,11 @@
           <p class="subtitle">{{ restBreak }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
-          <div id="inner-1" class="progress-bar-inner" [style]="'width: ' + progressBreak * 100 + '%'"></div>
+          <div
+            id="inner-1"
+            class="progress-bar-inner"
+            [style]="'width: ' + progressBreak * 100 + '%'"
+          ></div>
         </div>
       </div>
 
@@ -641,7 +712,11 @@
           <p class="subtitle">{{ restShift }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
-          <div id="inner-2" class="progress-bar-inner" [style]="'width: ' + progressShift * 100 + '%'"></div>
+          <div
+            id="inner-2"
+            class="progress-bar-inner"
+            [style]="'width: ' + progressShift * 100 + '%'"
+          ></div>
         </div>
       </div>
 
@@ -651,11 +726,13 @@
           <p class="subtitle">{{ restCycle }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
-          <div id="inner-3" class="progress-bar-inner" [style]="'width: ' + progressCycle * 100 + '%'"></div>
+          <div
+            id="inner-3"
+            class="progress-bar-inner"
+            [style]="'width: ' + progressCycle * 100 + '%'"
+          ></div>
         </div>
       </div>
-
-
     </div>
     <div class="time">
       <div class="time-block">
@@ -669,27 +746,36 @@
     </div>
     <div class="switch-sleep">
       <p class="subtitle">Split Sleeper Berth</p>
-      <ion-toggle></ion-toggle>
+      <ion-toggle class="custom-toggle"></ion-toggle>
     </div>
     <button class="btn primary-btn" (click)="switchMode()">
-      <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon">
-      <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon">
+      <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />
+      <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon" />
       {{ restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode' }}
     </button>
     <p class="subtitle">Logs and Recap Hours</p>
     <div class="log-dailies">
-      <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
+      <div
+        class="log-daily"
+        *ngFor="let logDaily of logDailies"
+        (click)="selectLog(logDaily)"
+      >
         <div class="log-left">
-          <p class="subtitle">{{ logDaily.Day | date:'EEEE' }}, {{ logDaily.Day | date: 'MMMM dd' }}</p>
+          <p class="subtitle">
+            {{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date:
+            'MMMM dd' }}
+          </p>
           <div class="sub-info">
-            <img src="assets/icon/red-point.svg" alt="point">
+            <img src="assets/icon/red-point.svg" alt="point" />
             <p>Form</p>
-            <img src="assets/icon/red-point.svg" alt="point">
+            <img src="assets/icon/red-point.svg" alt="point" />
             <p>Certify</p>
           </div>
         </div>
         <div class="log-right">
-          <p class="hours-worked">{{ logDaily.HoursWorked | convertSecotdsToHoursAndMinutes }}</p>
+          <p class="hours-worked">
+            {{ logDaily.timeWorked | convertSecotdsToHoursAndMinutes }}
+          </p>
         </div>
       </div>
     </div>

@@ -40,16 +40,19 @@ export class SelectVehiclePage implements OnInit {
             this.driver = driver;
             this.storage.set(
               'HoursOfServiceRuleDays',
-              this.driver.HoursOfServiceRuleDays
+              this.driver.driverInfo.settings.hoursOfService
             );
             this.storage.set(
               'HoursOfServiceRuleHours',
-              this.driver.HoursOfServiceRuleHours
+              this.driver.driverInfo.settings.hoursOfService
             );
           });
           this.databaseService.getCompany().subscribe((company) => {
             this.company = company;
-            this.storage.set('TimeZoneCity', this.company.mainOffice.city);
+            this.storage.set(
+              'TimeZoneCity',
+              this.company.mainOffice.city
+            );
           });
         }
       });
