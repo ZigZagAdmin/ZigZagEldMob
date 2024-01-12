@@ -7,14 +7,11 @@ import { IonicModule } from '@ionic/angular';
 import { InspectionPreviewPageRoutingModule } from './inspection-preview-routing.module';
 
 import { InspectionPreviewPage } from './inspection-preview.page';
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+import { ScrollToolbarComponentModule } from 'src/app/components/scroll-toolbar/scroll-toolbar.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    InspectionPreviewPageRoutingModule
-  ],
-  declarations: [InspectionPreviewPage]
+  imports: [CommonModule, FormsModule, IonicModule, InspectionPreviewPageRoutingModule, HeaderComponentModule, ScrollToolbarComponentModule],
+  declarations: [InspectionPreviewPage],
 })
 export class InspectionPreviewPageModule {}

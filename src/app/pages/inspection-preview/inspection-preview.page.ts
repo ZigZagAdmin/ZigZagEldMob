@@ -7,7 +7,7 @@ import { LogHistories } from 'src/app/models/log-histories';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { formatDate } from '@angular/common';
-import { ToastController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -21,12 +21,9 @@ export class InspectionPreviewPage implements OnInit {
   PickedVehicle: string = '';
   logDailies: LogDailies[] = [];
   logHistories: LogHistories[] = [];
-  logDaily: any;
-  currentDay: string = '';
-  graphicsHour = [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23,
-  ];
+  logDaily: LogDailies | undefined;
+  currentDay: string | undefined = '';
+  graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
   statusesOnDay: LogHistories[] = [];
   xBgn!: number;
   yBgn!: number;
@@ -41,56 +38,48 @@ export class InspectionPreviewPage implements OnInit {
   previousPage!: string | null;
   today = new Date();
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private databaseService: DatabaseService,
-    private storage: Storage,
-    private toastController: ToastController
-  ) {}
+  constructor(private activatedRoute: ActivatedRoute, private databaseService: DatabaseService, private storage: Storage, private toastController: ToastController, private navCtrl: NavController) {}
 
   async ngOnInit() {
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.PickedVehicle = await this.storage.get('pickedVehicle');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
-    this.activatedRoute.paramMap.subscribe((params) => {
+    this.activatedRoute.paramMap.subscribe(params => {
       this.LogDailiesId = params.get('logId');
       this.previousPage = params.get('page');
       console.log(this.LogDailiesId);
     });
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getLogDailies().subscribe((logDailies) => {
-            this.logDailies = logDailies;
-            if (this.previousPage === 'inspection') {
-              this.logDailies = logDailies.slice(0, 7);
-            }
-            this.logDaily = this.logDailies.find(
-              (item) => item.logDailyId === this.LogDailiesId
-            );
-            if (this.logDaily) {
+    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+        this.databaseService.getLogDailies().subscribe(logDailies => {
+          this.logDailies = logDailies;
+          if (this.previousPage === 'inspection') {
+            this.logDailies = logDailies.slice(0, 7);
+          }
+          if (this.logDaily) {
+            this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+          }
+        });
+        this.databaseService.getLogHistories().subscribe(logHistories => {
+          this.logHistories = logHistories;
+          this.logHistories.forEach(log => {
+            if (log.DateEnd === '0001-01-01T00:00:00') {
+              log.DateEnd = formatDate(
+                new Date().toLocaleString('en-US', {
+                  timeZone: this.TimeZoneCity,
+                }),
+                'yyyy-MM-ddTHH:mm:ss',
+                'en_US'
+              );
             }
           });
-          this.databaseService.getLogHistories().subscribe((logHistories) => {
-            this.logHistories = logHistories;
-            this.logHistories.forEach((log) => {
-              if (log.DateEnd === '0001-01-01T00:00:00') {
-                log.DateEnd = formatDate(
-                  new Date().toLocaleString('en-US', {
-                    timeZone: this.TimeZoneCity,
-                  }),
-                  'yyyy-MM-ddTHH:mm:ss',
-                  'en_US'
-                );
-              }
-            });
-            console.log(this.logHistories);
-            this.drawGraph();
-          });
-        }
-      });
+          console.log(this.logHistories);
+          this.drawGraph();
+        });
+      }
+    });
   }
 
   drawGraph() {
@@ -105,9 +94,9 @@ export class InspectionPreviewPage implements OnInit {
     this.xBgnV = 0;
     this.yBgnV = 0;
 
-    this.currentDay = this.logDaily.Day;
+    this.currentDay = this.logDaily?.logDate;
 
-    this.logHistories.forEach((event) => {
+    this.logHistories.forEach(event => {
       if (allSt.includes(event.EventTypeCode)) {
         sDateEnd = event.DateEnd;
         if (sDateEnd == '0001-01-01T00:00:00') {
@@ -121,20 +110,15 @@ export class InspectionPreviewPage implements OnInit {
         }
 
         if (
-          formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <=
-            formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
-          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <=
-            formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
+          formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
           console.log('event', event);
 
           dateBgn = new Date(event.DateBgn);
           console.log(dateBgn.toLocaleDateString());
-          console.log(new Date(this.currentDay).toLocaleDateString());
-          if (
-            dateBgn.toLocaleDateString() ===
-            new Date(this.currentDay).toLocaleDateString()
-          ) {
+          console.log(new Date(this.currentDay as string).toLocaleDateString());
+          if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
@@ -144,10 +128,7 @@ export class InspectionPreviewPage implements OnInit {
 
           dateEnd = new Date(sDateEnd);
 
-          if (
-            dateEnd.toLocaleDateString() ===
-            new Date(this.currentDay).toLocaleDateString()
-          ) {
+          if (dateEnd.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xEnd = dateEnd.getHours() * 60 + dateEnd.getMinutes();
           } else {
             this.xEnd = 1440;
@@ -279,9 +260,7 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   goToNextLog() {
-    const currentIndex = this.logDailies.findIndex(
-      (item) => item.logDailyId === this.logDaily.LogDailiesId
-    );
+    const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const nextIndex = currentIndex + 1;
 
     if (nextIndex < this.logDailies.length) {
@@ -291,9 +270,7 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   goToPreviousLog() {
-    const currentIndex = this.logDailies.findIndex(
-      (item) => item.logDailyId === this.logDaily.LogDailiesId
-    );
+    const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const previousIndex = currentIndex - 1;
 
     if (previousIndex >= 0) {
@@ -315,5 +292,9 @@ export class InspectionPreviewPage implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('unitab/inspection');
   }
 }
