@@ -8,13 +8,10 @@ import { UserManualPageRoutingModule } from './user-manual-routing.module';
 
 import { UserManualPage } from './user-manual.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    UserManualPageRoutingModule
-  ],
-  declarations: [UserManualPage]
+  imports: [CommonModule, FormsModule, IonicModule, UserManualPageRoutingModule, HeaderComponentModule],
+  declarations: [UserManualPage],
 })
 export class UserManualPageModule {}

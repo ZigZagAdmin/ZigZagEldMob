@@ -8,13 +8,10 @@ import { RulesPageRoutingModule } from './rules-routing.module';
 
 import { RulesPage } from './rules.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RulesPageRoutingModule
-  ],
-  declarations: [RulesPage]
+  imports: [CommonModule, FormsModule, IonicModule, RulesPageRoutingModule, HeaderComponentModule],
+  declarations: [RulesPage],
 })
 export class RulesPageModule {}

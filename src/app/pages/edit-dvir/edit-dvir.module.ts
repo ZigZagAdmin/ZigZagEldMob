@@ -9,6 +9,8 @@ import { EditDvirPageRoutingModule } from './edit-dvir-routing.module';
 
 import { EditDvirPage } from './edit-dvir.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -16,6 +18,7 @@ import { EditDvirPage } from './edit-dvir.page';
     IonicModule,
     EditDvirPageRoutingModule,
     ReactiveFormsModule,
+    HeaderComponentModule
   ],
   declarations: [EditDvirPage],
   providers: [NavParams],

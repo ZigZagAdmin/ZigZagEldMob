@@ -1,10 +1,13 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>ELD User Manual</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content [fullscreen]="true"></ion-content>
+<ion-content [fullscreen]="true" [forceOverscroll]="false">
+  <app-header [title]="'ELD User Manual'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <div class="padding-g no-data">No data.</div>
+</ion-content>

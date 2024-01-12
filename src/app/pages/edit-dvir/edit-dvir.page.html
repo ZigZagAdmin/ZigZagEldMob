@@ -296,16 +296,17 @@
   </form>
 </ion-content> -->
 
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>Edit Dvir</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding">
+<ion-content>
+  <app-header [title]="'Edit Dvir'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <form class="edit-form" [formGroup]="form">
     <p class="subtitle-lg">General Info</p>
     <div class="edit-dvir-block">
@@ -338,12 +339,7 @@
       <div class="input-block-2">
         <p class="text-2">Vehicle Defects (Optional)</p>
         <select class="input-2 select" type="text" formControlName="DefectsVehicle">
-          <option
-            *ngFor="let defect of defectsVehicle"
-            [value]="defect"
-          >
-            {{ defect }}
-          </option>
+          <option *ngFor="let defect of defectsVehicle" [value]="defect">{{ defect }}</option>
         </select>
       </div>
     </div>
@@ -356,12 +352,7 @@
       <div class="input-block-2">
         <p class="text-2">Trailer Defects (Optional)</p>
         <select class="input-2 select" type="text" formControlName="DefectsTrailers">
-          <option
-            *ngFor="let defect of defectsTrailers"
-            [value]="defect"
-          >
-            {{ defect }}
-          </option>
+          <option *ngFor="let defect of defectsTrailers" [value]="defect">{{ defect }}</option>
         </select>
       </div>
     </div>
@@ -371,28 +362,28 @@
         <p class="text-2">Status</p>
         <div class="statuses">
           <div class="status" (click)="switchStatus('VCS')">
-            <img src="assets/icon/satis-success.svg" alt="ok">
+            <img src="assets/icon/satis-success.svg" alt="ok" />
             <p class="text-success">Satisfactory Condition</p>
-            <img *ngIf="form.value.StatusCode !== 'VCS'" src="assets/icon/circle-white.svg" alt="circle">
-            <img *ngIf="form.value.StatusCode === 'VCS'" src="assets/icon/check-mark.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'VCS'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="form.value.StatusCode === 'VCS'" src="assets/icon/check-mark.svg" alt="circle" />
           </div>
           <div class="status" (click)="switchStatus('D')">
-            <img src="assets/icon/satis-error.svg" alt="ok">
+            <img src="assets/icon/satis-error.svg" alt="ok" />
             <p class="text-error">Has Defects</p>
-            <img *ngIf="form.value.StatusCode !== 'D'" src="assets/icon/circle-white.svg" alt="circle">
-            <img *ngIf="form.value.StatusCode === 'D'" src="assets/icon/check-mark.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'D'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="form.value.StatusCode === 'D'" src="assets/icon/check-mark.svg" alt="circle" />
           </div>
           <div class="status" (click)="switchStatus('DC')">
-            <img src="assets/icon/satis-success.svg" alt="ok">
+            <img src="assets/icon/satis-success.svg" alt="ok" />
             <p class="text-success">Defects Corrected</p>
-            <img *ngIf="form.value.StatusCode !== 'DC'" src="assets/icon/circle-white.svg" alt="circle">
-            <img *ngIf="form.value.StatusCode === 'DC'" src="assets/icon/check-mark.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'DC'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="form.value.StatusCode === 'DC'" src="assets/icon/check-mark.svg" alt="circle" />
           </div>
           <div class="status" (click)="switchStatus('DNNBC')">
-            <img src="assets/icon/satis-error.svg" alt="ok">
+            <img src="assets/icon/satis-error.svg" alt="ok" />
             <p class="text-error">Defects Need Not To Be Corrected</p>
-            <img *ngIf="form.value.StatusCode !== 'DNNBC'" src="assets/icon/circle-white.svg" alt="circle">
-            <img *ngIf="form.value.StatusCode === 'DNNBC'" src="assets/icon/check-mark.svg" alt="circle">
+            <img *ngIf="form.value.StatusCode !== 'DNNBC'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="form.value.StatusCode === 'DNNBC'" src="assets/icon/check-mark.svg" alt="circle" />
           </div>
         </div>
       </div>
@@ -400,42 +391,20 @@
         <p class="text-2">Comments</p>
         <textarea class="input-2" formControlName="Comments" name="comments" id="" cols="30" rows="10"></textarea>
       </div>
-
     </div>
     <p class="subtitle-lg">Signature</p>
     <ion-row class="ion-justify-content-center">
       <ion-col size="auto">
-        <canvas
-          #sPad
-          width="250"
-          height="200"
-          style="touch-action: none; border: 1px solid black"
-        ></canvas>
+        <canvas #sPad width="250" height="200" style="touch-action: none; border: 1px solid black"></canvas>
       </ion-col>
     </ion-row>
 
     <p class="subtitle-lg">Mechanical Signature</p>
     <ion-row class="ion-justify-content-center">
       <ion-col size="auto">
-        <canvas
-          *ngIf="form.value.StatusCode === 'DC'"
-          required
-          #mechanicSPad
-          width="250"
-          height="200"
-          style="touch-action: none; border: 1px solid black"
-        ></canvas>
+        <canvas *ngIf="form.value.StatusCode === 'DC'" required #mechanicSPad width="250" height="200" style="touch-action: none; border: 1px solid black"></canvas>
       </ion-col>
     </ion-row>
-    <button
-      class="btn primary-btn"
-      [disabled]="!form.valid"
-      color="success"
-      (click)="onSubmit()"
-      expand="block"
-    >
-      Save
-    </button>
-
+    <button class="btn primary-btn" [disabled]="!form.valid" color="success" (click)="onSubmit()" expand="block">Save</button>
   </form>
 </ion-content>

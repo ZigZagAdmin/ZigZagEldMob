@@ -7,14 +7,10 @@ import { InsertDvirPageRoutingModule } from './insert-dvir-routing.module';
 
 import { InsertDvirPage } from './insert-dvir.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    IonicModule,
-    InsertDvirPageRoutingModule,
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, InsertDvirPageRoutingModule, HeaderComponentModule],
   declarations: [InsertDvirPage],
 })
 export class InsertDvirPageModule {}

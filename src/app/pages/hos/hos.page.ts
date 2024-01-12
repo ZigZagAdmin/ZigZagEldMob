@@ -13,6 +13,7 @@ import { formatDate } from '@angular/common';
 import { ModalController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Vehicle } from 'src/app/models/vehicle';
+import { timeZone } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-hos',
@@ -112,11 +113,10 @@ export class HosPage implements OnInit {
                   this.logHistories[this.logHistories.length - 1];
 
                 lastLogHistory.DateEnd = formatDate(
-                  new Date().toLocaleString('en-US', {
-                    timeZone: this.TimeZoneCity,
-                  }),
+                  new Date(),
                   'yyyy-MM-ddTHH:mm:ss',
-                  'en_US'
+                  'en_US',
+                  timeZone[this.TimeZoneCity as keyof typeof timeZone]
                 );
 
                 let LoginLogHistory: LogHistories = {
@@ -126,18 +126,16 @@ export class HosPage implements OnInit {
                   CountryCode: '',
                   DataDiagnosticEvent: false,
                   DateBgn: formatDate(
-                    new Date().toLocaleString('en-US', {
-                      timeZone: this.TimeZoneCity,
-                    }),
+                    new Date(),
                     'yyyy-MM-ddTHH:mm:ss',
-                    'en_US'
+                    'en_US',
+                    timeZone[this.TimeZoneCity as keyof typeof timeZone]
                   ),
                   DateEnd: formatDate(
-                    new Date().toLocaleString('en-US', {
-                      timeZone: this.TimeZoneCity,
-                    }),
+                    new Date(),
                     'yyyy-MM-ddTHH:mm:ss',
-                    'en_US'
+                    'en_US',
+                    timeZone[this.TimeZoneCity as keyof typeof timeZone]
                   ),
                   DistanceSince: 0,
                   DriverId: this.driverId,
@@ -340,11 +338,10 @@ export class HosPage implements OnInit {
         sDateEnd = event.DateEnd;
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
-            new Date().toLocaleString('en-US', {
-              timeZone: this.TimeZoneCity,
-            }),
+            new Date(),
             'yyyy-MM-ddTHH:mm:ss',
-            'en_US'
+            'en_US',
+            timeZone[this.TimeZoneCity as keyof typeof timeZone]
           );
         }
 
@@ -717,11 +714,10 @@ export class HosPage implements OnInit {
         filteredLogHistories[filteredLogHistories.length - 1];
       if (lastLogHistory) {
         const currentDate = formatDate(
-          new Date().toLocaleString('en-US', {
-            timeZone: this.TimeZoneCity,
-          }),
+          new Date(),
           'yyyy-MM-ddTHH:mm:ss',
-          'en_US'
+          'en_US',
+          timeZone[this.TimeZoneCity as keyof typeof timeZone]
         );
         lastLogHistory.DateEnd = currentDate;
         console.log('LAST LOGHISTORY = ', lastLogHistory);
@@ -761,11 +757,10 @@ export class HosPage implements OnInit {
         CountryCode: '',
         DataDiagnosticEvent: false,
         DateBgn: formatDate(
-          new Date().toLocaleString('en-US', {
-            timeZone: this.TimeZoneCity,
-          }),
+          new Date(),
           'yyyy-MM-ddTHH:mm:ss',
-          'en_US'
+          'en_US',
+          timeZone[this.TimeZoneCity as keyof typeof timeZone]
         ),
         DateEnd: '0001-01-01T00:00:00',
         DistanceSince: 0,
@@ -925,22 +920,22 @@ export class HosPage implements OnInit {
 
         this.countDays.push(newLogDaily);
 
-        this.dashboardService.updateLogDaily(newLogDaily).subscribe(
-          (response) => {
-            console.log('LogDaily is updated on server:', response);
-          },
-          async (error) => {
-            console.log('Internet Status' + this.networkStatus);
-            let tempEerror = {
-              url: 'api/eldDashboard/UploadLogDailies',
-              body: newLogDaily,
-            };
-            let offlineArray = await this.storage.get('offlineArray');
-            offlineArray.push(tempEerror);
-            await this.storage.set('offlineArray', offlineArray);
-            console.log('Pushed in offlineArray');
-          }
-        );
+        // this.dashboardService.updateLogDaily(newLogDaily).subscribe(
+        //   (response) => {
+        //     console.log('LogDaily is updated on server:', response);
+        //   },
+        //   async (error) => {
+        //     console.log('Internet Status' + this.networkStatus);
+        //     let tempEerror = {
+        //       url: 'api/eldDashboard/UploadLogDailies',
+        //       body: newLogDaily,
+        //     };
+        //     let offlineArray = await this.storage.get('offlineArray');
+        //     offlineArray.push(tempEerror);
+        //     await this.storage.set('offlineArray', offlineArray);
+        //     console.log('Pushed in offlineArray');
+        //   }
+        // );
       }
       currentDate.setDate(currentDate.getDate() - 1);
     }

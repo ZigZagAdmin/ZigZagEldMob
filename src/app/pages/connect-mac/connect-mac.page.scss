@@ -42,6 +42,19 @@
   display: flex;
   align-items: center;
   gap: 15px;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .title-back {
+    img {
+      filter: invert(1);
+    }
+  }
 }
 
 .custom-subtitle {

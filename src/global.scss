@@ -1,4 +1,4 @@
-@import "./theme/fonts.scss";
+@import './theme/fonts.scss';
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -11,23 +11,23 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import "@ionic/angular/css/core.css";
+@import '@ionic/angular/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
-@import "@ionic/angular/css/normalize.css";
-@import "@ionic/angular/css/structure.css";
-@import "@ionic/angular/css/typography.css";
-@import "@ionic/angular/css/display.css";
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
 
 /* Optional CSS utils that can be commented out */
-@import "@ionic/angular/css/padding.css";
-@import "@ionic/angular/css/float-elements.css";
-@import "@ionic/angular/css/text-alignment.css";
-@import "@ionic/angular/css/text-transformation.css";
-@import "@ionic/angular/css/flex-utils.css";
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
 
 * {
-  font-family: "Gilroy", sans-serif;
+  font-family: 'Gilroy', sans-serif;
 }
 // .flex-center {
 //     display: flex;
@@ -172,7 +172,7 @@ p {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background: url("assets/icon/arrow-bottom-2.svg") no-repeat;
+  background: url('assets/icon/arrow-bottom-2.svg') no-repeat;
   background-position: right 10px center;
   padding: 10px !important;
 }
@@ -185,7 +185,7 @@ p {
 .subtitle-lg {
   color: var(--gray-700);
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
 }
 .text-1 {
   color: var(--gray-500);
@@ -256,4 +256,16 @@ p {
 
 .padding-g {
   padding: 30px;
+}
+
+.weight-500 {
+  font-weight: 500;
+}
+
+.no-data {
+  width: 100%;
+  height: calc(100% - 57px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

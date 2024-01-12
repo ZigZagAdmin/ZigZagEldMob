@@ -52,56 +52,61 @@
   </ion-item>
 </ion-content> -->
 
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/others"></ion-back-button>
     </ion-buttons>
     <ion-title>Rules</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding">
-  <div class="edit-dvir-block">
-    <div class="flex-b">
-      <p class="text-2">Cycle Rule</p>
-      <div class="btn secondary-btn">USA 70 hour / 8 day</div>
+<ion-content [forceOverscroll]="false">
+  <app-header [title]="'Rules'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <div style="display: flex; flex-direction: column; height: calc(100% - 57px)">
+    <div class="edit-dvir-block padding-g">
+      <div class="flex-b">
+        <p class="text-2">Cycle Rule</p>
+        <div class="btn secondary-btn">USA 70 hour / 8 day</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">Cargo Type</p>
+        <div class="btn secondary-btn">Property</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">Rest Break</p>
+        <div class="btn secondary-btn">30 Min Required</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">Restart</p>
+        <div class="btn secondary-btn">34 hours Restart</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">16-hour short-haul exeption</p>
+        <div class="btn error-btn">Forbidden</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">Personal Conveyance</p>
+        <div class="btn success-btn">Allowed</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">Yard Moves</p>
+        <div class="btn success-btn">Allowed</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">Unlinited Trilerlease</p>
+        <div class="btn error-btn">Forbidden</div>
+      </div>
+      <div class="flex-b">
+        <p class="text-2">Unlimited Shipping Documents</p>
+        <div class="btn error-btn">Forbidden</div>
+      </div>
     </div>
-    <div class="flex-b">
-      <p class="text-2">Cargo Type</p>
-      <div class="btn secondary-btn">Property</div>
-    </div>
-    <div class="flex-b">
-      <p class="text-2">Rest Break</p>
-      <div class="btn secondary-btn">30 Min Required</div>
-    </div>
-    <div class="flex-b">
-      <p class="text-2">Restart</p>
-      <div class="btn secondary-btn">34 hours Restart</div>
-    </div>
-    <div class="flex-b">
-      <p class="text-2">16-hour short-haul exeption</p>
-      <div class="btn error-btn">Forbidden</div>
-    </div>
-    <div class="flex-b">
-      <p class="text-2">Personal Conveyance</p>
-      <div class="btn success-btn">Allowed</div>
-    </div>
-    <div class="flex-b">
-      <p class="text-2">Yard Moves</p>
-      <div class="btn success-btn">Allowed</div>
-    </div>
-    <div class="flex-b">
-      <p class="text-2">Unlinited Trilerlease</p>
-      <div class="btn error-btn">Forbidden</div>
-    </div>
-    <div class="flex-b">
-      <p class="text-2">Unlimited Shipping Documents</p>
-      <div class="btn error-btn">Forbidden</div>
-    </div>
-    <div class="reminder">
-      <img src="assets/icon/reminder.svg" alt="reminder">
-      <p class="reminder-text">In order to change your information please contact your fleet manager</p>
+    <div style="flex: 1; display: flex; align-items: flex-end">
+      <div class="reminder">
+        <img src="assets/icon/reminder.svg" alt="reminder" />
+        <p class="reminder-text">In order to change your information please contact your fleet manager</p>
+      </div>
     </div>
   </div>
 </ion-content>

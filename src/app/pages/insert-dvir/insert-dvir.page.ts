@@ -139,58 +139,49 @@ export class InsertDvirPage implements OnInit {
 
   async ngOnInit() {
     this.initSignaturePad();
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getCompany().subscribe((company) => {
-            this.company = company;
-          });
-          this.databaseService.getDvirs().subscribe((dvirs) => {
-            this.dvirs = dvirs;
-          });
-        }
-      });
+    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+        this.databaseService.getCompany().subscribe(company => {
+          this.company = company;
+        });
+        this.databaseService.getDvirs().subscribe(dvirs => {
+          this.dvirs = dvirs;
+        });
+      }
+    });
     this.pickedVehicle = await this.storage.get('pickedVehicle');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
 
-    this.form
-      .get('DefectsVehicle')
-      ?.valueChanges.subscribe((defectsVehicle) => {
-        const defectsTrailers = this.form.value.DefectsTrailers || [];
-        this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
-      });
+    this.form.get('DefectsVehicle')?.valueChanges.subscribe(defectsVehicle => {
+      const defectsTrailers = this.form.value.DefectsTrailers || [];
+      this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
+    });
 
-    this.form
-      .get('DefectsTrailers')
-      ?.valueChanges.subscribe((defectsTrailers) => {
-        const defectsVehicle = this.form.value.DefectsVehicle || [];
-        this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
-      });
+    this.form.get('DefectsTrailers')?.valueChanges.subscribe(defectsTrailers => {
+      const defectsVehicle = this.form.value.DefectsVehicle || [];
+      this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
+    });
 
-    this.form
-      .get('DefectsTrailers')
-      ?.valueChanges.subscribe((selectedDefects) => {
-        const trailersControl = this.form.get('Trailers');
-        if (selectedDefects && selectedDefects.length > 0) {
-          trailersControl?.setValidators(Validators.required);
-        } else {
-          trailersControl?.clearValidators();
-        }
-        trailersControl?.updateValueAndValidity();
-      });
-
-    this.networkSub = this.internetService.internetStatus$.subscribe(
-      (status) => {
-        this.networkStatus = status;
-        console.log('Intenet Status' + status);
+    this.form.get('DefectsTrailers')?.valueChanges.subscribe(selectedDefects => {
+      const trailersControl = this.form.get('Trailers');
+      if (selectedDefects && selectedDefects.length > 0) {
+        trailersControl?.setValidators(Validators.required);
+      } else {
+        trailersControl?.clearValidators();
       }
-    );
+      trailersControl?.updateValueAndValidity();
+    });
+
+    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
+      this.networkStatus = status;
+      console.log('Intenet Status' + status);
+    });
   }
 
   switchStatus(status: string) {
-    this.form.value.StatusCode = status
+    this.form.value.StatusCode = status;
   }
 
   updateDvirStatusCode(defectsVehicle: any[], defectsTrailers: any[]) {
@@ -253,18 +244,12 @@ export class InsertDvirPage implements OnInit {
   async onSubmit() {
     if (this.form.valid) {
       const selectedStatusCode = this.form.value.StatusCode;
-      const selectedStatus = this.DvirStatuses.find(
-        (status) => status.StatusCode === selectedStatusCode
-      );
+      const selectedStatus = this.DvirStatuses.find(status => status.StatusCode === selectedStatusCode);
       const selectedStatusName = selectedStatus?.StatusName || '';
 
-      const defectsVehicle = Array.isArray(this.form.value.DefectsVehicle)
-        ? this.form.value.DefectsVehicle.join(', ')
-        : this.form.value.DefectsVehicle || '';
+      const defectsVehicle = Array.isArray(this.form.value.DefectsVehicle) ? this.form.value.DefectsVehicle.join(', ') : this.form.value.DefectsVehicle || '';
 
-      const defectsTrailers = Array.isArray(this.form.value.DefectsTrailers)
-        ? this.form.value.DefectsTrailers.join(', ')
-        : this.form.value.DefectsTrailers || '';
+      const defectsTrailers = Array.isArray(this.form.value.DefectsTrailers) ? this.form.value.DefectsTrailers.join(', ') : this.form.value.DefectsTrailers || '';
 
       const dvirData: DVIRs = {
         DVIRId: this.uuidv4(),
@@ -289,10 +274,10 @@ export class InsertDvirPage implements OnInit {
 
       if (this.networkStatus === true) {
         this.dashboardService.updateDVIR(dvirData).subscribe(
-          (response) => {
+          response => {
             console.log('DVIR is on server:', response);
           },
-          async (error) => {
+          async error => {
             console.log('Internet Status' + this.networkStatus);
             let tempEerror = {
               url: 'api/EldDashboard/uploadDVIR',
@@ -322,14 +307,11 @@ export class InsertDvirPage implements OnInit {
   }
 
   uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-      /[xy]/g,
-      function (c) {
-        const r = (Math.random() * 16) | 0,
-          v = c == 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      }
-    );
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0,
+        v = c == 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   ionViewWillLeave() {
@@ -337,5 +319,9 @@ export class InsertDvirPage implements OnInit {
       this.databaseSubscription.unsubscribe();
     }
     this.networkSub.unsubscribe();
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('/unitab/dvir');
   }
 }

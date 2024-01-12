@@ -273,121 +273,98 @@
   </form>
 </ion-content> -->
 
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/unitab/dvir"></ion-back-button>
     </ion-buttons>
     <ion-title>Insert Dvir</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+<ion-content>
+  <app-header [title]="'Insert Dvir'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <form class="padding-g" style="padding-top: 10px" [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="edit-form">
       <p class="subtitle-lg">General Info</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <p class="text-2">Company</p>
+          <p class="text-2 weight-500">Company</p>
           <input class="input-2 readonly" type="text" [value]="company?.name" readonly />
         </div>
         <div class="input-block-2">
-          <p class="text-2">Time</p>
+          <p class="text-2 weight-500">Time</p>
           <div class="two-inputs">
             <input class="input-2 readonly width-50" type="text" formControlName="Date" readonly />
             <input class="input-2 readonly width-50" type="text" formControlName="Time" readonly />
           </div>
         </div>
         <div class="input-block-2">
-          <p class="text-2">Location</p>
+          <p class="text-2 weight-500">Location</p>
           <input class="input-2 readonly" type="text" formControlName="LocationDescription" readonly />
         </div>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <p class="text-2">Vehicle Name</p>
+          <p class="text-2 weight-500">Vehicle Name</p>
           <input class="input-2 readonly" type="text" formControlName="VehicleUnit" readonly />
         </div>
         <div class="input-block-2">
-          <p class="text-2">Odometer</p>
+          <p class="text-2 weight-500">Odometer</p>
           <input class="input-2 readonly" type="text" formControlName="Odometer" readonly />
         </div>
         <div class="input-block-2">
-          <p class="text-2">Vehicle Defects (Optional)</p>
+          <p class="text-2 weight-500">Vehicle Defects (Optional)</p>
           <select class="input-2 select" type="text" formControlName="DefectsVehicle">
-            <option
-              *ngFor="let defect of defectsVehicle"
-              [value]="defect"
-            >
-              {{ defect }}
-            </option>
+            <option *ngFor="let defect of defectsVehicle" [value]="defect">{{ defect }}</option>
           </select>
         </div>
       </div>
       <p class="subtitle-lg">Trailer Info</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <p class="text-2">Trailer Name</p>
+          <p class="text-2 weight-500">Trailer Name</p>
           <input class="input-2" type="text" formControlName="Trailers" />
         </div>
         <div class="input-block-2">
-          <p class="text-2">Trailer Defects (Optional)</p>
+          <p class="text-2 weight-500">Trailer Defects (Optional)</p>
           <select class="input-2 select" type="text" formControlName="DefectsTrailers">
-            <option
-              *ngFor="let defect of defectsTrailers"
-              [value]="defect"
-            >
-              {{ defect }}
-            </option>
+            <option *ngFor="let defect of defectsTrailers" [value]="defect">{{ defect }}</option>
           </select>
         </div>
       </div>
       <p class="subtitle-lg">Status</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <p class="text-2">Status</p>
+          <p class="text-2 weight-500">Status</p>
           <div class="statuses">
             <div class="status" (click)="switchStatus('VCS')">
-              <img src="assets/icon/satis-success.svg" alt="ok">
+              <img src="assets/icon/satis-success.svg" alt="ok" />
               <p class="text-success">Satisfactory Condition</p>
-              <img *ngIf="form.value.StatusCode !== 'VCS'" src="assets/icon/circle-white.svg" alt="circle">
-              <img *ngIf="form.value.StatusCode === 'VCS'" src="assets/icon/check-mark.svg" alt="circle">
+              <img *ngIf="form.value.StatusCode !== 'VCS'" src="assets/icon/circle-white.svg" alt="circle" />
+              <img *ngIf="form.value.StatusCode === 'VCS'" src="assets/icon/check-mark.svg" alt="circle" />
             </div>
             <div class="status" (click)="switchStatus('D')">
-              <img src="assets/icon/satis-error.svg" alt="ok">
+              <img src="assets/icon/satis-error.svg" alt="ok" />
               <p class="text-error">Has Defects</p>
-              <img *ngIf="form.value.StatusCode !== 'D'" src="assets/icon/circle-white.svg" alt="circle">
-              <img *ngIf="form.value.StatusCode === 'D'" src="assets/icon/check-mark.svg" alt="circle">
+              <img *ngIf="form.value.StatusCode !== 'D'" src="assets/icon/circle-white.svg" alt="circle" />
+              <img *ngIf="form.value.StatusCode === 'D'" src="assets/icon/check-mark.svg" alt="circle" />
             </div>
           </div>
         </div>
         <div class="input-block-2">
-          <p class="text-2">Comments</p>
+          <p class="text-2 weight-500">Comments</p>
           <textarea class="input-2" formControlName="Comments" name="comments" id="" cols="30" rows="10"></textarea>
         </div>
       </div>
       <p class="subtitle-lg">Signature</p>
       <ion-row class="ion-justify-content-center">
         <ion-col size="auto">
-          <canvas
-            #sPad
-            width="250"
-            height="200"
-            style="touch-action: none; border: 1px solid black"
-          ></canvas>
+          <canvas #sPad width="250" height="200" style="touch-action: none; border: 1px solid black"></canvas>
         </ion-col>
       </ion-row>
-      <button
-        class="btn primary-btn"
-        [disabled]="!form.valid"
-        color="success"
-        (click)="onSubmit()"
-        expand="block"
-      >
-        Save
-      </button>
+      <button class="btn primary-btn" [disabled]="!form.valid" color="success" (click)="onSubmit()" expand="block">Save</button>
     </div>
-
   </form>
 </ion-content>

@@ -8,12 +8,15 @@ import { CoDriverPageRoutingModule } from './co-driver-routing.module';
 
 import { CoDriverPage } from './co-driver.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    CoDriverPageRoutingModule
+    CoDriverPageRoutingModule,
+    HeaderComponentModule
   ],
   declarations: [CoDriverPage]
 })

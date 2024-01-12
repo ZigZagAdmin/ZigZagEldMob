@@ -7,18 +7,9 @@ import { HosPageRoutingModule } from './hos-routing.module';
 import { HosPage } from './hos.page';
 import { MilisecToHoursAndMinutesPipe } from 'src/app/pipe/milisec-to-hours-and-minutes.pipe';
 import { ConvertSecondsToHoursAndMinutesPipe } from 'src/app/pipe/convert-secotds-to-hours-and-minutes.pipe';
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    HosPageRoutingModule,
-    NgCircleProgressModule.forRoot(),
-  ],
-  declarations: [
-    HosPage,
-    MilisecToHoursAndMinutesPipe,
-    ConvertSecondsToHoursAndMinutesPipe,
-  ],
+  imports: [CommonModule, FormsModule, IonicModule, HosPageRoutingModule, NgCircleProgressModule.forRoot(), HeaderComponentModule],
+  declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe],
 })
 export class HosPageModule {}

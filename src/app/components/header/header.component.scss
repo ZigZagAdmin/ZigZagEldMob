@@ -1,0 +1,39 @@
+.title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.title-back {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .title-back {
+    img {
+      filter: invert(1);
+    }
+  }
+}
+
+.custom-subtitle {
+  margin-left: 35px;
+}
+
+.title-container {
+  padding-bottom: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .title-back {
+    img {
+      filter: invert(1);
+    }
+  }
+}

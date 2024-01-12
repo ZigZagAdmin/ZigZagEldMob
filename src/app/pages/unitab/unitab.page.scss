@@ -1,10 +1,19 @@
 ion-tab-bar {
-    height: 60px;
-    border: none;
-    background: #FFF;
-    box-shadow: 0px -7px 38px 0px #D6DAE1;
+  height: 60px;
+  border: none;
+  background: #fff;
+  // box-shadow: 0px -7px 38px 0px #D6DAE1;
 }
 
 ion-tab-button.tab-selected > img {
-    filter: saturate(7.5);
+  filter: saturate(7.5);
+}
+
+@media (prefers-color-scheme: dark) {
+}
+
+@media (prefers-color-scheme: light) {
+  ion-tab-bar {
+    box-shadow: 0px -7px 38px 0px #d6dae1;
+  }
 }

@@ -106,7 +106,7 @@
   </div>
 </ion-content> -->
 
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="end">
       <ion-button (click)="insertDvir()">
@@ -115,10 +115,18 @@
     </ion-buttons>
     <ion-title>DVIRs</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding">
-  <div class="dvirs-list">
+<ion-content [forceOverscroll]="false">
+  <!-- <div class="title-container padding-g">
+    <div class="page-title">Select Duty Status</div>
+    <div class="dvir-add" (click)="insertDvir()">+</div>
+  </div> -->
+  <app-header [title]="'Select Duty Status'">
+    <div class="dvir-add" (click)="insertDvir()">+</div>
+  </app-header>
+  <div class="dvirs-list" *ngIf="dvirs.length !== 0">
     <app-card *ngFor="let dvir of dvirs" [dvir]="dvir" (click)="editDvir(dvir)"></app-card>
   </div>
+  <div class="no-data" *ngIf="dvirs.length === 0">No data.</div>
 </ion-content>

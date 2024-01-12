@@ -56,62 +56,67 @@
   </ion-toolbar>
 </ion-footer> -->
 
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/others"></ion-back-button>
     </ion-buttons>
     <ion-title>Account</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
-<ion-content class="ion-padding">
-  <div class="edit-dvir-block">
-    <div class="input-block-2">
-      <p class="text-2">Name</p>
-      <input class="input-2 readonly" type="text" value="Nazarco Andrei" readonly />
-    </div>
-    <div class="input-block-2">
-      <p class="text-2">Email</p>
-      <input class="input-2 readonly" type="text" value="123@gmail.com" readonly />
-    </div>
-    <div class="input-block-2">
-      <p class="text-2">Phone Number</p>
-      <input class="input-2 readonly" type="text" value="+1234567" readonly />
-    </div>
-    <div class="three-inputs">
+<ion-content [forceOverscroll]="false">
+  <app-header [title]="'Account'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <div style="display: flex; flex-direction: column; height: calc(100% - 57px)">
+    <div class="edit-dvir-block padding-g">
       <div class="input-block-2">
-        <p class="text-2">License</p>
-        <input class="input-2 readonly" type="text" value="AR, 3333" readonly />
+        <p class="text-2">Name</p>
+        <input class="input-2 readonly" type="text" value="Nazarco Andrei" readonly />
       </div>
       <div class="input-block-2">
-        <p class="text-2">Time Zone</p>
-        <input class="input-2 readonly" type="text" value="CT" readonly />
+        <p class="text-2">Email</p>
+        <input class="input-2 readonly" type="text" value="123@gmail.com" readonly />
       </div>
       <div class="input-block-2">
-        <p class="text-2">Odometer</p>
-        <input class="input-2 readonly" type="text" value="124344" readonly />
+        <p class="text-2">Phone Number</p>
+        <input class="input-2 readonly" type="text" value="+1234567" readonly />
+      </div>
+      <div class="three-inputs">
+        <div class="input-block-2">
+          <p class="text-2">License</p>
+          <input class="input-2 readonly" type="text" value="AR, 3333" readonly />
+        </div>
+        <div class="input-block-2">
+          <p class="text-2">Time Zone</p>
+          <input class="input-2 readonly" type="text" value="CT" readonly />
+        </div>
+        <div class="input-block-2">
+          <p class="text-2">Odometer</p>
+          <input class="input-2 readonly" type="text" value="124344" readonly />
+        </div>
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Carrier</p>
+        <input class="input-2 readonly" type="text" value="ZigZag Plus" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Main Office Address</p>
+        <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Home Terminal Address</p>
+        <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
+      </div>
+      <div class="input-block-2">
+        <p class="text-2">Language</p>
+        <input class="input-2 readonly" type="text" value="English" readonly />
       </div>
     </div>
-    <div class="input-block-2">
-      <p class="text-2">Carrier</p>
-      <input class="input-2 readonly" type="text" value="ZigZag Plus" readonly />
-    </div>
-    <div class="input-block-2">
-      <p class="text-2">Main Office Address</p>
-      <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
-    </div>
-    <div class="input-block-2">
-      <p class="text-2">Home Terminal Address</p>
-      <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
-    </div>
-    <div class="input-block-2">
-      <p class="text-2">Language</p>
-      <input class="input-2 readonly" type="text" value="English" readonly />
-    </div>
-    <div class="reminder">
-      <img src="assets/icon/reminder.svg" alt="reminder">
-      <p class="reminder-text">In order to change your information please contact your fleet manager</p>
+    <div style="flex: 1; display: flex; align-items: flex-end">
+      <div class="reminder">
+        <img src="assets/icon/reminder.svg" alt="reminder" />
+        <p class="reminder-text">In order to change your information please contact your fleet manager</p>
+      </div>
     </div>
   </div>
 </ion-content>

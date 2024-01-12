@@ -446,14 +446,12 @@
       </div>
       <img src="assets/icon/bluetooth-red.svg" alt="bluetooth" />
     </div>
+
     <div class="warning">
       <img src="assets/icon/warning.svg" alt="warning" />
       <div class="warning-text">
         <p class="subtitle">Warning</p>
-        <p class="text-1">
-          Make sure that ELD hardware is properly installed and Vehicle power is
-          ON
-        </p>
+        <p class="text-1">Make sure that ELD hardware is properly installed and Vehicle power is ON</p>
       </div>
     </div>
     <div class="status-bar">
@@ -466,136 +464,83 @@
     </div>
     <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
       <ng-template>
-        <ion-header>
+        <!-- <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-button (click)="cancel()">Cancel</ion-button>
             </ion-buttons>
             <ion-title color="dark">Select Duty Status</ion-title>
           </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
+        </ion-header> -->
+        <ion-content>
+          <!-- <div class="title-container padding-g">
+            <div class="title-block">
+              <img
+                (click)="cancel()"
+                style="width: 20px; height: 20px"
+                src="../../../assets/imgs/back-arrow.png"
+              />
+              <div class="page-title">Select Duty Status</div>
+            </div>
+          </div> -->
+          <app-header [title]="'Select Duty Status'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
           <div class="modal-content">
             <div class="select-statuses">
               <div class="select-status" (click)="selectButton('OFF')">
                 <img src="assets/icon/circle-gray.svg" alt="circle" />
                 <p class="subtitle">Off Duty</p>
-                <img
-                  *ngIf="selectedButton !== 'OFF'"
-                  src="assets/icon/circle-white.svg"
-                  alt="circle"
-                />
-                <img
-                  *ngIf="selectedButton === 'OFF'"
-                  src="assets/icon/check-mark.svg"
-                  alt="circle"
-                />
+                <img *ngIf="selectedButton !== 'OFF'" src="assets/icon/circle-white.svg" alt="circle" />
+                <img *ngIf="selectedButton === 'OFF'" src="assets/icon/check-mark.svg" alt="circle" />
               </div>
               <div class="select-status" (click)="selectButton('SB')">
                 <img src="assets/icon/circle-blue.svg" alt="circle" />
                 <p class="subtitle">Sleeper Berth</p>
-                <img
-                  *ngIf="selectedButton !== 'SB'"
-                  src="assets/icon/circle-white.svg"
-                  alt="circle"
-                />
-                <img
-                  *ngIf="selectedButton === 'SB'"
-                  src="assets/icon/check-mark.svg"
-                  alt="circle"
-                />
+                <img *ngIf="selectedButton !== 'SB'" src="assets/icon/circle-white.svg" alt="circle" />
+                <img *ngIf="selectedButton === 'SB'" src="assets/icon/check-mark.svg" alt="circle" />
               </div>
               <div class="select-status" (click)="selectButton('ON')">
                 <img src="assets/icon/circle-green.svg" alt="circle" />
                 <p class="subtitle">On Duty</p>
-                <img
-                  *ngIf="selectedButton !== 'ON'"
-                  src="assets/icon/circle-white.svg"
-                  alt="circle"
-                />
-                <img
-                  *ngIf="selectedButton === 'ON'"
-                  src="assets/icon/check-mark.svg"
-                  alt="circle"
-                />
+                <img *ngIf="selectedButton !== 'ON'" src="assets/icon/circle-white.svg" alt="circle" />
+                <img *ngIf="selectedButton === 'ON'" src="assets/icon/check-mark.svg" alt="circle" />
               </div>
               <div class="select-status" (click)="selectButton('D')">
                 <img src="assets/icon/circle-orange.svg" alt="circle" />
                 <p class="subtitle">Driving</p>
-                <img
-                  *ngIf="selectedButton !== 'D'"
-                  src="assets/icon/circle-white.svg"
-                  alt="circle"
-                />
-                <img
-                  *ngIf="selectedButton === 'D'"
-                  src="assets/icon/check-mark.svg"
-                  alt="circle"
-                />
+                <img *ngIf="selectedButton !== 'D'" src="assets/icon/circle-white.svg" alt="circle" />
+                <img *ngIf="selectedButton === 'D'" src="assets/icon/check-mark.svg" alt="circle" />
               </div>
               <div class="select-status" (click)="selectButton('PC')">
                 <img src="assets/icon/circle-purple.svg" alt="circle" />
                 <p class="subtitle">Personal Conveyance</p>
-                <img
-                  *ngIf="selectedButton !== 'PC'"
-                  src="assets/icon/circle-white.svg"
-                  alt="circle"
-                />
-                <img
-                  *ngIf="selectedButton === 'PC'"
-                  src="assets/icon/check-mark.svg"
-                  alt="circle"
-                />
+                <img *ngIf="selectedButton !== 'PC'" src="assets/icon/circle-white.svg" alt="circle" />
+                <img *ngIf="selectedButton === 'PC'" src="assets/icon/check-mark.svg" alt="circle" />
               </div>
               <div class="select-status" (click)="selectButton('YM')">
                 <img src="assets/icon/circle-red.svg" alt="circle" />
                 <p class="subtitle">Yard Moves</p>
-                <img
-                  *ngIf="selectedButton !== 'YM'"
-                  src="assets/icon/circle-white.svg"
-                  alt="circle"
-                />
-                <img
-                  *ngIf="selectedButton === 'YM'"
-                  src="assets/icon/check-mark.svg"
-                  alt="circle"
-                />
+                <img *ngIf="selectedButton !== 'YM'" src="assets/icon/circle-white.svg" alt="circle" />
+                <img *ngIf="selectedButton === 'YM'" src="assets/icon/check-mark.svg" alt="circle" />
               </div>
             </div>
             <div class="input-block">
               <label class="label">Location</label>
-              <input
-                class="input"
-                [(ngModel)]="location"
-                type="text"
-                name="location"
-              />
+              <input class="input" [(ngModel)]="location" type="text" name="location" />
             </div>
             <div class="input-block">
               <label class="label">Comments</label>
-              <textarea
-                class="input textarea"
-                [(ngModel)]="comments"
-                type="text"
-                name="location"
-              ></textarea>
+              <textarea class="input textarea" [(ngModel)]="comments" type="text" name="location"></textarea>
             </div>
             <div class="btns-flex">
               <button class="btn secondary-btn" (click)="cancel()">Back</button>
-              <button
-                class="btn primary-btn"
-                (click)="confirm()"
-                [disabled]="!isConfirmButtonActive"
-              >
-                Save
-              </button>
+              <button class="btn primary-btn" (click)="confirm()" [disabled]="!isConfirmButtonActive">Save</button>
             </div>
           </div>
         </ion-content>
       </ng-template>
     </ion-modal>
     <div class="circles">
-      <p class="text-2">Hours Remaining</p>
+      <p class="text-2" style="margin-bottom: 5px">Hours Remaining</p>
       <div class="circles-block" *ngIf="!restMode">
         <div class="circle-block">
           <circle-progress
@@ -616,8 +561,7 @@
             subtitleFontSize="22"
             [showUnits]="false"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
         <div class="circle-block">
@@ -639,8 +583,7 @@
             subtitleFontSize="22"
             [showUnits]="false"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
         <div class="circle-block">
@@ -662,8 +605,7 @@
             subtitleFontSize="22"
             [showUnits]="false"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
         <div class="circle-block">
@@ -685,8 +627,7 @@
             subtitleFontSize="22"
             [showUnits]="false"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
       </div>
@@ -698,11 +639,7 @@
           <p class="subtitle">{{ restBreak }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
-          <div
-            id="inner-1"
-            class="progress-bar-inner"
-            [style]="'width: ' + progressBreak * 100 + '%'"
-          ></div>
+          <div id="inner-1" class="progress-bar-inner" [style]="'width: ' + progressBreak * 100 + '%'"></div>
         </div>
       </div>
 
@@ -712,11 +649,7 @@
           <p class="subtitle">{{ restShift }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
-          <div
-            id="inner-2"
-            class="progress-bar-inner"
-            [style]="'width: ' + progressShift * 100 + '%'"
-          ></div>
+          <div id="inner-2" class="progress-bar-inner" [style]="'width: ' + progressShift * 100 + '%'"></div>
         </div>
       </div>
 
@@ -726,11 +659,7 @@
           <p class="subtitle">{{ restCycle }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
-          <div
-            id="inner-3"
-            class="progress-bar-inner"
-            [style]="'width: ' + progressCycle * 100 + '%'"
-          ></div>
+          <div id="inner-3" class="progress-bar-inner" [style]="'width: ' + progressCycle * 100 + '%'"></div>
         </div>
       </div>
     </div>
@@ -755,16 +684,9 @@
     </button>
     <p class="subtitle">Logs and Recap Hours</p>
     <div class="log-dailies">
-      <div
-        class="log-daily"
-        *ngFor="let logDaily of logDailies"
-        (click)="selectLog(logDaily)"
-      >
+      <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
         <div class="log-left">
-          <p class="subtitle">
-            {{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date:
-            'MMMM dd' }}
-          </p>
+          <p class="subtitle">{{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date: 'MMMM dd' }}</p>
           <div class="sub-info">
             <img src="assets/icon/red-point.svg" alt="point" />
             <p>Form</p>
@@ -773,9 +695,7 @@
           </div>
         </div>
         <div class="log-right">
-          <p class="hours-worked">
-            {{ logDaily.timeWorked | convertSecotdsToHoursAndMinutes }}
-          </p>
+          <p class="hours-worked">{{ logDaily.timeWorked | convertSecotdsToHoursAndMinutes }}</p>
         </div>
       </div>
     </div>

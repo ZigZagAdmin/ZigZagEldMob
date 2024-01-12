@@ -1,5 +1,26 @@
 .dvirs-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 30px;
+}
+
+.dvir-add {
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--gray-25);
+  background-color: var(--primary-600);
+  border-radius: 10px;
+}
+
+.no-data {
+  width: 100%;
+  height: calc(100% - 152px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

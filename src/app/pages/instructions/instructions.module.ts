@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { InstructionsPageRoutingModule } from './instructions-routing.module';
 
 import { InstructionsPage } from './instructions.page';
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    InstructionsPageRoutingModule
+    InstructionsPageRoutingModule,
+    HeaderComponentModule
   ],
   declarations: [InstructionsPage]
 })

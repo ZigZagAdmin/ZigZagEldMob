@@ -8,13 +8,10 @@ import { InformationPageRoutingModule } from './information-routing.module';
 
 import { InformationPage } from './information.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    InformationPageRoutingModule
-  ],
-  declarations: [InformationPage]
+  imports: [CommonModule, FormsModule, IonicModule, InformationPageRoutingModule, HeaderComponentModule],
+  declarations: [InformationPage],
 })
 export class InformationPageModule {}

@@ -7,6 +7,7 @@ import { SelectVehiclePageRoutingModule } from './select-vehicle-routing.module'
 import { SelectVehiclePage } from './select-vehicle.page';
 import { DatabaseService } from 'src/app/services/database.service';
 import { CardComponent } from './card/card.component';
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { CardComponent } from './card/card.component';
     FormsModule,
     IonicModule,
     SelectVehiclePageRoutingModule,
+    HeaderComponentModule
   ],
   declarations: [SelectVehiclePage, CardComponent],
   providers: [Storage, DatabaseService],

@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  AfterViewChecked,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { formatDate } from '@angular/common';
@@ -107,7 +101,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
 
   databaseSubscription: Subscription | undefined;
   signaturePad!: SignaturePad;
-  mechanicSignaturePad!: SignaturePad | null
+  mechanicSignaturePad!: SignaturePad | null;
   company: Company | undefined;
   dvirs: DVIRs[] = [];
   dvir: any;
@@ -148,80 +142,66 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
   }
 
   async ngOnInit() {
-    this.activatedRoute.paramMap.subscribe((params) => {
+    this.activatedRoute.paramMap.subscribe(params => {
       this.dvirId = params.get('dvirId');
     });
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getCompany().subscribe((company) => {
-            this.company = company;
-          });
-          this.databaseService.getDvirs().subscribe((dvirs) => {
-            this.dvirs = dvirs;
-            this.dvir = this.dvirs.find((item) => item.DVIRId === this.dvirId);
-            if (this.dvir) {
-              this.initSignaturePad();
-              this.fillFormWithDvirData();
-            }
-          });
-        }
-      });
+    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+        this.databaseService.getCompany().subscribe(company => {
+          this.company = company;
+        });
+        this.databaseService.getDvirs().subscribe(dvirs => {
+          this.dvirs = dvirs;
+          this.dvir = this.dvirs.find(item => item.DVIRId === this.dvirId);
+          if (this.dvir) {
+            this.initSignaturePad();
+            this.fillFormWithDvirData();
+          }
+        });
+      }
+    });
     this.pickedVehicle = await this.storage.get('pickedVehicle');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
 
-    this.form
-      .get('DefectsTrailers')
-      ?.valueChanges.subscribe((selectedDefects) => {
-        const trailersControl = this.form.get('Trailers');
-        if (selectedDefects && selectedDefects.length > 0) {
-          trailersControl?.setValidators(Validators.required);
-        } else {
-          trailersControl?.clearValidators();
-        }
-        trailersControl?.updateValueAndValidity();
-      });
-
-    this.networkSub = this.internetService.internetStatus$.subscribe(
-      (status) => {
-        this.networkStatus = status;
-        console.log('Intenet Status' + status);
+    this.form.get('DefectsTrailers')?.valueChanges.subscribe(selectedDefects => {
+      const trailersControl = this.form.get('Trailers');
+      if (selectedDefects && selectedDefects.length > 0) {
+        trailersControl?.setValidators(Validators.required);
+      } else {
+        trailersControl?.clearValidators();
       }
-    );
+      trailersControl?.updateValueAndValidity();
+    });
+
+    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
+      this.networkStatus = status;
+      console.log('Intenet Status' + status);
+    });
   }
 
   switchStatus(status: string) {
     if (status !== 'DC') {
-      this.mechanicSignaturePad = null
+      this.mechanicSignaturePad = null;
     }
-    this.form.value.StatusCode = status
+    this.form.value.StatusCode = status;
   }
 
   navigateBack() {
-    this.router.navigate(['/unitab/dvir'])
+    this.router.navigate(['/unitab/dvir']);
   }
 
   ngAfterViewChecked() {
-    if (
-      this.form.value.StatusCode === 'DC' &&
-      this.mechanicSignaturePadElement &&
-      this.mechanicSignaturePadElement.nativeElement &&
-      !this.mechanicSignaturePad
-    ) {
+    if (this.form.value.StatusCode === 'DC' && this.mechanicSignaturePadElement && this.mechanicSignaturePadElement.nativeElement && !this.mechanicSignaturePad) {
       this.initMechanicalSignaturePad();
     }
   }
 
   fillFormWithDvirData() {
     if (this.dvir) {
-      const defectsVehicleArray = this.dvir.DefectsVehicle.split(',').map(
-        (element: string) => element.trim()
-      );
-      const defectsTrailersArray = this.dvir.DefectsTrailers.split(',').map(
-        (element: string) => element.trim()
-      );
+      const defectsVehicleArray = this.dvir.DefectsVehicle.split(',').map((element: string) => element.trim());
+      const defectsTrailersArray = this.dvir.DefectsTrailers.split(',').map((element: string) => element.trim());
 
       this.form.patchValue({
         Date: formatDate(this.dvir.CreateDate, 'MMM d, y', 'en_US'),
@@ -236,8 +216,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         StatusName: this.dvir.StatusName,
         StatusCode: this.dvir.StatusCode,
         Signature: 'data:image/png;base64,' + this.dvir.Signature,
-        MechanicSignature:
-          'data:image/png;base64,' + this.dvir.MechanicSignature || '',
+        MechanicSignature: 'data:image/png;base64,' + this.dvir.MechanicSignature || '',
       });
     }
   }
@@ -245,18 +224,12 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
   async onSubmit() {
     if (this.form.valid) {
       const selectedStatusCode = this.form.value.StatusCode;
-      const selectedStatus = this.DvirStatuses.find(
-        (status) => status.StatusCode === selectedStatusCode
-      );
+      const selectedStatus = this.DvirStatuses.find(status => status.StatusCode === selectedStatusCode);
       const selectedStatusName = selectedStatus?.StatusName || '';
 
-      const defectsVehicle = Array.isArray(this.form.value.DefectsVehicle)
-        ? this.form.value.DefectsVehicle.join(', ')
-        : this.form.value.DefectsVehicle || '';
+      const defectsVehicle = Array.isArray(this.form.value.DefectsVehicle) ? this.form.value.DefectsVehicle.join(', ') : this.form.value.DefectsVehicle || '';
 
-      const defectsTrailers = Array.isArray(this.form.value.DefectsTrailers)
-        ? this.form.value.DefectsTrailers.join(', ')
-        : this.form.value.DefectsTrailers || '';
+      const defectsTrailers = Array.isArray(this.form.value.DefectsTrailers) ? this.form.value.DefectsTrailers.join(', ') : this.form.value.DefectsTrailers || '';
 
       if (this.form.value.StatusCode !== 'DC') {
         this.form.patchValue({ MechanicSignature: '' });
@@ -287,10 +260,10 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
 
       if (this.networkStatus === true) {
         this.dashboardService.updateDVIR(dvirData).subscribe(
-          (response) => {
+          response => {
             console.log('DVIR is updated on server:', response);
           },
-          async (error) => {
+          async error => {
             console.log('Internet Status' + this.networkStatus);
             let tempEerror = {
               url: 'api/EldDashboard/uploadDVIR',
@@ -313,7 +286,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         console.log('Pushed in offlineArray');
       }
 
-      const index = this.dvirs.findIndex((item) => item.DVIRId === this.dvirId);
+      const index = this.dvirs.findIndex(item => item.DVIRId === this.dvirId);
       if (index !== -1) {
         this.dvirs[index] = dvirData;
       }
@@ -323,14 +296,10 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
   }
 
   initSignaturePad() {
-    const driverSignatureCanvas: HTMLCanvasElement | null =
-      this.signaturePadElement.nativeElement;
+    const driverSignatureCanvas: HTMLCanvasElement | null = this.signaturePadElement.nativeElement;
 
     if (driverSignatureCanvas) {
-      this.signaturePad = new SignaturePad(
-        driverSignatureCanvas,
-        this.signaturePadOptions
-      );
+      this.signaturePad = new SignaturePad(driverSignatureCanvas, this.signaturePadOptions);
       driverSignatureCanvas.addEventListener('touchend', () => {
         this.updateSignatureField();
       });
@@ -343,29 +312,22 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
 
   initMechanicalSignaturePad() {
     console.log('vizvali');
-    const mechanicSignatureCanvas: HTMLCanvasElement | null =
-      this.mechanicSignaturePadElement.nativeElement;
+    const mechanicSignatureCanvas: HTMLCanvasElement | null = this.mechanicSignaturePadElement.nativeElement;
 
     if (mechanicSignatureCanvas) {
-      this.mechanicSignaturePad = new SignaturePad(
-        mechanicSignatureCanvas,
-        this.signaturePadOptions
-      );
+      this.mechanicSignaturePad = new SignaturePad(mechanicSignatureCanvas, this.signaturePadOptions);
       mechanicSignatureCanvas.addEventListener('touchend', () => {
         this.updateMechanicSignatureField();
       });
 
       if (this.dvir && this.dvir.MechanicSignature) {
-        this.renderMechanicSignature(
-          'data:image/png;base64,' + this.dvir.MechanicSignature
-        );
+        this.renderMechanicSignature('data:image/png;base64,' + this.dvir.MechanicSignature);
       }
     }
   }
 
   renderSignature(signatureData: string) {
-    const canvas: HTMLCanvasElement | null =
-      this.signaturePadElement.nativeElement;
+    const canvas: HTMLCanvasElement | null = this.signaturePadElement.nativeElement;
     if (canvas) {
       const context = canvas.getContext('2d');
       const image = new Image();
@@ -377,8 +339,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
   }
 
   renderMechanicSignature(mechanicSignatureData: string) {
-    const canvas: HTMLCanvasElement | null =
-      this.mechanicSignaturePadElement.nativeElement;
+    const canvas: HTMLCanvasElement | null = this.mechanicSignaturePadElement.nativeElement;
     if (canvas) {
       const context = canvas.getContext('2d');
       const image = new Image();
@@ -439,12 +400,10 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
 
   ionViewWillEnter() {
     if (this.bReady) {
-      this.databaseSubscription = this.databaseService
-        .getDvirs()
-        .subscribe((dvirs) => {
-          this.dvirs = dvirs;
-          console.log(this.dvirs);
-        });
+      this.databaseSubscription = this.databaseService.getDvirs().subscribe(dvirs => {
+        this.dvirs = dvirs;
+        console.log(this.dvirs);
+      });
     }
   }
 
@@ -453,5 +412,9 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
       this.databaseSubscription.unsubscribe();
     }
     this.networkSub.unsubscribe();
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('/unitab/dvir');
   }
 }
