@@ -8,8 +8,10 @@ import { HosPage } from './hos.page';
 import { MilisecToHoursAndMinutesPipe } from 'src/app/pipe/milisec-to-hours-and-minutes.pipe';
 import { ConvertSecondsToHoursAndMinutesPipe } from 'src/app/pipe/convert-secotds-to-hours-and-minutes.pipe';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
+import { ToggleSwitchComponentModule } from 'src/app/components/toggle-switch/toggle-switch.module';
+
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, HosPageRoutingModule, NgCircleProgressModule.forRoot(), HeaderComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, HosPageRoutingModule, NgCircleProgressModule.forRoot(), HeaderComponentModule, ToggleSwitchComponentModule],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe],
 })
 export class HosPageModule {}

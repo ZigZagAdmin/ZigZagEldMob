@@ -675,7 +675,8 @@
     </div>
     <div class="switch-sleep">
       <p class="subtitle">Split Sleeper Berth</p>
-      <ion-toggle class="custom-toggle"></ion-toggle>
+      <!-- <ion-toggle class="custom-toggle"></ion-toggle> -->
+      <app-toggle-switch></app-toggle-switch>
     </div>
     <button class="btn primary-btn" (click)="switchMode()">
       <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />
