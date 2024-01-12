@@ -32,14 +32,11 @@ export class LogItemPage implements OnInit {
   PickedVehicle: string = '';
   logDailies: LogDailies[] = [];
   logHistories: LogHistories[] = [];
-  logDaily: any;
-  currentDay: string = '';
+  logDaily: LogDailies | undefined;
+  currentDay: string | undefined = '';
   networkStatus = false;
   networkSub!: Subscription;
-  graphicsHour = [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23,
-  ];
+  graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
   statusesOnDay: LogHistories[] = [];
   xBgn!: number;
   yBgn!: number;
@@ -86,7 +83,7 @@ export class LogItemPage implements OnInit {
     this.driverId = await this.storage.get('driverId');
     this.PickedVehicle = await this.storage.get('pickedVehicle');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
-    this.activatedRoute.paramMap.subscribe((params) => {
+    this.activatedRoute.paramMap.subscribe(params => {
       this.LogDailiesId = params.get('logId');
       console.log(this.LogDailiesId);
     });
@@ -136,54 +133,48 @@ export class LogItemPage implements OnInit {
         const logDailies$ = this.databaseService.getLogDailies();
         const logHistories$ = this.databaseService.getLogHistories();
 
-        forkJoin([logDailies$, logHistories$]).subscribe(
-          ([logDailies, logHistories]) => {
-            this.logDailies = logDailies;
-            this.logHistories = logHistories;
+        forkJoin([logDailies$, logHistories$]).subscribe(([logDailies, logHistories]) => {
+          this.logDailies = logDailies;
+          this.logHistories = logHistories;
 
-            this.logDaily = this.logDailies.find(
-              (item) => item.logDailyId === this.LogDailiesId
-            );
-            if (this.logDaily) {
-              console.log(this.logDaily);
-              this.currentDay = this.logDaily.Day;
-              this.fillFormWithLogDailyData();
-            }
-            this.logHistories.forEach((log) => {
-              if (log.DateEnd === '0001-01-01T00:00:00') {
-                log.DateEnd = formatDate(
-                  new Date().toLocaleString('en-US', {
-                    timeZone: this.TimeZoneCity,
-                  }),
-                  'yyyy-MM-ddTHH:mm:ss',
-                  'en_US'
-                );
-              }
-            });
-            console.log(this.logHistories);
+          this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+          if (this.logDaily) {
             console.log(this.logDaily);
-            this.drawGraph();
+            this.currentDay = this.logDaily.logDate;
             this.fillFormWithLogDailyData();
           }
-        );
+          this.logHistories.forEach(log => {
+            if (log.DateEnd === '0001-01-01T00:00:00') {
+              log.DateEnd = formatDate(
+                new Date().toLocaleString('en-US', {
+                  timeZone: this.TimeZoneCity,
+                }),
+                'yyyy-MM-ddTHH:mm:ss',
+                'en_US'
+              );
+            }
+          });
+          console.log(this.logHistories);
+          console.log(this.logDaily);
+          this.drawGraph();
+          this.fillFormWithLogDailyData();
+        });
       }
     });
 
-    this.networkSub = this.internetService.internetStatus$.subscribe(
-      (status) => {
-        this.networkStatus = status;
-        console.log('Intenet Status' + status);
-      }
-    );
+    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
+      this.networkStatus = status;
+      console.log('Intenet Status' + status);
+    });
   }
 
   fillFormWithLogDailyData() {
     if (this.logDaily) {
       this.form.patchValue({
-        Trailers: this.logDaily.Trailers || '',
-        ShippingDocuments: this.logDaily.ShippingDoc || '',
-        FromAdress: this.logDaily.FromAddress || '',
-        ToAdress: this.logDaily.ToAddress || '',
+        Trailers: this.logDaily.form.trailers || '',
+        ShippingDocuments: this.logDaily.form.shippingDoc || '',
+        FromAdress: this.logDaily.form.fromAddress || '',
+        ToAdress: this.logDaily.form.toAddress || '',
       });
     }
   }
@@ -200,9 +191,9 @@ export class LogItemPage implements OnInit {
     this.xBgnV = 0;
     this.yBgnV = 0;
 
-    this.currentDay = this.logDaily.Day;
+    this.currentDay = this.logDaily?.logDate;
 
-    this.logHistories.forEach((event) => {
+    this.logHistories.forEach(event => {
       if (allSt.includes(event.EventTypeCode)) {
         sDateEnd = event.DateEnd;
         if (sDateEnd == '0001-01-01T00:00:00') {
@@ -216,20 +207,15 @@ export class LogItemPage implements OnInit {
         }
 
         if (
-          formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <=
-            formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
-          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <=
-            formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
+          formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
           console.log('event', event);
 
           dateBgn = new Date(event.DateBgn);
           console.log(dateBgn.toLocaleDateString());
-          console.log(new Date(this.currentDay).toLocaleDateString());
-          if (
-            dateBgn.toLocaleDateString() ===
-            new Date(this.currentDay).toLocaleDateString()
-          ) {
+          console.log(new Date(this.currentDay as string).toLocaleDateString());
+          if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
@@ -239,10 +225,7 @@ export class LogItemPage implements OnInit {
 
           dateEnd = new Date(sDateEnd);
 
-          if (
-            dateEnd.toLocaleDateString() ===
-            new Date(this.currentDay).toLocaleDateString()
-          ) {
+          if (dateEnd.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xEnd = dateEnd.getHours() * 60 + dateEnd.getMinutes();
           } else {
             this.xEnd = 1440;
@@ -378,9 +361,7 @@ export class LogItemPage implements OnInit {
   navigateToEditDutyStatus() {}
 
   goToNextLog() {
-    const currentIndex = this.logDailies.findIndex(
-      (item) => item.logDailyId === this.logDaily.LogDailiesId
-    );
+    const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const nextIndex = currentIndex + 1;
 
     if (nextIndex < this.logDailies.length) {
@@ -391,9 +372,7 @@ export class LogItemPage implements OnInit {
   }
 
   goToPreviousLog() {
-    const currentIndex = this.logDailies.findIndex(
-      (item) => item.logDailyId === this.logDaily.LogDailiesId
-    );
+    const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const previousIndex = currentIndex - 1;
 
     if (previousIndex >= 0) {
@@ -405,22 +384,21 @@ export class LogItemPage implements OnInit {
 
   async onSubmit() {
     if (this.form.valid) {
-      this.logDaily.Vehicles = this.form.value.Vehicles;
-      this.logDaily.Trailers = this.form.value.Trailers;
-      this.logDaily.ShippingDoc = this.form.value.ShippingDocuments;
-      this.logDaily.FromAddress = this.form.value.FromAdress;
-      this.logDaily.ToAddress = this.form.value.ToAdress;
-      this.logDaily.FormManner = true;
+      // this.logDaily.Vehicles = this.form.value.Vehicles;
+      if (this.logDaily) {
+        this.logDaily.form.trailers = this.form.value.Trailers;
+        this.logDaily.form.shippingDoc = this.form.value.ShippingDocuments;
+        this.logDaily.form.fromAddress = this.form.value.FromAdress;
+        this.logDaily.form.toAddress = this.form.value.ToAdress;
+        this.logDaily.formManner = true;
+      }
 
       if (this.networkStatus === true) {
-        this.dashboardService.updateLogDaily(this.logDaily).subscribe(
-          (response) => {
-            console.log(
-              `LogDaily ${this.logDaily} is updated on server:`,
-              response
-            );
+        this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
+          response => {
+            console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
           },
-          async (error) => {
+          async error => {
             console.log('Internet Status' + this.networkStatus);
             let tempEerror = {
               url: 'api/EldDashboard/uploadDVIR',
@@ -442,11 +420,9 @@ export class LogItemPage implements OnInit {
         await this.storage.set('offlineArray', offlineArray);
         console.log('Pushed in offlineArray');
       }
-      const index = this.logDailies.findIndex(
-        (item) => item.logDailyId === this.logDaily.LogDailiesId
-      );
+      const index = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
       if (index !== -1) {
-        this.logDailies[index] = this.logDaily;
+        this.logDailies[index] = this.logDaily as LogDailies;
       }
       await this.storage.set('logDailies', this.logDailies);
       this.presentToast('Saved successfully!');
@@ -454,13 +430,9 @@ export class LogItemPage implements OnInit {
   }
 
   initSignaturePad() {
-    const driverSignatureCanvas: HTMLCanvasElement | null =
-      this.signaturePadElement.nativeElement;
+    const driverSignatureCanvas: HTMLCanvasElement | null = this.signaturePadElement.nativeElement;
     if (driverSignatureCanvas) {
-      this.signaturePad = new SignaturePad(
-        driverSignatureCanvas,
-        this.signaturePadOptions
-      );
+      this.signaturePad = new SignaturePad(driverSignatureCanvas, this.signaturePadOptions);
       driverSignatureCanvas.addEventListener('touchend', () => {
         this.updateSignatureField();
       });
@@ -468,9 +440,7 @@ export class LogItemPage implements OnInit {
   }
 
   restoreSignature() {
-    const firstNonEmptySignature = this.logDailies.find(
-      (log) => log.form.signatureId !== ''
-    );
+    const firstNonEmptySignature = this.logDailies.find(log => log.form.signatureId !== '');
 
     if (firstNonEmptySignature) {
       this.renderSignature(firstNonEmptySignature.form.signatureId);
@@ -478,8 +448,7 @@ export class LogItemPage implements OnInit {
   }
 
   renderSignature(signatureData: string) {
-    const canvas: HTMLCanvasElement | null =
-      this.signaturePadElement.nativeElement;
+    const canvas: HTMLCanvasElement | null = this.signaturePadElement.nativeElement;
 
     if (canvas) {
       const context = canvas.getContext('2d');
@@ -533,7 +502,7 @@ export class LogItemPage implements OnInit {
         CoDriverId: '',
         Comment: '',
         CountryCode: '',
-        CertificationDay: this.logDaily.Day,
+        CertificationDay: this.logDaily?.logDate,
         DataDiagnosticEvent: false,
         DateBgn: formatDate(
           new Date().toLocaleString('en-US', {
@@ -558,9 +527,7 @@ export class LogItemPage implements OnInit {
         EventRecordOriginName: 'Driver',
         EventRecordStatusCode: 'ACTIVE',
         EventRecordStatusName: 'Active',
-        EventSequenceNumber: lastLogHistory
-          ? lastLogHistory.EventSequenceNumber + 1
-          : 1,
+        EventSequenceNumber: lastLogHistory ? lastLogHistory.EventSequenceNumber + 1 : 1,
         EventTypeCode: 'CERTIFICATION_1',
         EventTypeName: 'Certification (1)',
         EventTypeType: 'DRIVER_CERTIFICATION',
@@ -582,24 +549,22 @@ export class LogItemPage implements OnInit {
       };
 
       if (this.networkStatus === true) {
-        this.dashboardService
-          .updateLogHistory(CetificationLogHistory)
-          .subscribe(
-            (response) => {
-              console.log('Certification LogHistory is on server:', response);
-            },
-            async (error) => {
-              console.log('Internet Status' + this.networkStatus);
-              let tempEerror = {
-                url: 'api/EldDashboard/UploadLogHistories',
-                body: CetificationLogHistory,
-              };
-              let offlineArray = await this.storage.get('offlineArray');
-              offlineArray.push(tempEerror);
-              await this.storage.set('offlineArray', offlineArray);
-              console.log('Cerification LogHistory Pushed in offlineArray');
-            }
-          );
+        this.dashboardService.updateLogHistory(CetificationLogHistory).subscribe(
+          response => {
+            console.log('Certification LogHistory is on server:', response);
+          },
+          async error => {
+            console.log('Internet Status' + this.networkStatus);
+            let tempEerror = {
+              url: 'api/EldDashboard/UploadLogHistories',
+              body: CetificationLogHistory,
+            };
+            let offlineArray = await this.storage.get('offlineArray');
+            offlineArray.push(tempEerror);
+            await this.storage.set('offlineArray', offlineArray);
+            console.log('Cerification LogHistory Pushed in offlineArray');
+          }
+        );
       } else {
         let tempEerror = {
           url: 'api/EldDashboard/UploadLogHistories',
@@ -611,22 +576,24 @@ export class LogItemPage implements OnInit {
         console.log('Cerification LogHistory Pushed in offlineArray');
       }
 
-      this.logDaily.Certified = true;
-      this.logDaily.Signature = this.signature;
-      this.logDaily.CertifyTimestamp = formatDate(
-        new Date().toLocaleString('en-US', {
-          timeZone: this.TimeZoneCity,
-        }),
-        'yyyy-MM-ddTHH:mm:ss',
-        'en_US'
-      );
+      if (this.logDaily) {
+        this.logDaily.certified = true;
+        this.logDaily.form.signatureId = this.signature;
+        // this.logDaily.CertifyTimestamp = formatDate(
+        //   new Date().toLocaleString('en-US', {
+        //     timeZone: this.TimeZoneCity,
+        //   }),
+        //   'yyyy-MM-ddTHH:mm:ss',
+        //   'en_US'
+        // );
+      }
 
       if (this.networkStatus === true) {
-        this.dashboardService.updateLogDaily(this.logDaily).subscribe(
-          (response) => {
+        this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
+          response => {
             console.log(' LogDaily is on server:', response);
           },
-          async (error) => {
+          async error => {
             console.log('Internet Status' + this.networkStatus);
             let tempEerror = {
               url: 'api/EldDashboard/UploadLogDailies',
@@ -650,9 +617,7 @@ export class LogItemPage implements OnInit {
       }
 
       this.logHistories.push(CetificationLogHistory);
-      const index = this.logDailies.findIndex(
-        (item) => item.logDailyId === this.logDaily.LogDailiesId
-      );
+      const index = this.logDailies.findIndex(item => item.logDailyId === this.logDaily.logDailyId);
       if (index !== -1) {
         this.logDailies[index] = this.logDaily;
       }
@@ -662,14 +627,11 @@ export class LogItemPage implements OnInit {
   }
 
   uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-      /[xy]/g,
-      function (c) {
-        const r = (Math.random() * 16) | 0,
-          v = c == 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      }
-    );
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0,
+        v = c == 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   private async presentToast(message: string, color: string = 'success') {
@@ -682,10 +644,7 @@ export class LogItemPage implements OnInit {
   }
 
   nevigateToInspection() {
-    this.navCtrl.navigateForward([
-      '/inspection-preview',
-      { logId: this.logDaily.LogDailiesId },
-    ]);
+    this.navCtrl.navigateForward(['/inspection-preview', { logId: this.logDaily.logDailyId }]);
   }
 
   ionViewWillLeave() {
@@ -693,5 +652,9 @@ export class LogItemPage implements OnInit {
       this.databaseSubscription.unsubscribe();
     }
     this.networkSub.unsubscribe();
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('unitab/hos');
   }
 }

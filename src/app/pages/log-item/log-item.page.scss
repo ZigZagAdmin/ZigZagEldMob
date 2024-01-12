@@ -118,7 +118,7 @@ ion-col {
 }
 
 .custom-card-on::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -129,7 +129,7 @@ ion-col {
 }
 
 .custom-card-off::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -139,7 +139,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-d::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -149,7 +149,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-sb::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -159,7 +159,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-pc::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -169,7 +169,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-ym::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -233,4 +233,15 @@ ion-col {
 }
 .subtitle {
   flex-grow: 1;
+}
+
+.preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
 }
