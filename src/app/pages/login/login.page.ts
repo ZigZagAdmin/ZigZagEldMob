@@ -59,7 +59,7 @@ export class LoginPage implements OnInit {
     this.authService
       .login(username, password)
       .pipe(
-        switchMap((res) => {
+        switchMap(res => {
           this.authUser = res;
           this.storage.set('accessToken', res.AccessToken);
           this.storage.set('driverId', res.DriverId);
@@ -76,56 +76,40 @@ export class LoginPage implements OnInit {
             this.manageService.getTerminals(),
             this.manageService.getELDs(),
             this.manageService.getDVIRs(),
-            this.manageService.getLogDailies(
-              this.authUser.DriverId,
-              formatDate(new Date(), 'yyyy-MM-dd', 'en_US'),
-              14
-            ),
+            this.manageService.getLogDailies(this.authUser.DriverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14),
             this.manageService.getLogHistories14Days(this.authUser.DriverId),
             this.manageService.getPlacesCity(),
           ];
 
           return forkJoin(fetchRequests).pipe(
-            catchError((error) => {
+            catchError(error => {
               const errorMessage = 'Error fetching data';
               this.presentToast(errorMessage); // Отобразить toast с ошибкой
               return throwError(errorMessage);
             })
           );
         }),
-        switchMap(
-          ([
-            drivers,
-            company,
-            vehicles,
-            terminals,
-            elds,
-            dvirs,
-            logDailies,
-            logHistories,
-            placesCity,
-          ]) => {
-            const saveRequests = [
-              this.saveDrivers(drivers as Driver),
-              this.saveCompany(company as Company),
-              this.saveVehicles(vehicles as Vehicle[]),
-              this.saveTerminals(terminals as Terminal[]),
-              this.saveDVIRs(dvirs as DVIRs[]),
-              this.saveELDs(elds as ELD[]),
-              this.saveLogDailies(logDailies as LogDailies[]),
-              this.saveLogHistories(logHistories as LogHistories[]),
-              this.savePlacesCity(placesCity as PlacesCity[]),
-            ];
+        switchMap(([drivers, company, vehicles, terminals, elds, dvirs, logDailies, logHistories, placesCity]) => {
+          const saveRequests = [
+            this.saveDrivers(drivers as Driver),
+            this.saveCompany(company as Company),
+            this.saveVehicles(vehicles as Vehicle[]),
+            this.saveTerminals(terminals as Terminal[]),
+            this.saveDVIRs(dvirs as DVIRs[]),
+            this.saveELDs(elds as ELD[]),
+            this.saveLogDailies(logDailies as LogDailies[]),
+            this.saveLogHistories(logHistories as LogHistories[]),
+            this.savePlacesCity(placesCity as PlacesCity[]),
+          ];
 
-            return forkJoin(saveRequests).pipe(
-              catchError((error) => {
-                const errorMessage = 'Error saving data to database';
-                this.presentToast(errorMessage); // Отобразить toast с ошибкой
-                return throwError(errorMessage);
-              })
-            );
-          }
-        ),
+          return forkJoin(saveRequests).pipe(
+            catchError(error => {
+              const errorMessage = 'Error saving data to database';
+              this.presentToast(errorMessage); // Отобразить toast с ошибкой
+              return throwError(errorMessage);
+            })
+          );
+        }),
         finalize(() => {
           this.loading = false; // Скрыть спиннер
         })
@@ -135,9 +119,9 @@ export class LoginPage implements OnInit {
           // Все запросы и сохранения выполнены успешно
           this.storage.set('bAuthorized', false);
           this.presentToast('Login successful', 'success'); // Отобразить toast с сообщением об успешном входе
-          this.navCtrl.navigateForward('/select-vehicle');
+          this.navCtrl.navigateForward('/select-vehicle', { replaceUrl: true });
         },
-        (error) => {
+        error => {
           // Обработка ошибки
           const errorMessage = 'An error occurred during login';
           this.presentToast(errorMessage, 'danger'); // Отобразить toast с ошибкой
@@ -148,7 +132,7 @@ export class LoginPage implements OnInit {
 
   private saveAuthUser(authUser: AuthUser): Observable<any> {
     return this.databaseService.saveAuthUser(authUser).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving auth user to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -158,7 +142,7 @@ export class LoginPage implements OnInit {
 
   private saveDrivers(drivers: Driver): Observable<any> {
     return this.databaseService.saveDrivers(drivers).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving drivers to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -168,7 +152,7 @@ export class LoginPage implements OnInit {
 
   private saveCompany(company: Company): Observable<any> {
     return this.databaseService.saveCompany(company).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving company to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -178,7 +162,7 @@ export class LoginPage implements OnInit {
 
   private saveVehicles(vehicles: Vehicle[]): Observable<any> {
     return this.databaseService.saveVehicles(vehicles).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving vehicles to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -188,7 +172,7 @@ export class LoginPage implements OnInit {
 
   private saveTerminals(terminals: Terminal[]): Observable<any> {
     return this.databaseService.saveTerminals(terminals).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving terminals to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -198,7 +182,7 @@ export class LoginPage implements OnInit {
 
   private saveELDs(elds: ELD[]): Observable<any> {
     return this.databaseService.saveELDs(elds).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving ELDs to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -208,7 +192,7 @@ export class LoginPage implements OnInit {
 
   private saveDVIRs(dvirs: DVIRs[]): Observable<any> {
     return this.databaseService.saveDvirs(dvirs).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving dvirs to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -218,7 +202,7 @@ export class LoginPage implements OnInit {
 
   private savePlacesCity(placesCity: PlacesCity[]): Observable<any> {
     return this.databaseService.savePlacesCity(placesCity).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving logMaps to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -228,7 +212,7 @@ export class LoginPage implements OnInit {
 
   private saveLogDailies(logDailies: LogDailies[]): Observable<any> {
     return this.databaseService.saveLogDailies(logDailies).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving log dailies to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
@@ -238,7 +222,7 @@ export class LoginPage implements OnInit {
 
   private saveLogHistories(logHistories: LogHistories[]): Observable<any> {
     return this.databaseService.saveLogHistories(logHistories).pipe(
-      catchError((error) => {
+      catchError(error => {
         const errorMessage = 'Error saving log histories to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);

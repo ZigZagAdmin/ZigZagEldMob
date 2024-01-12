@@ -41,21 +41,18 @@ export class OthersPage implements OnInit {
     this.companyId = await this.storage.get('companyId');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
     this.bAuthorized = await this.storage.get('bAuthorized');
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getLogHistories().subscribe((LogHistories) => {
-            this.logHistories = LogHistories;
-          });
-        }
-      });
-    this.networkSub = this.internetService.internetStatus$.subscribe(
-      (status) => {
-        this.networkStatus = status;
-        console.log('Intenet Status' + status);
+    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+        this.databaseService.getLogHistories().subscribe(LogHistories => {
+          this.logHistories = LogHistories;
+        });
       }
-    );
+    });
+    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
+      this.networkStatus = status;
+      console.log('Intenet Status' + status);
+    });
   }
 
   onVehicleClick() {
@@ -120,9 +117,7 @@ export class OthersPage implements OnInit {
         EventRecordOriginName: 'Driver',
         EventRecordStatusCode: 'ACTIVE',
         EventRecordStatusName: 'Active',
-        EventSequenceNumber: lastLogHistory
-          ? lastLogHistory.EventSequenceNumber + 1
-          : 1,
+        EventSequenceNumber: lastLogHistory ? lastLogHistory.EventSequenceNumber + 1 : 1,
         EventTypeCode: 'LOGOUT',
         EventTypeName: 'Logout',
         EventTypeType: 'LOGOUT',
@@ -147,10 +142,10 @@ export class OthersPage implements OnInit {
       this.storage.set('logHistories', this.logHistories);
 
       this.dashboardService.updateLogHistory(LogoutLogHistory).subscribe(
-        (response) => {
+        response => {
           console.log('Logout LogHistory is updated on server:', response);
         },
-        async (error) => {
+        async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
             url: 'api/eldDashboard/UploadLogDailies',
@@ -164,13 +159,10 @@ export class OthersPage implements OnInit {
       );
 
       this.dashboardService.updateLogHistory(lastLogHistory).subscribe(
-        (response) => {
-          console.log(
-            'Predposlednii LogHistory is updated on server:',
-            response
-          );
+        response => {
+          console.log('Predposlednii LogHistory is updated on server:', response);
         },
-        async (error) => {
+        async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
             url: 'api/eldDashboard/UploadLogHistories',
@@ -185,20 +177,17 @@ export class OthersPage implements OnInit {
     }
     this.storage.remove('accessToken');
     this.storage.remove('pickedVehicle');
-    this.navCtrl.navigateForward('/login');
+    this.navCtrl.navigateForward('/login', { replaceUrl: true });
     // Обработчик нажатия кнопки "Logout"
     // Добавьте здесь код для выполнения выхода из аккаунта или другой логики
   }
 
   uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-      /[xy]/g,
-      function (c) {
-        const r = (Math.random() * 16) | 0,
-          v = c == 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      }
-    );
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0,
+        v = c == 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   ionViewWillLeave() {

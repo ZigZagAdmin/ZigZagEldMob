@@ -29,7 +29,7 @@ const routes: Routes = [
       import('./pages/select-vehicle/select-vehicle.module').then(
         (m) => m.SelectVehiclePageModule
       ),
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'connect-mac',
@@ -37,7 +37,7 @@ const routes: Routes = [
       import('./pages/connect-mac/connect-mac.module').then(
         (m) => m.ConnectMacPageModule
       ),
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'hos',

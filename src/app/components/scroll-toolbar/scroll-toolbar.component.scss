@@ -17,6 +17,14 @@
   }
 }
 
+.arrow:first-child {
+  margin-left: 25px;
+}
+
+.arrow:last-child {
+  margin-right: 25px;
+}
+
 .tool-content {
   font-size: 17px;
   font-weight: 600;

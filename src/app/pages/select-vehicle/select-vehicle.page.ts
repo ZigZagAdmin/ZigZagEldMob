@@ -20,50 +20,34 @@ export class SelectVehiclePage implements OnInit {
   vehicles: Vehicle[] = [];
   driver!: Driver;
   company!: Company;
-  constructor(
-    private navCtrl: NavController,
-    private databaseService: DatabaseService,
-    private storage: Storage
-  ) {}
+  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private storage: Storage) {}
 
   ngOnInit() {
-    this.databaseSubscription = this.databaseService
-      .isDatabaseReady()
-      .subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getVehicles().subscribe((vehicles) => {
-            this.vehicles = vehicles;
-            console.log(this.vehicles);
-          });
-          this.databaseService.getDrivers().subscribe((driver) => {
-            this.driver = driver;
-            this.storage.set(
-              'HoursOfServiceRuleDays',
-              this.driver.driverInfo?.settings.hoursOfService.name
-            );
-            this.storage.set(
-              'HoursOfServiceRuleHours',
-              this.driver.driverInfo?.settings.hoursOfService.name
-            );
-          });
-          this.databaseService.getCompany().subscribe((company) => {
-            this.company = company;
-            this.storage.set(
-              'TimeZoneCity',
-              this.company.mainOffice.timeZoneCode
-            );
-          });
-        }
-      });
+    this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+        this.databaseService.getVehicles().subscribe(vehicles => {
+          this.vehicles = vehicles;
+          console.log(this.vehicles);
+        });
+        this.databaseService.getDrivers().subscribe(driver => {
+          this.driver = driver;
+          this.storage.set('HoursOfServiceRuleDays', this.driver.driverInfo?.settings.hoursOfService.name);
+          this.storage.set('HoursOfServiceRuleHours', this.driver.driverInfo?.settings.hoursOfService.name);
+        });
+        this.databaseService.getCompany().subscribe(company => {
+          this.company = company;
+          this.storage.set('TimeZoneCity', this.company.mainOffice.timeZoneCode);
+        });
+      }
+    });
   }
 
   ionViewWillEnter() {
     const storedValue = localStorage.getItem('showBackButton');
-    this.showBackButton =
-      storedValue !== null ? JSON.parse(storedValue) : false;
+    this.showBackButton = storedValue !== null ? JSON.parse(storedValue) : false;
     if (this.bReady) {
-      this.databaseService.getVehicles().subscribe((vehicles) => {
+      this.databaseService.getVehicles().subscribe(vehicles => {
         this.vehicles = vehicles;
       });
     }
@@ -85,6 +69,7 @@ export class SelectVehiclePage implements OnInit {
       this.navCtrl.navigateForward('/connect-mac', {
         animated: true,
         animationDirection: 'forward',
+        replaceUrl: true
       });
     } else {
       console.log('Selected vehicle:', vehicle);
@@ -92,7 +77,7 @@ export class SelectVehiclePage implements OnInit {
       this.storage.set('vehicleId', vehicle.vehicleId);
       this.storage.set('pickedVehicle', this.pickedVehicle);
       localStorage.setItem('pickedVehicle', this.pickedVehicle);
-      this.navCtrl.navigateBack('/unitab/others');
+      this.navCtrl.navigateBack('/unitab/others', { replaceUrl: true });
     }
   }
 

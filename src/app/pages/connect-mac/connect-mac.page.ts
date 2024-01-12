@@ -15,21 +15,17 @@ export class ConnectMacPage implements OnInit {
   macAddress: string = '';
   vehicle: Vehicle;
 
-  constructor(
-    private storage: Storage,
-    private navCtrl: NavController,
-    private storageService: DatabaseService
-  ) {}
+  constructor(private storage: Storage, private navCtrl: NavController, private storageService: DatabaseService) {}
 
   ngOnInit() {}
 
   getVehicle() {
     this.storageService.getVehicles().subscribe(
-      (res) => {
+      res => {
         this.vehicle = res[0];
         console.log(res);
       },
-      (error) => console.log(error)
+      error => console.log(error)
     );
   }
 
@@ -40,7 +36,7 @@ export class ConnectMacPage implements OnInit {
   ionViewWillEnter() {
     this.getVehicle();
 
-    this.storage.get('pickedVehicle').then((pickedVehicle) => {
+    this.storage.get('pickedVehicle').then(pickedVehicle => {
       this.pickedVehicle = pickedVehicle;
     });
   }
@@ -51,11 +47,11 @@ export class ConnectMacPage implements OnInit {
   }
 
   continueDisconected() {
-    this.navCtrl.navigateForward('/unitab');
+    this.navCtrl.navigateForward('/unitab', { replaceUrl: true });
   }
 
   redirectToVehicle() {
-    this.navCtrl.navigateBack('/select-vehicle');
+    this.navCtrl.navigateBack('/select-vehicle', { replaceUrl: true });
   }
 
   handleRefresh(event: any) {
