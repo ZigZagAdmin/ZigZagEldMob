@@ -5,13 +5,13 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, forkJoin } from 'rxjs';
 import { NavController } from '@ionic/angular';
 import { LogDailies } from 'src/app/models/log-dailies';
-import { LogHistories } from 'src/app/models/log-histories';
+import { LogEvents } from 'src/app/models/log-histories';
 import { Storage } from '@ionic/storage';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { formatDate } from '@angular/common';
 import { ModalController } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Vehicle } from 'src/app/models/vehicle';
 import { timeZone } from 'src/app/models/timeZone';
 
@@ -27,7 +27,7 @@ export class HosPage implements OnInit {
   bReady: boolean = false;
   databaseSubscription: Subscription | undefined;
   logDailies: LogDailies[] = [];
-  logHistories: LogHistories[] = [];
+  logEvents: LogEvents[] = [];
   countDays: LogDailies[] = [];
 
   selectedButton: string = '';
@@ -93,166 +93,128 @@ export class HosPage implements OnInit {
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
     this.bAuthorized = await this.storage.get('bAuthorized');
     this.name = await this.storage.get('name');
-    this.pickedVehicle = await this.storage.get('pickedVehicle');
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
+    this.pickedVehicle = await this.storage.get('vehicleUnit');
+    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
 
-          const logDailies$ = this.databaseService.getLogDailies();
-          const logHistories$ = this.databaseService.getLogHistories();
+        const logDailies$ = this.databaseService.getLogDailies();
+        const logEvents$ = this.databaseService.getLogEvents();
 
-          forkJoin([logDailies$, logHistories$]).subscribe(
-            ([logDailies, logHistories]) => {
-              this.logDailies = logDailies;
-              this.logHistories = logHistories;
-              console.log(logHistories);
+        forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
+          this.logDailies = logDailies;
+          this.logEvents = logEvents;
+          console.log(logEvents);
 
-              if (this.bAuthorized === false) {
-                const lastLogHistory =
-                  this.logHistories[this.logHistories.length - 1];
+          if (this.bAuthorized === false) {
+            const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
-                lastLogHistory.DateEnd = formatDate(
-                  new Date(),
-                  'yyyy-MM-ddTHH:mm:ss',
-                  'en_US',
-                  timeZone[this.TimeZoneCity as keyof typeof timeZone]
-                );
+            lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);
 
-                let LoginLogHistory: LogHistories = {
-                  City: '',
-                  CoDriverId: '',
-                  Comment: '',
-                  CountryCode: '',
-                  DataDiagnosticEvent: false,
-                  DateBgn: formatDate(
-                    new Date(),
-                    'yyyy-MM-ddTHH:mm:ss',
-                    'en_US',
-                    timeZone[this.TimeZoneCity as keyof typeof timeZone]
-                  ),
-                  DateEnd: formatDate(
-                    new Date(),
-                    'yyyy-MM-ddTHH:mm:ss',
-                    'en_US',
-                    timeZone[this.TimeZoneCity as keyof typeof timeZone]
-                  ),
-                  DistanceSince: 0,
-                  DriverId: this.driverId,
-                  ELDId: '00000000-0000-0000-0000-000000000000',
-                  EngineHours: 0,
-                  EventDataCheck: '',
-                  EventRecordOriginCode: 'DRIVER',
-                  EventRecordOriginName: 'Driver',
-                  EventRecordStatusCode: 'ACTIVE',
-                  EventRecordStatusName: 'Active',
-                  EventSequenceNumber: lastLogHistory
-                    ? lastLogHistory.EventSequenceNumber + 1
-                    : 1,
-                  EventTypeCode: 'LOGIN',
-                  EventTypeName: 'Login',
-                  EventTypeType: 'LOGIN',
-                  Latitude: 0,
-                  LocationDescription: '2mi from Chisinau, Chisinau',
-                  LocationDescriptionManual: '',
-                  LocationSourceCode: 'AUTOMATIC',
-                  LocationSourceName:
-                    'Location generated when connected to ECM',
-                  LogDailiesId: '',
-                  LogHistoriesId: this.uuidv4(),
-                  Longitude: 0,
-                  Malfunction: false,
-                  Odometer: 0,
-                  PositioningCode: 'AUTOMATIC',
-                  PositioningName: 'Automatic',
-                  SendLogToInspector: false,
-                  StateProvinceCode: '',
-                  VehicleId: this.vehicleId,
+            let LoginLogEvent: LogEvents = {
+              logEventId: this.uuidv4(),
+              companyId: '',
+              driverId: this.driverId,
+              eventTime: {
+                logDate: '',
+                timeStamp: new Date().getTime(),
+                timeStampEnd: new Date().getTime(),
+                timeZone: '',
+              },
+              vehicle: {
+                vehicleId: this.vehicleId,
+              },
+              eld: {
+                eldId: '',
+                macAddress: '',
+                serialNumber: '',
+              },
+              location: {
+                locationType: 'AUTOMATIC',
+                description: '2mi from Chisinau, Chisinau',
+                latitude: 0,
+                longitude: 0,
+              },
+              sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
+              type: { name: 'Login', code: 'LOGIN' },
+              recordStatus: { name: 'Driver', code: 'DRIVER' },
+              recordOrigin: { name: 'Active', code: 'ACTIVE' },
+              odometer: 0,
+              engineHours: 0,
+              malfunction: false,
+              dataDiagnosticEvent: false,
+              certificationDate: '',
+              comment: '',
+              eventDataCheck: '',
+              inspection: false,
+            };
+            this.logEvents.push(LoginLogEvent);
+            this.storage.set('bAuthorized', true);
+            this.storage.set('logEvents', this.logEvents);
+
+            this.dashboardService.updateLogEvent(LoginLogEvent).subscribe(
+              response => {
+                console.log('Login LogEvent is updated on server:', response);
+              },
+              async error => {
+                console.log('Internet Status' + this.networkStatus);
+                let tempEerror = {
+                  url: 'api/eldDashboard/UploadLogEvents',
+                  body: LoginLogEvent,
                 };
-                this.logHistories.push(LoginLogHistory);
-                this.storage.set('bAuthorized', true);
-                this.storage.set('logHistories', this.logHistories);
-
-                this.dashboardService
-                  .updateLogHistory(LoginLogHistory)
-                  .subscribe(
-                    (response) => {
-                      console.log(
-                        'Login LogHistory is updated on server:',
-                        response
-                      );
-                    },
-                    async (error) => {
-                      console.log('Internet Status' + this.networkStatus);
-                      let tempEerror = {
-                        url: 'api/eldDashboard/UploadLogHistories',
-                        body: LoginLogHistory,
-                      };
-                      let offlineArray = await this.storage.get('offlineArray');
-                      offlineArray.push(tempEerror);
-                      await this.storage.set('offlineArray', offlineArray);
-                      console.log('Login LogHistory Pushed in offlineArray');
-                    }
-                  );
-
-                this.dashboardService
-                  .updateLogHistory(lastLogHistory)
-                  .subscribe(
-                    (response) => {
-                      console.log(
-                        'Predposlednii LogHistory is updated on server:',
-                        response
-                      );
-                    },
-                    async (error) => {
-                      console.log('Internet Status' + this.networkStatus);
-                      let tempEerror = {
-                        url: 'api/eldDashboard/UploadLogHistories',
-                        body: lastLogHistory,
-                      };
-                      let offlineArray = await this.storage.get('offlineArray');
-                      offlineArray.push(tempEerror);
-                      await this.storage.set('offlineArray', offlineArray);
-                      console.log(
-                        'Predposlednii LogHistory Pushed in offlineArray'
-                      );
-                    }
-                  );
+                let offlineArray = await this.storage.get('offlineArray');
+                offlineArray.push(tempEerror);
+                await this.storage.set('offlineArray', offlineArray);
+                console.log('Login LogEvent Pushed in offlineArray');
               }
-              this.updateLogDailies();
-            }
-          );
-        }
-      });
+            );
 
-    this.networkSub = this.internetService.internetStatus$.subscribe(
-      (status) => {
-        this.networkStatus = status;
-        console.log('Intenet Status' + status);
+            this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
+              response => {
+                console.log('Predposlednii LogEvent is updated on server:', response);
+              },
+              async error => {
+                console.log('Internet Status' + this.networkStatus);
+                let tempEerror = {
+                  url: 'api/eldDashboard/UploadLogEvents',
+                  body: lastLogEvent,
+                };
+                let offlineArray = await this.storage.get('offlineArray');
+                offlineArray.push(tempEerror);
+                await this.storage.set('offlineArray', offlineArray);
+                console.log('Predposlednii LogEvent Pushed in offlineArray');
+              }
+            );
+          }
+          this.updateLogDailies();
+        });
       }
-    );
+    });
+
+    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
+      this.networkStatus = status;
+      console.log('Intenet Status' + status);
+    });
 
     this.sayHello();
     this.calculateCircles();
 
-    this.paramsSubscription = this.route.params.subscribe((params) => {
+    this.paramsSubscription = this.route.params.subscribe(params => {
       console.log('after ngOnInit dvir');
       if (this.bReady) {
-        this.databaseSubscription = this.databaseService
-          .getLogDailies()
-          .subscribe((logDailies) => {
-            this.logDailies = logDailies;
-          });
+        this.databaseSubscription = this.databaseService.getLogDailies().subscribe(logDailies => {
+          this.logDailies = logDailies;
+        });
       }
     });
   }
 
   getVehicle() {
     this.storageService.getVehicles().subscribe(
-      (res) => {
+      res => {
         this.vehicle = res[0];
       },
-      (error) => console.log(error)
+      error => console.log(error)
     );
   }
 
@@ -286,12 +248,8 @@ export class HosPage implements OnInit {
   async calculateCircles() {
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
 
-    let iHoursOfServiceRulesHours = await this.storage.get(
-      'HoursOfServiceRuleHours'
-    );
-    let iHoursOfServiceRulesDay = await this.storage.get(
-      'HoursOfServiceRuleDays'
-    );
+    let iHoursOfServiceRulesHours = await this.storage.get('HoursOfServiceRuleHours');
+    let iHoursOfServiceRulesDay = await this.storage.get('HoursOfServiceRuleDays');
     let iAvailableBreakFull = 8 * 60 * 60;
     let iAvailableDriveFull = 11 * 60 * 60;
     let iAvailableShiftFull = 14 * 60 * 60;
@@ -329,28 +287,27 @@ export class HosPage implements OnInit {
 
     let bResetTimeLast7Day = false;
 
-    this.logHistories.forEach((event) => {
-      if (allSt.includes(event.EventTypeCode)) {
-        sDateBgn = event.DateBgn;
-        sEventTypeCode = event.EventTypeCode;
-        sEventTypeName = event.EventTypeName;
+    console.log(this.logEvents);
 
-        sDateEnd = event.DateEnd;
+    this.logEvents.forEach(event => {
+      if (allSt.includes(event.type.code)) {
+        sDateBgn = new Date(event.eventTime.timeStamp).toISOString();
+        sEventTypeCode = event.type.code;
+        sEventTypeName = event.type.name;
+        if (event.eventTime.timeStampEnd) {
+          sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
+        } else {
+          sDateEnd = new Date().toISOString();
+        }
         if (sDateEnd == '0001-01-01T00:00:00') {
-          sDateEnd = formatDate(
-            new Date(),
-            'yyyy-MM-ddTHH:mm:ss',
-            'en_US',
-            timeZone[this.TimeZoneCity as keyof typeof timeZone]
-          );
+          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);
         }
 
         // console.log('iHoursOfServiceRulesHours: ', iHoursOfServiceRulesHours);
         // console.log('sDateEnd: ', sDateEnd);
         // console.log('TimeZoneCity: ', this.TimeZoneCity);
 
-        iTime =
-          (new Date(sDateEnd).getTime() - new Date(sDateBgn).getTime()) / 1000;
+        iTime = (new Date(sDateEnd).getTime() - new Date(sDateBgn).getTime()) / 1000;
         // console.log('iTime: ', iTime);
 
         switch (sEventTypeCode) {
@@ -372,11 +329,7 @@ export class HosPage implements OnInit {
               iSplitSleeperBerth2or3 = iSplitSleeperBerth2or3 + iTime;
             }
 
-            if (
-              sEventTypeCode == 'SB' &&
-              iTime >= 7 * 60 * 60 &&
-              iTime < 9 * 60 * 60
-            ) {
+            if (sEventTypeCode == 'SB' && iTime >= 7 * 60 * 60 && iTime < 9 * 60 * 60) {
               // Не учитываем это время
               iSplitSleeperBerth8or7 = iSplitSleeperBerth8or7 + iTime;
             }
@@ -439,8 +392,12 @@ export class HosPage implements OnInit {
       }
     });
 
-    this.currentStatus.statusCode = sEventTypeCode;
-    this.currentStatus.statusName = sEventTypeName;
+    if (this.logEvents.length === 0) this.currentStatus = { statusCode: 'OFF', statusName: 'Off Duty' };
+    else {
+      this.currentStatus.statusCode = sEventTypeCode;
+      this.currentStatus.statusName = sEventTypeName;
+    }
+    console.log(this.currentStatus);
     this.currentStatusTime = this.convertSecondToHours(iTime);
 
     this.restBreak = this.convertSecondToHours(0);
@@ -549,30 +506,10 @@ export class HosPage implements OnInit {
           }
         }
       } else {
-        if (
-          iAvailableShift +
-            iSplitSleeperBerth8or7 +
-            iSplitSleeperBerth2or3 -
-            iTimeD -
-            iTimeON -
-            iTimeOFF <
-          0
-        ) {
-          iAvailableShift =
-            iAvailableShift +
-            iSplitSleeperBerth8or7 +
-            iSplitSleeperBerth2or3 -
-            iTimeD -
-            iTimeON -
-            iTimeOFF;
+        if (iAvailableShift + iSplitSleeperBerth8or7 + iSplitSleeperBerth2or3 - iTimeD - iTimeON - iTimeOFF < 0) {
+          iAvailableShift = iAvailableShift + iSplitSleeperBerth8or7 + iSplitSleeperBerth2or3 - iTimeD - iTimeON - iTimeOFF;
         } else {
-          iAvailableShift =
-            iAvailableShift +
-            iSplitSleeperBerth8or7 +
-            iSplitSleeperBerth2or3 -
-            iTimeD -
-            iTimeON -
-            iTimeOFF;
+          iAvailableShift = iAvailableShift + iSplitSleeperBerth8or7 + iSplitSleeperBerth2or3 - iTimeD - iTimeON - iTimeOFF;
         }
 
         iAvailableShift = iAvailableShift - iTimeD - iTimeON - iTimeOFF;
@@ -679,7 +616,7 @@ export class HosPage implements OnInit {
   }
 
   selectLog(log: LogDailies) {
-    this.navCtrl.navigateForward(['/log-item', { logId: log.logDailyId }]);
+    this.navCtrl.navigateForward('/log-item', { queryParams: { logId: log.logDailyId } });
   }
 
   selectButton(button: string) {
@@ -707,20 +644,12 @@ export class HosPage implements OnInit {
     const ev = event as CustomEvent<OverlayEventDetail<string>>;
     if (ev.detail.role === 'confirm') {
       const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
-      const filteredLogHistories = this.logHistories.filter((item) =>
-        allSt.includes(item.EventTypeCode)
-      );
-      let lastLogHistory =
-        filteredLogHistories[filteredLogHistories.length - 1];
-      if (lastLogHistory) {
-        const currentDate = formatDate(
-          new Date(),
-          'yyyy-MM-ddTHH:mm:ss',
-          'en_US',
-          timeZone[this.TimeZoneCity as keyof typeof timeZone]
-        );
-        lastLogHistory.DateEnd = currentDate;
-        console.log('LAST LOGHISTORY = ', lastLogHistory);
+      const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
+      let lastLogEvent = filteredLogEvents[filteredLogEvents.length - 1];
+      if (lastLogEvent) {
+        const currentDate = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone])).getTime();
+        lastLogEvent.eventTime.timeStampEnd = currentDate;
+        console.log('LAST LogEvent = ', lastLogEvent);
       }
 
       let statuses = {
@@ -750,85 +679,74 @@ export class HosPage implements OnInit {
         },
       };
 
-      let newLogHistory: LogHistories = {
-        City: '',
-        CoDriverId: '',
-        Comment: '',
-        CountryCode: '',
-        DataDiagnosticEvent: false,
-        DateBgn: formatDate(
-          new Date(),
-          'yyyy-MM-ddTHH:mm:ss',
-          'en_US',
-          timeZone[this.TimeZoneCity as keyof typeof timeZone]
-        ),
-        DateEnd: '0001-01-01T00:00:00',
-        DistanceSince: 0,
-        DriverId: this.driverId,
-        ELDId: '00000000-0000-0000-0000-000000000000',
-        EngineHours: 0,
-        EventDataCheck: '',
-        EventRecordOriginCode: 'DRIVER',
-        EventRecordOriginName: 'Driver',
-        EventRecordStatusCode: 'ACTIVE',
-        EventRecordStatusName: 'Active',
-        EventSequenceNumber: lastLogHistory
-          ? lastLogHistory.EventSequenceNumber + 1
-          : 1,
-        EventTypeCode: this.selectedButton,
-        EventTypeName: statuses[this.selectedButton as keyof typeof statuses]
-          ? statuses[this.selectedButton as keyof typeof statuses].statusName
-          : 'Unknown',
-        EventTypeType: statuses[this.selectedButton as keyof typeof statuses]
-          ? statuses[this.selectedButton as keyof typeof statuses].eventTypeType
-          : 'Unknown',
-        Latitude: 0,
-        LocationDescription: '2mi from Chisinau, Chisinau',
-        LocationDescriptionManual: '',
-        LocationSourceCode: 'AUTOMATIC',
-        LocationSourceName: 'Location generated when connected to ECM',
-        LogDailiesId: '',
-        LogHistoriesId: this.uuidv4(),
-        Longitude: 0,
-        Malfunction: false,
-        Odometer: 0,
-        PositioningCode: 'AUTOMATIC',
-        PositioningName: 'Automatic',
-        SendLogToInspector: false,
-        StateProvinceCode: '',
-        VehicleId: this.vehicleId,
+      let newLogEvent: LogEvents = {
+        logEventId: this.uuidv4(),
+        companyId: '',
+        driverId: this.driverId,
+        eventTime: {
+          logDate: '',
+          timeStamp: new Date().getTime(),
+          timeStampEnd: new Date().getTime(),
+          timeZone: '',
+        },
+        vehicle: {
+          vehicleId: this.vehicleId,
+        },
+        eld: {
+          eldId: '',
+          macAddress: '',
+          serialNumber: '',
+        },
+        location: {
+          locationType: 'AUTOMATIC',
+          description: '2mi from Chisinau, Chisinau',
+          latitude: 0,
+          longitude: 0,
+        },
+        sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
+        type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
+        recordStatus: { name: 'Driver', code: 'DRIVER' },
+        recordOrigin: { name: 'Active', code: 'ACTIVE' },
+        odometer: 0,
+        engineHours: 0,
+        malfunction: false,
+        dataDiagnosticEvent: false,
+        certificationDate: '',
+        comment: '',
+        eventDataCheck: '',
+        inspection: false,
       };
-      this.logHistories.push(newLogHistory);
-      this.storage.set('logHistories', this.logHistories);
+      this.logEvents.push(newLogEvent);
+      this.storage.set('logEvents', this.logEvents);
       this.updateLogDailies();
       this.calculateCircles();
 
-      this.dashboardService.updateLogHistory(lastLogHistory).subscribe(
-        (response) => {
-          console.log('Last LogHistory is updated on server:', response);
+      this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
+        response => {
+          console.log('Last LogEvent is updated on server:', response);
         },
-        async (error) => {
+        async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
-            url: 'api/eldDashboard/UploadLogHistories',
-            body: lastLogHistory,
+            url: 'api/eldDashboard/UploadLogEvents',
+            body: lastLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');
           offlineArray.push(tempEerror);
           await this.storage.set('offlineArray', offlineArray);
-          console.log('Last   LogHistory Pushed in offlineArray');
+          console.log('Last   LogEvent Pushed in offlineArray');
         }
       );
 
-      this.dashboardService.updateLogHistory(newLogHistory).subscribe(
-        (response) => {
+      this.dashboardService.updateLogEvent(newLogEvent).subscribe(
+        response => {
           console.log('New status is updated on server:', response);
         },
-        async (error) => {
+        async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
-            url: 'api/eldDashboard/UploadLogHistories',
-            body: newLogHistory,
+            url: 'api/eldDashboard/UploadLogEvents',
+            body: newLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');
           offlineArray.push(tempEerror);
@@ -852,10 +770,7 @@ export class HosPage implements OnInit {
       sSign = '';
     }
 
-    sHours = (
-      Math.trunc((secs / (60 * 60 * 24)) % 24) * 24 +
-      Math.trunc((secs / (60 * 60)) % 24)
-    ).toString();
+    sHours = (Math.trunc((secs / (60 * 60 * 24)) % 24) * 24 + Math.trunc((secs / (60 * 60)) % 24)).toString();
     sMinutes = (Math.trunc(secs / 60) % 60).toString();
 
     if (sHours.length === 0) {
@@ -884,9 +799,7 @@ export class HosPage implements OnInit {
     this.countDays = [];
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0];
-      const foundLogDayIndex = this.logDailies.findIndex((logDay) =>
-        logDay.logDate.includes(dateString)
-      );
+      const foundLogDayIndex = this.logDailies.findIndex(logDay => logDay.logDate.includes(dateString));
 
       // console.log(dateString);
       // console.log(foundLogDayIndex);
@@ -896,11 +809,11 @@ export class HosPage implements OnInit {
         this.countDays.push(this.logDailies[foundLogDayIndex]);
       } else {
         let newLogDaily: LogDailies = {
-          logDailyId: '00000000-0000-0000-0000-000000000000',
+          logDailyId: this.uuidv4(),
           companyId: this.companyId,
           driverId: this.driverId,
           driverName: '',
-          logDate: dateString + 'T00:00:00',
+          logDate: dateString.replace(/-/g, '/'),
           timeOffDuty: 0,
           timeSleeper: 0,
           timeDriving: 0,
@@ -960,7 +873,7 @@ export class HosPage implements OnInit {
     let durationsBaseD = 0;
     let durationsBaseON = 0;
     let hoursWorked = 0;
-    let logHistoriesForCurrencDay = [];
+    let LogEventsForCurrencDay = [];
 
     console.log(this.logDailies);
     for (let i = 0; i < this.logDailies.length; i++) {
@@ -977,37 +890,30 @@ export class HosPage implements OnInit {
       durationsBaseD = this.logDailies[i].timeDriving;
       durationsBaseON = this.logDailies[i].timeOnDuty;
 
-      this.logHistories.forEach((event) => {
-        if (allSt.includes(event.EventTypeCode)) {
-          if (
-            formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <=
-              formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') &&
-            formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <=
-              formatDate(new Date(event.DateEnd), 'yyyy-MM-dd', 'en_US')
-          ) {
+      this.logEvents.forEach(event => {
+        if (allSt.includes(event.type.code)) {
+          let sDateEnd = event.eventTime.timeStampEnd
+            ? formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(event.eventTime.timeStampEnd), 'yyyy-MM-dd', 'en_US')
+            : formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(), 'yyyy-MM-dd', 'en_US');
+
+          if (formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') && sDateEnd) {
             // console.log('event', event);
 
-            dateBgn = new Date(event.DateBgn);
-            if (
-              dateBgn.toLocaleDateString() ===
-              new Date(currentDay).toLocaleDateString()
-            ) {
+            dateBgn = new Date(event.eventTime.timeStamp);
+            if (dateBgn.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
               xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
             } else {
               xBgn = 0;
             }
 
-            dateEnd = new Date(event.DateEnd);
-            if (
-              dateEnd.toLocaleDateString() ===
-              new Date(currentDay).toLocaleDateString()
-            ) {
+            dateEnd = new Date(event.eventTime.timeStampEnd);
+            if (dateEnd.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
               xEnd = dateEnd.getHours() * 60 + dateEnd.getMinutes();
             } else {
               xEnd = 1440;
             }
 
-            switch (event.EventTypeCode.toUpperCase()) {
+            switch (event.type.code.toUpperCase()) {
               case 'OFF':
               case 'PC':
                 durationsOFF = durationsOFF + (xEnd - xBgn) * 60;
@@ -1036,12 +942,7 @@ export class HosPage implements OnInit {
         }
       });
 
-      if (
-        durationsBaseOFF != durationsOFF ||
-        durationsBaseSB != durationsSB ||
-        durationsBaseD != durationsD ||
-        durationsBaseON != durationsON
-      ) {
+      if (durationsBaseOFF != durationsOFF || durationsBaseSB != durationsSB || durationsBaseD != durationsD || durationsBaseON != durationsON) {
         this.logDailies[i].timeOffDuty = durationsOFF;
         this.logDailies[i].timeSleeper = durationsSB;
         this.logDailies[i].timeDriving = durationsD;
@@ -1049,13 +950,10 @@ export class HosPage implements OnInit {
         this.logDailies[i].timeWorked = durationsD + durationsON;
 
         this.dashboardService.updateLogDaily(this.logDailies[i]).subscribe(
-          (response) => {
-            console.log(
-              'LogDaily (durationStatuses) is updated on server:',
-              response
-            );
+          response => {
+            console.log('LogDaily (durationStatuses) is updated on server:', response);
           },
-          async (error) => {
+          async error => {
             console.log('Internet Status' + this.networkStatus);
             let tempEerror = {
               url: 'api/eldDashboard/UploadLogDailies',
@@ -1069,12 +967,12 @@ export class HosPage implements OnInit {
         );
       }
 
-      // const foundLogHistory = this.logHistories.findIndex((logHistory) =>
-      //   logHistory.DateBgn.includes(currentDay)
+      // const foundLogEvent = this.logEvents.findIndex((logEvent) =>
+      //   logEvent.DateBgn.includes(currentDay)
       // );
 
-      // if (foundLogHistory !== -1) {
-      //   logHistoriesForCurrencDay.push([foundLogHistory]);
+      // if (foundLogEvent !== -1) {
+      //   LogEventsForCurrencDay.push([foundLogEvent]);
       // }
     }
   }
@@ -1087,14 +985,11 @@ export class HosPage implements OnInit {
   }
 
   uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-      /[xy]/g,
-      function (c) {
-        const r = (Math.random() * 16) | 0,
-          v = c == 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      }
-    );
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0,
+        v = c == 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   ionViewWillLeave() {

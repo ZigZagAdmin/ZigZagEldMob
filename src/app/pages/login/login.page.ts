@@ -18,7 +18,7 @@ import { Terminal } from 'src/app/models/terminal';
 import { Vehicle } from 'src/app/models/vehicle';
 import { ELD } from 'src/app/models/eld';
 import { LogDailies } from 'src/app/models/log-dailies';
-import { LogHistories } from 'src/app/models/log-histories';
+import { LogEvents } from 'src/app/models/log-histories';
 import { DVIRs } from 'src/app/models/dvirs';
 import { PlacesCity } from 'src/app/models/places-city';
 
@@ -77,7 +77,7 @@ export class LoginPage implements OnInit {
             this.manageService.getELDs(),
             this.manageService.getDVIRs(),
             this.manageService.getLogDailies(this.authUser.DriverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14),
-            this.manageService.getLogHistories14Days(this.authUser.DriverId),
+            this.manageService.getLogEvents(this.authUser.DriverId),
             this.manageService.getPlacesCity(),
           ];
 
@@ -89,7 +89,7 @@ export class LoginPage implements OnInit {
             })
           );
         }),
-        switchMap(([drivers, company, vehicles, terminals, elds, dvirs, logDailies, logHistories, placesCity]) => {
+        switchMap(([drivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents, placesCity]) => {
           const saveRequests = [
             this.saveDrivers(drivers as Driver),
             this.saveCompany(company as Company),
@@ -98,7 +98,7 @@ export class LoginPage implements OnInit {
             this.saveDVIRs(dvirs as DVIRs[]),
             this.saveELDs(elds as ELD[]),
             this.saveLogDailies(logDailies as LogDailies[]),
-            this.saveLogHistories(logHistories as LogHistories[]),
+            this.saveLogEvents(logEvents as LogEvents[]),
             this.savePlacesCity(placesCity as PlacesCity[]),
           ];
 
@@ -119,7 +119,7 @@ export class LoginPage implements OnInit {
           // Все запросы и сохранения выполнены успешно
           this.storage.set('bAuthorized', false);
           this.presentToast('Login successful', 'success'); // Отобразить toast с сообщением об успешном входе
-          this.navCtrl.navigateForward('/select-vehicle', { replaceUrl: true });
+          this.navCtrl.navigateRoot('/select-vehicle', { animated: true, animationDirection: 'forward' });
         },
         error => {
           // Обработка ошибки
@@ -220,8 +220,8 @@ export class LoginPage implements OnInit {
     );
   }
 
-  private saveLogHistories(logHistories: LogHistories[]): Observable<any> {
-    return this.databaseService.saveLogHistories(logHistories).pipe(
+  private saveLogEvents(logEvents: LogEvents[]): Observable<any> {
+    return this.databaseService.saveLogEvents(logEvents).pipe(
       catchError(error => {
         const errorMessage = 'Error saving log histories to database';
         this.presentToast(errorMessage); // Отобразить toast с ошибкой
@@ -271,7 +271,7 @@ export class LoginPage implements OnInit {
   //               formatDate(new Date(), 'yyyy-MM-dd', 'en_US'),
   //               14
   //             ),
-  //             this.manageService.getLogHistories14Days(res.DriverId),
+  //             this.manageService.getLogEvents14Days(res.DriverId),
   //           ];
 
   //           return forkJoin(fetchRequests).pipe(
@@ -297,7 +297,7 @@ export class LoginPage implements OnInit {
   //           terminals,
   //           elds,
   //           logDailies,
-  //           logHistories,
+  //           logEvents,
   //         ]) => {
   //           console.log('Drivers:', JSON.stringify(drivers));
   //           console.log('Company:', JSON.stringify(company));
@@ -305,7 +305,7 @@ export class LoginPage implements OnInit {
   //           console.log('Terminals:', JSON.stringify(terminals));
   //           console.log('ELDs:', JSON.stringify(elds));
   //           console.log('Log Dailies:', JSON.stringify(logDailies));
-  //           console.log('Log Histories:', JSON.stringify(logHistories));
+  //           console.log('Log Histories:', JSON.stringify(logEvents));
 
   //           this.databaseService
   //             .saveDrivers(drivers as Driver[])
@@ -340,7 +340,7 @@ export class LoginPage implements OnInit {
   //             });
 
   //           this.databaseService
-  //             .saveLogHistories(logHistories as LogHistories[])
+  //             .saveLogEvents(logEvents as logEvents[])
   //             .subscribe(() => {
   //               console.log('Log Histories saved in the database.');
   //             });

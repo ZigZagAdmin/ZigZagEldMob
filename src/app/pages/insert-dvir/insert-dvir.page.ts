@@ -105,7 +105,7 @@ export class InsertDvirPage implements OnInit {
   company: Company | undefined;
   dvirs: DVIRs[] = [];
   bReady: boolean = false;
-  pickedVehicle: string = '';
+  vehicleUnit: string = '';
   vehicleId: string = '';
   driverId: string = '';
   statusIcon = 'checkmark-circle-outline';
@@ -150,7 +150,7 @@ export class InsertDvirPage implements OnInit {
         });
       }
     });
-    this.pickedVehicle = await this.storage.get('pickedVehicle');
+    this.vehicleUnit = await this.storage.get('vehicleUnit');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
 
@@ -254,7 +254,7 @@ export class InsertDvirPage implements OnInit {
       const dvirData: DVIRs = {
         DVIRId: this.uuidv4(),
         CreateDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US'),
-        VehicleUnit: this.pickedVehicle,
+        VehicleUnit: this.vehicleUnit,
         VehicleId: this.vehicleId,
         DriverId: this.driverId,
         Trailers: this.form.value.Trailers,
@@ -273,6 +273,7 @@ export class InsertDvirPage implements OnInit {
       };
 
       if (this.networkStatus === true) {
+        console.log('here uploading');
         this.dashboardService.updateDVIR(dvirData).subscribe(
           response => {
             console.log('DVIR is on server:', response);

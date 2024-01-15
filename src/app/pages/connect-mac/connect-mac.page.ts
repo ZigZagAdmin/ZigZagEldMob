@@ -36,7 +36,7 @@ export class ConnectMacPage implements OnInit {
   ionViewWillEnter() {
     this.getVehicle();
 
-    this.storage.get('pickedVehicle').then(pickedVehicle => {
+    this.storage.get('vehicleUnit').then(pickedVehicle => {
       this.pickedVehicle = pickedVehicle;
     });
   }
@@ -47,7 +47,7 @@ export class ConnectMacPage implements OnInit {
   }
 
   continueDisconected() {
-    this.navCtrl.navigateForward('/unitab', { replaceUrl: true });
+    this.navCtrl.navigateRoot('/unitab', { animated: true, animationDirection: 'forward' });
   }
 
   redirectToVehicle() {

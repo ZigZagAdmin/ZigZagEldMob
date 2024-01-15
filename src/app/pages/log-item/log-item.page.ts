@@ -1,14 +1,14 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { Subscription, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { LogDailies } from 'src/app/models/log-dailies';
-import { LogHistories } from 'src/app/models/log-histories';
+import { LogEvents } from 'src/app/models/log-histories';
 import { EventGraphic } from 'src/app/models/event-graphic';
 import { Storage } from '@ionic/storage';
 import { ToastController } from '@ionic/angular';
@@ -31,13 +31,13 @@ export class LogItemPage implements OnInit {
   TimeZoneCity: string = '';
   PickedVehicle: string = '';
   logDailies: LogDailies[] = [];
-  logHistories: LogHistories[] = [];
+  logEvents: LogEvents[] = [];
   logDaily: LogDailies | undefined;
   currentDay: string | undefined = '';
   networkStatus = false;
   networkSub!: Subscription;
   graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-  statusesOnDay: LogHistories[] = [];
+  statusesOnDay: LogEvents[] = [];
   xBgn!: number;
   yBgn!: number;
   xEnd!: number;
@@ -61,6 +61,7 @@ export class LogItemPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private databaseService: DatabaseService,
     private storage: Storage,
     private internetService: InternetService,
@@ -81,10 +82,10 @@ export class LogItemPage implements OnInit {
   async ngOnInit() {
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
-    this.PickedVehicle = await this.storage.get('pickedVehicle');
+    this.PickedVehicle = await this.storage.get('vehicleUnit');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
-    this.activatedRoute.paramMap.subscribe(params => {
-      this.LogDailiesId = params.get('logId');
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.LogDailiesId = params['logId'];
       console.log(this.LogDailiesId);
     });
 
@@ -103,13 +104,13 @@ export class LogItemPage implements OnInit {
     //         this.fillFormWithLogDailyData();
     //       }
     //     });
-    //     this.databaseService.getLogHistories().subscribe((logHistories) => {
+    //     this.databaseService.getLogEvents().subscribe((logEvents) => {
     //       // const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
-    //       // this.logHistories = logHistories.filter((item) =>
+    //       // this.logEvents = logEvents.filter((item) =>
     //       //   allSt.includes(item.EventTypeCode)
     //       // );
-    //       this.logHistories = logHistories;
-    //       this.logHistories.forEach((log) => {
+    //       this.logEvents = logEvents;
+    //       this.logEvents.forEach((log) => {
     //         if (log.DateEnd === '0001-01-01T00:00:00') {
     //           log.DateEnd = formatDate(
     //             new Date().toLocaleString('en-US', {
@@ -120,7 +121,7 @@ export class LogItemPage implements OnInit {
     //           );
     //         }
     //       });
-    //       console.log(this.logHistories);
+    //       console.log(this.logEvents);
     //       this.drawGraph();
     //     });
     //   }
@@ -131,11 +132,11 @@ export class LogItemPage implements OnInit {
         this.bReady = ready;
 
         const logDailies$ = this.databaseService.getLogDailies();
-        const logHistories$ = this.databaseService.getLogHistories();
+        const logEvents$ = this.databaseService.getLogEvents();
 
-        forkJoin([logDailies$, logHistories$]).subscribe(([logDailies, logHistories]) => {
+        forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
           this.logDailies = logDailies;
-          this.logHistories = logHistories;
+          this.logEvents = logEvents;
 
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           if (this.logDaily) {
@@ -143,18 +144,18 @@ export class LogItemPage implements OnInit {
             this.currentDay = this.logDaily.logDate;
             this.fillFormWithLogDailyData();
           }
-          this.logHistories.forEach(log => {
-            if (log.DateEnd === '0001-01-01T00:00:00') {
-              log.DateEnd = formatDate(
-                new Date().toLocaleString('en-US', {
-                  timeZone: this.TimeZoneCity,
-                }),
-                'yyyy-MM-ddTHH:mm:ss',
-                'en_US'
-              );
-            }
-          });
-          console.log(this.logHistories);
+          // this.logEvents.forEach(log => {
+          //   if (log.DateEnd === '0001-01-01T00:00:00') {
+          //     log.DateEnd = formatDate(
+          //       new Date().toLocaleString('en-US', {
+          //         timeZone: this.TimeZoneCity,
+          //       }),
+          //       'yyyy-MM-ddTHH:mm:ss',
+          //       'en_US'
+          //     );
+          //   }
+          // });
+          console.log(this.logEvents);
           console.log(this.logDaily);
           this.drawGraph();
           this.fillFormWithLogDailyData();
@@ -193,9 +194,9 @@ export class LogItemPage implements OnInit {
 
     this.currentDay = this.logDaily?.logDate;
 
-    this.logHistories.forEach(event => {
-      if (allSt.includes(event.EventTypeCode)) {
-        sDateEnd = event.DateEnd;
+    this.logEvents.forEach(event => {
+      if (allSt.includes(event.type.code)) {
+        sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
@@ -207,12 +208,12 @@ export class LogItemPage implements OnInit {
         }
 
         if (
-          formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
           formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
           console.log('event', event);
 
-          dateBgn = new Date(event.DateBgn);
+          dateBgn = new Date(event.eventTime.timeStamp);
           console.log(dateBgn.toLocaleDateString());
           console.log(new Date(this.currentDay as string).toLocaleDateString());
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
@@ -232,7 +233,7 @@ export class LogItemPage implements OnInit {
           }
           console.log('X END =', this.xEnd);
 
-          switch (event.EventTypeCode) {
+          switch (event.type.code) {
             case 'OFF':
             case 'PC':
               this.yBgn = 25;
@@ -256,7 +257,7 @@ export class LogItemPage implements OnInit {
               break;
           }
 
-          switch (event.EventTypeCode) {
+          switch (event.type.code) {
             case 'OFF':
               this.eventGraphicLine.push({
                 x1: this.xBgn,
@@ -266,7 +267,7 @@ export class LogItemPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusOFF',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -281,7 +282,7 @@ export class LogItemPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusSB',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -296,7 +297,7 @@ export class LogItemPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusD',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -311,7 +312,7 @@ export class LogItemPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusON',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -326,7 +327,7 @@ export class LogItemPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusPC',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -341,7 +342,7 @@ export class LogItemPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusYM',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -496,84 +497,71 @@ export class LogItemPage implements OnInit {
   async onWillDismiss(event: Event) {
     const ev = event as CustomEvent<OverlayEventDetail<string>>;
     if (ev.detail.role === 'confirm') {
-      const lastLogHistory = this.logHistories[this.logHistories.length - 1];
-      let CetificationLogHistory = {
-        City: '',
-        CoDriverId: '',
-        Comment: '',
-        CountryCode: '',
-        CertificationDay: this.logDaily?.logDate,
-        DataDiagnosticEvent: false,
-        DateBgn: formatDate(
-          new Date().toLocaleString('en-US', {
-            timeZone: this.TimeZoneCity,
-          }),
-          'yyyy-MM-ddTHH:mm:ss',
-          'en_US'
-        ),
-        DateEnd: formatDate(
-          new Date().toLocaleString('en-US', {
-            timeZone: this.TimeZoneCity,
-          }),
-          'yyyy-MM-ddTHH:mm:ss',
-          'en_US'
-        ),
-        DistanceSince: 0,
-        DriverId: this.driverId,
-        ELDId: '00000000-0000-0000-0000-000000000000',
-        EngineHours: 0,
-        EventDataCheck: '',
-        EventRecordOriginCode: 'DRIVER',
-        EventRecordOriginName: 'Driver',
-        EventRecordStatusCode: 'ACTIVE',
-        EventRecordStatusName: 'Active',
-        EventSequenceNumber: lastLogHistory ? lastLogHistory.EventSequenceNumber + 1 : 1,
-        EventTypeCode: 'CERTIFICATION_1',
-        EventTypeName: 'Certification (1)',
-        EventTypeType: 'DRIVER_CERTIFICATION',
-        Latitude: 0,
-        LocationDescription: '2mi from Chisinau, Chisinau',
-        LocationDescriptionManual: '',
-        LocationSourceCode: 'AUTOMATIC',
-        LocationSourceName: 'Location generated when connected to ECM',
-        LogDailiesId: '',
-        LogHistoriesId: this.uuidv4(),
-        Longitude: 0,
-        Malfunction: false,
-        Odometer: 0,
-        PositioningCode: 'AUTOMATIC',
-        PositioningName: 'Automatic',
-        SendLogToInspector: false,
-        StateProvinceCode: '',
-        VehicleId: this.vehicleId,
+      const lastLogEvent = this.logEvents[this.logEvents.length - 1];
+      let CetificationLogEvent: LogEvents = {
+        logEventId: this.uuidv4(),
+        companyId: '',
+        driverId: this.driverId,
+        eventTime: {
+          logDate: '',
+          timeStamp: new Date().getTime(),
+          timeStampEnd: new Date().getTime(),
+          timeZone: '',
+        },
+        vehicle: {
+          vehicleId: this.vehicleId
+        },
+        eld: {
+          eldId: '',
+          macAddress: '',
+          serialNumber: '',
+        },
+        location: {
+          locationType: 'AUTOMATIC',
+          description: '2mi from Chisinau, Chisinau',
+          latitude: 0,
+          longitude: 0,
+        },
+        sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
+        type: { name: 'Certification (1)', code: 'CERTIFICATION_1' },
+        recordStatus: { name: 'Driver', code: 'DRIVER' },
+        recordOrigin: { name: 'Active', code: 'ACTIVE' },
+        odometer: 0,
+        engineHours: 0,
+        malfunction: false,
+        dataDiagnosticEvent: false,
+        certificationDate: this.logDaily?.logDate,
+        comment: '',
+        eventDataCheck: '',
+        inspection: false,
       };
 
       if (this.networkStatus === true) {
-        this.dashboardService.updateLogHistory(CetificationLogHistory).subscribe(
+        this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
           response => {
-            console.log('Certification LogHistory is on server:', response);
+            console.log('Certification LogEvent is on server:', response);
           },
           async error => {
             console.log('Internet Status' + this.networkStatus);
             let tempEerror = {
-              url: 'api/EldDashboard/UploadLogHistories',
-              body: CetificationLogHistory,
+              url: 'api/EldDashboard/UploadLogEvents',
+              body: CetificationLogEvent,
             };
             let offlineArray = await this.storage.get('offlineArray');
             offlineArray.push(tempEerror);
             await this.storage.set('offlineArray', offlineArray);
-            console.log('Cerification LogHistory Pushed in offlineArray');
+            console.log('Cerification LogEvent Pushed in offlineArray');
           }
         );
       } else {
         let tempEerror = {
-          url: 'api/EldDashboard/UploadLogHistories',
-          body: CetificationLogHistory,
+          url: 'api/EldDashboard/UploadLogEvents',
+          body: CetificationLogEvent,
         };
         let offlineArray = await this.storage.get('offlineArray');
         offlineArray.push(tempEerror);
         await this.storage.set('offlineArray', offlineArray);
-        console.log('Cerification LogHistory Pushed in offlineArray');
+        console.log('Cerification LogEvent Pushed in offlineArray');
       }
 
       if (this.logDaily) {
@@ -616,13 +604,13 @@ export class LogItemPage implements OnInit {
         console.log('Logdaily Pushed in offlineArray');
       }
 
-      this.logHistories.push(CetificationLogHistory);
+      this.logEvents.push(CetificationLogEvent);
       const index = this.logDailies.findIndex(item => item.logDailyId === this.logDaily.logDailyId);
       if (index !== -1) {
         this.logDailies[index] = this.logDaily;
       }
       await this.storage.set('logDailies', this.logDailies);
-      await this.storage.set('logHistories', this.logHistories);
+      await this.storage.set('logEvents', this.logEvents);
     }
   }
 
@@ -644,7 +632,7 @@ export class LogItemPage implements OnInit {
   }
 
   nevigateToInspection() {
-    this.navCtrl.navigateForward(['/inspection-preview', { logId: this.logDaily.logDailyId }]);
+    this.navCtrl.navigateForward('/inspection-preview', { queryParams: { logId: this.logDaily.logDailyId, url: this.router.url } });
   }
 
   ionViewWillLeave() {

@@ -43,7 +43,7 @@ export class AppComponent implements OnInit {
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
       if (ready) {
         const accessToken = await this.storage.get('accessToken');
-        const pickedVehicle = await this.storage.get('pickedVehicle');
+        const pickedVehicle = await this.storage.get('vehicleUnit');
         this.pickedVehicle = pickedVehicle;
         const user = await this.storage.get('user');
         const driverId = user?.DriverId;
@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
               this.manageService.getELDs(),
               this.manageService.getDVIRs(),
               this.manageService.getLogDailies(driverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14),
-              this.manageService.getLogHistories14Days(driverId),
+              this.manageService.getLogEvents(driverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), formatDate(new Date(), 'yyyy-MM-dd', 'en_US')),
             ];
             forkJoin(fetchRequests)
               .pipe(
@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
                   loading.dismiss();
                   return throwError(errorMessage);
                 }),
-                switchMap(([drivers, company, vehicles, terminals, elds, dvirs, logDailies, logHistories]) => {
+                switchMap(([drivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents]) => {
                   // Сохранение данных в storage
                   const saveRequests = [
                     this.storage.set('drivers', drivers),
@@ -79,7 +79,7 @@ export class AppComponent implements OnInit {
                     this.storage.set('terminals', terminals),
                     this.storage.set('elds', elds),
                     this.storage.set('logDailies', logDailies),
-                    this.storage.set('logHistories', logHistories),
+                    this.storage.set('logEvents', logEvents),
                   ];
                   return forkJoin(saveRequests).pipe(
                     catchError(error => {

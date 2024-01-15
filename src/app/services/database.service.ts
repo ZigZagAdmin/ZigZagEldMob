@@ -13,7 +13,7 @@ import { Vehicle } from '../models/vehicle';
 import { Terminal } from '../models/terminal';
 import { ELD } from '../models/eld';
 import { LogDailies } from '../models/log-dailies';
-import { LogHistories } from '../models/log-histories';
+import { LogEvents } from '../models/log-histories';
 import { User } from '../models/user';
 import { AuthUser } from '../models/auth-user';
 import { DVIRs } from '../models/dvirs';
@@ -177,22 +177,22 @@ export class DatabaseService {
     return from(this.storage.get('logDailies'));
   }
 
-  saveLogHistories(logHistories: LogHistories[]): Observable<void> {
+  saveLogEvents(logEvents: LogEvents[]): Observable<void> {
     if (!this.databaseReady) {
       return throwError(
         'База данных не создана. Сначала вызовите метод create()'
       );
     }
-    return from(this.storage.set('logHistories', logHistories));
+    return from(this.storage.set('logEvents', logEvents));
   }
 
-  getLogHistories(): Observable<LogHistories[]> {
+  getLogEvents(): Observable<LogEvents[]> {
     if (!this.databaseReady) {
       return throwError(
         'База данных не создана. Сначала вызовите метод create()'
       );
     }
-    return from(this.storage.get('logHistories'));
+    return from(this.storage.get('logEvents'));
   }
 
   saveDvirs(dvirs: DVIRs[]): Observable<void> {
@@ -716,7 +716,7 @@ export class DatabaseService {
 //   }
 // }
 
-// async getLogHistoriesData(LogHistoriesData: any) {
+// async getLogEventsData(LogEventsData: any) {
 //   try {
 //     const db = await this.sqlite.create({
 //       name: 'zigzag.db3',
@@ -724,8 +724,8 @@ export class DatabaseService {
 //       createFromLocation: 1,
 //     });
 
-//     for (let i = 0; i < LogHistoriesData.length; i++) {
-//       const obj = LogHistoriesData[i];
+//     for (let i = 0; i < LogEventsData.length; i++) {
+//       const obj = LogEventsData[i];
 //       const logDailiesId = obj.LogDailiesId;
 
 //       const cv = {

@@ -4,9 +4,10 @@ import { DashboardService } from 'src/app/services/dashboard.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
-import { LogHistories } from 'src/app/models/log-histories';
+import { LogEvents } from 'src/app/models/log-histories';
 import { Subscription } from 'rxjs';
 import { formatDate } from '@angular/common';
+import { timeZone } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-others',
@@ -14,7 +15,7 @@ import { formatDate } from '@angular/common';
   styleUrls: ['./others.page.scss'],
 })
 export class OthersPage implements OnInit {
-  logHistories: LogHistories[] = [];
+  logEvents: LogEvents[] = [];
 
   networkStatus = false;
   networkSub!: Subscription;
@@ -44,8 +45,8 @@ export class OthersPage implements OnInit {
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
         this.bReady = ready;
-        this.databaseService.getLogHistories().subscribe(LogHistories => {
-          this.logHistories = LogHistories;
+        this.databaseService.getLogEvents().subscribe(logEvents => {
+          this.logEvents = logEvents;
         });
       }
     });
@@ -78,100 +79,82 @@ export class OthersPage implements OnInit {
 
   onLogoutClick() {
     if (this.bAuthorized === true) {
-      const lastLogHistory = this.logHistories[this.logHistories.length - 1];
+      const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
-      lastLogHistory.DateEnd = formatDate(
-        new Date().toLocaleString('en-US', {
-          timeZone: this.TimeZoneCity,
-        }),
-        'yyyy-MM-ddTHH:mm:ss',
-        'en_US'
-      );
+      lastLogEvent.eventTime.timeStampEnd = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone])).getTime();
 
-      let LogoutLogHistory: LogHistories = {
-        City: '',
-        CoDriverId: '',
-        Comment: '',
-        CountryCode: '',
-        DataDiagnosticEvent: false,
-        DateBgn: formatDate(
-          new Date().toLocaleString('en-US', {
-            timeZone: this.TimeZoneCity,
-          }),
-          'yyyy-MM-ddTHH:mm:ss',
-          'en_US'
-        ),
-        DateEnd: formatDate(
-          new Date().toLocaleString('en-US', {
-            timeZone: this.TimeZoneCity,
-          }),
-          'yyyy-MM-ddTHH:mm:ss',
-          'en_US'
-        ),
-        DistanceSince: 0,
-        DriverId: this.driverId,
-        ELDId: '00000000-0000-0000-0000-000000000000',
-        EngineHours: 0,
-        EventDataCheck: '',
-        EventRecordOriginCode: 'DRIVER',
-        EventRecordOriginName: 'Driver',
-        EventRecordStatusCode: 'ACTIVE',
-        EventRecordStatusName: 'Active',
-        EventSequenceNumber: lastLogHistory ? lastLogHistory.EventSequenceNumber + 1 : 1,
-        EventTypeCode: 'LOGOUT',
-        EventTypeName: 'Logout',
-        EventTypeType: 'LOGOUT',
-        Latitude: 0,
-        LocationDescription: '2mi from Chisinau, Chisinau',
-        LocationDescriptionManual: '',
-        LocationSourceCode: 'AUTOMATIC',
-        LocationSourceName: 'Location generated when connected to ECM',
-        LogDailiesId: '',
-        LogHistoriesId: this.uuidv4(),
-        Longitude: 0,
-        Malfunction: false,
-        Odometer: 0,
-        PositioningCode: 'AUTOMATIC',
-        PositioningName: 'Automatic',
-        SendLogToInspector: false,
-        StateProvinceCode: '',
-        VehicleId: this.vehicleId,
+      let LogoutLogEvent: LogEvents = {
+        logEventId: this.uuidv4(),
+        companyId: '',
+        driverId: this.driverId,
+        eventTime: {
+          logDate: '',
+          timeStamp: new Date().getTime(),
+          timeStampEnd: new Date().getTime(),
+          timeZone: '',
+        },
+        vehicle: {
+          vehicleId: this.vehicleId
+        },
+        eld: {
+          eldId: '',
+          macAddress: '',
+          serialNumber: '',
+        },
+        location: {
+          locationType: 'AUTOMATIC',
+          description: '2mi from Chisinau, Chisinau',
+          latitude: 0,
+          longitude: 0,
+        },
+        sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
+        type: { name: 'Logout', code: 'LOGOUT' },
+        recordStatus: { name: 'Driver', code: 'DRIVER' },
+        recordOrigin: { name: 'Active', code: 'ACTIVE' },
+        odometer: 0,
+        engineHours: 0,
+        malfunction: false,
+        dataDiagnosticEvent: false,
+        certificationDate: '',
+        comment: '',
+        eventDataCheck: '',
+        inspection: false,
       };
-      this.logHistories.push(LogoutLogHistory);
+      this.logEvents.push(LogoutLogEvent);
       this.storage.set('bAuthorized', false);
-      this.storage.set('logHistories', this.logHistories);
+      this.storage.set('logEvents', this.logEvents);
 
-      this.dashboardService.updateLogHistory(LogoutLogHistory).subscribe(
+      this.dashboardService.updateLogEvent(LogoutLogEvent).subscribe(
         response => {
-          console.log('Logout LogHistory is updated on server:', response);
+          console.log('Logout LogEvent is updated on server:', response);
         },
         async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
             url: 'api/eldDashboard/UploadLogDailies',
-            body: LogoutLogHistory,
+            body: LogoutLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');
           offlineArray.push(tempEerror);
           await this.storage.set('offlineArray', offlineArray);
-          console.log('Logout LogHistory Pushed in offlineArray');
+          console.log('Logout LogEvent Pushed in offlineArray');
         }
       );
 
-      this.dashboardService.updateLogHistory(lastLogHistory).subscribe(
+      this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
         response => {
-          console.log('Predposlednii LogHistory is updated on server:', response);
+          console.log('Predposlednii LogEvent is updated on server:', response);
         },
         async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
-            url: 'api/eldDashboard/UploadLogHistories',
-            body: lastLogHistory,
+            url: 'api/eldDashboard/UploadLogEvents',
+            body: lastLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');
           offlineArray.push(tempEerror);
           await this.storage.set('offlineArray', offlineArray);
-          console.log('Predposlednii LogHistory Pushed in offlineArray');
+          console.log('Predposlednii LogEvent Pushed in offlineArray');
         }
       );
     }

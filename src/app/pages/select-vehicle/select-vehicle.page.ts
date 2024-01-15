@@ -60,23 +60,11 @@ export class SelectVehiclePage implements OnInit {
   }
 
   selectVehicle(vehicle: Vehicle) {
+    this.storage.set('vehicleId', vehicle.vehicleId);
+    this.storage.set('vehicleUnit', vehicle.vehicleUnit);
     if (!this.showBackButton) {
-      console.log('Selected vehicle:', vehicle);
-      this.pickedVehicle = vehicle.vehicleId;
-      this.storage.set('pickedVehicle', this.pickedVehicle);
-      this.storage.set('vehicleId', vehicle.vehicleId);
-      localStorage.setItem('pickedVehicle', this.pickedVehicle);
-      this.navCtrl.navigateForward('/connect-mac', {
-        animated: true,
-        animationDirection: 'forward',
-        replaceUrl: true
-      });
+      this.navCtrl.navigateForward('/connect-mac');
     } else {
-      console.log('Selected vehicle:', vehicle);
-      this.pickedVehicle = vehicle.vehicleUnit;
-      this.storage.set('vehicleId', vehicle.vehicleId);
-      this.storage.set('pickedVehicle', this.pickedVehicle);
-      localStorage.setItem('pickedVehicle', this.pickedVehicle);
       this.navCtrl.navigateBack('/unitab/others', { replaceUrl: true });
     }
   }
@@ -86,5 +74,9 @@ export class SelectVehiclePage implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('unitab/others');
   }
 }

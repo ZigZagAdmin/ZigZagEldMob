@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { EventGraphic } from 'src/app/models/event-graphic';
 import { LogDailies } from 'src/app/models/log-dailies';
-import { LogHistories } from 'src/app/models/log-histories';
+import { LogEvents } from 'src/app/models/log-histories';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { formatDate } from '@angular/common';
@@ -20,11 +20,11 @@ export class InspectionPreviewPage implements OnInit {
   TimeZoneCity: string = '';
   PickedVehicle: string = '';
   logDailies: LogDailies[] = [];
-  logHistories: LogHistories[] = [];
+  logEvents: LogEvents[] = [];
   logDaily: LogDailies | undefined;
   currentDay: string | undefined = '';
   graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-  statusesOnDay: LogHistories[] = [];
+  statusesOnDay: LogEvents[] = [];
   xBgn!: number;
   yBgn!: number;
   xEnd!: number;
@@ -37,19 +37,28 @@ export class InspectionPreviewPage implements OnInit {
   vehicleId: string = '';
   previousPage!: string | null;
   today = new Date();
+  backUrl = '';
 
-  constructor(private activatedRoute: ActivatedRoute, private databaseService: DatabaseService, private storage: Storage, private toastController: ToastController, private navCtrl: NavController) {}
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private databaseService: DatabaseService,
+    private storage: Storage,
+    private toastController: ToastController,
+    private navCtrl: NavController,
+    private route: ActivatedRoute
+  ) {}
 
   async ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.backUrl = params['url'];
+      this.LogDailiesId = params['logId'];
+      this.previousPage = params['page'];
+    });
+
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
-    this.PickedVehicle = await this.storage.get('pickedVehicle');
+    this.PickedVehicle = await this.storage.get('vehicleUnit');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
-    this.activatedRoute.paramMap.subscribe(params => {
-      this.LogDailiesId = params.get('logId');
-      this.previousPage = params.get('page');
-      console.log(this.LogDailiesId);
-    });
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
         this.bReady = ready;
@@ -62,20 +71,20 @@ export class InspectionPreviewPage implements OnInit {
             this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           }
         });
-        this.databaseService.getLogHistories().subscribe(logHistories => {
-          this.logHistories = logHistories;
-          this.logHistories.forEach(log => {
-            if (log.DateEnd === '0001-01-01T00:00:00') {
-              log.DateEnd = formatDate(
-                new Date().toLocaleString('en-US', {
-                  timeZone: this.TimeZoneCity,
-                }),
-                'yyyy-MM-ddTHH:mm:ss',
-                'en_US'
-              );
-            }
-          });
-          console.log(this.logHistories);
+        this.databaseService.getLogEvents().subscribe(logEvents => {
+          this.logEvents = logEvents;
+          // this.logEvents.forEach(log => {
+          //   if (new Date(log.eventTime.timeStampEnd).toISOString() === '0001-01-01T00:00:00') {
+          //     log.eventTime.timeStampEnd = formatDate(
+          //       new Date().toLocaleString('en-US', {
+          //         timeZone: this.TimeZoneCity,
+          //       }),
+          //       'yyyy-MM-ddTHH:mm:ss',
+          //       'en_US'
+          //     );
+          //   }
+          // });
+          console.log(this.logEvents);
           this.drawGraph();
         });
       }
@@ -96,9 +105,9 @@ export class InspectionPreviewPage implements OnInit {
 
     this.currentDay = this.logDaily?.logDate;
 
-    this.logHistories.forEach(event => {
-      if (allSt.includes(event.EventTypeCode)) {
-        sDateEnd = event.DateEnd;
+    this.logEvents.forEach(event => {
+      if (allSt.includes(event.type.code)) {
+        sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
@@ -110,12 +119,12 @@ export class InspectionPreviewPage implements OnInit {
         }
 
         if (
-          formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
           formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
           console.log('event', event);
 
-          dateBgn = new Date(event.DateBgn);
+          dateBgn = new Date(event.eventTime.timeStamp);
           console.log(dateBgn.toLocaleDateString());
           console.log(new Date(this.currentDay as string).toLocaleDateString());
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
@@ -135,7 +144,7 @@ export class InspectionPreviewPage implements OnInit {
           }
           console.log('X END =', this.xEnd);
 
-          switch (event.EventTypeCode) {
+          switch (event.type.code) {
             case 'OFF':
             case 'PC':
               this.yBgn = 25;
@@ -159,7 +168,7 @@ export class InspectionPreviewPage implements OnInit {
               break;
           }
 
-          switch (event.EventTypeCode) {
+          switch (event.type.code) {
             case 'OFF':
               this.eventGraphicLine.push({
                 x1: this.xBgn,
@@ -169,7 +178,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusOFF',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -184,7 +193,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusSB',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -199,7 +208,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusD',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -214,7 +223,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusON',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -229,7 +238,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusPC',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -244,7 +253,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusYM',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -295,6 +304,6 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   goBack() {
-    this.navCtrl.navigateBack('unitab/inspection');
+    this.navCtrl.navigateBack(this.backUrl);
   }
 }

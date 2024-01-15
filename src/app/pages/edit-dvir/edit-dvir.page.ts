@@ -161,7 +161,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         });
       }
     });
-    this.pickedVehicle = await this.storage.get('pickedVehicle');
+    this.pickedVehicle = await this.storage.get('vehicleUnit');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
 

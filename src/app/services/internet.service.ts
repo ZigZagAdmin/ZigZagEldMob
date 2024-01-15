@@ -40,34 +40,34 @@ export class InternetService {
   async postOfflineData() {
     const LoadingStack: any[] = [];
 
-    // await this.storage.get('offlineArray').then((offlineData) => {
-    //   offlineData.forEach((el: any) => {
-    //     LoadingStack.push(true);
-    //     this.http.post(this.apiUrl + el.url, el.body).subscribe(
-    //       (result) => {
-    //         console.log('offlineData sended!');
-    //         const idx = offlineData.findIndex(
-    //           (item: any) =>
-    //             el.url === item.url &&
-    //             JSON.stringify(el.body) === JSON.stringify(item.body)
-    //         );
-    //         offlineData.splice(idx, 1);
-    //         LoadingStack.pop();
-    //         if (LoadingStack.length === 0) {
-    //           this.updateOfflineData(offlineData);
-    //         }
-    //       },
-    //       (error) => {
-    //         console.log('offlineData not sended :(');
-    //         console.log(error);
-    //         LoadingStack.pop();
-    //         if (LoadingStack.length === 0) {
-    //           this.updateOfflineData(offlineData);
-    //         }
-    //       }
-    //     );
-    //   });
-    // });
+    await this.storage.get('offlineArray').then((offlineData) => {
+      offlineData.forEach((el: any) => {
+        LoadingStack.push(true);
+        this.http.post(this.apiUrl + el.url, el.body).subscribe(
+          (result) => {
+            console.log('offlineData sended!');
+            const idx = offlineData.findIndex(
+              (item: any) =>
+                el.url === item.url &&
+                JSON.stringify(el.body) === JSON.stringify(item.body)
+            );
+            offlineData.splice(idx, 1);
+            LoadingStack.pop();
+            if (LoadingStack.length === 0) {
+              this.updateOfflineData(offlineData);
+            }
+          },
+          (error) => {
+            console.log('offlineData not sended :(');
+            console.log(error);
+            LoadingStack.pop();
+            if (LoadingStack.length === 0) {
+              this.updateOfflineData(offlineData);
+            }
+          }
+        );
+      });
+    });
   }
 
   async updateOfflineData(offlineData: any[]) {

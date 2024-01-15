@@ -8,7 +8,7 @@
 </ion-header> -->
 
 <ion-content [forceOverscroll]="false" [fullscreen]="true">
-  <app-header [title]="'Select Vehicle'"></app-header>
+  <app-header [title]="'Select Vehicle'" [backButton]="showBackButton" (backButtonCallback)="goBack()"></app-header>
 
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
