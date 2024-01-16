@@ -105,8 +105,15 @@ export class HosPage implements OnInit {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
           console.log(logEvents);
-
+          console.log(this.logDailies.length < 14);
+          console.log(this.bAuthorized);
+          // if (this.logDailies.length === 0 || this.logDailies.length < 14) {
+          //   console.log('here');
+          //   this.updateLogDailies();
+          // }
           if (this.bAuthorized === false) {
+            console.log('kalshdasjhdlkjashdklashdlkashdlksahd');
+
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
             lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);
@@ -125,7 +132,7 @@ export class HosPage implements OnInit {
                 vehicleId: this.vehicleId,
               },
               eld: {
-                eldId: '',
+                eldId: '00000000-0000-0000-0000-000000000000',
                 macAddress: '',
                 serialNumber: '',
               },
@@ -148,6 +155,7 @@ export class HosPage implements OnInit {
               eventDataCheck: '',
               inspection: false,
             };
+
             this.logEvents.push(LoginLogEvent);
             this.storage.set('bAuthorized', true);
             this.storage.set('logEvents', this.logEvents);
@@ -203,7 +211,8 @@ export class HosPage implements OnInit {
       console.log('after ngOnInit dvir');
       if (this.bReady) {
         this.databaseSubscription = this.databaseService.getLogDailies().subscribe(logDailies => {
-          this.logDailies = logDailies;
+          // this.logDailies = logDailies;
+          // console.log(this.logDailies);
         });
       }
     });
@@ -693,7 +702,7 @@ export class HosPage implements OnInit {
           vehicleId: this.vehicleId,
         },
         eld: {
-          eldId: '',
+          eldId: '00000000-0000-0000-0000-000000000000',
           macAddress: '',
           serialNumber: '',
         },
@@ -797,8 +806,10 @@ export class HosPage implements OnInit {
 
     let currentDate = new Date();
     this.countDays = [];
+    console.log(this.logDailies);
     for (let i = 0; i < 14; i++) {
-      const dateString = currentDate.toISOString().split('T')[0];
+      const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
+      // console.log(dateString);
       const foundLogDayIndex = this.logDailies.findIndex(logDay => logDay.logDate.includes(dateString));
 
       // console.log(dateString);
@@ -831,7 +842,7 @@ export class HosPage implements OnInit {
           },
         };
 
-        this.countDays.push(newLogDaily);
+        this.logDailies.push(newLogDaily);
 
         // this.dashboardService.updateLogDaily(newLogDaily).subscribe(
         //   (response) => {
@@ -852,7 +863,9 @@ export class HosPage implements OnInit {
       }
       currentDate.setDate(currentDate.getDate() - 1);
     }
-    this.logDailies = this.countDays;
+    // this.logDailies = this.countDays;
+    this.logDailies.sort((a, b) => b.logDate.localeCompare(a.logDate));
+    console.log(this.logDailies);
 
     ///////////////////////////////////////////////////////
 
@@ -941,7 +954,7 @@ export class HosPage implements OnInit {
           }
         }
       });
-
+      console.log(durationsBaseOFF != durationsOFF || durationsBaseSB != durationsSB || durationsBaseD != durationsD || durationsBaseON != durationsON);
       if (durationsBaseOFF != durationsOFF || durationsBaseSB != durationsSB || durationsBaseD != durationsD || durationsBaseON != durationsON) {
         this.logDailies[i].timeOffDuty = durationsOFF;
         this.logDailies[i].timeSleeper = durationsSB;
@@ -950,19 +963,22 @@ export class HosPage implements OnInit {
         this.logDailies[i].timeWorked = durationsD + durationsON;
 
         this.dashboardService.updateLogDaily(this.logDailies[i]).subscribe(
-          response => {
+          async response => {
             console.log('LogDaily (durationStatuses) is updated on server:', response);
+            await this.storage.set('logDailies', this.logDailies);
           },
           async error => {
-            console.log('Internet Status' + this.networkStatus);
+            console.log('Internet Status: ' + this.networkStatus);
             let tempEerror = {
               url: 'api/eldDashboard/UploadLogDailies',
               body: this.logDailies[i],
             };
-            let offlineArray = await this.storage.get('offlineArray');
-            offlineArray.push(tempEerror);
-            await this.storage.set('offlineArray', offlineArray);
-            console.log('Pushed in offlineArray');
+            // let offlineArray = await this.storage.get('offlineArray');
+            // offlineArray.push(tempEerror);
+            // await this.storage.set('offlineArray', offlineArray);
+            // console.log('Pushed in offlineArray');
+            await this.storage.set('logDailies', this.logDailies);
+            console.log('Pushed in logDailies');
           }
         );
       }

@@ -11,11 +11,7 @@ import { AUTH_API_URL } from '../app-injection-tokens';
 export class InternetService {
   internetStatus$ = new BehaviorSubject(false);
 
-  constructor(
-    @Inject(AUTH_API_URL) private apiUrl: string,
-    private storage: Storage,
-    private http: HttpClient
-  ) {
+  constructor(@Inject(AUTH_API_URL) private apiUrl: string, private storage: Storage, private http: HttpClient) {
     this.checkInternetStatus();
     this.watchInternetStatus();
   }
@@ -29,7 +25,7 @@ export class InternetService {
   }
 
   private watchInternetStatus() {
-    Network.addListener('networkStatusChange', (status) => {
+    Network.addListener('networkStatusChange', status => {
       this.internetStatus$.next(status.connected);
       if (status.connected === true) {
         this.postOfflineData();
@@ -40,33 +36,30 @@ export class InternetService {
   async postOfflineData() {
     const LoadingStack: any[] = [];
 
-    await this.storage.get('offlineArray').then((offlineData) => {
-      offlineData.forEach((el: any) => {
-        LoadingStack.push(true);
-        this.http.post(this.apiUrl + el.url, el.body).subscribe(
-          (result) => {
-            console.log('offlineData sended!');
-            const idx = offlineData.findIndex(
-              (item: any) =>
-                el.url === item.url &&
-                JSON.stringify(el.body) === JSON.stringify(item.body)
-            );
-            offlineData.splice(idx, 1);
-            LoadingStack.pop();
-            if (LoadingStack.length === 0) {
-              this.updateOfflineData(offlineData);
+    await this.storage.get('offlineArray').then(offlineData => {
+      if (offlineData)
+        offlineData.forEach((el: any) => {
+          LoadingStack.push(true);
+          this.http.post(this.apiUrl + el.url, el.body).subscribe(
+            result => {
+              console.log('offlineData sended!');
+              const idx = offlineData.findIndex((item: any) => el.url === item.url && JSON.stringify(el.body) === JSON.stringify(item.body));
+              offlineData.splice(idx, 1);
+              LoadingStack.pop();
+              if (LoadingStack.length === 0) {
+                this.updateOfflineData(offlineData);
+              }
+            },
+            error => {
+              console.log('offlineData not sended :(');
+              console.log(error);
+              LoadingStack.pop();
+              if (LoadingStack.length === 0) {
+                this.updateOfflineData(offlineData);
+              }
             }
-          },
-          (error) => {
-            console.log('offlineData not sended :(');
-            console.log(error);
-            LoadingStack.pop();
-            if (LoadingStack.length === 0) {
-              this.updateOfflineData(offlineData);
-            }
-          }
-        );
-      });
+          );
+        });
     });
   }
 

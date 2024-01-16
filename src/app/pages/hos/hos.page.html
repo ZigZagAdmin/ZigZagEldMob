@@ -464,25 +464,7 @@
     </div>
     <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
       <ng-template>
-        <!-- <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-button (click)="cancel()">Cancel</ion-button>
-            </ion-buttons>
-            <ion-title color="dark">Select Duty Status</ion-title>
-          </ion-toolbar>
-        </ion-header> -->
         <ion-content>
-          <!-- <div class="title-container padding-g">
-            <div class="title-block">
-              <img
-                (click)="cancel()"
-                style="width: 20px; height: 20px"
-                src="../../../assets/imgs/back-arrow.png"
-              />
-              <div class="page-title">Select Duty Status</div>
-            </div>
-          </div> -->
           <app-header [title]="'Select Duty Status'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
           <div class="modal-content">
             <div class="select-statuses">

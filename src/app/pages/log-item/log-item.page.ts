@@ -138,6 +138,9 @@ export class LogItemPage implements OnInit {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
 
+          if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
+
+          console.log(this.logDailies);
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           if (this.logDaily) {
             console.log(this.logDaily);
@@ -193,10 +196,16 @@ export class LogItemPage implements OnInit {
     this.yBgnV = 0;
 
     this.currentDay = this.logDaily?.logDate;
+    console.log(this.logDaily);
+
+    console.log(this.logEvents);
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
-        sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
+        if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
+        else sDateEnd = new Date().toISOString();
+
+        console.log(sDateEnd);
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
@@ -207,9 +216,14 @@ export class LogItemPage implements OnInit {
           );
         }
 
+        console.log(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US'));
+        console.log(this.currentDay);
+        console.log(formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US'));
+        console.log(formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US'));
+
         if (
-          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
-          formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
+          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
           console.log('event', event);
 
@@ -509,7 +523,7 @@ export class LogItemPage implements OnInit {
           timeZone: '',
         },
         vehicle: {
-          vehicleId: this.vehicleId
+          vehicleId: this.vehicleId,
         },
         eld: {
           eldId: '',
@@ -640,6 +654,10 @@ export class LogItemPage implements OnInit {
       this.databaseSubscription.unsubscribe();
     }
     this.networkSub.unsubscribe();
+  }
+
+  certifyLog() {
+    this.navCtrl.navigateForward('log-certify', { queryParams: { url: this.router.url, date: this.logDaily.logDate } });
   }
 
   goBack() {

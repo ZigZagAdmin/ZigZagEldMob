@@ -81,7 +81,7 @@ export class OthersPage implements OnInit {
     if (this.bAuthorized === true) {
       const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
-      lastLogEvent.eventTime.timeStampEnd = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone])).getTime();
+      if (lastLogEvent) lastLogEvent.eventTime.timeStampEnd = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone])).getTime();
 
       let LogoutLogEvent: LogEvents = {
         logEventId: this.uuidv4(),
@@ -94,7 +94,7 @@ export class OthersPage implements OnInit {
           timeZone: '',
         },
         vehicle: {
-          vehicleId: this.vehicleId
+          vehicleId: this.vehicleId,
         },
         eld: {
           eldId: '',

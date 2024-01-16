@@ -146,7 +146,11 @@ const routes: Routes = [
   {
     path: 'edit-duty-status',
     loadChildren: () => import('./pages/edit-duty-status/edit-duty-status.module').then( m => m.EditDutyStatusPageModule)
+  },  {
+    path: 'log-certify',
+    loadChildren: () => import('./pages/log-certify/log-certify.module').then( m => m.LogCertifyPageModule)
   },
+
 ];
 @NgModule({
   imports: [
