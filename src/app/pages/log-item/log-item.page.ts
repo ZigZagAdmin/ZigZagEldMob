@@ -660,6 +660,10 @@ export class LogItemPage implements OnInit {
     this.navCtrl.navigateForward('log-certify', { queryParams: { url: this.router.url, date: this.logDaily.logDate } });
   }
 
+  editLog() {
+    this.navCtrl.navigateForward('edit-duty-status', { queryParams: { url: this.router.url } });
+  }
+
   goBack() {
     this.navCtrl.navigateBack('unitab/hos');
   }

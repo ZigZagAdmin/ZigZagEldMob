@@ -464,7 +464,7 @@
     </div>
     <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
       <ng-template>
-        <ion-content>
+        <ion-content [forceOverscroll]="false">
           <app-header [title]="'Select Duty Status'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
           <div class="modal-content">
             <div class="select-statuses">

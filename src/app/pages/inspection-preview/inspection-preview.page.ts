@@ -68,7 +68,6 @@ export class InspectionPreviewPage implements OnInit {
             this.logDailies = logDailies.slice(0, 7);
           }
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-          
         });
         this.databaseService.getLogEvents().subscribe(logEvents => {
           this.logEvents = logEvents;
@@ -106,7 +105,9 @@ export class InspectionPreviewPage implements OnInit {
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
-        sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
+        console.log(event.eventTime.timeStampEnd);
+        if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
+        else sDateEnd = new Date().toISOString();
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {

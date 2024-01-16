@@ -8,13 +8,10 @@ import { EditDutyStatusPageRoutingModule } from './edit-duty-status-routing.modu
 
 import { EditDutyStatusPage } from './edit-duty-status.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    EditDutyStatusPageRoutingModule
-  ],
-  declarations: [EditDutyStatusPage]
+  imports: [CommonModule, FormsModule, IonicModule, EditDutyStatusPageRoutingModule, HeaderComponentModule],
+  declarations: [EditDutyStatusPage],
 })
 export class EditDutyStatusPageModule {}

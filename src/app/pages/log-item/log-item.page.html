@@ -752,13 +752,13 @@
           <div class="form-card" *ngFor="let logStatus of statusesOnDay">
             <div class="card-row">
               <img src="assets/icon/circle-blue.svg" alt="blue" />
-              <p class="subtitle">{{ logStatus.eventTime.timeStamp | date:'h:mm a' }} - {{ logStatus.type.code }}</p>
+              <p class="subtitle">{{ logStatus.eventTime.timeStamp | date:'h:mm a' }} - {{ logStatus.type.name }}</p>
               <p class="text-14-600">{{ logStatus.eventTime.timeStamp | date:'mediumDate' }}</p>
             </div>
             <div class="card-row">
               <img src="assets/icon/location.svg" alt="location" />
               <p class="text-2">{{ logStatus.location.description }}</p>
-              <img src="assets/icon/edit.svg" alt="edit" />
+              <img src="assets/icon/edit.svg" (click)="editLog()" alt="edit" />
             </div>
           </div>
         </div>

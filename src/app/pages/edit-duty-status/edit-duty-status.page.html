@@ -1,10 +1,157 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>Edit Duty Status</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" [forceOverscroll]="false">
+  <app-header [title]="'Edit Duty Status'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
-<ion-content [fullscreen]="true"> </ion-content>
+  <div class="padding-g" style="display: flex; flex-direction: column; gap: 30px">
+    <div class="card-info">
+      <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1570 270">
+        <g class="grid" transform="translate(50, 40)">
+          <rect class="border" x="0" y="0" width="1440" height="200" rx="8" ry="8"></rect>
+
+          <g class="" *ngFor="let hours of graphicsHour">
+            <g class="column" [style.transform]="'translateX('+(hours*60)+'px)'">
+              <line x1="0" x2="0" y1="0" y2="200"></line>
+              <g class="cell top" transform="translate(0, 0)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell top" transform="translate(0, 50)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 100)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 150)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+            </g>
+          </g>
+          <g class="column" transform="translate(1440, 0)">
+            <line x1="0" x2="0" y1="0" y2="200"></line>
+          </g>
+
+          <line class="row" x1="0" x2="1440" y1="0" y2="0"></line>
+          <line class="row" x1="0" x2="1440" y1="50" y2="50"></line>
+          <line class="row" x1="0" x2="1440" y1="100" y2="100"></line>
+          <line class="row" x1="0" x2="1440" y1="150" y2="150"></line>
+          <line class="row" x1="0" x2="1440" y1="200" y2="200"></line>
+        </g>
+
+        <g class="duty-status-labels" transform="translate(35, 40)">
+          <text class="label" transform="translate(0, 25)" text-anchor="end" dy="0.35em">OFF</text>
+          <text class="label" transform="translate(0, 75)" text-anchor="end" dy="0.35em">SB</text>
+          <text class="label" transform="translate(0, 125)" text-anchor="end" dy="0.35em">D</text>
+          <text class="label" transform="translate(0, 175)" text-anchor="end" dy="0.35em">ON</text>
+        </g>
+
+        <g class="hour-labels" transform="translate(50, 40)">
+          <text class="label" transform="translate(0, 5)" text-anchor="middle" dy="-1em">M</text>
+          <text class="label" transform="translate(60, 5)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(120, 5)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(180, 5)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(240, 5)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(300, 5)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(360, 5)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(420, 5)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(480, 5)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(540, 5)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(600, 5)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(660, 5)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(720, 5)" text-anchor="middle" dy="-1em">N</text>
+          <text class="label" transform="translate(780, 5)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(840, 5)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(900, 5)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(960, 5)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(1020, 5)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(1080, 5)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(1140, 5)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(1200, 5)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(1260, 5)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(1320, 5)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(1380, 5)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(1440, 5)" text-anchor="middle" dy="-1em">M</text>
+        </g>
+
+        <g class="eventLine" transform="translate(50, 40)">
+          <g class="eventRecord" *ngFor="let event of eventGraphicLine">
+            <line [attr.x1]="event.x1" [attr.x2]="event.x2" [attr.y1]="event.y1" [attr.y2]="event.y2" [class]="event.class"></line>
+
+            <line *ngIf="event.yV > 0" [attr.x1]="event.x1" [attr.x2]="event.x1" [attr.y1]="event.y1" [attr.y2]="event.yV" class="vertical"></line>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="time-inputs">
+      <div class="input-block">
+        <label class="label">Start Time (CT)</label>
+        <input class="input" [(ngModel)]="location" type="text" name="location" />
+      </div>
+      <div class="input-block">
+        <label class="label">End Time (CT)</label>
+        <input class="input" [(ngModel)]="location" type="text" name="location" />
+      </div>
+    </div>
+    <div class="status-change">
+      <div class="modal-content">
+        <div class="select-statuses">
+          <div class="select-status" (click)="selectButton('OFF')">
+            <img src="assets/icon/circle-gray.svg" alt="circle" />
+            <p class="subtitle">Off Duty</p>
+            <img *ngIf="selectedButton !== 'OFF'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="selectedButton === 'OFF'" src="assets/icon/check-mark.svg" alt="circle" />
+          </div>
+          <div class="select-status" (click)="selectButton('SB')">
+            <img src="assets/icon/circle-blue.svg" alt="circle" />
+            <p class="subtitle">Sleeper Berth</p>
+            <img *ngIf="selectedButton !== 'SB'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="selectedButton === 'SB'" src="assets/icon/check-mark.svg" alt="circle" />
+          </div>
+          <div class="select-status" (click)="selectButton('ON')">
+            <img src="assets/icon/circle-green.svg" alt="circle" />
+            <p class="subtitle">On Duty</p>
+            <img *ngIf="selectedButton !== 'ON'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="selectedButton === 'ON'" src="assets/icon/check-mark.svg" alt="circle" />
+          </div>
+          <div class="select-status" (click)="selectButton('D')">
+            <img src="assets/icon/circle-orange.svg" alt="circle" />
+            <p class="subtitle">Driving</p>
+            <img *ngIf="selectedButton !== 'D'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="selectedButton === 'D'" src="assets/icon/check-mark.svg" alt="circle" />
+          </div>
+          <div class="select-status" (click)="selectButton('PC')">
+            <img src="assets/icon/circle-purple.svg" alt="circle" />
+            <p class="subtitle">Personal Conveyance</p>
+            <img *ngIf="selectedButton !== 'PC'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="selectedButton === 'PC'" src="assets/icon/check-mark.svg" alt="circle" />
+          </div>
+          <div class="select-status" (click)="selectButton('YM')">
+            <img src="assets/icon/circle-red.svg" alt="circle" />
+            <p class="subtitle">Yard Moves</p>
+            <img *ngIf="selectedButton !== 'YM'" src="assets/icon/circle-white.svg" alt="circle" />
+            <img *ngIf="selectedButton === 'YM'" src="assets/icon/check-mark.svg" alt="circle" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="location-comments">
+      <div class="input-block">
+        <label class="label">Location</label>
+        <input class="input" [(ngModel)]="location" type="text" name="location" />
+      </div>
+      <div class="input-block">
+        <label class="label">Comments</label>
+        <textarea class="input textarea" [(ngModel)]="comments" type="text" name="location"></textarea>
+      </div>
+    </div>
+    <div class="confirm-buttons">
+      <button class="custom-btn secondary-btn" (click)="goBack()">Back</button>
+      <button class="custom-btn primary-btn" [ngClass]="{'btn-disabled': !isConfirmButtonActive}" (click)="save()" [disabled]="!isConfirmButtonActive">Save</button>
+    </div>
+  </div>
+</ion-content>
