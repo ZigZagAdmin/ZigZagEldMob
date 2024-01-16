@@ -67,9 +67,8 @@ export class InspectionPreviewPage implements OnInit {
           if (this.previousPage === 'inspection') {
             this.logDailies = logDailies.slice(0, 7);
           }
-          if (this.logDaily) {
-            this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-          }
+          this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+          
         });
         this.databaseService.getLogEvents().subscribe(logEvents => {
           this.logEvents = logEvents;

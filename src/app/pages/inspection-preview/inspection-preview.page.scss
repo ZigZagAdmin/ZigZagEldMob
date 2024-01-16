@@ -117,7 +117,7 @@ line {
 }
 
 .card-info {
-  min-width: 397px;
+  // min-width: 397px;
   z-index: 5;
 }
 
@@ -143,7 +143,7 @@ ion-col {
 }
 
 .custom-card-on::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -154,7 +154,7 @@ ion-col {
 }
 
 .custom-card-off::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -164,7 +164,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-d::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -174,7 +174,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-sb::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -184,7 +184,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-pc::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -194,7 +194,7 @@ ion-col {
   /* Другие стили по вашему выбору */
 }
 .custom-card-ym::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -207,4 +207,47 @@ ion-col {
 .underline-text {
   text-decoration: underline;
   color: #0000ff;
+}
+
+.info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: var(--gray-100);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.box-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.row-label {
+  color: var(--gray-500);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.row-data {
+  color: var(--gray-700);
+  font-weight: 500;
+  font-size: 16px;
+  max-width: 50%;
+  white-space: normal;
+  text-align: right;
 }
