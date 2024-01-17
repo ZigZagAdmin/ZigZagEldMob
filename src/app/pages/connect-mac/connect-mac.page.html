@@ -61,30 +61,14 @@
 </ion-header> -->
 
 <ion-content [forceOverscroll]="false" [fullscreen]="true">
-  <!-- <div class="title-container padding-g">
-    <div class="title-back">
-      <img (click)="goBack()" src="../../../assets/imgs/back-arrow.png" />
-      <div class="page-title">Connect to ELD</div>
-    </div>
-    <div class="subtitle custom-subtitle">
-      {{'Vehicle Unit: ' + vehicle?.vehicleUnit}}
-    </div>
-  </div> -->
-
   <app-header [title]="'Connect to ELD'" [subtitle]="'Vehicle Unit: ' + vehicle?.vehicleUnit" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
   <div class="connect-wrapper padding-g">
     <div class="input-container">
       <div class="input-block custom-block">
-        <label class="label">MAC Address</label>
-        <input
-          class="input"
-          [(ngModel)]="macAddress"
-          type="text"
-          name="macAddress"
-        />
+        <app-input [label]="'MAC Address'" [fill]="false" [type]="'text'" [(value)]="macAddress" [(validation)]="validation['macAddress']"></app-input>
       </div>
-      <button class="btn primary-btn custom-button">Connect</button>
+      <button class="btn primary-btn custom-button" (click)="connect()">Connect</button>
     </div>
     <div class="or-container">
       <div class="line"></div>

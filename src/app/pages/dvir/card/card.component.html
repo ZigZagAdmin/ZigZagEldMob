@@ -1,38 +1,38 @@
 <div class="dvir-card">
   <div class="date-block">
-    <img *ngIf="dvir.DefectsVehicle || dvir.DefectsTrailers" src="assets/icon/dvir-has-defects.svg" alt="defect" />
-    <img *ngIf="dvir.StatusCode === 'VCS'" src="assets/icon/green-point.svg" alt="no-defects" />
-    <p class="subtitle">{{ dvir.CreateDate | date : 'EEE, MMM' }} {{ dvir.CreateDate | date : 'd' | ordinal }} {{ dvir.CreateDate | date : 'y' }}</p>
-    <p class="text-14-600">{{ dvir.CreateDate | date : 'hh:mm a' }}</p>
+    <img *ngIf="dvir.defectsVehicle || dvir.defectsTrailers" src="assets/icon/dvir-has-defects.svg" alt="defect" />
+    <img *ngIf="dvir.status.code === 'VCS'" src="assets/icon/green-point.svg" alt="no-defects" />
+    <p class="subtitle">{{ dvir.createDate | date : 'EEE, MMM' }} {{ dvir.createDate | date : 'd' | ordinal }} {{ dvir.createDate | date : 'y' }}</p>
+    <p class="text-14-600">{{ dvir.createDate | date : 'hh:mm a' }}</p>
   </div>
   <div class="names">
     <div class="name">
       <img src="assets/icon/truck-fast.svg" alt="truck" />
-      <p class="text-1">{{ dvir.VehicleUnit }}</p>
+      <p class="text-1">{{ dvir.vehicle.vehicleUnit }}</p>
     </div>
     <div class="name">
       <img src="assets/icon/trailer.svg" alt="truck" />
-      <p class="text-1">{{ dvir.Trailers || '-' }}</p>
+      <p class="text-1">{{ dvir.trailers || '-' }}</p>
     </div>
   </div>
-  <div class="state" *ngIf="dvir.DefectsVehicle">
+  <div class="state" *ngIf="dvir.defectsVehicle">
     <div class="state-block">
       <img src="assets/icon/warning-2.svg" alt="warning" />
       <p class="text-14-600-err">Vehicle Defects</p>
     </div>
-    <p class="defs">{{ dvir.DefectsVehicle }}</p>
+    <p class="defs">{{ dvir.defectsVehicle }}</p>
   </div>
-  <div class="state" *ngIf="dvir.DefectsTrailers">
+  <div class="state" *ngIf="dvir.defectsTrailers">
     <div class="state-block">
       <img src="assets/icon/warning-2.svg" alt="warning" />
       <p class="text-14-600-err">Trailer Defects</p>
     </div>
-    <p class="defs">{{ dvir.DefectsTrailers }}</p>
+    <p class="defs">{{ dvir.defectsTrailers }}</p>
   </div>
-  <div class="state" *ngIf="dvir.StatusCode === 'VCS'">
+  <div class="state" *ngIf="dvir.status.code === 'VCS'">
     <div class="state-block">
       <img src="assets/icon/tick-circle.svg" alt="all good" />
-      <p class="text-14-600-succ">{{ dvir.StatusName }}</p>
+      <p class="text-14-600-succ">{{ dvir.status.name }}</p>
     </div>
   </div>
 </div>

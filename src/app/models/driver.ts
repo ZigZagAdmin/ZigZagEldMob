@@ -12,7 +12,6 @@ export class Driver {
   driverIdentifier!: string;
   phoneNumber!: string;
   driverInfo: IDriverInfo;
-
   simCard!: string;
   deviceModel!: string;
   operatingSystem!: string;

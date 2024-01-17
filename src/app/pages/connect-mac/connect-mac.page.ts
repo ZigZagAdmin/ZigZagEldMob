@@ -1,23 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { NavController } from '@ionic/angular';
 import { Geolocation } from '@capacitor/geolocation';
 import { Vehicle } from 'src/app/models/vehicle';
 import { DatabaseService } from 'src/app/services/database.service';
+import { UtilityService } from 'src/app/services/utility.service';
+import { ShareService } from 'src/app/services/share.service';
 
 @Component({
   selector: 'app-connect-mac',
   templateUrl: './connect-mac.page.html',
   styleUrls: ['./connect-mac.page.scss'],
 })
-export class ConnectMacPage implements OnInit {
+export class ConnectMacPage implements OnInit, OnDestroy {
   pickedVehicle!: string;
   macAddress: string = '';
   vehicle: Vehicle;
 
-  constructor(private storage: Storage, private navCtrl: NavController, private storageService: DatabaseService) {}
+  validation: { [key: string]: boolean } = {
+    macAddress: false,
+  };
+
+  constructor(private storage: Storage, private navCtrl: NavController, private storageService: DatabaseService, private utilityService: UtilityService, private shareService: ShareService) {}
 
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.shareService.destroyMessage();
+  }
 
   getVehicle() {
     this.storageService.getVehicles().subscribe(
@@ -52,6 +62,11 @@ export class ConnectMacPage implements OnInit {
 
   redirectToVehicle() {
     this.navCtrl.navigateBack('/select-vehicle', { replaceUrl: true });
+  }
+
+  connect() {
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    if (!this.utilityService.validateForm(this.validation)) return;
   }
 
   handleRefresh(event: any) {

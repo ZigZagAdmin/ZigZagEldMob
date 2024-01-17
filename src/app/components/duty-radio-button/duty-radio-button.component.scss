@@ -1,0 +1,52 @@
+.list-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.list-item {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--gray-100);
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.item-data {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-color {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}
+
+.status-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gray-500);
+}
+
+.item-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+ion-checkbox {
+  --size: 20px;
+  --checkbox-background-checked: var(--success-500);
+  --border-color: transparent;
+  --border-color-checked: transparent;
+  --checkmark-width: 2px;
+}
+
+ion-checkbox::part(container) {
+  border-radius: 50%;
+}

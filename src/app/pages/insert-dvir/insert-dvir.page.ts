@@ -252,24 +252,32 @@ export class InsertDvirPage implements OnInit {
       const defectsTrailers = Array.isArray(this.form.value.DefectsTrailers) ? this.form.value.DefectsTrailers.join(', ') : this.form.value.DefectsTrailers || '';
 
       const dvirData: DVIRs = {
-        DVIRId: this.uuidv4(),
-        CreateDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US'),
-        VehicleUnit: this.vehicleUnit,
-        VehicleId: this.vehicleId,
-        DriverId: this.driverId,
-        Trailers: this.form.value.Trailers,
-        Odometer: this.form.value.Odometer,
-        DefectsVehicle: defectsVehicle,
-        DefectsTrailers: defectsTrailers,
-        Remarks: this.form.value.Remarks || '',
-        StatusCode: selectedStatusCode, // Ваш логический код для получения StatusCode
-        StatusName: selectedStatusName,
-        Latitude: '0',
-        Longitude: '0',
-        LocationDescription: this.form.value.LocationDescription,
-        Signature: this.form.value.Signature, // Нужно будет реализовать сохранение подписи
-        MechanicSignature: '', // Предположим, что это тоже будет пустым
-        RepairDate: '', // Предположим, что это тоже будет пустым
+        dvirId: this.uuidv4(),
+        driver: {
+          driverId: this.driverId,
+        },
+        vehicle: {
+          vehicleUnit: this.vehicleUnit,
+          vehicleId: this.vehicleId,
+        },
+        odometer: this.form.value.Odometer,
+        trailers: this.form.value.Trailers,
+        defectsVehicle: defectsVehicle,
+        defectsTrailers: defectsTrailers,
+        remarks: this.form.value.Remarks || '',
+        status: { code: selectedStatusCode, name: selectedStatusName },
+        location: {
+          description: this.form.value.LocationDescription,
+          latitude: 0,
+          longitude: 0,
+        },
+        createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
+        createTimeZone: '',
+        repairDate: 0,
+        repairTimeZone: '',
+
+        signatureId: this.uuidv4(),
+        signatureBase64: this.form.value.Signature,
       };
 
       if (this.networkStatus === true) {

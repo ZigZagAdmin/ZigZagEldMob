@@ -50,8 +50,8 @@ export class DvirPage implements OnInit {
   }
 
   editDvir(dvir: DVIRs) {
-    console.log(dvir.DVIRId);
-    this.navCtrl.navigateForward(['/edit-dvir', { dvirId: dvir.DVIRId }]);
+    console.log(dvir.dvirId);
+    this.navCtrl.navigateForward(['/edit-dvir', { dvirId: dvir.dvirId }]);
   }
 
   insertDvir() {

@@ -153,7 +153,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         });
         this.databaseService.getDvirs().subscribe(dvirs => {
           this.dvirs = dvirs;
-          this.dvir = this.dvirs.find(item => item.DVIRId === this.dvirId);
+          this.dvir = this.dvirs.find(item => item.dvirId === this.dvirId);
           if (this.dvir) {
             this.initSignaturePad();
             this.fillFormWithDvirData();
@@ -236,24 +236,36 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
       }
 
       const dvirData: DVIRs = {
-        DVIRId: this.dvir.DVIRId,
-        CreateDate: this.dvir.CreateDate,
-        VehicleUnit: this.pickedVehicle,
-        VehicleId: this.vehicleId,
-        DriverId: this.driverId,
-        Trailers: this.form.value.Trailers,
-        Odometer: this.form.value.Odometer,
-        DefectsVehicle: defectsVehicle,
-        DefectsTrailers: defectsTrailers,
-        Remarks: this.form.value.Remarks || '',
-        StatusCode: selectedStatusCode,
-        StatusName: selectedStatusName,
-        Latitude: '0',
-        Longitude: '0',
-        LocationDescription: this.form.value.LocationDescription,
-        Signature: this.form.value.Signature.slice(22),
-        MechanicSignature: this.form.value.MechanicSignature.slice(22) || '',
-        RepairDate: '',
+        dvirId: this.dvir.DVIRId,
+        driver: {
+          driverId: this.driverId,
+        },
+        vehicle: {
+          vehicleUnit: this.pickedVehicle,
+          vehicleId: this.vehicleId,
+        },
+        odometer: this.form.value.Odometer,
+        trailers: this.form.value.Trailers,
+        defectsVehicle: defectsVehicle,
+        defectsTrailers: defectsTrailers,
+        remarks: this.form.value.Remarks || '',
+        status: { code: selectedStatusCode, name: selectedStatusName },
+        location: {
+          description: this.form.value.LocationDescription,
+          latitude: 0,
+          longitude: 0,
+        },
+        createDate: this.dvir.CreateDate,
+        createTimeZone: '',
+        repairDate: 0,
+        repairTimeZone: '',
+
+        signatureId: '00000000-0000-0000-0000-000000000000',
+        signatureBase64: this.form.value.Signature.slice(22),
+        signatureLink: '',
+        mechanicSignatureId: '00000000-0000-0000-0000-000000000000',
+        mechanicSignatureBase64: this.form.value.MechanicSignature.slice(22) || '',
+        mechanicSignatureLink: '',
       };
 
       console.log(dvirData);
@@ -286,7 +298,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         console.log('Pushed in offlineArray');
       }
 
-      const index = this.dvirs.findIndex(item => item.DVIRId === this.dvirId);
+      const index = this.dvirs.findIndex(item => item.dvirId === this.dvirId);
       if (index !== -1) {
         this.dvirs[index] = dvirData;
       }
