@@ -1,0 +1,4 @@
+<div class="custom-input">
+  <div *ngIf="label" class="input-label" [ngClass]="{ 'label-error': !valid }">{{ label }}</div>
+  <input [type]="type" (input)="onInputChange($event)" [placeholder]="placeholder" class="input-box" [ngClass]="{ 'input-fill': fill, 'validation-error': !valid }" />
+</div>

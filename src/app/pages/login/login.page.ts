@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user';
 import { Observable, forkJoin, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
@@ -21,29 +21,42 @@ import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
 import { DVIRs } from 'src/app/models/dvirs';
 import { PlacesCity } from 'src/app/models/places-city';
+import { UtilityService } from 'src/app/services/utility.service';
+import { ToastService } from 'src/app/services/toast.service';
+import { ShareService } from 'src/app/services/share.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   username = '';
   password = '';
   loading = false;
   focused = false;
   authUser!: AuthUser;
+  validation: { [key: string]: boolean } = {
+    username: false,
+    password: false,
+  };
 
   constructor(
     private authService: AuthService,
     private manageService: ManageService,
     private databaseService: DatabaseService,
-    private toastController: ToastController,
+    private toastService: ToastService,
     private storage: Storage,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private utilityService: UtilityService,
+    private shareService: ShareService
   ) {}
 
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.shareService.destroyMessage();
+  }
 
   onBlur(event: any) {
     const value = event.target.value;
@@ -54,6 +67,9 @@ export class LoginPage implements OnInit {
   }
 
   login(username: string, password: string) {
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    if (!this.utilityService.validateForm(this.validation)) return;
+
     this.loading = true; // Показать спиннер
 
     this.authService
@@ -84,7 +100,7 @@ export class LoginPage implements OnInit {
           return forkJoin(fetchRequests).pipe(
             catchError(error => {
               const errorMessage = 'Error fetching data';
-              this.presentToast(errorMessage); // Отобразить toast с ошибкой
+              this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
               return throwError(errorMessage);
             })
           );
@@ -105,7 +121,7 @@ export class LoginPage implements OnInit {
           return forkJoin(saveRequests).pipe(
             catchError(error => {
               const errorMessage = 'Error saving data to database';
-              this.presentToast(errorMessage); // Отобразить toast с ошибкой
+              this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
               return throwError(errorMessage);
             })
           );
@@ -118,13 +134,13 @@ export class LoginPage implements OnInit {
         () => {
           // Все запросы и сохранения выполнены успешно
           this.storage.set('bAuthorized', false);
-          this.presentToast('Login successful', 'success'); // Отобразить toast с сообщением об успешном входе
+          this.toastService.showToast('Login successful', 'success'); // Отобразить toast с сообщением об успешном входе
           this.navCtrl.navigateRoot('/select-vehicle', { animated: true, animationDirection: 'forward' });
         },
         error => {
           // Обработка ошибки
           const errorMessage = 'An error occurred during login';
-          this.presentToast(errorMessage, 'danger'); // Отобразить toast с ошибкой
+          this.toastService.showToast(errorMessage, 'danger'); // Отобразить toast с ошибкой
           console.log(errorMessage);
         }
       );
@@ -134,7 +150,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveAuthUser(authUser).pipe(
       catchError(error => {
         const errorMessage = 'Error saving auth user to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -144,7 +160,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveDrivers(drivers).pipe(
       catchError(error => {
         const errorMessage = 'Error saving drivers to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -154,7 +170,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveCompany(company).pipe(
       catchError(error => {
         const errorMessage = 'Error saving company to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -164,7 +180,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveVehicles(vehicles).pipe(
       catchError(error => {
         const errorMessage = 'Error saving vehicles to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -174,7 +190,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveTerminals(terminals).pipe(
       catchError(error => {
         const errorMessage = 'Error saving terminals to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -184,7 +200,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveELDs(elds).pipe(
       catchError(error => {
         const errorMessage = 'Error saving ELDs to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -194,7 +210,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveDvirs(dvirs).pipe(
       catchError(error => {
         const errorMessage = 'Error saving dvirs to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -204,7 +220,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.savePlacesCity(placesCity).pipe(
       catchError(error => {
         const errorMessage = 'Error saving logMaps to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -214,7 +230,7 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveLogDailies(logDailies).pipe(
       catchError(error => {
         const errorMessage = 'Error saving log dailies to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
@@ -224,19 +240,10 @@ export class LoginPage implements OnInit {
     return this.databaseService.saveLogEvents(logEvents).pipe(
       catchError(error => {
         const errorMessage = 'Error saving log histories to database';
-        this.presentToast(errorMessage); // Отобразить toast с ошибкой
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })
     );
-  }
-
-  private async presentToast(message: string, color: string = 'danger') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      color: color,
-    });
-    toast.present();
   }
 
   forgotPassword() {}
