@@ -269,3 +269,9 @@ p {
   justify-content: center;
   align-items: center;
 }
+
+.text-elipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

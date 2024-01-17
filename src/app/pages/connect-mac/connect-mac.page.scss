@@ -49,13 +49,13 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .title-back {
-    img {
-      filter: invert(1);
-    }
-  }
-}
+// @media (prefers-color-scheme: dark) {
+//   .title-back {
+//     img {
+//       filter: invert(1);
+//     }
+//   }
+// }
 
 .custom-subtitle {
   margin-left: 35px;
