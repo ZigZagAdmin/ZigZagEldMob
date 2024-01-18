@@ -17,34 +17,25 @@ export class DvirPage implements OnInit {
   databaseSubscription: Subscription | undefined;
   paramsSubscription!: Subscription;
   pickedVehicle: String = '';
-  constructor(
-    private route: ActivatedRoute,
-    private navCtrl: NavController,
-    private databaseService: DatabaseService
-  ) {}
+  constructor(private route: ActivatedRoute, private navCtrl: NavController, private databaseService: DatabaseService) {}
 
   ngOnInit() {
     console.log('init dvirs');
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseSubscription = this.databaseService
-            .getDvirs()
-            .subscribe((dvirs) => {
-              this.dvirs = dvirs;
-            });
-        }
-      });
-    this.paramsSubscription = this.route.params.subscribe((params) => {
+    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+        this.databaseSubscription = this.databaseService.getDvirs().subscribe(dvirs => {
+          this.dvirs = dvirs;
+        });
+      }
+    });
+    this.paramsSubscription = this.route.params.subscribe(params => {
       console.log('after ngOnInit dvir');
       if (this.bReady) {
-        this.databaseSubscription = this.databaseService
-          .getDvirs()
-          .subscribe((dvirs) => {
-            this.dvirs = dvirs;
-            console.log(this.dvirs);
-          });
+        this.databaseSubscription = this.databaseService.getDvirs().subscribe(dvirs => {
+          this.dvirs = dvirs;
+          console.log(this.dvirs);
+        });
       }
     });
   }

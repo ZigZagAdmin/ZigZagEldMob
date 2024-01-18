@@ -103,8 +103,8 @@ p {
 }
 .label {
   color: var(--gray-700);
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 600;
   margin: 0 0 5px 0;
 }
 .input {
@@ -119,7 +119,7 @@ p {
 .edit-form {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
 }
 
 .edit-dvir-block {
@@ -255,7 +255,7 @@ p {
 }
 
 .padding-g {
-  padding: 30px;
+  padding: 20px;
 }
 
 .weight-500 {
@@ -264,7 +264,7 @@ p {
 
 .no-data {
   width: 100%;
-  height: calc(100% - 57px);
+  height: calc(100% - 47px);
   display: flex;
   justify-content: center;
   align-items: center;
