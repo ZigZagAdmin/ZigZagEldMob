@@ -14,6 +14,9 @@ export class InputComponent implements OnInit, OnDestroy {
   @Input() placeholder: string = '';
   @Input() fill: boolean = true;
   @Input() validators: { regex: RegExp; message: string }[] = [];
+  @Input() disabled: boolean = false;
+  @Input() required: boolean = false;
+  @Input() labelPosition: 'top' | 'left' = 'top';
 
   @Input()
   get value(): string {
@@ -23,6 +26,7 @@ export class InputComponent implements OnInit, OnDestroy {
   @Output() valueChange = new EventEmitter<string>();
 
   set value(newValue: string) {
+    console.log(newValue);
     if (this._value !== newValue) {
       this._value = newValue;
       this.valueChange.emit(newValue);

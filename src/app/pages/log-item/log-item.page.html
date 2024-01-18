@@ -714,55 +714,38 @@
         </g>
       </svg>
     </div>
-    <form [formGroup]="form">
-      <div class="edit-form">
-        <div class="form-title">
-          <img src="assets/icon/circle-red.svg" alt="circle" />
-          <p class="subtitle">Form</p>
-          <button class="btn primary-btn" [disabled]="!form.valid" (click)="onSubmit()">Save</button>
-        </div>
-        <div class="form-list">
-          <div class="form-item">
-            <p class="text-2">Vehicles</p>
-            <input class="input readonly" type="text" readonly [value]="PickedVehicle" formControlName="Vehicles" />
+    <div class="edit-form">
+      <div class="form-title">
+        <div class="status-circle" [ngClass]="{'status-circle-error': !logDaily?.formManner, 'status-circle-success': logDaily?.formManner}"></div>
+        <p class="subtitle">Form</p>
+        <button class="btn primary-btn" [disabled]="" (click)="onSubmit()">Save</button>
+      </div>
+      <div class="form-list">
+        <app-input [label]="'Vehicle'" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit"></app-input>
+        <app-input [label]="'Trailers'" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers"></app-input>
+        <app-input [label]="'Shipping Document'" [required]="true" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.shippingDoc"></app-input>
+        <app-input [label]="'From Address'" [required]="true" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.fromAddress"></app-input>
+        <app-input [label]="'To Address'" [required]="true" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.toAddress"></app-input>
+      </div>
+      <div class="form-title">
+        <p class="subtitle">Logs</p>
+        <button class="btn primary-btn" [ngClass]="{'btn-disabled ': currentDay === today}" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">Certify</button>
+        <button class="btn secondary-btn" *ngIf="logDaily?.certified">Certified</button>
+      </div>
+      <div class="form-cards">
+        <div class="form-card" *ngFor="let logStatus of statusesOnDay">
+          <div class="card-row">
+            <img src="assets/icon/circle-blue.svg" alt="blue" />
+            <p class="subtitle">{{ logStatus.eventTime.timeStamp | date:'h:mm a' }} - {{ logStatus.type.name }}</p>
+            <p class="text-14-600">{{ logStatus.eventTime.timeStamp | date:'mediumDate' }}</p>
           </div>
-          <div class="form-item">
-            <p class="text-2">Trailers</p>
-            <input class="input" type="text" formControlName="Trailers" />
-          </div>
-          <div class="form-item">
-            <p class="text-2">Shipping Document*</p>
-            <input class="input" type="text" formControlName="ShippingDocuments" />
-          </div>
-          <div class="form-item">
-            <p class="text-2">From Address*</p>
-            <input class="input" type="text" formControlName="FromAdress" />
-          </div>
-          <div class="form-item">
-            <p class="text-2">Shipping Document*</p>
-            <input class="input" type="text" formControlName="ToAdress" />
-          </div>
-        </div>
-        <div class="form-title">
-          <p class="subtitle">Logs</p>
-          <button class="btn primary-btn" (click)="certifyLog()">Certify</button>
-          <button class="btn secondary-btn">Certified</button>
-        </div>
-        <div class="form-cards">
-          <div class="form-card" *ngFor="let logStatus of statusesOnDay">
-            <div class="card-row">
-              <img src="assets/icon/circle-blue.svg" alt="blue" />
-              <p class="subtitle">{{ logStatus.eventTime.timeStamp | date:'h:mm a' }} - {{ logStatus.type.name }}</p>
-              <p class="text-14-600">{{ logStatus.eventTime.timeStamp | date:'mediumDate' }}</p>
-            </div>
-            <div class="card-row">
-              <img src="assets/icon/location.svg" alt="location" />
-              <p class="text-2">{{ logStatus.location.description }}</p>
-              <img src="assets/icon/edit.svg" (click)="editLog()" alt="edit" />
-            </div>
+          <div class="card-row">
+            <img src="assets/icon/location.svg" alt="location" />
+            <p class="text-2">{{ logStatus.location.description }}</p>
+            <img src="assets/icon/edit.svg" (click)="editLog()" alt="edit" />
           </div>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </ion-content>

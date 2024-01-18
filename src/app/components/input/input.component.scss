@@ -1,15 +1,35 @@
 .custom-input {
   width: 100%;
   height: fit-content;
+}
+
+.custom-input-top {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
+.custom-input-left {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
 .input-label {
+  color: var(--gray-500);
+}
+
+.input-label-top {
   font-size: 14px;
-  font-weight: 400;
-  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.input-label-left {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .input-box {
@@ -33,6 +53,10 @@
 .input-fill {
   border: none !important;
   background-color: var(--gray-100);
+}
+
+.input-left {
+  flex: 1;
 }
 
 .validation-error {

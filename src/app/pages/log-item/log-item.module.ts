@@ -10,9 +10,10 @@ import { ConvertMilisecondsToHoursAndMinutesPipe } from 'src/app/pipe/convert-mi
 import { LogItemPage } from './log-item.page';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { ScrollToolbarComponentModule } from 'src/app/components/scroll-toolbar/scroll-toolbar.module';
+import { InputComponentModule } from 'src/app/components/input/input.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, LogItemPageRoutingModule, ReactiveFormsModule, HeaderComponentModule, ScrollToolbarComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, LogItemPageRoutingModule, ReactiveFormsModule, HeaderComponentModule, ScrollToolbarComponentModule, InputComponentModule],
   declarations: [LogItemPage, ConverStringDateToMilisecondsPipe, ConvertMilisecondsToHoursAndMinutesPipe],
 })
 export class LogItemPageModule {}

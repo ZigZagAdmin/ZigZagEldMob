@@ -25,11 +25,10 @@ import { NavController } from '@ionic/angular';
 export class LogItemPage implements OnInit {
   @ViewChild('sPad', { static: false }) signaturePadElement!: ElementRef;
   @ViewChild(IonModal) modal!: IonModal;
-  form!: FormGroup;
   LogDailiesId!: string | null;
   bReady: boolean = false;
   TimeZoneCity: string = '';
-  PickedVehicle: string = '';
+  vehicleUnit: string = '';
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
   logDaily: LogDailies | undefined;
@@ -50,7 +49,18 @@ export class LogItemPage implements OnInit {
   signature: string = '';
   driverId: string = '';
   vehicleId: string = '';
-  today = new Date();
+  today = formatDate(new Date(), 'yyyy/MM/dd', 'en_US');
+
+  localForm: Partial<LogDailies> = {
+    formManner: false,
+    form: {
+      trailers: '',
+      shippingDoc: '',
+      toAddress: '',
+      fromAddress: '',
+      signatureId: '',
+    },
+  };
 
   signaturePadOptions: any = {
     minWidth: 2,
@@ -69,20 +79,12 @@ export class LogItemPage implements OnInit {
     private toastController: ToastController,
     private formBuilder: FormBuilder,
     private navCtrl: NavController
-  ) {
-    this.form = this.formBuilder.group({
-      Vehicles: [''],
-      Trailers: [''],
-      ShippingDocuments: ['', Validators.required],
-      FromAdress: ['', Validators.required],
-      ToAdress: ['', Validators.required],
-    });
-  }
+  ) {}
 
   async ngOnInit() {
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
-    this.PickedVehicle = await this.storage.get('vehicleUnit');
+    this.vehicleUnit = await this.storage.get('vehicleUnit');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
     this.activatedRoute.queryParams.subscribe(params => {
       this.LogDailiesId = params['logId'];
@@ -174,12 +176,15 @@ export class LogItemPage implements OnInit {
 
   fillFormWithLogDailyData() {
     if (this.logDaily) {
-      this.form.patchValue({
-        Trailers: this.logDaily.form.trailers || '',
-        ShippingDocuments: this.logDaily.form.shippingDoc || '',
-        FromAdress: this.logDaily.form.fromAddress || '',
-        ToAdress: this.logDaily.form.toAddress || '',
-      });
+      this.localForm = {
+        form: {
+          trailers: this.logDaily.form.trailers || '',
+          shippingDoc: this.logDaily.form.shippingDoc || '',
+          fromAddress: this.logDaily.form.fromAddress || '',
+          toAddress: this.logDaily.form.toAddress || '',
+          signatureId: '',
+        },
+      };
     }
   }
 
@@ -398,50 +403,48 @@ export class LogItemPage implements OnInit {
   }
 
   async onSubmit() {
-    if (this.form.valid) {
-      // this.logDaily.Vehicles = this.form.value.Vehicles;
-      if (this.logDaily) {
-        this.logDaily.form.trailers = this.form.value.Trailers;
-        this.logDaily.form.shippingDoc = this.form.value.ShippingDocuments;
-        this.logDaily.form.fromAddress = this.form.value.FromAdress;
-        this.logDaily.form.toAddress = this.form.value.ToAdress;
-        this.logDaily.formManner = true;
-      }
-
-      if (this.networkStatus === true) {
-        this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
-          response => {
-            console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
-          },
-          async error => {
-            console.log('Internet Status' + this.networkStatus);
-            let tempEerror = {
-              url: 'api/EldDashboard/uploadDVIR',
-              body: this.logDaily,
-            };
-            let offlineArray = await this.storage.get('offlineArray');
-            offlineArray.push(tempEerror);
-            await this.storage.set('offlineArray', offlineArray);
-            console.log('Pushed in offlineArray');
-          }
-        );
-      } else {
-        let tempEerror = {
-          url: 'api/EldDashboard/uploadDVIR',
-          body: this.logDaily,
-        };
-        let offlineArray = await this.storage.get('offlineArray');
-        offlineArray.push(tempEerror);
-        await this.storage.set('offlineArray', offlineArray);
-        console.log('Pushed in offlineArray');
-      }
-      const index = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
-      if (index !== -1) {
-        this.logDailies[index] = this.logDaily as LogDailies;
-      }
-      await this.storage.set('logDailies', this.logDailies);
-      this.presentToast('Saved successfully!');
+    // this.logDaily.Vehicles = this.form.value.Vehicles;
+    if (this.logDaily) {
+      this.logDaily.form.trailers = this.localForm.form.trailers;
+      this.logDaily.form.shippingDoc = this.localForm.form.shippingDoc;
+      this.logDaily.form.fromAddress = this.localForm.form.fromAddress;
+      this.logDaily.form.toAddress = this.localForm.form.toAddress;
+      this.logDaily.formManner = true;
     }
+
+    if (this.networkStatus === true) {
+      this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
+        response => {
+          console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
+        },
+        async error => {
+          console.log('Internet Status' + this.networkStatus);
+          let tempEerror = {
+            url: 'api/EldDashboard/uploadDVIR',
+            body: this.logDaily,
+          };
+          let offlineArray = await this.storage.get('offlineArray');
+          offlineArray.push(tempEerror);
+          await this.storage.set('offlineArray', offlineArray);
+          console.log('Pushed in offlineArray');
+        }
+      );
+    } else {
+      let tempEerror = {
+        url: 'api/EldDashboard/uploadDVIR',
+        body: this.logDaily,
+      };
+      let offlineArray = await this.storage.get('offlineArray');
+      offlineArray.push(tempEerror);
+      await this.storage.set('offlineArray', offlineArray);
+      console.log('Pushed in offlineArray');
+    }
+    const index = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
+    if (index !== -1) {
+      this.logDailies[index] = this.logDaily as LogDailies;
+    }
+    await this.storage.set('logDailies', this.logDailies);
+    this.presentToast('Saved successfully!');
   }
 
   initSignaturePad() {

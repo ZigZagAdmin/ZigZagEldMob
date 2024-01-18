@@ -245,3 +245,21 @@ ion-col {
     height: 24px;
   }
 }
+
+.status-circle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}
+
+.status-circle-error {
+  background-color: var(--error-500);
+}
+
+.status-circle-success {
+  background-color: var(--success-500);
+}
+
+.btn-disabled {
+  background-color: var(--gray-500) !important;
+}
