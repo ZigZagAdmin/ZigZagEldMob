@@ -5,21 +5,24 @@
   <div class="main-container padding-g">
     <div>
       <div class="canvas-container">
-        <canvas #sPad height="290" style="touch-action: none; user-select: none"></canvas>
+        <canvas #sPad height="290" *ngIf="!signatureFound" style="touch-action: none; user-select: none"></canvas>
+        <img  *ngIf="signatureFound" [src]="signatureLink" />
       </div>
       <div class="signature-buttons">
         <div class="signature-button" (click)="clearSignature()">Clear signature</div>
-        <div class="signature-button">Restore signature</div>
+        <div class="signature-button" (click)="restoreSignature()">Restore signature</div>
       </div>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 30px">
+    <div style="display: flex; flex-direction: column; gap: 20px">
       <div class="confirm-checkbox">
-        <ion-checkbox (ionChange)="onSelectCheckbox($event)"></ion-checkbox>
         <div class="checkbox-text">I hereby certify that my data entries and my record of duty status for this 24-hour period are true and correct.</div>
       </div>
       <div class="confirm-buttons">
         <button class="custom-btn secondary-btn" (click)="goBack()">Back</button>
-        <button class="custom-btn primary-btn" [ngClass]="{'btn-disabled': !isConfirmButtonActive}" (click)="save()" [disabled]="!isConfirmButtonActive">Save</button>
+        <button class="custom-btn primary-btn" [ngClass]="{'btn-disabled': !isConfirmButtonActive}" (click)="save()" [disabled]="!isConfirmButtonActive">
+          <span *ngIf="!loading">Save</span>
+          <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+        </button>
       </div>
     </div>
   </div>

@@ -14,6 +14,7 @@ export class TextareaComponent implements OnInit {
   @Input() placeholder: string = '';
   @Input() fill: boolean = true;
   @Input() validators: { regex: RegExp; message: string }[] = [];
+  @Input() noValidation: boolean = false;
 
   @Input()
   get value(): string {
@@ -71,24 +72,26 @@ export class TextareaComponent implements OnInit {
   validateInput() {
     console.log(this.value);
     console.log(!this.value && this.value.length === 0);
-    if (this.value.length === 0) {
-      this.valid = false;
-      this.toastService.showToast('Field required');
-      // return;
-    } else if (this.value.length > 0) {
-      this.valid = true;
+    if (!this.noValidation) {
+      if (this.value.length === 0) {
+        this.valid = false;
+        this.toastService.showToast('Field required');
+        // return;
+      } else if (this.value.length > 0) {
+        this.valid = true;
+      }
+      if (this.value.length >= 0 && this.validators.length !== 0) {
+        this.validators.every(validator => {
+          if (!validator.regex.test(this.value)) {
+            this.valid = true;
+            this.toastService.showToast(validator.message);
+            return false;
+          }
+          return true;
+        });
+      }
+      console.log(this.valid);
+      this.validation = this.valid;
     }
-    if (this.value.length >= 0 && this.validators.length !== 0) {
-      this.validators.every(validator => {
-        if (!validator.regex.test(this.value)) {
-          this.valid = true;
-          this.toastService.showToast(validator.message);
-          return false;
-        }
-        return true;
-      });
-    }
-    console.log(this.valid);
-    this.validation = this.valid;
   }
 }

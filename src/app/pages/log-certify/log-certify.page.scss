@@ -1,6 +1,6 @@
 .main-container {
   width: 100%;
-  height: calc(100% - 57px);
+  height: calc(100% - 47px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -50,10 +50,14 @@
 
 .custom-btn {
   flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 15px;
   border-radius: 30px;
   font-size: 16px;
   font-weight: 600;
+  max-height: 49px;
 }
 
 .confirm-checkbox {
@@ -83,3 +87,6 @@ ion-checkbox::part(container) {
   background-color: var(--gray-500) !important;
 }
 
+.spinner {
+  transform: scale(0.9);
+}

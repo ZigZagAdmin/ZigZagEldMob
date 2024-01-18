@@ -725,20 +725,56 @@
       <div class="form-title">
         <div class="status-circle" [ngClass]="{'status-circle-error': !logDaily?.formManner, 'status-circle-success': logDaily?.formManner}"></div>
         <p class="subtitle">Form</p>
-        <button class="btn primary-btn" [disabled]="" (click)="onSubmit()">Save</button>
+        <button class="btn primary-btn" (click)="onSubmit()">Save</button>
       </div>
       <div class="form-list">
-        <app-input [label]="'Vehicle'" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit"></app-input>
-        <app-input [label]="'Trailers'" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers"></app-input>
-        <app-input [label]="'Shipping Document'" [required]="true" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.shippingDoc"></app-input>
-        <app-input [label]="'From Address'" [required]="true" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.fromAddress"></app-input>
-        <app-input [label]="'To Address'" [required]="true" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.toAddress"></app-input>
+        <app-input [label]="'Vehicle'" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Trailers'" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers" [noValidation]="true"></app-input>
+        <app-input
+          [label]="'Shipping Document'"
+          [required]="true"
+          [fill]="true"
+          [labelPosition]="'left'"
+          [type]="'text'"
+          [(value)]="localForm.form.shippingDoc"
+          [(validation)]="validation['shippingDoc']"></app-input>
+        <app-input
+          [label]="'From Address'"
+          [required]="true"
+          [fill]="true"
+          [labelPosition]="'left'"
+          [type]="'text'"
+          [(value)]="localForm.form.fromAddress"
+          [(validation)]="validation['fromAddress']"></app-input>
+        <app-input
+          [label]="'To Address'"
+          [required]="true"
+          [fill]="true"
+          [labelPosition]="'left'"
+          [type]="'text'"
+          [(value)]="localForm.form.toAddress"
+          [(validation)]="validation['toAddress']"></app-input>
       </div>
-      <div class="form-title">
+      <div class="logs-certified">
         <p class="subtitle">Logs</p>
-        <button class="btn primary-btn" [ngClass]="{'btn-disabled ': currentDay === today}" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">Certify</button>
-        <button class="btn secondary-btn" *ngIf="logDaily?.certified">Certified</button>
+        <div class="logs-buttons">
+          <button class="btn primary-btn" [ngClass]="{'btn-disabled ': currentDay === today}" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">Certify</button>
+          <button id="open-modal" class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">Certified</button>
+        </div>
       </div>
+      <ion-modal [isOpen]="isModalOpen">
+        <ng-template>
+          <ion-content [forceOverscroll]="false">
+            <app-header [title]="'Signature'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
+            <div style="display: flex; justify-content: center; align-items: center">
+              <div class="signature-visualization">
+                <img [ngClass]="{'no-image':imageLoading}" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
+                <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
+              </div>
+            </div>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
       <div class="form-cards">
         <div class="form-card" *ngFor="let logStatus of statusesOnDay">
           <div class="card-row">

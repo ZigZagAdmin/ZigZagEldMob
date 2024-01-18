@@ -46,6 +46,8 @@ export interface IForm {
   fromAddress: string;
   toAddress: string;
   signatureId: string;
+  signature?: string;
+  signatureLink?: string;
   coDriver?: ICoDriver;
 }
 

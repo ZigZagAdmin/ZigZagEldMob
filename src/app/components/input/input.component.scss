@@ -60,11 +60,11 @@
 }
 
 .validation-error {
-  border: 1px solid var(--error-600);
+  border: 1px solid var(--error-600) !important;
 }
 
 .validation-error:focus {
-  border: 1px solid var(--error-600);
+  border: 1px solid var(--error-600) !important;
 }
 
 .label-error {

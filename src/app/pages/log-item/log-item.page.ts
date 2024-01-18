@@ -16,6 +16,8 @@ import { IonModal } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import SignaturePad from 'signature_pad';
 import { NavController } from '@ionic/angular';
+import { UtilityService } from 'src/app/services/utility.service';
+import { ShareService } from 'src/app/services/share.service';
 
 @Component({
   selector: 'app-log-item',
@@ -50,6 +52,8 @@ export class LogItemPage implements OnInit {
   driverId: string = '';
   vehicleId: string = '';
   today = formatDate(new Date(), 'yyyy/MM/dd', 'en_US');
+  isModalOpen: boolean = false;
+  imageLoading: boolean = false;
 
   localForm: Partial<LogDailies> = {
     formManner: false,
@@ -69,6 +73,12 @@ export class LogItemPage implements OnInit {
     penColor: 'black',
   };
 
+  validation: { [key: string]: boolean } = {
+    shippingDoc: false,
+    toAddress: false,
+    fromAddress: false,
+  };
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -77,8 +87,9 @@ export class LogItemPage implements OnInit {
     private internetService: InternetService,
     private dashboardService: DashboardService,
     private toastController: ToastController,
-    private formBuilder: FormBuilder,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private utilityService: UtilityService,
+    private shareService: ShareService
   ) {}
 
   async ngOnInit() {
@@ -174,6 +185,10 @@ export class LogItemPage implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.shareService.destroyMessage();
+  }
+
   fillFormWithLogDailyData() {
     if (this.logDaily) {
       this.localForm = {
@@ -201,16 +216,13 @@ export class LogItemPage implements OnInit {
     this.yBgnV = 0;
 
     this.currentDay = this.logDaily?.logDate;
-    console.log(this.logDaily);
-
-    console.log(this.logEvents);
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
         if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
         else sDateEnd = new Date().toISOString();
 
-        console.log(sDateEnd);
+        // console.log(sDateEnd);
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
@@ -221,16 +233,10 @@ export class LogItemPage implements OnInit {
           );
         }
 
-        console.log(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US'));
-        console.log(this.currentDay);
-        console.log(formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US'));
-        console.log(formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US'));
-
         if (
           formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
           formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
-          console.log('event', event);
 
           dateBgn = new Date(event.eventTime.timeStamp);
           console.log(dateBgn.toLocaleDateString());
@@ -403,7 +409,9 @@ export class LogItemPage implements OnInit {
   }
 
   async onSubmit() {
-    // this.logDaily.Vehicles = this.form.value.Vehicles;
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    if (!this.utilityService.validateForm(this.validation)) return;
+
     if (this.logDaily) {
       this.logDaily.form.trailers = this.localForm.form.trailers;
       this.logDaily.form.shippingDoc = this.localForm.form.shippingDoc;
@@ -498,13 +506,18 @@ export class LogItemPage implements OnInit {
     }
   }
 
-  async openModal() {
-    await this.modal.present();
-    this.initSignaturePad();
+  openModal() {
+    this.isModalOpen = true;
+    this.imageLoading = true;
+  }
+
+  imageLoaded() {
+    console.log('kjnbasdkfjbakljfbalkjdfblkajdbflkasjd')
+    this.imageLoading = false;
   }
 
   cancel() {
-    this.modal.dismiss(null, 'cancel');
+    this.isModalOpen = false;
   }
 
   confirm() {
@@ -660,7 +673,7 @@ export class LogItemPage implements OnInit {
   }
 
   certifyLog() {
-    this.navCtrl.navigateForward('log-certify', { queryParams: { url: this.router.url, date: this.logDaily.logDate } });
+    this.navCtrl.navigateForward('log-certify', { queryParams: { url: this.router.url, date: this.logDaily.logDate, logId: this.logDaily.logDailyId } });
   }
 
   editLog() {

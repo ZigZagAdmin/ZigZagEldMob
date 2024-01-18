@@ -1,8 +1,14 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
+import { Storage } from '@ionic/storage';
 import { Subscription } from 'rxjs';
 import SignaturePad from 'signature_pad';
+import { LogDailies } from 'src/app/models/log-dailies';
+import { DashboardService } from 'src/app/services/dashboard.service';
+import { DatabaseService } from 'src/app/services/database.service';
+import { ToastService } from 'src/app/services/toast.service';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-log-certify',
@@ -14,15 +20,27 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   signaturePadEl: SignaturePad;
 
-  backUrl: string;
-  logDate: string;
+  loading: boolean = false;
+
+  backUrl: string = '';
+  logDate: string = '';
+  logId: string = '';
+
+  logDailies: LogDailies[];
+
+  logDaily: LogDailies;
+
+  logDailies$: Subscription;
 
   signature: string = '';
 
   routeSubscription: Subscription;
 
+  signatureFound: boolean = false;
+
+  signatureLink: string = '';
+
   isConfirmButtonActive: boolean = false;
-  checkbox: boolean = false;
 
   signaturePadOptions: any = {
     minWidth: 2,
@@ -31,12 +49,26 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     penColor: 'black',
   };
 
-  constructor(private navCtrl: NavController, private route: ActivatedRoute) {}
+  constructor(
+    private navCtrl: NavController,
+    private route: ActivatedRoute,
+    private databaseService: DatabaseService,
+    private toastService: ToastService,
+    private dashboardService: DashboardService,
+    private storage: Storage,
+    private utilityService: UtilityService
+  ) {}
 
   ngOnInit() {
     this.routeSubscription = this.route.queryParams.subscribe(params => {
       this.backUrl = params['url'];
       this.logDate = params['date'];
+      this.logId = params['logId'];
+    });
+    this.logDailies$ = this.databaseService.getLogDailies().subscribe(logDailies => {
+      this.logDailies = logDailies;
+      this.logDaily = this.logDailies.find(log => log.logDailyId === this.logId);
+      console.log(this.logDaily);
     });
   }
 
@@ -44,7 +76,9 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     this.initSignaturePad();
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.logDailies$.unsubscribe();
+  }
 
   goBack() {
     this.navCtrl.navigateBack(this.backUrl);
@@ -58,20 +92,21 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       driverSignatureCanvas.addEventListener('touchend', () => {
         this.updateSignatureField();
       });
-
-      // if (this.dvir && this.dvir.Signature) {
-      //   this.renderSignature('data:image/png;base64,' + this.dvir.Signature);
-      // }
     }
   }
 
-  // restoreSignature() {
-  //   const firstNonEmptySignature = this.logDailies.find(log => log.form.signatureId !== '');
+  async restoreSignature() {
+    const firstNonEmptySignature = this.logDailies.find(log => log.form.signatureId !== '' && log.form.signatureId !== '00000000-0000-0000-0000-000000000000');
 
-  //   if (firstNonEmptySignature) {
-  //     this.renderSignature(firstNonEmptySignature.form.signatureId);
-  //   }
-  // }
+    
+    if (firstNonEmptySignature) {
+      this.signatureLink = firstNonEmptySignature.form.signatureLink;
+      this.signatureFound = true;
+    } else {
+      this.signatureFound = false;
+      this.toastService.showToast('No signature found on other daily logs.');
+    }
+  }
 
   renderSignature(signatureData: string) {
     const canvas: HTMLCanvasElement | null = this.signaturePad.nativeElement;
@@ -95,6 +130,9 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.signature = '';
     }
+    this.logDaily.form.signatureId = this.utilityService.uuidv4();
+    this.logDaily.form.signature = this.signature;
+    this.logDaily.certified = true;
     this.activateSave();
   }
 
@@ -108,16 +146,30 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   save() {
-    console.log('bskfbskdfbkj');
-  }
-
-  onSelectCheckbox(data: any) {
-    this.checkbox = data.detail.checked;
-    this.activateSave();
+    this.loading = true;
+    this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
+      response => {
+        console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
+        this.toastService.showToast('Successfully sign the log certification.', 'success');
+        this.loading = false;
+        this.goBack();
+      },
+      async error => {
+        this.loading = false;
+        let tempEerror = {
+          url: 'api/EldDashboard/uploadDVIR',
+          body: this.logDaily,
+        };
+        let offlineArray = await this.storage.get('offlineArray');
+        offlineArray.push(tempEerror);
+        await this.storage.set('offlineArray', offlineArray);
+        console.log('Pushed in offlineArray');
+      }
+    );
   }
 
   activateSave() {
-    if (this.signature.length !== 0 && this.checkbox) this.isConfirmButtonActive = true;
+    if (this.signature.length !== 0) this.isConfirmButtonActive = true;
     else this.isConfirmButtonActive = false;
   }
 }

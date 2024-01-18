@@ -194,6 +194,25 @@ ion-col {
   .btn {
     border-radius: 30px;
     padding: 10px 15px;
+    min-height: 37px;
+  }
+}
+
+.logs-certified {
+  display: flex;
+  align-items: center;
+  .subtitle {
+    flex: 1;
+  }
+  .logs-buttons {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    .btn {
+      border-radius: 30px;
+      padding: 10px 15px;
+      min-height: 37px;
+    }
   }
 }
 .form-list {
@@ -262,4 +281,26 @@ ion-col {
 
 .btn-disabled {
   background-color: var(--gray-500) !important;
+}
+
+.signature-visualization {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  background-color: var(--gray-100);
+  border-radius: 10px;
+  padding: 15px;
+  min-width: 330px;
+  min-height: 320px;
+
+  img {
+    border-radius: 10px;
+  }
+}
+
+.no-image {
+  display: none;
+  width: 0;
+  height: 0;
 }
