@@ -83,9 +83,10 @@ export class HosPage implements OnInit {
     private storageService: DatabaseService
   ) {}
 
-  async ngOnInit() {
+  ngOnInit(): void {}
+
+  async ionViewWillEnter() {
     this.getVehicle();
-    console.log('init hos');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.driverName = await this.storage.get('driverName');
@@ -104,15 +105,7 @@ export class HosPage implements OnInit {
         forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
-          console.log(logEvents);
-          console.log(this.logDailies.length < 14);
-          console.log(this.bAuthorized);
-          // if (this.logDailies.length === 0 || this.logDailies.length < 14) {
-          //   console.log('here');
-          //   this.updateLogDailies();
-          // }
           if (this.bAuthorized === false) {
-            console.log('kalshdasjhdlkjashdklashdlkashdlksahd');
 
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
@@ -182,7 +175,7 @@ export class HosPage implements OnInit {
                 console.log('Predposlednii LogEvent is updated on server:', response);
               },
               async error => {
-                console.log('Internet Status' + this.networkStatus);
+                console.log('Internet Status: ' + this.networkStatus);
                 let tempEerror = {
                   url: 'api/eldDashboard/UploadLogEvents',
                   body: lastLogEvent,
@@ -211,11 +204,13 @@ export class HosPage implements OnInit {
       console.log('after ngOnInit dvir');
       if (this.bReady) {
         this.databaseSubscription = this.databaseService.getLogDailies().subscribe(logDailies => {
-          // this.logDailies = logDailies;
-          // console.log(this.logDailies);
+          if (logDailies.length !== 0) this.logDailies = logDailies;
         });
       }
     });
+
+    console.log('willEnter hos');
+    this.logDailies = this.countDays;
   }
 
   getVehicle() {
@@ -229,13 +224,6 @@ export class HosPage implements OnInit {
 
   switchMode() {
     this.restMode = !this.restMode;
-  }
-
-  // Вызывайте эту функцию при заходе на страницу или событии, когда вам нужно местоположение.
-
-  ionViewWillEnter() {
-    console.log('willEnter hos');
-    this.logDailies = this.countDays;
   }
 
   toggleMode() {

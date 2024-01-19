@@ -37,6 +37,9 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   routeSubscription: Subscription;
 
   signatureFound: boolean = false;
+  foundSignatureId: string = '';
+
+  imageLoading: boolean = false;
 
   signatureLink: string = '';
 
@@ -98,10 +101,13 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   async restoreSignature() {
     const firstNonEmptySignature = this.logDailies.find(log => log.form.signatureId !== '' && log.form.signatureId !== '00000000-0000-0000-0000-000000000000');
 
-    
     if (firstNonEmptySignature) {
+      this.signature = '';
       this.signatureLink = firstNonEmptySignature.form.signatureLink;
+      this.foundSignatureId = firstNonEmptySignature.form.signatureId;
+      console.log(firstNonEmptySignature);
       this.signatureFound = true;
+      this.activateSave();
     } else {
       this.signatureFound = false;
       this.toastService.showToast('No signature found on other daily logs.');
@@ -130,14 +136,13 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.signature = '';
     }
-    this.logDaily.form.signatureId = this.utilityService.uuidv4();
-    this.logDaily.form.signature = this.signature;
-    this.logDaily.certified = true;
     this.activateSave();
   }
 
   clearSignature() {
-    console.log('clear');
+    if (this.signatureFound) {
+      this.signatureFound = false;
+    }
     if (this.signaturePad) {
       this.signaturePadEl.clear();
       this.signature = '';
@@ -147,29 +152,41 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   save() {
     this.loading = true;
+    if (this.signatureFound) {
+      this.logDaily.form.signatureId = this.foundSignatureId;
+    } else {
+      this.logDaily.form.signatureId = this.utilityService.uuidv4();
+      this.logDaily.form.signature = this.signature;
+      this.logDaily.certified = true;
+    }
     this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
       response => {
-        console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
         this.toastService.showToast('Successfully sign the log certification.', 'success');
         this.loading = false;
+        this.updateLocalStorage();
         this.goBack();
       },
       async error => {
         this.loading = false;
-        let tempEerror = {
-          url: 'api/EldDashboard/uploadDVIR',
-          body: this.logDaily,
-        };
-        let offlineArray = await this.storage.get('offlineArray');
-        offlineArray.push(tempEerror);
-        await this.storage.set('offlineArray', offlineArray);
-        console.log('Pushed in offlineArray');
+        this.updateLocalStorage();
       }
     );
   }
 
   activateSave() {
-    if (this.signature.length !== 0) this.isConfirmButtonActive = true;
+    if (this.signature.length !== 0 || this.signatureLink.length !== 0) this.isConfirmButtonActive = true;
     else this.isConfirmButtonActive = false;
+  }
+
+  imageLoaded() {
+    this.imageLoading = false;
+  }
+
+  async updateLocalStorage() {
+    let offlineLogDailies = await this.storage.get('logDailies');
+    let index = offlineLogDailies.findIndex((el: LogDailies) => el.logDailyId === this.logDaily.logDailyId);
+    offlineLogDailies.splice(index, 1, this.logDaily);
+    await this.storage.set('logDailies', offlineLogDailies);
+    console.log('log-certify: logDailies updated in the storage');
   }
 }

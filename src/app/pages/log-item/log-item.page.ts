@@ -92,53 +92,18 @@ export class LogItemPage implements OnInit {
     private shareService: ShareService
   ) {}
 
-  async ngOnInit() {
+  ngOnInit(): void {}
+
+  async ionViewWillEnter() {
+    console.log('In LogIlask;dbfsbfkljsdbfadbfkjasdbfasbdf;asdbf;asldkbflkajsdbflsakjdbflkasdjbflaskdfb');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.vehicleUnit = await this.storage.get('vehicleUnit');
     this.TimeZoneCity = await this.storage.get('TimeZoneCity');
     this.activatedRoute.queryParams.subscribe(params => {
       this.LogDailiesId = params['logId'];
-      console.log(this.LogDailiesId);
+      // console.log(this.LogDailiesId);
     });
-
-    // this.databaseSubscription =
-    // this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-    //   if (ready) {
-    //     this.bReady = ready;
-    //     this.databaseService.getLogDailies().subscribe((logDailies) => {
-    //       this.logDailies = logDailies;
-    //       this.logDaily = this.logDailies.find(
-    //         (item) => item.LogDailiesId === this.LogDailiesId
-    //       );
-    //       if (this.logDaily) {
-    //         console.log(this.logDaily);
-    //         this.currentDay = this.logDaily.Day;
-    //         this.fillFormWithLogDailyData();
-    //       }
-    //     });
-    //     this.databaseService.getLogEvents().subscribe((logEvents) => {
-    //       // const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
-    //       // this.logEvents = logEvents.filter((item) =>
-    //       //   allSt.includes(item.EventTypeCode)
-    //       // );
-    //       this.logEvents = logEvents;
-    //       this.logEvents.forEach((log) => {
-    //         if (log.DateEnd === '0001-01-01T00:00:00') {
-    //           log.DateEnd = formatDate(
-    //             new Date().toLocaleString('en-US', {
-    //               timeZone: this.TimeZoneCity,
-    //             }),
-    //             'yyyy-MM-ddTHH:mm:ss',
-    //             'en_US'
-    //           );
-    //         }
-    //       });
-    //       console.log(this.logEvents);
-    //       this.drawGraph();
-    //     });
-    //   }
-    // });
 
     this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
@@ -153,10 +118,10 @@ export class LogItemPage implements OnInit {
 
           if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
 
-          console.log(this.logDailies);
+          // console.log(this.logDailies);
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           if (this.logDaily) {
-            console.log(this.logDaily);
+            // console.log(this.logDaily);
             this.currentDay = this.logDaily.logDate;
             this.fillFormWithLogDailyData();
           }
@@ -237,17 +202,16 @@ export class LogItemPage implements OnInit {
           formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
           formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
-
           dateBgn = new Date(event.eventTime.timeStamp);
-          console.log(dateBgn.toLocaleDateString());
-          console.log(new Date(this.currentDay as string).toLocaleDateString());
+          // console.log(dateBgn.toLocaleDateString());
+          // console.log(new Date(this.currentDay as string).toLocaleDateString());
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
           }
 
-          console.log('X BEGIN =', this.xBgn);
+          // console.log('X BEGIN =', this.xBgn);
 
           dateEnd = new Date(sDateEnd);
 
@@ -256,7 +220,7 @@ export class LogItemPage implements OnInit {
           } else {
             this.xEnd = 1440;
           }
-          console.log('X END =', this.xEnd);
+          // console.log('X END =', this.xEnd);
 
           switch (event.type.code) {
             case 'OFF':
@@ -424,35 +388,17 @@ export class LogItemPage implements OnInit {
       this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
         response => {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
+          this.updateLocalStorage();
         },
         async error => {
-          console.log('Internet Status' + this.networkStatus);
-          let tempEerror = {
-            url: 'api/EldDashboard/uploadDVIR',
-            body: this.logDaily,
-          };
-          let offlineArray = await this.storage.get('offlineArray');
-          offlineArray.push(tempEerror);
-          await this.storage.set('offlineArray', offlineArray);
+          this.updateLocalStorage();
           console.log('Pushed in offlineArray');
         }
       );
     } else {
-      let tempEerror = {
-        url: 'api/EldDashboard/uploadDVIR',
-        body: this.logDaily,
-      };
-      let offlineArray = await this.storage.get('offlineArray');
-      offlineArray.push(tempEerror);
-      await this.storage.set('offlineArray', offlineArray);
-      console.log('Pushed in offlineArray');
+      this.updateLocalStorage();
+      this.presentToast('Saved successfully!');
     }
-    const index = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
-    if (index !== -1) {
-      this.logDailies[index] = this.logDaily as LogDailies;
-    }
-    await this.storage.set('logDailies', this.logDailies);
-    this.presentToast('Saved successfully!');
   }
 
   initSignaturePad() {
@@ -512,7 +458,7 @@ export class LogItemPage implements OnInit {
   }
 
   imageLoaded() {
-    console.log('kjnbasdkfjbakljfbalkjdfblkajdbflkasjd')
+    console.log('kjnbasdkfjbakljfbalkjdfblkajdbflkasjd');
     this.imageLoading = false;
   }
 
@@ -682,5 +628,13 @@ export class LogItemPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('unitab/hos');
+  }
+
+  async updateLocalStorage() {
+    let offlineLogDailies = await this.storage.get('logDailies');
+    let index = offlineLogDailies.findIndex((el: LogDailies) => el.logDailyId === this.logDaily.logDailyId);
+    offlineLogDailies.splice(index, 1, this.logDaily);
+    await this.storage.set('logDailies', offlineLogDailies);
+    console.log('log-certify: logDailies updated in the storage');
   }
 }

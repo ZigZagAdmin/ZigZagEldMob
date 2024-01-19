@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
+import { Storage } from '@ionic/storage';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilityService {
-  constructor() {}
+  constructor(private storage: Storage) {}
 
   public generateString(length: number) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
