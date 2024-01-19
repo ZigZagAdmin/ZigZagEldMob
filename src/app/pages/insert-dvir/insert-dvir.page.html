@@ -288,49 +288,23 @@
     <div class="edit-form">
       <p class="subtitle-lg">General Info</p>
       <div class="edit-dvir-block">
-        <!-- <div class="input-block-2">
-          <p class="text-2 weight-500">Company</p>
-          <input class="input-2 readonly" type="text" [value]="company?.name" readonly />
-        </div> -->
         <app-input [label]="'Company'" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
-        <div class="input-block-2">
-          <div class="two-inputs">
-            <app-input [label]="'Date'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
-            <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
-          </div>
+        <div class="two-inputs">
+          <app-input [label]="'Date'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
+          <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
         </div>
-        <div class="input-block-2">
-          <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
-        </div>
+        <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>
       <div class="edit-dvir-block">
-        <div class="input-block-2">
-          <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
-        </div>
-        <div class="input-block-2">
-          <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
-        </div>
-        <div class="input-block-2">
-          <!-- <p class="text-2 weight-500">Vehicle Defects (Optional)</p>
-          <select class="input-2 select" type="text" formControlName="DefectsVehicle">
-            <option *ngFor="let defect of defectsVehicle" [value]="defect">{{ defect }}</option>
-          </select> -->
-          <app-select [label]="'Vehicle Defects (Optional)'" [options]="defectsVehicle"></app-select>
-        </div>
+        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
+        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
+        <app-select [label]="'Vehicle Defects (Optional)'" [options]="defectsVehicle"></app-select>
       </div>
       <p class="subtitle-lg">Trailer Info</p>
       <div class="edit-dvir-block">
-        <div class="input-block-2">
-          <p class="text-2 weight-500">Trailer Name</p>
-          <input class="input-2" type="text" formControlName="Trailers" />
-        </div>
-        <div class="input-block-2">
-          <p class="text-2 weight-500">Trailer Defects (Optional)</p>
-          <select class="input-2 select" type="text" formControlName="DefectsTrailers">
-            <option *ngFor="let defect of defectsTrailers" [value]="defect">{{ defect }}</option>
-          </select>
-        </div>
+        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="Date" [noValidation]="true"></app-input>
+        <app-select [label]="'Trailer Defects (Optional)'" [options]="defectsTrailers"></app-select>
       </div>
       <p class="subtitle-lg">Status</p>
       <div class="edit-dvir-block">
@@ -352,17 +326,12 @@
           </div> -->
           <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)"></app-status-radio-button>
         </div>
-        <div class="input-block-2">
-          <p class="text-2 weight-500">Comments</p>
-          <textarea class="input-2" formControlName="Comments" name="comments" id="" cols="30" rows="10"></textarea>
-        </div>
+        <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="Date" [noValidation]="true"></app-textarea>
       </div>
       <p class="subtitle-lg">Signature</p>
-      <ion-row class="ion-justify-content-center">
-        <ion-col size="auto">
-          <canvas #sPad width="250" height="200" style="touch-action: none; border: 1px solid black"></canvas>
-        </ion-col>
-      </ion-row>
+      <div class="signature-container">
+        <canvas #sPad height="200" style="touch-action: none; user-select: none"></canvas>
+      </div>
       <button class="btn primary-btn" [disabled]="!form.valid" color="success" (click)="onSubmit()" expand="block">Save</button>
     </div>
   </form>
