@@ -1,6 +1,4 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
@@ -11,13 +9,13 @@ import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
 import { EventGraphic } from 'src/app/models/event-graphic';
 import { Storage } from '@ionic/storage';
-import { ToastController } from '@ionic/angular';
 import { IonModal } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import SignaturePad from 'signature_pad';
 import { NavController } from '@ionic/angular';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-log-item',
@@ -66,6 +64,8 @@ export class LogItemPage implements OnInit {
     },
   };
 
+  logDailiesSub: Subscription;
+
   signaturePadOptions: any = {
     minWidth: 2,
     maxWidth: 3,
@@ -86,15 +86,15 @@ export class LogItemPage implements OnInit {
     private storage: Storage,
     private internetService: InternetService,
     private dashboardService: DashboardService,
-    private toastController: ToastController,
+    private toastService: ToastService,
     private navCtrl: NavController,
     private utilityService: UtilityService,
     private shareService: ShareService
   ) {}
 
-  ngOnInit(): void {}
+  // ngOnInit(): void {}
 
-  async ionViewWillEnter() {
+  async ngOnInit() {
     console.log('In LogIlask;dbfsbfkljsdbfadbfkjasdbfasbdf;asdbf;asldkbflkajsdbflsakjdbflkasdjbflaskdfb');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
@@ -150,8 +150,16 @@ export class LogItemPage implements OnInit {
     });
   }
 
+  ionViewWillEnter() {
+    this.logDailiesSub = this.databaseService.getLogDailies().subscribe(logDailies => {
+      console.log(logDailies);
+      if (logDailies.length !== 0) this.logDailies = logDailies;
+    });
+  }
+
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
+    this.logDailiesSub.unsubscribe();
   }
 
   fillFormWithLogDailyData() {
@@ -359,6 +367,7 @@ export class LogItemPage implements OnInit {
       this.fillFormWithLogDailyData();
       this.drawGraph();
     }
+    this.shareService.changeMessage('reset');
   }
 
   goToPreviousLog() {
@@ -370,6 +379,8 @@ export class LogItemPage implements OnInit {
       this.fillFormWithLogDailyData();
       this.drawGraph();
     }
+    this.shareService.changeMessage('reset');
+    console.log(this.validation);
   }
 
   async onSubmit() {
@@ -388,16 +399,18 @@ export class LogItemPage implements OnInit {
       this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
         response => {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
+          this.toastService.showToast('Saved successfully!', 'success');
           this.updateLocalStorage();
         },
         async error => {
           this.updateLocalStorage();
+          this.toastService.showToast('Offline save!', 'warning');
           console.log('Pushed in offlineArray');
         }
       );
     } else {
       this.updateLocalStorage();
-      this.presentToast('Saved successfully!');
+      this.toastService.showToast('Offline save!', 'warning');
     }
   }
 
@@ -455,6 +468,7 @@ export class LogItemPage implements OnInit {
   openModal() {
     this.isModalOpen = true;
     this.imageLoading = true;
+    console.log(this.logDaily.form.signatureLink);
   }
 
   imageLoaded() {
@@ -596,15 +610,6 @@ export class LogItemPage implements OnInit {
         v = c == 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
-  }
-
-  private async presentToast(message: string, color: string = 'success') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 1500,
-      color: color,
-    });
-    toast.present();
   }
 
   nevigateToInspection() {

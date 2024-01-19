@@ -284,46 +284,31 @@
 
 <ion-content>
   <app-header [title]="'Insert Dvir'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <form class="padding-g" style="padding-top: 10px" [formGroup]="form">
+  <form class="padding-g" style="padding-top: 10px">
     <div class="edit-form">
       <p class="subtitle-lg">General Info</p>
       <div class="edit-dvir-block">
         <app-input [label]="'Company'" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
         <div class="two-inputs">
-          <app-input [label]="'Date'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
-          <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
+          <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
+          <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
         </div>
-        <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
+        <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="dvir.location.description" [noValidation]="true"></app-input>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
-        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
+        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="true" [value]="vehicleUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="dvir.odometer.toString()" [noValidation]="true"></app-input>
         <app-select [label]="'Vehicle Defects (Optional)'" [options]="defectsVehicle"></app-select>
       </div>
       <p class="subtitle-lg">Trailer Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="Date" [noValidation]="true"></app-input>
+        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [noValidation]="true"></app-input>
         <app-select [label]="'Trailer Defects (Optional)'" [options]="defectsTrailers"></app-select>
       </div>
       <p class="subtitle-lg">Status</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <!-- <p class="text-2 weight-500">Status</p> -->
-          <!-- <div class="statuses">
-            <div class="status" (click)="switchStatus('VCS')">
-              <img src="assets/icon/satis-success.svg" alt="ok" />
-              <p class="text-success">Satisfactory Condition</p>
-              <img *ngIf="form.value.StatusCode !== 'VCS'" src="assets/icon/circle-white.svg" alt="circle" />
-              <img *ngIf="form.value.StatusCode === 'VCS'" src="assets/icon/check-mark.svg" alt="circle" />
-            </div>
-            <div class="status" (click)="switchStatus('D')">
-              <img src="assets/icon/satis-error.svg" alt="ok" />
-              <p class="text-error">Has Defects</p>
-              <img *ngIf="form.value.StatusCode !== 'D'" src="assets/icon/circle-white.svg" alt="circle" />
-              <img *ngIf="form.value.StatusCode === 'D'" src="assets/icon/check-mark.svg" alt="circle" />
-            </div>
-          </div> -->
           <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)"></app-status-radio-button>
         </div>
         <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="Date" [noValidation]="true"></app-textarea>
@@ -332,7 +317,7 @@
       <div class="signature-container">
         <canvas #sPad height="200" style="touch-action: none; user-select: none"></canvas>
       </div>
-      <button class="btn primary-btn" [disabled]="!form.valid" color="success" (click)="onSubmit()" expand="block">Save</button>
+      <button class="btn primary-btn" color="success" (click)="onSubmit()" expand="block">Save</button>
     </div>
   </form>
 </ion-content>

@@ -154,6 +154,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     this.loading = true;
     if (this.signatureFound) {
       this.logDaily.form.signatureId = this.foundSignatureId;
+      this.logDaily.certified = true;
     } else {
       this.logDaily.form.signatureId = this.utilityService.uuidv4();
       this.logDaily.form.signature = this.signature;
@@ -161,14 +162,16 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     }
     this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
       response => {
-        this.toastService.showToast('Successfully sign the log certification.', 'success');
+        this.toastService.showToast('Successfully signed the log certification.', 'success');
         this.loading = false;
         this.updateLocalStorage();
         this.goBack();
       },
       async error => {
         this.loading = false;
+        this.toastService.showToast('Could not update the signture. Uploading offline only.');
         this.updateLocalStorage();
+        this.goBack();
       }
     );
   }

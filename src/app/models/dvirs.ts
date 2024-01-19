@@ -16,6 +16,7 @@ export interface DVIRs {
   createTimeZone: string;
   repairDate?: number;
   repairTimeZone?: string;
+  comments?: string;
 
   signatureId: string;
   signatureBase64?: string;

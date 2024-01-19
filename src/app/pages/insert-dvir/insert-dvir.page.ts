@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { NavController } from '@ionic/angular';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import SignaturePad from 'signature_pad';
@@ -11,6 +10,8 @@ import { Company } from 'src/app/models/company';
 import { DVIRs } from 'src/app/models/dvirs';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { InternetService } from 'src/app/services/internet.service';
+import { defectsVehicle, defectsTrailers, dvirStatuses } from 'src/app/utilities/defects';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -18,80 +19,9 @@ import { InternetService } from 'src/app/services/internet.service';
   styleUrls: ['./insert-dvir.page.scss'],
 })
 export class InsertDvirPage implements OnInit {
-  defectsVehicle = [
-    'Air Compressor',
-    'Battery',
-    'Body',
-    'Brake Accessories',
-    'Coupling Devices',
-    'Drive Line',
-    'Exhaust',
-    'Fluid Levels',
-    'Front Axle',
-    'Headlights',
-    'Horn',
-    'Muffler',
-    'Parking Breaks',
-    'Reflectors',
-    'Service Breaks',
-    'Starter',
-    'Suspension System',
-    'Tire Chains',
-    'Transmission',
-    'Turn Indicators',
-    'Windows',
-    'Wipers & Washers',
-    'Air Lines',
-    'Belts & Hoses',
-    'Clutch',
-    'Defroster',
-    'Engine',
-    'Fifth Wheel',
-    'Frame & Assembly',
-    'Fuel Tanks',
-    'Heater',
-    'Mirrors',
-    'Oil Level',
-    'Radiator Level',
-    'Safety Equipment',
-    'Service Door',
-    'Steering',
-    'Tail Lights',
-    'Tires',
-    'Trip Recorder',
-    'Wheels & Rims',
-    'Windshield',
-  ];
-  defectsTrailers = [
-    'Brake Connections',
-    'Coupling Devices',
-    'Doors',
-    'Landing Gear',
-    'Other',
-    'Roof',
-    'Suspension System',
-    'Wheels & Rims',
-    'Breaks',
-    'Coupling Pin',
-    'Hitch',
-    'Lights',
-    'Reflectors',
-    'Straps',
-    'Tarpaulin',
-  ];
-  DvirStatuses1 = [
-    { StatusCode: 'VCS', StatusName: 'Vehicle Condition Satisfactory' },
-    { StatusCode: 'D', StatusName: 'Has Defects' },
-    { StatusCode: 'DC', StatusName: 'Defects Corrected' },
-    {
-      StatusCode: 'DNNBC',
-      StatusName: 'Defects Need Not Be Corrected',
-    },
-  ];
-  DvirStatuses = [
-    { StatusCode: 'VCS', StatusName: 'Vehicle Condition Satisfactory' },
-    { StatusCode: 'D', StatusName: 'Has Defects' },
-  ];
+  defectsVehicle = defectsVehicle;
+  defectsTrailers = defectsTrailers;
+
   signaturePadOptions: any = {
     minWidth: 2,
     maxWidth: 3,
@@ -100,7 +30,6 @@ export class InsertDvirPage implements OnInit {
   };
   DvirId: string = '';
   signaturePad!: SignaturePad;
-  form!: FormGroup;
   databaseSubscription: Subscription | undefined;
   company: Company | undefined;
   dvirs: DVIRs[] = [];
@@ -113,30 +42,38 @@ export class InsertDvirPage implements OnInit {
   networkSub!: Subscription;
   Date: string;
 
+  dvir: Partial<DVIRs> = {
+    createDate: new Date().getTime(),
+    location: {
+      description: '',
+      latitude: 0,
+      longitude: 0,
+    },
+    vehicle: {
+      vehicleUnit: '',
+    },
+    trailers: '',
+    odometer: 0,
+    defectsVehicle: '',
+    defectsTrailers: '',
+    remarks: '',
+    status: {
+      name: '',
+      code: '',
+    },
+    comments: '',
+    signatureId: this.utilityService.uuidv4(),
+    signatureBase64: '',
+  };
+
   constructor(
     private databaseService: DatabaseService,
-    private formBuilder: FormBuilder,
     private storage: Storage,
     private dashboardService: DashboardService,
     private internetService: InternetService,
-    private navCtrl: NavController
-  ) {
-    this.form = this.formBuilder.group({
-      Date: [new Date().toISOString().slice(0, 19)],
-      Time: [new Date().toISOString().slice(0, 19)],
-      LocationDescription: ['3mi from Chisinau, Chisinau'],
-      VehicleUnit: [''],
-      Trailers: [''],
-      Odometer: ['0'],
-      DefectsVehicle: [''],
-      DefectsTrailers: [''],
-      Remarks: [''],
-      StatusName: ['Vehicle Condition Satisfactory', Validators.required],
-      StatusCode: ['VCS', Validators.required],
-      Comments: [''],
-      Signature: ['', Validators.required],
-    });
-  }
+    private navCtrl: NavController,
+    private utilityService: UtilityService
+  ) {}
 
   async ngOnInit() {
     this.initSignaturePad();
@@ -155,25 +92,25 @@ export class InsertDvirPage implements OnInit {
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
 
-    this.form.get('DefectsVehicle')?.valueChanges.subscribe(defectsVehicle => {
-      const defectsTrailers = this.form.value.DefectsTrailers || [];
-      this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
-    });
+    // this.form.get('DefectsVehicle')?.valueChanges.subscribe(defectsVehicle => {
+    //   const defectsTrailers = this.form.value.DefectsTrailers || [];
+    //   this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
+    // });
 
-    this.form.get('DefectsTrailers')?.valueChanges.subscribe(defectsTrailers => {
-      const defectsVehicle = this.form.value.DefectsVehicle || [];
-      this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
-    });
+    // this.form.get('DefectsTrailers')?.valueChanges.subscribe(defectsTrailers => {
+    //   const defectsVehicle = this.form.value.DefectsVehicle || [];
+    //   this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
+    // });
 
-    this.form.get('DefectsTrailers')?.valueChanges.subscribe(selectedDefects => {
-      const trailersControl = this.form.get('Trailers');
-      if (selectedDefects && selectedDefects.length > 0) {
-        trailersControl?.setValidators(Validators.required);
-      } else {
-        trailersControl?.clearValidators();
-      }
-      trailersControl?.updateValueAndValidity();
-    });
+    // this.form.get('DefectsTrailers')?.valueChanges.subscribe(selectedDefects => {
+    //   const trailersControl = this.form.get('Trailers');
+    //   if (selectedDefects && selectedDefects.length > 0) {
+    //     trailersControl?.setValidators(Validators.required);
+    //   } else {
+    //     trailersControl?.clearValidators();
+    //   }
+    //   trailersControl?.updateValueAndValidity();
+    // });
 
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
@@ -183,17 +120,13 @@ export class InsertDvirPage implements OnInit {
 
   switchStatus(status: string) {
     console.log(status);
-    this.form.value.StatusCode = status;
-  }
-
-  updateDvirStatusCode(defectsVehicle: any[], defectsTrailers: any[]) {
-    const hasDefects = defectsVehicle.length > 0 || defectsTrailers.length > 0;
-    this.form.patchValue({ StatusCode: hasDefects ? 'D' : 'VCS' });
+    this.dvir.status.code = status;
+    this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
   }
 
   isStatusDisabled(statusToDisable: string): boolean {
-    const defectsVehicle = this.form.value.DefectsVehicle || [];
-    const defectsTrailers = this.form.value.DefectsTrailers || [];
+    const defectsVehicle = this.dvir.defectsVehicle || '';
+    const defectsTrailers = this.dvir.defectsTrailers || '';
     const hasDefects = defectsVehicle.length > 0 || defectsTrailers.length > 0;
     if (hasDefects) {
       return statusToDisable === 'VCS';
@@ -230,91 +163,87 @@ export class InsertDvirPage implements OnInit {
   updateSignatureField() {
     if (this.signaturePad && !this.signaturePad.isEmpty()) {
       const signatureDataURL = this.signaturePad.toDataURL().slice(22);
-      this.form.patchValue({ Signature: signatureDataURL });
+      // this.form.patchValue({ Signature: signatureDataURL });
+      this.dvir.signatureBase64 = signatureDataURL;
     } else {
-      this.form.patchValue({ Signature: '' });
+      // this.form.patchValue({ Signature: '' });
+      this.dvir.signatureBase64 = '';
     }
   }
 
   clearSignature() {
     if (this.signaturePad) {
       this.signaturePad.clear();
-      this.form.patchValue({ Signature: '' });
+      // this.form.patchValue({ Signature: '' });
+      this.dvir.signatureBase64 = '';
     }
   }
 
   async onSubmit() {
-    if (this.form.valid) {
-      const selectedStatusCode = this.form.value.StatusCode;
-      const selectedStatus = this.DvirStatuses.find(status => status.StatusCode === selectedStatusCode);
-      const selectedStatusName = selectedStatus?.StatusName || '';
+    // if (this.form.valid) {
 
-      const defectsVehicle = Array.isArray(this.form.value.DefectsVehicle) ? this.form.value.DefectsVehicle.join(', ') : this.form.value.DefectsVehicle || '';
+    const dvirData: DVIRs = {
+      dvirId: this.uuidv4(),
+      driver: {
+        driverId: this.driverId,
+      },
+      vehicle: {
+        vehicleUnit: this.vehicleUnit,
+        vehicleId: this.vehicleId,
+      },
+      odometer: this.dvir.odometer,
+      trailers: this.dvir.trailers,
+      defectsVehicle: this.dvir.defectsVehicle,
+      defectsTrailers: this.dvir.defectsTrailers,
+      remarks: this.dvir.remarks || '',
+      status: { code: this.dvir.status.code, name: this.dvir.status.name },
+      location: {
+        description: this.dvir.location.description,
+        latitude: 0,
+        longitude: 0,
+      },
+      createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
+      createTimeZone: '',
+      repairDate: 0,
+      repairTimeZone: '',
 
-      const defectsTrailers = Array.isArray(this.form.value.DefectsTrailers) ? this.form.value.DefectsTrailers.join(', ') : this.form.value.DefectsTrailers || '';
+      signatureId: this.uuidv4(),
+      signatureBase64: this.dvir.signatureBase64,
+    };
 
-      const dvirData: DVIRs = {
-        dvirId: this.uuidv4(),
-        driver: {
-          driverId: this.driverId,
+    if (this.networkStatus === true) {
+      console.log('here uploading');
+      this.dashboardService.updateDVIR(dvirData).subscribe(
+        response => {
+          console.log('DVIR is on server:', response);
         },
-        vehicle: {
-          vehicleUnit: this.vehicleUnit,
-          vehicleId: this.vehicleId,
-        },
-        odometer: this.form.value.Odometer,
-        trailers: this.form.value.Trailers,
-        defectsVehicle: defectsVehicle,
-        defectsTrailers: defectsTrailers,
-        remarks: this.form.value.Remarks || '',
-        status: { code: selectedStatusCode, name: selectedStatusName },
-        location: {
-          description: this.form.value.LocationDescription,
-          latitude: 0,
-          longitude: 0,
-        },
-        createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
-        createTimeZone: '',
-        repairDate: 0,
-        repairTimeZone: '',
-
-        signatureId: this.uuidv4(),
-        signatureBase64: this.form.value.Signature,
+        async error => {
+          console.log('Internet Status' + this.networkStatus);
+          let tempEerror = {
+            url: 'api/EldDashboard/uploadDVIR',
+            body: dvirData,
+          };
+          let offlineArray = await this.storage.get('offlineArray');
+          offlineArray.push(tempEerror);
+          await this.storage.set('offlineArray', offlineArray);
+          console.log('Pushed in offlineArray');
+        }
+      );
+    } else {
+      let tempEerror = {
+        url: 'api/EldDashboard/uploadDVIR',
+        body: dvirData,
       };
-
-      if (this.networkStatus === true) {
-        console.log('here uploading');
-        this.dashboardService.updateDVIR(dvirData).subscribe(
-          response => {
-            console.log('DVIR is on server:', response);
-          },
-          async error => {
-            console.log('Internet Status' + this.networkStatus);
-            let tempEerror = {
-              url: 'api/EldDashboard/uploadDVIR',
-              body: dvirData,
-            };
-            let offlineArray = await this.storage.get('offlineArray');
-            offlineArray.push(tempEerror);
-            await this.storage.set('offlineArray', offlineArray);
-            console.log('Pushed in offlineArray');
-          }
-        );
-      } else {
-        let tempEerror = {
-          url: 'api/EldDashboard/uploadDVIR',
-          body: dvirData,
-        };
-        let offlineArray = await this.storage.get('offlineArray');
-        offlineArray.push(tempEerror);
-        await this.storage.set('offlineArray', offlineArray);
-        console.log('Pushed in offlineArray');
-      }
-
-      this.dvirs.unshift(dvirData);
-      await this.storage.set('dvirs', this.dvirs);
-      this.navCtrl.navigateBack('/unitab/dvir');
+      let offlineArray = await this.storage.get('offlineArray');
+      offlineArray.push(tempEerror);
+      await this.storage.set('offlineArray', offlineArray);
+      console.log('Pushed in offlineArray');
     }
+
+    this.dvirs.unshift(dvirData);
+    await this.storage.set('dvirs', this.dvirs);
+    this.navCtrl.navigateBack('/unitab/dvir');
+    // }
   }
 
   uuidv4() {
@@ -334,5 +263,13 @@ export class InsertDvirPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('/unitab/dvir');
+  }
+
+  getHour(value: number) {
+    return formatDate(value, "LLL d'th', yyyy", 'en_US');
+  }
+
+  getTime(value: number) {
+    return formatDate(value, 'hh:mm a', 'en_US');
   }
 }
