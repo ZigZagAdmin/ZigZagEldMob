@@ -111,6 +111,7 @@ export class InsertDvirPage implements OnInit {
   statusIcon = 'checkmark-circle-outline';
   networkStatus = false;
   networkSub!: Subscription;
+  Date: string;
 
   constructor(
     private databaseService: DatabaseService,

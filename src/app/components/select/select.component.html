@@ -1,0 +1,8 @@
+<div class="custom-input" [ngClass]="{ 'custom-input-top': labelPosition === 'top', 'custom-input-left': labelPosition === 'left' }">
+  <div *ngIf="label" class="input-label" [ngClass]="{ 'label-error': !valid, 'input-label-top': labelPosition === 'top', 'input-label-left': labelPosition === 'left' }">
+    {{ label }}{{ required ? '*' : '' }}
+  </div>
+  <select type="text" [(ngModel)]="value" class="input-box" [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left' }">
+    <option *ngFor="let defect of options" [value]="defect">{{ defect }}</option>
+  </select>
+</div>

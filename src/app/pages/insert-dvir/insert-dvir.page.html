@@ -288,37 +288,35 @@
     <div class="edit-form">
       <p class="subtitle-lg">General Info</p>
       <div class="edit-dvir-block">
-        <div class="input-block-2">
+        <!-- <div class="input-block-2">
           <p class="text-2 weight-500">Company</p>
           <input class="input-2 readonly" type="text" [value]="company?.name" readonly />
-        </div>
+        </div> -->
+        <app-input [label]="'Company'" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
         <div class="input-block-2">
-          <p class="text-2 weight-500">Time</p>
           <div class="two-inputs">
-            <input class="input-2 readonly width-50" type="text" formControlName="Date" readonly />
-            <input class="input-2 readonly width-50" type="text" formControlName="Time" readonly />
+            <app-input [label]="'Date'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
+            <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
           </div>
         </div>
         <div class="input-block-2">
-          <p class="text-2 weight-500">Location</p>
-          <input class="input-2 readonly" type="text" formControlName="LocationDescription" readonly />
+          <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
         </div>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <p class="text-2 weight-500">Vehicle Name</p>
-          <input class="input-2 readonly" type="text" formControlName="VehicleUnit" readonly />
+          <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
         </div>
         <div class="input-block-2">
-          <p class="text-2 weight-500">Odometer</p>
-          <input class="input-2 readonly" type="text" formControlName="Odometer" readonly />
+          <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="Date" [noValidation]="true"></app-input>
         </div>
         <div class="input-block-2">
-          <p class="text-2 weight-500">Vehicle Defects (Optional)</p>
+          <!-- <p class="text-2 weight-500">Vehicle Defects (Optional)</p>
           <select class="input-2 select" type="text" formControlName="DefectsVehicle">
             <option *ngFor="let defect of defectsVehicle" [value]="defect">{{ defect }}</option>
-          </select>
+          </select> -->
+          <app-select [label]="'Vehicle Defects (Optional)'" [options]="defectsVehicle"></app-select>
         </div>
       </div>
       <p class="subtitle-lg">Trailer Info</p>

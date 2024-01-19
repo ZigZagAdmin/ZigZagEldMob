@@ -9,11 +9,22 @@ import { InsertDvirPage } from './insert-dvir.page';
 
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { StatusRadioButtonComponentModule } from 'src/app/components/status-radio-button/status-radio-button.module';
-
+import { InputComponentModule } from 'src/app/components/input/input.module';
+import { SelectComponentModule } from 'src/app/components/select/select.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, InsertDvirPageRoutingModule, HeaderComponentModule, StatusRadioButtonComponentModule],
-  declarations: [InsertDvirPage]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonicModule,
+    InsertDvirPageRoutingModule,
+    HeaderComponentModule,
+    StatusRadioButtonComponentModule,
+    InputComponentModule,
+    SelectComponentModule,
+  ],
+  declarations: [InsertDvirPage],
 })
 export class InsertDvirPageModule {}
 
