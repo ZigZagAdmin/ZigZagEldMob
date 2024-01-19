@@ -10,8 +10,14 @@ import { EditDutyStatusPage } from './edit-duty-status.page';
 
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
+import { InputComponentModule } from 'src/app/components/input/input.module';
+
+import { TextareaComponentModule } from 'src/app/components/textarea/textarea.module';
+
+import { DutyRadioButtonComponentModule } from 'src/app/components/duty-radio-button/duty-radio-button.module';
+
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, EditDutyStatusPageRoutingModule, HeaderComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, EditDutyStatusPageRoutingModule, HeaderComponentModule, InputComponentModule, TextareaComponentModule, DutyRadioButtonComponentModule],
   declarations: [EditDutyStatusPage],
 })
 export class EditDutyStatusPageModule {}

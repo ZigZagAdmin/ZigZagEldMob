@@ -181,6 +181,7 @@ export class InsertDvirPage implements OnInit {
   }
 
   switchStatus(status: string) {
+    console.log(status);
     this.form.value.StatusCode = status;
   }
 

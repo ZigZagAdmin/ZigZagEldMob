@@ -337,8 +337,8 @@
       <p class="subtitle-lg">Status</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <p class="text-2 weight-500">Status</p>
-          <div class="statuses">
+          <!-- <p class="text-2 weight-500">Status</p> -->
+          <!-- <div class="statuses">
             <div class="status" (click)="switchStatus('VCS')">
               <img src="assets/icon/satis-success.svg" alt="ok" />
               <p class="text-success">Satisfactory Condition</p>
@@ -351,7 +351,8 @@
               <img *ngIf="form.value.StatusCode !== 'D'" src="assets/icon/circle-white.svg" alt="circle" />
               <img *ngIf="form.value.StatusCode === 'D'" src="assets/icon/check-mark.svg" alt="circle" />
             </div>
-          </div>
+          </div> -->
+          <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)"></app-status-radio-button>
         </div>
         <div class="input-block-2">
           <p class="text-2 weight-500">Comments</p>
