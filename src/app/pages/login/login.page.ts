@@ -24,6 +24,8 @@ import { PlacesCity } from 'src/app/models/places-city';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ShareService } from 'src/app/services/share.service';
+import { LocationService } from 'src/app/services/location.service';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-login',
@@ -49,7 +51,8 @@ export class LoginPage implements OnInit, OnDestroy {
     private storage: Storage,
     private navCtrl: NavController,
     private utilityService: UtilityService,
-    private shareService: ShareService
+    private shareService: ShareService,
+    private locationService: LocationService
   ) {}
 
   ngOnInit() {}
@@ -58,9 +61,24 @@ export class LoginPage implements OnInit, OnDestroy {
     this.shareService.destroyMessage();
   }
 
-  login(username: string, password: string) {
+  async login(username: string, password: string) {
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
+
+    if(Capacitor.isNativePlatform) {
+      if(!(await this.locationService.checkLocationServices())) {
+        alert('Please Turn On Location Service.\nGo to Settings -> Location -> Toggle on the Location Service.')
+        return;
+      }
+  
+      await this.locationService.requestPermission();
+  
+      if(!(await this.locationService.checkPermission())){
+        alert('The location permission is requiered to open the app.');
+        return;
+      }
+    }
+
 
     this.loading = true; // Показать спиннер
 
