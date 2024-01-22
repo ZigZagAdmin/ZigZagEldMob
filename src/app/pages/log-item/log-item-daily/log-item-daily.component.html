@@ -1,0 +1,170 @@
+<ion-content [forceOverscroll]="false">
+  <app-header [title]="'Log'" [backButton]="true" (backButtonCallback)="goBack()">
+    <div class="preview-container" (click)="nevigateToInspection()" *ngIf="canBeInspected()"><img src="../../../assets/imgs/eye.png" /></div>
+  </app-header>
+
+  <app-scroll-toolbar [title]="logDaily?.logDate | date: 'EEEE, MMM d'" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
+  <div class="padding-g">
+    <div class="card-info">
+      <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
+        <g class="grid" transform="translate(65, 40)">
+          <rect class="border" x="0" y="0" width="1440" height="200" rx="8" ry="8"></rect>
+
+          <g class="" *ngFor="let hours of graphicsHour">
+            <g class="column" [style.transform]="'translateX('+(hours*60)+'px)'">
+              <line x1="0" x2="0" y1="0" y2="200"></line>
+              <g class="cell top" transform="translate(0, 0)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell top" transform="translate(0, 50)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 100)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 150)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+            </g>
+          </g>
+          <g class="column" transform="translate(1440, 0)">
+            <line x1="0" x2="0" y1="0" y2="200"></line>
+          </g>
+
+          <line class="row" x1="0" x2="1440" y1="0" y2="0"></line>
+          <line class="row" x1="0" x2="1440" y1="50" y2="50"></line>
+          <line class="row" x1="0" x2="1440" y1="100" y2="100"></line>
+          <line class="row" x1="0" x2="1440" y1="150" y2="150"></line>
+          <line class="row" x1="0" x2="1440" y1="200" y2="200"></line>
+        </g>
+
+        <g class="duty-status-labels" transform="translate(35, 40)">
+          <text class="label" transform="translate(15, 25)" text-anchor="end" dy="0.35em">OFF</text>
+          <text class="label" transform="translate(15, 75)" text-anchor="end" dy="0.35em">SB</text>
+          <text class="label" transform="translate(15, 125)" text-anchor="end" dy="0.35em">D</text>
+          <text class="label" transform="translate(15, 175)" text-anchor="end" dy="0.35em">ON</text>
+        </g>
+
+        <g class="hour-labels" transform="translate(65, 40)">
+          <text class="label" transform="translate(0, 10)" text-anchor="middle" dy="-1em">M</text>
+          <text class="label" transform="translate(60, 10)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(120, 10)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(180, 10)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(240, 10)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(300, 10)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(360, 10)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(420, 10)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(480, 10)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(540, 10)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(600, 10)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(660, 10)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(720, 10)" text-anchor="middle" dy="-1em">N</text>
+          <text class="label" transform="translate(780, 10)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(840, 10)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(900, 10)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(960, 10)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(1020, 10)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(1080, 10)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(1140, 10)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(1200, 10)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(1260, 10)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(1320, 10)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(1380, 10)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(1440, 10)" text-anchor="middle" dy="-1em">M</text>
+        </g>
+
+        <g class="durations" transform="translate(1520, 40)">
+          <text class="label" transform="translate(0, 25)" dy="0.35em">00:00</text>
+          <text class="label" transform="translate(0, 75)" dy="0.35em">00:00</text>
+          <text class="label" transform="translate(0, 125)" dy="0.35em">00:00</text>
+          <text class="label" transform="translate(0, 175)" dy="0.35em">00:00</text>
+        </g>
+
+        <g class="eventLine" transform="translate(65, 40)">
+          <g class="eventRecord" *ngFor="let event of eventGraphicLine">
+            <line [attr.x1]="event.x1" [attr.x2]="event.x2" [attr.y1]="event.y1" [attr.y2]="event.y2" [class]="event.class"></line>
+
+            <line *ngIf="event.yV > 0" [attr.x1]="event.x1" [attr.x2]="event.x1" [attr.y1]="event.y1" [attr.y2]="event.yV" class="vertical"></line>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="edit-form">
+      <div class="form-title">
+        <div class="status-circle" [ngClass]="{'status-circle-error': !logDaily?.formManner, 'status-circle-success': logDaily?.formManner}"></div>
+        <p class="subtitle">Form</p>
+        <button class="btn primary-btn" (click)="onSubmit()">Save</button>
+      </div>
+      <div class="form-list">
+        <app-input [label]="'Vehicle'" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Trailers'" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers" [noValidation]="true"></app-input>
+        <app-input
+          [label]="'Shipping Document'"
+          [required]="true"
+          [fill]="true"
+          [labelPosition]="'left'"
+          [type]="'text'"
+          [(value)]="localForm.form.shippingDoc"
+          [(validation)]="validation['shippingDoc']"></app-input>
+        <app-input
+          [label]="'From Address'"
+          [required]="true"
+          [fill]="true"
+          [labelPosition]="'left'"
+          [type]="'text'"
+          [(value)]="localForm.form.fromAddress"
+          [(validation)]="validation['fromAddress']"></app-input>
+        <app-input
+          [label]="'To Address'"
+          [required]="true"
+          [fill]="true"
+          [labelPosition]="'left'"
+          [type]="'text'"
+          [(value)]="localForm.form.toAddress"
+          [(validation)]="validation['toAddress']"></app-input>
+      </div>
+      <div class="logs-certified">
+        <p class="subtitle">Logs</p>
+        <div class="logs-buttons">
+          <button class="btn primary-btn" [ngClass]="{'btn-disabled ': currentDay === today}" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">Certify</button>
+          <button id="open-modal" class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">Certified</button>
+        </div>
+      </div>
+      <ion-modal [isOpen]="isModalOpen">
+        <ng-template>
+          <ion-content [forceOverscroll]="false">
+            <app-header [title]="'Signature'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
+            <div style="display: flex; justify-content: center; align-items: center">
+              <div class="signature-visualization">
+                <img [ngClass]="{'no-image':imageLoading}" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
+                <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
+              </div>
+            </div>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+      <div class="form-cards">
+        <div class="form-card" *ngFor="let logStatus of statusesOnDay">
+          <div class="card-row">
+            <img src="assets/icon/circle-blue.svg" alt="blue" />
+            <p class="subtitle">{{ logStatus.eventTime.timeStamp | date:'h:mm a' }} - {{ logStatus.type.name }}</p>
+            <p class="text-14-600">{{ logStatus.eventTime.timeStamp | date:'mediumDate' }}</p>
+          </div>
+          <div class="card-row">
+            <img src="assets/icon/location.svg" alt="location" />
+            <p class="text-2">{{ logStatus.location.description }}</p>
+            <img src="assets/icon/edit.svg" (click)="editLog()" alt="edit" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -148,7 +148,7 @@ export class OthersPage implements OnInit {
         async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
-            url: 'api/eldDashboard/UploadLogEvents',
+            url: 'api/eldDashboard/UploadLogEvent',
             body: lastLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');

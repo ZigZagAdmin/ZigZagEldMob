@@ -116,10 +116,10 @@ export class HosPage implements OnInit {
               companyId: '',
               driverId: this.driverId,
               eventTime: {
-                logDate: '',
+                logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
                 timeStamp: new Date().getTime(),
                 timeStampEnd: new Date().getTime(),
-                timeZone: '',
+                timeZone: this.TimeZoneCity,
               },
               vehicle: {
                 vehicleId: this.vehicleId,
@@ -143,7 +143,7 @@ export class HosPage implements OnInit {
               engineHours: 0,
               malfunction: false,
               dataDiagnosticEvent: false,
-              certificationDate: '',
+              certificationDate: lastLogEvent.certificationDate,
               comment: '',
               eventDataCheck: '',
               inspection: false,
@@ -160,7 +160,7 @@ export class HosPage implements OnInit {
               async error => {
                 console.log('Internet Status' + this.networkStatus);
                 let tempEerror = {
-                  url: 'api/eldDashboard/UploadLogEvents',
+                  url: 'api/eldDashboard/UploadLogEvent',
                   body: LoginLogEvent,
                 };
                 let offlineArray = await this.storage.get('offlineArray');
@@ -177,7 +177,7 @@ export class HosPage implements OnInit {
               async error => {
                 console.log('Internet Status: ' + this.networkStatus);
                 let tempEerror = {
-                  url: 'api/eldDashboard/UploadLogEvents',
+                  url: 'api/eldDashboard/UploadLogEvent',
                   body: lastLogEvent,
                 };
                 let offlineArray = await this.storage.get('offlineArray');
@@ -613,7 +613,7 @@ export class HosPage implements OnInit {
   }
 
   selectLog(log: LogDailies) {
-    this.navCtrl.navigateForward('/log-item', { queryParams: { logId: log.logDailyId } });
+    this.navCtrl.navigateForward(['log-item', log.logDailyId]);
   }
 
   selectButton(button: string) {
@@ -681,7 +681,7 @@ export class HosPage implements OnInit {
         companyId: '',
         driverId: this.driverId,
         eventTime: {
-          logDate: '',
+          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
           timeStamp: new Date().getTime(),
           timeStampEnd: new Date().getTime(),
           timeZone: '',
@@ -708,7 +708,7 @@ export class HosPage implements OnInit {
         engineHours: 0,
         malfunction: false,
         dataDiagnosticEvent: false,
-        certificationDate: '',
+        certificationDate: lastLogEvent.certificationDate,
         comment: '',
         eventDataCheck: '',
         inspection: false,
@@ -725,7 +725,7 @@ export class HosPage implements OnInit {
         async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
-            url: 'api/eldDashboard/UploadLogEvents',
+            url: 'api/',
             body: lastLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');
@@ -742,7 +742,7 @@ export class HosPage implements OnInit {
         async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
-            url: 'api/eldDashboard/UploadLogEvents',
+            url: 'api/eldDashboard/UploadLogEvent',
             body: newLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');

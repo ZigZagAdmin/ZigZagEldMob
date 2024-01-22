@@ -31,9 +31,10 @@ export class SelectVehiclePage implements OnInit {
           console.log(this.vehicles);
         });
         this.databaseService.getDrivers().subscribe(driver => {
-          this.driver = driver;
-          this.storage.set('HoursOfServiceRuleDays', this.driver?.driverInfo?.settings.hoursOfService.name);
-          this.storage.set('HoursOfServiceRuleHours', this.driver?.driverInfo?.settings.hoursOfService.name);
+          if (driver) this.driver = driver[0];
+          console.log(driver);
+          this.storage.set('HoursOfServiceRuleDays', this.driver?.driverInfo?.settings.hoursOfService.days);
+          this.storage.set('HoursOfServiceRuleHours', this.driver?.driverInfo?.settings.hoursOfService.hours);
         });
         this.databaseService.getCompany().subscribe(company => {
           this.company = company;

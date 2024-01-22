@@ -22,7 +22,6 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   loading: boolean = false;
 
-  backUrl: string = '';
   logDate: string = '';
   logId: string = '';
 
@@ -64,7 +63,6 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     this.routeSubscription = this.route.queryParams.subscribe(params => {
-      this.backUrl = params['url'];
       this.logDate = params['date'];
       this.logId = params['logId'];
     });
@@ -84,7 +82,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   goBack() {
-    this.navCtrl.navigateBack(this.backUrl);
+    this.navCtrl.navigateBack(['log-item', this.logId]);
   }
 
   initSignaturePad() {
