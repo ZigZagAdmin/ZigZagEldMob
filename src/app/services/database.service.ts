@@ -221,6 +221,15 @@ export class DatabaseService {
     }
     return from(this.storage.set('placesCity', placesCity));
   }
+
+  getPlacesCity(): Observable<PlacesCity[]> {
+    if (!this.databaseReady) {
+      return throwError(
+        'База данных не создана. Сначала вызовите метод create()'
+      );
+    }
+    return from(this.storage.get('placesCity'));
+  }
 }
 
 // async saveDriverData(driverData: any) {

@@ -55,7 +55,9 @@ export class LoginPage implements OnInit, OnDestroy {
     private locationService: LocationService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getPlacesCity().subscribe((data) => { })
+  }
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
@@ -94,7 +96,7 @@ export class LoginPage implements OnInit, OnDestroy {
           return this.saveAuthUser(res);
         }),
         switchMap(() => {
-          const fetchRequests = [
+          const fetchRequests: (Observable<Driver> | Observable<Company> | Observable<Vehicle[]> | Observable<Terminal[]> | Observable<ELD[]> | Observable<DVIRs[]> | Observable<LogDailies[]> | Observable<LogEvents[]> | Observable<PlacesCity[]>)[] = [
             this.manageService.getDrivers(),
             this.manageService.getCompany(),
             this.manageService.getVehicles(),
@@ -103,8 +105,18 @@ export class LoginPage implements OnInit, OnDestroy {
             this.manageService.getDVIRs(),
             this.manageService.getLogDailies(this.authUser.DriverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14),
             this.manageService.getLogEvents(this.authUser.DriverId),
-            this.manageService.getPlacesCity(),
           ];
+
+          let placesSub = this.getPlacesCity().subscribe((data) => {
+            // console.log(data.length === 0);
+            console.log(!data);
+            if(!data) {
+              fetchRequests.push(this.manageService.getPlacesCity());
+            }
+            placesSub.unsubscribe();
+          });
+
+          console.log(fetchRequests);
 
           return forkJoin(fetchRequests).pipe(
             catchError(error => {
@@ -123,9 +135,19 @@ export class LoginPage implements OnInit, OnDestroy {
             this.saveDVIRs(dvirs as DVIRs[]),
             this.saveELDs(elds as ELD[]),
             this.saveLogDailies(logDailies as LogDailies[]),
-            this.saveLogEvents(logEvents as LogEvents[]),
-            this.savePlacesCity(placesCity as PlacesCity[]),
+            this.saveLogEvents(logEvents as LogEvents[])
           ];
+
+          let placesSub = this.getPlacesCity().subscribe((data) => {
+            // console.log(data.length === 0);
+            if(!data) {
+              saveRequests.push(this.savePlacesCity(placesCity as PlacesCity[]));
+            }
+            placesSub.unsubscribe();
+          })
+
+          console.log(saveRequests);
+
 
           return forkJoin(saveRequests).pipe(
             catchError(error => {
@@ -229,6 +251,16 @@ export class LoginPage implements OnInit, OnDestroy {
     return this.databaseService.savePlacesCity(placesCity).pipe(
       catchError(error => {
         const errorMessage = 'Error saving logMaps to database';
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
+        return throwError(errorMessage);
+      })
+    );
+  }
+
+  private getPlacesCity(): Observable<PlacesCity[]> {
+    return this.databaseService.getPlacesCity().pipe(
+      catchError(error => {
+        const errorMessage = 'Error getting logMaps to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
         return throwError(errorMessage);
       })

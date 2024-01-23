@@ -34,10 +34,10 @@ export class ConnectMacPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     // if (Capacitor.getPlatform() !== 'web') {
-    alert(!(await this.bluetoothService.getBluetoothState()));
-    if (!(await this.bluetoothService.getBluetoothState())) {
+    // alert(!(await this.bluetoothService.getBluetoothState()));
+    // if (!(await this.bluetoothService.getBluetoothState())) {
       await this.bluetoothService.requestBluetoothPermission();
-    }
+    // }
     // }
   }
 
