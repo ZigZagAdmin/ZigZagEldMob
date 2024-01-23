@@ -65,20 +65,19 @@ export class LoginPage implements OnInit, OnDestroy {
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
 
-    if(Capacitor.isNativePlatform) {
-      if(!(await this.locationService.checkLocationServices())) {
-        alert('Please Turn On Location Service.\nGo to Settings -> Location -> Toggle on the Location Service.')
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!(await this.locationService.checkLocationServices())) {
+        alert('Please Turn On Location Service.\nGo to Settings -> Location -> Toggle on the Location Service.');
         return;
       }
-  
+
       await this.locationService.requestPermission();
-  
-      if(!(await this.locationService.checkPermission())){
+
+      if (!(await this.locationService.checkPermission())) {
         alert('The location permission is requiered to open the app.');
         return;
       }
     }
-
 
     this.loading = true; // Показать спиннер
 

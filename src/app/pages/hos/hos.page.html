@@ -424,27 +424,19 @@
   </ion-card>
 </ion-content> -->
 
-<!-- 
-<ion-header>
-  <ion-toolbar>
-    <ion-title>{{name}} - {{pickedVehicle}}</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-header *ngIf="someErrors">
-  <ion-toolbar color="danger">
-    <ion-title size="small">Some Errors</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content [forceOverscroll]="false">
   <div class="hos-wrapper" *ngIf="vehicle">
     <div class="hos-header">
-      <img src="assets/icon/point-green.svg" alt="point" />
+      <div class="service service-on">
+        <img src="assets/icon/location_icon.svg" />
+      </div>
       <div class="hos-name">
         <p class="subtitle">{{ name }}</p>
         <p class="text-1">Vehicle Unit: {{ vehicle.vehicleUnit }}</p>
       </div>
-      <img src="assets/icon/bluetooth-red.svg" alt="bluetooth" />
+      <div class="service service-off">
+        <img src="assets/icon/bluetooth_icon.svg" />
+      </div>
     </div>
 
     <div class="warning">

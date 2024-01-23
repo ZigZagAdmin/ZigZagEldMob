@@ -339,3 +339,20 @@ ion-progress-bar #progress-cycle {
 .status-dot-success {
   background-color: var(--success-600);
 }
+
+.service {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.service-on {
+  background-color: var(--success-500);
+}
+
+.service-off {
+  background-color: var(--error-500);
+}
