@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonModal } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { DatabaseService } from 'src/app/services/database.service';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, forkJoin, interval } from 'rxjs';
 import { NavController } from '@ionic/angular';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
@@ -21,7 +21,7 @@ import { LocationService } from 'src/app/services/location.service';
   templateUrl: './hos.page.html',
   styleUrls: ['./hos.page.scss'],
 })
-export class HosPage implements OnInit {
+export class HosPage implements OnInit, OnDestroy {
   @ViewChild(IonModal) modal!: IonModal;
   message = '';
   someErrors: boolean = false;
@@ -75,6 +75,7 @@ export class HosPage implements OnInit {
 
   locationStatus: boolean = false;
   locationStatusSub: Subscription;
+  locationSub: Subscription;
 
   constructor(
     private navCtrl: NavController,
@@ -89,10 +90,14 @@ export class HosPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe((data) => {
-      console.log("hos location", data);
+    this.locationSub = interval(1000).subscribe(() => this.locationService.checkLocationStatus());
+    this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
       this.locationStatus = data;
-    })
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.locationSub.unsubscribe();
   }
 
   async ionViewWillEnter() {
@@ -116,7 +121,6 @@ export class HosPage implements OnInit {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
           if (this.bAuthorized === false) {
-
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
             lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);

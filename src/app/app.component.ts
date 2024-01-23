@@ -25,7 +25,6 @@ export class AppComponent implements OnInit, OnDestroy {
   databaseSubscription: Subscription | undefined;
   networkStatus = false;
   networkSub!: Subscription;
-  locationSub: Subscription;
   constructor(
     private navCtrl: NavController,
     private storage: Storage,
@@ -39,10 +38,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // if (Capacitor.getPlatform() !== 'web') {
-    this.locationSub = interval(1000).subscribe(() => this.locationService.checkLocationStatus());
-
-    // }
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
     });
@@ -143,7 +138,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.locationSub.unsubscribe();
   }
 
   private async presentToast(message: string, color: string = 'danger') {
