@@ -11,6 +11,7 @@ import { InternetService } from './services/internet.service';
 
 import { ManageService } from './services/manage.service';
 import { DatabaseService } from './services/database.service';
+import { LocationService } from './services/location.service';
 
 @Component({
   selector: 'app-root',
@@ -31,10 +32,12 @@ export class AppComponent implements OnInit {
     private manageService: ManageService,
     private internetService: InternetService,
     private toastController: ToastController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private locationService: LocationService
   ) {}
 
   async ngOnInit() {
+    this.locationService.initialize();
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
     });

@@ -427,7 +427,7 @@
 <ion-content [forceOverscroll]="false">
   <div class="hos-wrapper" *ngIf="vehicle">
     <div class="hos-header">
-      <div class="service service-on">
+      <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}">
         <img src="assets/icon/location_icon.svg" />
       </div>
       <div class="hos-name">

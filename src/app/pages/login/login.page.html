@@ -9,7 +9,7 @@
           <app-input [label]="'Password'" [fill]="false" [type]="'password'" [(value)]="password" [(validation)]="validation['password']"></app-input>
           <div class="forgot-password" (click)="forgotPassword()">Forgot Password?</div>
         </div>
-        <button class="btn-login primary-btn f-submit-button" (click)="login(username, password)">
+        <button class="btn-login primary-btn f-submit-button" (click)="login(username, password)" (keydown.enter)="login(username, password)">
           <span *ngIf="!loading">Login</span>
           <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
         </button>

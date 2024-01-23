@@ -14,6 +14,7 @@ import { ModalController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Vehicle } from 'src/app/models/vehicle';
 import { timeZone } from 'src/app/models/timeZone';
+import { LocationService } from 'src/app/services/location.service';
 
 @Component({
   selector: 'app-hos',
@@ -72,6 +73,9 @@ export class HosPage implements OnInit {
   comments = '';
   restMode = false;
 
+  locationStatus: boolean = false;
+  locationStatusSub: Subscription;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -80,10 +84,16 @@ export class HosPage implements OnInit {
     private internetService: InternetService,
     private storage: Storage,
     public modalController: ModalController,
-    private storageService: DatabaseService
+    private storageService: DatabaseService,
+    private locationService: LocationService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe((data) => {
+      console.log("hos location", data);
+      this.locationStatus = data;
+    })
+  }
 
   async ionViewWillEnter() {
     this.getVehicle();
