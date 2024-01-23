@@ -11,23 +11,12 @@ export class LocationService {
 
   constructor() {}
 
-  initialize() {
-    alert('something');
-    this.checkLocationStatus();
-  }
-
-  private checkLocationStatus() {
-    Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 0 }).then(a => {
-      alert(a.coords.altitude + ' ' + a.timestamp);
-      Geolocation.watchPosition({ timeout: 0, maximumAge: 0, enableHighAccuracy: true }, (data, err) => {
-        alert(data.coords.altitude);
-        alert(err);
-        if (data) this.locationStatusSubject.next(true);
-        else this.locationStatusSubject.next(false);
+  async checkLocationStatus() {
+    await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 0 })
+      .then(async a => {
+        this.locationStatusSubject.next(true);
       })
-        .then(s => alert('Then:' + s))
-        .catch(e => alert('error: ' + e));
-    }).catch(e => alert('Position error: ' + e));
+      .catch(e => this.locationStatusSubject.next(false));
   }
 
   getLocationStatusObservable() {

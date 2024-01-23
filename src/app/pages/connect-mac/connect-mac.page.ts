@@ -6,6 +6,8 @@ import { Vehicle } from 'src/app/models/vehicle';
 import { DatabaseService } from 'src/app/services/database.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
+import { BluetoothService } from 'src/app/services/bluetooth.service';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-connect-mac',
@@ -21,9 +23,23 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     macAddress: false,
   };
 
-  constructor(private storage: Storage, private navCtrl: NavController, private storageService: DatabaseService, private utilityService: UtilityService, private shareService: ShareService) {}
+  constructor(
+    private storage: Storage,
+    private navCtrl: NavController,
+    private storageService: DatabaseService,
+    private utilityService: UtilityService,
+    private shareService: ShareService,
+    private bluetoothService: BluetoothService
+  ) {}
 
-  ngOnInit() {}
+  async ngOnInit() {
+    // if (Capacitor.getPlatform() !== 'web') {
+    alert(!(await this.bluetoothService.getBluetoothState()));
+    if (!(await this.bluetoothService.getBluetoothState())) {
+      await this.bluetoothService.requestBluetoothPermission();
+    }
+    // }
+  }
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();

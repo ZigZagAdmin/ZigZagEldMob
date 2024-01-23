@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
-import { forkJoin, throwError } from 'rxjs';
+import { forkJoin, interval, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 import { ToastController, LoadingController } from '@ionic/angular';
@@ -12,18 +12,20 @@ import { InternetService } from './services/internet.service';
 import { ManageService } from './services/manage.service';
 import { DatabaseService } from './services/database.service';
 import { LocationService } from './services/location.service';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   pickedVehicle!: string;
   databaseSubscription: Subscription | undefined;
   networkStatus = false;
   networkSub!: Subscription;
+  locationSub: Subscription;
   constructor(
     private navCtrl: NavController,
     private storage: Storage,
@@ -37,7 +39,10 @@ export class AppComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.locationService.initialize();
+    // if (Capacitor.getPlatform() !== 'web') {
+    this.locationSub = interval(1000).subscribe(() => this.locationService.checkLocationStatus());
+
+    // }
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
     });
@@ -135,6 +140,10 @@ export class AppComponent implements OnInit {
     }
     this.loading = false;
     console.log(this.loading);
+  }
+
+  ngOnDestroy(): void {
+    this.locationSub.unsubscribe();
   }
 
   private async presentToast(message: string, color: string = 'danger') {
