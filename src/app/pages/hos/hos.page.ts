@@ -253,7 +253,7 @@ export class HosPage implements OnInit, OnDestroy {
     logEventData.sent = online;
     this.logEvents.push(logEventData);
     console.log('Update Log Events: ', this.logEvents);
-    await this.storage.set('dvirs', this.logEvents);
+    await this.storage.set('logEvents', this.logEvents);
   }
 
   async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
@@ -262,7 +262,7 @@ export class HosPage implements OnInit, OnDestroy {
     if (index !== -1) {
       this.logEvents[index] = logEventData;
     }
-    await this.storage.set('dvirs', this.logEvents);
+    await this.storage.set('logEvents', this.logEvents);
   }
 
   getVehicle() {
@@ -694,6 +694,7 @@ export class HosPage implements OnInit, OnDestroy {
     if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
       this.lastSelectedButton = this.selectedButton;
       this.isModalOpen = false;
+      this.shareService.destroyMessage();
       await this.onWillDismiss();
     } else {
       this.toastService.showToast('You need to select a different status!', 'warning');

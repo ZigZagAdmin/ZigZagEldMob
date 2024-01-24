@@ -128,17 +128,6 @@ export class LogItemDailyComponent implements OnInit {
             this.currentDay = this.logDaily.logDate;
             this.fillFormWithLogDailyData();
           }
-          // this.logEvents.forEach(log => {
-          //   if (log.DateEnd === '0001-01-01T00:00:00') {
-          //     log.DateEnd = formatDate(
-          //       new Date().toLocaleString('en-US', {
-          //         timeZone: this.TimeZoneCity,
-          //       }),
-          //       'yyyy-MM-ddTHH:mm:ss',
-          //       'en_US'
-          //     );
-          //   }
-          // });
           console.log(this.logEvents);
           console.log(this.logDaily);
           this.drawGraph();
@@ -160,16 +149,30 @@ export class LogItemDailyComponent implements OnInit {
     });
   }
 
-  // ionViewWillEnter() {
-  //   this.logDailiesSub = this.databaseService.getLogDailies().subscribe(logDailies => {
-  //     console.log(logDailies);
-  //     if (logDailies.length !== 0) this.logDailies = logDailies;
-  //   });
-  // }
-
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
     this.logDailiesSub.unsubscribe();
+  }
+
+  getStatusColor(status: string) {
+    if (status) {
+      let colorObj = {
+        OFF: 'var(--gray-300)',
+        SB: 'var(--gray-500)',
+        ON: 'var(--warning-400)',
+        D: 'var(--success-500)',
+        PC: 'var(--gray-300)',
+        YM: 'var(--warning-400)',
+      };
+      return colorObj[status as keyof typeof colorObj];
+    }
+    return 'var(--success-500)';
+  }
+
+  getDateSub(date: string) {
+    let date_ = formatDate(date, 'EEEE, MMM d', 'en_US');
+    let today_ = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
+    return date_ === today_ ? date_ + ' (Today)' : date_;
   }
 
   fillFormWithLogDailyData() {

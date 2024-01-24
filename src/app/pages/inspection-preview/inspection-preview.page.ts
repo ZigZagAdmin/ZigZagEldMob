@@ -63,10 +63,7 @@ export class InspectionPreviewPage implements OnInit {
       if (ready) {
         this.bReady = ready;
         this.databaseService.getLogDailies().subscribe(logDailies => {
-          this.logDailies = logDailies;
-          if (this.previousPage === 'inspection') {
-            this.logDailies = logDailies.slice(0, 8);
-          }
+          this.logDailies = logDailies.slice(0, 8);
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
         });
         this.databaseService.getLogEvents().subscribe(logEvents => {
@@ -304,8 +301,8 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   goBack() {
-    console.log(this.backUrl)
+    console.log(this.backUrl);
     if (this.backUrl === 'log-item') this.navCtrl.navigateBack(['log-item', this.logDaily.logDailyId]);
-    else this.navCtrl.navigateBack('unitab/inspection')
+    else this.navCtrl.navigateBack('unitab/inspection');
   }
 }
