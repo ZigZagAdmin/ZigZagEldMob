@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonModal } from '@ionic/angular';
-import { OverlayEventDetail } from '@ionic/core/components';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, forkJoin, interval } from 'rxjs';
 import { NavController } from '@ionic/angular';
@@ -10,12 +9,14 @@ import { Storage } from '@ionic/storage';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { formatDate } from '@angular/common';
-import { ModalController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Vehicle } from 'src/app/models/vehicle';
 import { timeZone } from 'src/app/models/timeZone';
 import { LocationService } from 'src/app/services/location.service';
 import { BluetoothService } from 'src/app/services/bluetooth.service';
+import { ToastService } from 'src/app/services/toast.service';
+import { UtilityService } from 'src/app/services/utility.service';
+import { ShareService } from 'src/app/services/share.service';
 
 @Component({
   selector: 'app-hos',
@@ -23,7 +24,6 @@ import { BluetoothService } from 'src/app/services/bluetooth.service';
   styleUrls: ['./hos.page.scss'],
 })
 export class HosPage implements OnInit, OnDestroy {
-  @ViewChild(IonModal) modal!: IonModal;
   message = '';
   someErrors: boolean = false;
   bReady: boolean = false;
@@ -82,6 +82,12 @@ export class HosPage implements OnInit, OnDestroy {
   bluetoothStatus: boolean = false;
   bluetoothStatusSub: Subscription;
 
+  lastSelectedButton: string = '';
+
+  validation: { [key: string]: boolean } = {
+    location: false,
+  };
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -89,10 +95,12 @@ export class HosPage implements OnInit, OnDestroy {
     private dashboardService: DashboardService,
     private internetService: InternetService,
     private storage: Storage,
-    public modalController: ModalController,
     private storageService: DatabaseService,
     private locationService: LocationService,
-    private bluetoothService: BluetoothService
+    private bluetoothService: BluetoothService,
+    private toastService: ToastService,
+    private utilityService: UtilityService,
+    private shareService: ShareService
   ) {}
 
   ngOnInit(): void {
@@ -113,6 +121,7 @@ export class HosPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.serviceSub.unsubscribe();
+    this.shareService.destroyMessage();
   }
 
   async ionViewWillEnter() {
@@ -135,6 +144,9 @@ export class HosPage implements OnInit, OnDestroy {
         forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
+          const filteredLogEvents = this.logEvents.filter(item => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(item.type.code));
+          this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+          this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
 
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
@@ -142,8 +154,8 @@ export class HosPage implements OnInit, OnDestroy {
             lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);
 
             let LoginLogEvent: LogEvents = {
-              logEventId: this.uuidv4(),
-              companyId: '',
+              logEventId: this.utilityService.uuidv4(),
+              companyId: lastLogEvent.companyId,
               driverId: this.driverId,
               eventTime: {
                 logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
@@ -183,31 +195,35 @@ export class HosPage implements OnInit, OnDestroy {
 
             this.storage.set('bAuthorized', true);
 
-            this.dashboardService.updateLogEvent(LoginLogEvent).subscribe(
-              response => {
+            this.updateLogEvents(LoginLogEvent, false);
+            this.dashboardService
+              .updateLogEvent(LoginLogEvent)
+              .toPromise()
+              .then(response => {
                 console.log('Login LogEvents got updated on the server: ', response);
-                this.updateLogEvents(LoginLogEvent, true);
-              },
-              async error => {
+                this.updateIndexLogEvents(LoginLogEvent, true);
+              })
+              .catch(async error => {
                 console.log('Internet Status: ' + this.networkStatus);
-                this.updateLogEvents(LoginLogEvent, false);
                 console.log('Login LogEvent in offline logEvents array');
-              }
-            );
+              });
 
-            this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
-              response => {
+            this.updateIndexLogEvents(lastLogEvent, false);
+            this.dashboardService
+              .updateLogEvent(lastLogEvent)
+              .toPromise()
+              .then(response => {
                 console.log('Second Last LogEvent is updated on server:', response);
                 this.updateIndexLogEvents(lastLogEvent, true);
-              },
-              async error => {
+              })
+              .catch(async error => {
                 console.log('Internet Status: ' + this.networkStatus);
-                this.updateIndexLogEvents(lastLogEvent, false);
                 console.log('Second Last LogEvent Pushed in offline logEvents array');
-              }
-            );
+              });
           }
+
           this.updateLogDailies();
+          this.calculateCircles();
         });
       }
     });
@@ -236,6 +252,7 @@ export class HosPage implements OnInit, OnDestroy {
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
     logEventData.sent = online;
     this.logEvents.push(logEventData);
+    console.log('Update Log Events: ', this.logEvents);
     await this.storage.set('dvirs', this.logEvents);
   }
 
@@ -303,6 +320,7 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async calculateCircles() {
+    console.log(this.logEvents);
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
 
     let iHoursOfServiceRulesHours = await this.storage.get('HoursOfServiceRuleHours');
@@ -344,7 +362,7 @@ export class HosPage implements OnInit, OnDestroy {
 
     let bResetTimeLast7Day = false;
 
-    console.log(this.logEvents);
+    // console.log(this.logEvents);
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
@@ -644,25 +662,6 @@ export class HosPage implements OnInit, OnDestroy {
     /////
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'Off Duty':
-        return 'light';
-      case 'Driving':
-        return 'success';
-      case 'On Duty':
-        return 'warning';
-      case 'Yard Moves':
-        return 'warning';
-      case 'Sleeper Berth':
-        return 'medium';
-      case 'Personal Conveyance':
-        return 'success';
-      default:
-        return 'medium';
-    }
-  }
-
   toggleModal() {
     this.isModalOpen = true;
 
@@ -685,122 +684,130 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   cancel() {
-    this.modal.dismiss(null, 'cancel');
+    this.shareService.destroyMessage();
     this.isModalOpen = false;
   }
 
   async confirm() {
-    if (this.selectedButton) {
-      await this.modal.dismiss(this.selectedButton, 'confirm');
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    if (!this.utilityService.validateForm(this.validation)) return;
+    if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
+      this.lastSelectedButton = this.selectedButton;
+      this.isModalOpen = false;
+      await this.onWillDismiss();
+    } else {
+      this.toastService.showToast('You need to select a different status!', 'warning');
     }
-    this.isModalOpen = false;
   }
 
-  onWillDismiss(event: Event) {
-    const ev = event as CustomEvent<OverlayEventDetail<string>>;
-    if (ev.detail.role === 'confirm') {
-      const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
-      const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
-      let lastLogEvent = filteredLogEvents[filteredLogEvents.length - 1];
-      if (lastLogEvent) {
-        const currentDate = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone])).getTime();
-        lastLogEvent.eventTime.timeStampEnd = currentDate;
-        console.log('LAST LogEvent = ', lastLogEvent);
-      }
+  async onWillDismiss() {
+    console.log(this.logEvents);
+    const endTime = new Date().getTime();
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+    const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
+    let lastLogEvent = filteredLogEvents[filteredLogEvents.length - 1];
 
-      let statuses = {
-        OFF: {
-          statusName: 'Off Duty',
-          eventTypeType: 'DUTY_STATUS',
-        },
-        SB: {
-          statusName: 'Sleeper Berth',
-          eventTypeType: 'DUTY_STATUS',
-        },
-        D: {
-          statusName: 'Driving',
-          eventTypeType: 'DUTY_STATUS',
-        },
-        ON: {
-          statusName: 'On Duty',
-          eventTypeType: 'DUTY_STATUS',
-        },
-        PC: {
-          statusName: 'Personal Conveyance',
-          eventTypeType: 'DRIVER_INDICATES',
-        },
-        YM: {
-          statusName: 'Yard Moves',
-          eventTypeType: 'DRIVER_INDICATES',
-        },
-      };
-
-      let newLogEvent: LogEvents = {
-        logEventId: this.uuidv4(),
-        companyId: '',
-        driverId: this.driverId,
-        eventTime: {
-          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
-          timeStamp: new Date().getTime(),
-          timeStampEnd: new Date().getTime(),
-          timeZone: '',
-        },
-        vehicle: {
-          vehicleId: this.vehicleId,
-        },
-        eld: {
-          eldId: '00000000-0000-0000-0000-000000000000',
-          macAddress: '',
-          serialNumber: '',
-        },
-        location: {
-          locationType: 'AUTOMATIC',
-          description: '2mi from Chisinau, Chisinau',
-          latitude: 0,
-          longitude: 0,
-        },
-        sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
-        type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
-        recordStatus: { name: 'Driver', code: 'DRIVER' },
-        recordOrigin: { name: 'Active', code: 'ACTIVE' },
-        odometer: 0,
-        engineHours: 0,
-        malfunction: false,
-        dataDiagnosticEvent: false,
-        certificationDate: lastLogEvent.certificationDate,
-        comment: '',
-        eventDataCheck: '',
-        inspection: false,
-
-        sent: true
-      };
-      this.updateLogDailies();
-      this.calculateCircles();
-
-      this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
-        response => {
-          console.log('Last LogEvent is updated on server:', response);
-          this.updateIndexLogEvents(lastLogEvent, true);
-        },
-        async error => {
-          console.log('Internet Status: ' + this.networkStatus);
-          this.updateIndexLogEvents(lastLogEvent, false);
-          console.log('Last LogEvent Pushed in offline logEvents array');
-        }
-      );
-
-      this.dashboardService.updateLogEvent(newLogEvent).subscribe(
-        response => {
-          console.log('New status is updated on server:', response);
-          this.updateLogEvents(newLogEvent, true);
-        },
-        async error => {
-          console.log('Internet Status: ' + this.networkStatus);
-          this.updateLogEvents(newLogEvent, false);
-          console.log('New Log Event Status Pushed in offline logEvents Array');
-        }
-      );
+    if (lastLogEvent) {
+      lastLogEvent.eventTime.timeStampEnd = endTime;
+      console.log('LAST LogEvent = ', lastLogEvent);
     }
+
+    let statuses = {
+      OFF: {
+        statusName: 'Off Duty',
+        eventTypeType: 'DUTY_STATUS',
+      },
+      SB: {
+        statusName: 'Sleeper Berth',
+        eventTypeType: 'DUTY_STATUS',
+      },
+      D: {
+        statusName: 'Driving',
+        eventTypeType: 'DUTY_STATUS',
+      },
+      ON: {
+        statusName: 'On Duty',
+        eventTypeType: 'DUTY_STATUS',
+      },
+      PC: {
+        statusName: 'Personal Conveyance',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      YM: {
+        statusName: 'Yard Moves',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+    };
+
+    let newLogEvent: LogEvents = {
+      logEventId: this.utilityService.uuidv4(),
+      companyId: lastLogEvent.companyId,
+      driverId: this.driverId,
+      eventTime: {
+        logDate: formatDate(new Date(endTime), 'yyyy/MM/dd', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
+        timeStamp: endTime,
+        timeZone: this.TimeZoneCity,
+      },
+      vehicle: {
+        vehicleId: this.vehicleId,
+      },
+      eld: {
+        eldId: '00000000-0000-0000-0000-000000000000',
+        macAddress: '',
+        serialNumber: '',
+      },
+      location: {
+        locationType: 'AUTOMATIC',
+        description: '2mi from Chisinau, Chisinau',
+        latitude: 0,
+        longitude: 0,
+      },
+      sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
+      type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
+      recordStatus: { name: 'Driver', code: 'DRIVER' },
+      recordOrigin: { name: 'Active', code: 'ACTIVE' },
+      odometer: 0,
+      engineHours: 0,
+      malfunction: false,
+      dataDiagnosticEvent: false,
+      certificationDate: lastLogEvent.certificationDate,
+      comment: '',
+      eventDataCheck: '',
+      inspection: false,
+
+      sent: true,
+    };
+
+    await this.updateIndexLogEvents(lastLogEvent, false);
+
+    this.dashboardService
+      .updateLogEvent(lastLogEvent)
+      .toPromise()
+      .then(async response => {
+        console.log('Last LogEvent is updated on server:', response);
+        await this.updateIndexLogEvents(lastLogEvent, true);
+      })
+      .catch(async error => {
+        console.log('Internet Status: ' + this.networkStatus);
+        console.log('Last LogEvent Pushed in offline logEvents array');
+      });
+
+    this.updateLogEvents(newLogEvent, false);
+    this.dashboardService
+      .updateLogEvent(newLogEvent)
+      .toPromise()
+      .then(response => {
+        console.log('New status is updated on server:', response);
+        this.updateIndexLogEvents(newLogEvent, true);
+      })
+      .catch(async error => {
+        console.log('Internet Status: ' + this.networkStatus);
+        console.log('New Log Event Status Pushed in offline logEvents Array');
+      });
+
+    this.updateLogDailies();
+    this.calculateCircles();
+    console.log(this.logEvents);
     this.isModalOpen = false;
   }
 
@@ -857,7 +864,7 @@ export class HosPage implements OnInit, OnDestroy {
         this.countDays.push(this.logDailies[foundLogDayIndex]);
       } else {
         let newLogDaily: LogDailies = {
-          logDailyId: this.uuidv4(),
+          logDailyId: this.utilityService.uuidv4(),
           companyId: this.companyId,
           driverId: this.driverId,
           driverName: '',
@@ -996,19 +1003,26 @@ export class HosPage implements OnInit, OnDestroy {
     }
   }
 
+  getStatusColor(status: string) {
+    if (status) {
+      let colorObj = {
+        OFF: 'var(--gray-300)',
+        SB: 'var(--gray-500)',
+        ON: 'var(--warning-400)',
+        D: 'var(--success-500)',
+        PC: 'var(--gray-300)',
+        YM: 'var(--warning-400)',
+      };
+      return colorObj[status as keyof typeof colorObj];
+    }
+    return 'var(--success-500)';
+  }
+
   updateEveryMinute() {
     setInterval(() => {
       this.updateLogDailies();
       this.calculateCircles();
     }, 60000);
-  }
-
-  uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0,
-        v = c == 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
   }
 
   ionViewWillLeave() {

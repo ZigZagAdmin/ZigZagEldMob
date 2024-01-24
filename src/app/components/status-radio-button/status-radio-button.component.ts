@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 interface StatusItem {
-  icon: "success" | "error";
+  icon: 'success' | 'error';
   label: string;
   value: string;
   checked: boolean;
@@ -12,7 +12,7 @@ interface StatusItem {
   templateUrl: './status-radio-button.component.html',
   styleUrls: ['./status-radio-button.component.scss'],
 })
-export class StatusRadioButtonComponent  implements OnInit {
+export class StatusRadioButtonComponent implements OnInit {
   data: StatusItem[] = [
     { icon: 'success', label: 'Vehicle Condition Satisfactory', value: 'VCS', checked: false },
     { icon: 'error', label: 'Has Defects', value: 'D', checked: false },
@@ -42,7 +42,7 @@ export class StatusRadioButtonComponent  implements OnInit {
   select(item: StatusItem) {
     let index = this.data.findIndex(el => el.value === item.value);
     let data: StatusItem[] = [];
-    if(this.half) {
+    if (this.half) {
       data = this.dataHalf;
     } else {
       data = this.data;

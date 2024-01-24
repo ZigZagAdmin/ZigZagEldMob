@@ -67,7 +67,7 @@ export interface LogEvents {
 interface IEventTime {
   logDate: string;
   timeStamp: number;
-  timeStampEnd: number;
+  timeStampEnd?: number;
   timeZone: string;
 }
 
