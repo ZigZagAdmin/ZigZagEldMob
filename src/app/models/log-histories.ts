@@ -60,6 +60,8 @@ export interface LogEvents {
   inspection: boolean;
   checkbox?: number; //
   status?: number; //
+
+  sent?: boolean; 
 }
 
 interface IEventTime {

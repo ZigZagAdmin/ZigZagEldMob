@@ -1,9 +1,15 @@
 import { Inject, Injectable } from '@angular/core';
 import { Network } from '@capacitor/network';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, forkJoin, switchMap } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import { HttpClient } from '@angular/common/http';
 import { AUTH_API_URL } from '../app-injection-tokens';
+import { ManageService } from './manage.service';
+import { DVIRs } from '../models/dvirs';
+import { LogDailies } from '../models/log-dailies';
+import { LogEvents } from '../models/log-histories';
+import { ELD } from '../models/eld';
+import { DashboardService } from './dashboard.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +17,7 @@ import { AUTH_API_URL } from '../app-injection-tokens';
 export class InternetService {
   internetStatus$ = new BehaviorSubject(false);
 
-  constructor(@Inject(AUTH_API_URL) private apiUrl: string, private storage: Storage, private http: HttpClient) {
+  constructor(private storage: Storage, private dashboardService: DashboardService) {
     this.checkInternetStatus();
     this.watchInternetStatus();
   }
@@ -34,36 +40,16 @@ export class InternetService {
   }
 
   async postOfflineData() {
-    const LoadingStack: any[] = [];
+    let dvirs$ = this.storage.get('dvirs');
+    let logDailies$ = this.storage.get('logDailies');
+    let logEvents$ = this.storage.get('logEvents');
+    let elds$ = this.storage.get('elds');
 
-    await this.storage.get('offlineArray').then(offlineData => {
-      if (offlineData)
-        offlineData.forEach((el: any) => {
-          LoadingStack.push(true);
-          this.http.post(this.apiUrl + el.url, el.body).subscribe(
-            result => {
-              console.log('offlineData sended!');
-              const idx = offlineData.findIndex((item: any) => el.url === item.url && JSON.stringify(el.body) === JSON.stringify(item.body));
-              offlineData.splice(idx, 1);
-              LoadingStack.pop();
-              if (LoadingStack.length === 0) {
-                this.updateOfflineData(offlineData);
-              }
-            },
-            error => {
-              console.log('offlineData not sended :(');
-              console.log(error);
-              LoadingStack.pop();
-              if (LoadingStack.length === 0) {
-                this.updateOfflineData(offlineData);
-              }
-            }
-          );
-        });
+    forkJoin([dvirs$, logDailies$, logEvents$, elds$]).subscribe(([dvirs, logDailies, logEvents, elds]) => {
+      if (dvirs && dvirs.length !== 0) dvirs.forEach((dvir: DVIRs) => !dvir.sent ? this.dashboardService.updateDVIR(dvir) : '');
+      if (logDailies && logDailies.length !== 0) logDailies.forEach((logDaily: LogDailies) => !logDaily.sent ? this.dashboardService.updateLogDaily(logDaily) : '');
+      if (logEvents && logEvents.length !== 0) logEvents.forEach((logEvent: LogEvents) => !logEvent.sent ? this.dashboardService.updateLogEvent(logEvent) : '');
+      if (elds && elds.length !== 0) elds.forEach((eld: ELD) => !eld.sent ? this.dashboardService.updateELD(eld) : '');
     });
-  }
-
-  async updateOfflineData(offlineData: any[]) {
-    await this.storage.set('offlineArray', offlineData);
   }
 }

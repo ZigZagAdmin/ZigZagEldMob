@@ -273,30 +273,28 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         this.dashboardService.updateDVIR(dvirData).subscribe(
           async response => {
             console.log('DVIRs got updated on the server: ', response);
-            this.updateDvirs(dvirData, true);
+            await this.updateDvirs(dvirData, true);
           },
           async error => {
             this.updateDvirs(dvirData, false);
             console.warn('Server Error: ', error);
-            console.warn('Pushed dvirs in offline mode');
+            await console.warn('Pushed dvirs in offline mode');
           }
         );
       } else {
-        this.updateDvirs(dvirData, false);
+        await this.updateDvirs(dvirData, false);
         console.warn('Pushed dvirs in offline mode');
       }
     }
   }
 
   async updateDvirs(dvirData: DVIRs, online: boolean) {
-    let dvirArray = await this.storage.get('dvirs');
     dvirData.sent = online;
-    const index = this.dvirs.findIndex(item => item.dvirId === this.dvirId);
+    let index = this.dvirs.findIndex(item => item.dvirId === dvirData.dvirId);
     if (index !== -1) {
       this.dvirs[index] = dvirData;
     }
-    dvirArray.push(dvirData);
-    await this.storage.set('dvirs', dvirArray);
+    await this.storage.set('dvirs', this.dvirs);
     this.navCtrl.navigateBack('/unitab/dvir');
   }
 

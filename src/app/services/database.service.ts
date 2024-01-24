@@ -1,12 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import {
-  Observable,
-  from,
-  throwError,
-  Subscription,
-  BehaviorSubject,
-} from 'rxjs';
+import { Observable, from, throwError, Subscription, BehaviorSubject } from 'rxjs';
 import { Driver } from '../models/driver';
 import { Company } from '../models/company';
 import { Vehicle } from '../models/vehicle';
@@ -35,15 +29,8 @@ export class DatabaseService {
       await this.storage.create();
       this.databaseReady = true;
       this.databaseReadySubject.next(true);
-
-      const offlineArray = await this.storage.get('offlineArray');
-      console.log('offlineArray ', offlineArray);
-      if (!offlineArray) {
-        await this.storage.set('offlineArray', []);
-        console.log('offlineArrayCreated');
-      }
     } catch (error) {
-      console.error('Error creating offlineArray  :', error);
+      console.error(error);
     }
   }
 
@@ -53,180 +40,140 @@ export class DatabaseService {
 
   saveDrivers(drivers: Driver): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('drivers', drivers));
   }
 
   getDrivers(): Observable<Driver[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('drivers'));
   }
 
   saveAuthUser(user: AuthUser): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('user', user));
   }
 
   getUser(): Observable<User> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('user'));
   }
 
   saveCompany(company: Company): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('company', company));
   }
 
   getCompany(): Observable<Company> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('company'));
   }
 
   saveVehicles(vehicles: Vehicle[]): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('vehicles', vehicles));
   }
 
   getVehicles(): Observable<Vehicle[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('vehicles'));
   }
 
   saveTerminals(terminals: Terminal[]): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('terminals', terminals));
   }
 
   getTerminals(): Observable<Terminal[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('terminals'));
   }
 
   saveELDs(elds: ELD[]): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('elds', elds));
   }
 
   getELDs(): Observable<ELD[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('elds'));
   }
 
   saveLogDailies(logDailies: LogDailies[]): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('logDailies', logDailies));
   }
 
   getLogDailies(): Observable<LogDailies[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('logDailies'));
   }
 
   saveLogEvents(logEvents: LogEvents[]): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('logEvents', logEvents));
   }
 
   getLogEvents(): Observable<LogEvents[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('logEvents'));
   }
 
   saveDvirs(dvirs: DVIRs[]): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('dvirs', dvirs));
   }
 
   getDvirs(): Observable<DVIRs[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('dvirs'));
   }
 
   savePlacesCity(placesCity: PlacesCity[]): Observable<void> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.set('placesCity', placesCity));
   }
 
   getPlacesCity(): Observable<PlacesCity[]> {
     if (!this.databaseReady) {
-      return throwError(
-        'База данных не создана. Сначала вызовите метод create()'
-      );
+      return throwError('База данных не создана. Сначала вызовите метод create()');
     }
     return from(this.storage.get('placesCity'));
   }

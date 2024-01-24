@@ -135,6 +135,7 @@ export class HosPage implements OnInit, OnDestroy {
         forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
+
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
@@ -176,43 +177,33 @@ export class HosPage implements OnInit, OnDestroy {
               comment: '',
               eventDataCheck: '',
               inspection: false,
+
+              sent: true,
             };
 
-            this.logEvents.push(LoginLogEvent);
             this.storage.set('bAuthorized', true);
-            this.storage.set('logEvents', this.logEvents);
 
             this.dashboardService.updateLogEvent(LoginLogEvent).subscribe(
               response => {
-                console.log('Login LogEvent is updated on server:', response);
+                console.log('Login LogEvents got updated on the server: ', response);
+                this.updateLogEvents(LoginLogEvent, true);
               },
               async error => {
-                console.log('Internet Status' + this.networkStatus);
-                let tempEerror = {
-                  url: 'api/eldDashboard/UploadLogEvent',
-                  body: LoginLogEvent,
-                };
-                let offlineArray = await this.storage.get('offlineArray');
-                offlineArray.push(tempEerror);
-                await this.storage.set('offlineArray', offlineArray);
-                console.log('Login LogEvent Pushed in offlineArray');
+                console.log('Internet Status: ' + this.networkStatus);
+                this.updateLogEvents(LoginLogEvent, false);
+                console.log('Login LogEvent in offline logEvents array');
               }
             );
 
             this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
               response => {
-                console.log('Predposlednii LogEvent is updated on server:', response);
+                console.log('Second Last LogEvent is updated on server:', response);
+                this.updateIndexLogEvents(lastLogEvent, true);
               },
               async error => {
                 console.log('Internet Status: ' + this.networkStatus);
-                let tempEerror = {
-                  url: 'api/eldDashboard/UploadLogEvent',
-                  body: lastLogEvent,
-                };
-                let offlineArray = await this.storage.get('offlineArray');
-                offlineArray.push(tempEerror);
-                await this.storage.set('offlineArray', offlineArray);
-                console.log('Predposlednii LogEvent Pushed in offlineArray');
+                this.updateIndexLogEvents(lastLogEvent, false);
+                console.log('Second Last LogEvent Pushed in offline logEvents array');
               }
             );
           }
@@ -226,7 +217,7 @@ export class HosPage implements OnInit, OnDestroy {
       console.log('Intenet Status' + status);
     });
 
-    this.sayHello();
+    this.updateEveryMinute();
     this.calculateCircles();
 
     this.paramsSubscription = this.route.params.subscribe(params => {
@@ -240,6 +231,21 @@ export class HosPage implements OnInit, OnDestroy {
 
     console.log('willEnter hos');
     this.logDailies = this.countDays;
+  }
+
+  async updateLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    this.logEvents.push(logEventData);
+    await this.storage.set('dvirs', this.logEvents);
+  }
+
+  async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
+    if (index !== -1) {
+      this.logEvents[index] = logEventData;
+    }
+    await this.storage.set('dvirs', this.logEvents);
   }
 
   getVehicle() {
@@ -658,9 +664,8 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   toggleModal() {
-    this.isModalOpen = true; // Открываем модальное окно
+    this.isModalOpen = true;
 
-    // При открытии модального окна, устанавливаем состояние выбранных кнопок и кнопки Confirm
     if (this.currentStatus) {
       this.selectButton(this.currentStatus.statusCode);
     }
@@ -766,43 +771,33 @@ export class HosPage implements OnInit, OnDestroy {
         comment: '',
         eventDataCheck: '',
         inspection: false,
+
+        sent: true
       };
-      this.logEvents.push(newLogEvent);
-      this.storage.set('logEvents', this.logEvents);
       this.updateLogDailies();
       this.calculateCircles();
 
       this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
         response => {
           console.log('Last LogEvent is updated on server:', response);
+          this.updateIndexLogEvents(lastLogEvent, true);
         },
         async error => {
-          console.log('Internet Status' + this.networkStatus);
-          let tempEerror = {
-            url: 'api/',
-            body: lastLogEvent,
-          };
-          let offlineArray = await this.storage.get('offlineArray');
-          offlineArray.push(tempEerror);
-          await this.storage.set('offlineArray', offlineArray);
-          console.log('Last   LogEvent Pushed in offlineArray');
+          console.log('Internet Status: ' + this.networkStatus);
+          this.updateIndexLogEvents(lastLogEvent, false);
+          console.log('Last LogEvent Pushed in offline logEvents array');
         }
       );
 
       this.dashboardService.updateLogEvent(newLogEvent).subscribe(
         response => {
           console.log('New status is updated on server:', response);
+          this.updateLogEvents(newLogEvent, true);
         },
         async error => {
-          console.log('Internet Status' + this.networkStatus);
-          let tempEerror = {
-            url: 'api/eldDashboard/UploadLogEvent',
-            body: newLogEvent,
-          };
-          let offlineArray = await this.storage.get('offlineArray');
-          offlineArray.push(tempEerror);
-          await this.storage.set('offlineArray', offlineArray);
-          console.log('New status Pushed in offlineArray');
+          console.log('Internet Status: ' + this.networkStatus);
+          this.updateLogEvents(newLogEvent, false);
+          console.log('New Log Event Status Pushed in offline logEvents Array');
         }
       );
     }
@@ -885,27 +880,9 @@ export class HosPage implements OnInit, OnDestroy {
         };
 
         this.logDailies.push(newLogDaily);
-
-        // this.dashboardService.updateLogDaily(newLogDaily).subscribe(
-        //   (response) => {
-        //     console.log('LogDaily is updated on server:', response);
-        //   },
-        //   async (error) => {
-        //     console.log('Internet Status' + this.networkStatus);
-        //     let tempEerror = {
-        //       url: 'api/eldDashboard/UploadLogDailies',
-        //       body: newLogDaily,
-        //     };
-        //     let offlineArray = await this.storage.get('offlineArray');
-        //     offlineArray.push(tempEerror);
-        //     await this.storage.set('offlineArray', offlineArray);
-        //     console.log('Pushed in offlineArray');
-        //   }
-        // );
       }
       currentDate.setDate(currentDate.getDate() - 1);
     }
-    // this.logDailies = this.countDays;
     this.logDailies.sort((a, b) => b.logDate.localeCompare(a.logDate));
     console.log(this.logDailies);
 
@@ -1011,31 +988,15 @@ export class HosPage implements OnInit, OnDestroy {
           },
           async error => {
             console.log('Internet Status: ' + this.networkStatus);
-            let tempEerror = {
-              url: 'api/eldDashboard/UploadLogDailies',
-              body: this.logDailies[i],
-            };
-            // let offlineArray = await this.storage.get('offlineArray');
-            // offlineArray.push(tempEerror);
-            // await this.storage.set('offlineArray', offlineArray);
-            // console.log('Pushed in offlineArray');
             await this.storage.set('logDailies', this.logDailies);
             console.log('Pushed in logDailies');
           }
         );
       }
-
-      // const foundLogEvent = this.logEvents.findIndex((logEvent) =>
-      //   logEvent.DateBgn.includes(currentDay)
-      // );
-
-      // if (foundLogEvent !== -1) {
-      //   LogEventsForCurrencDay.push([foundLogEvent]);
-      // }
     }
   }
 
-  sayHello() {
+  updateEveryMinute() {
     setInterval(() => {
       this.updateLogDailies();
       this.calculateCircles();

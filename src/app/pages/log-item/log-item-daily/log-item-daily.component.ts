@@ -417,7 +417,6 @@ export class LogItemDailyComponent implements OnInit {
         async error => {
           this.updateLocalStorage();
           this.toastService.showToast('Offline save!', 'warning');
-          console.log('Pushed in offlineArray');
         }
       );
     } else {
@@ -543,78 +542,65 @@ export class LogItemDailyComponent implements OnInit {
         this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
           response => {
             console.log('Certification LogEvent is on server:', response);
+            this.updateLogEvents(CetificationLogEvent, true);
           },
           async error => {
-            console.log('Internet Status' + this.networkStatus);
-            let tempEerror = {
-              url: 'api/EldDashboard/UploadLogEvent',
-              body: CetificationLogEvent,
-            };
-            let offlineArray = await this.storage.get('offlineArray');
-            offlineArray.push(tempEerror);
-            await this.storage.set('offlineArray', offlineArray);
-            console.log('Cerification LogEvent Pushed in offlineArray');
+            this.updateLogEvents(CetificationLogEvent, false);
+            console.log('Cerification LogEvent Pushed in offline logEvents array');
           }
         );
       } else {
-        let tempEerror = {
-          url: 'api/EldDashboard/UploadLogEvent',
-          body: CetificationLogEvent,
-        };
-        let offlineArray = await this.storage.get('offlineArray');
-        offlineArray.push(tempEerror);
-        await this.storage.set('offlineArray', offlineArray);
-        console.log('Cerification LogEvent Pushed in offlineArray');
+        console.log('Internet Status:', this.networkStatus);
+        this.updateLogEvents(CetificationLogEvent, false);
+        console.log('Cerification LogEvent Pushed in offline logEvents array');
       }
 
       if (this.logDaily) {
         this.logDaily.certified = true;
         this.logDaily.form.signatureId = this.signature;
-        // this.logDaily.CertifyTimestamp = formatDate(
-        //   new Date().toLocaleString('en-US', {
-        //     timeZone: this.TimeZoneCity,
-        //   }),
-        //   'yyyy-MM-ddTHH:mm:ss',
-        //   'en_US'
-        // );
       }
 
       if (this.networkStatus === true) {
         this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
           response => {
             console.log(' LogDaily is on server:', response);
+            this.updateLogDaily(this.logDaily, true);
           },
           async error => {
-            console.log('Internet Status' + this.networkStatus);
-            let tempEerror = {
-              url: 'api/EldDashboard/UploadLogDailies',
-              body: this.logDaily,
-            };
-            let offlineArray = await this.storage.get('offlineArray');
-            offlineArray.push(tempEerror);
-            await this.storage.set('offlineArray', offlineArray);
-            console.log(' LogDaily Pushed in offlineArray');
+            this.updateLogDaily(this.logDaily, false);
+            console.log('LogDaily Pushed in offline logDailies array');
           }
         );
       } else {
-        let tempEerror = {
-          url: 'api/EldDashboard/UploadLogDailies',
-          body: this.logDaily,
-        };
-        let offlineArray = await this.storage.get('offlineArray');
-        offlineArray.push(tempEerror);
-        await this.storage.set('offlineArray', offlineArray);
-        console.log('Logdaily Pushed in offlineArray');
+        console.log('Internet Status' + this.networkStatus);
+        this.updateLogDaily(this.logDaily, false);
+        console.log('LogDaily Pushed in offline logDailies array');
       }
-
-      this.logEvents.push(CetificationLogEvent);
-      const index = this.logDailies.findIndex(item => item.logDailyId === this.logDaily.logDailyId);
-      if (index !== -1) {
-        this.logDailies[index] = this.logDaily;
-      }
-      await this.storage.set('logDailies', this.logDailies);
-      await this.storage.set('logEvents', this.logEvents);
     }
+  }
+
+  async updateLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    this.logEvents.push(logEventData);
+    await this.storage.set('dvirs', this.logEvents);
+  }
+
+  async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
+    if (index !== -1) {
+      this.logEvents[index] = logEventData;
+    }
+    await this.storage.set('dvirs', this.logEvents);
+  }
+
+  async updateLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    const index = this.logDailies.findIndex(item => item.logDailyId === logDailyData.logDailyId);
+    if (index !== -1) {
+      this.logDailies[index] = logDailyData;
+    }
+    await this.storage.set('dvirs', this.logEvents);
   }
 
   uuidv4() {

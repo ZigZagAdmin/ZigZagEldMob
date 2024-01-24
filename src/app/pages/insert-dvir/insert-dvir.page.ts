@@ -212,38 +212,33 @@ export class InsertDvirPage implements OnInit {
     };
 
     if (this.networkStatus === true) {
-      console.log('here uploading');
       this.dashboardService.updateDVIR(dvirData).subscribe(
-        response => {
-          console.log('DVIR is on server:', response);
+        async response => {
+          console.log('DVIRs got updated on the server: ', response);
+          await this.updateDvirs(dvirData, true);
         },
         async error => {
-          console.log('Internet Status' + this.networkStatus);
-          let tempEerror = {
-            url: 'api/EldDashboard/uploadDVIR',
-            body: dvirData,
-          };
-          let offlineArray = await this.storage.get('offlineArray');
-          offlineArray.push(tempEerror);
-          await this.storage.set('offlineArray', offlineArray);
-          console.log('Pushed in offlineArray');
+          this.updateDvirs(dvirData, false);
+          console.warn('Server Error: ', error);
+          await console.warn('Pushed dvirs in offline mode');
         }
       );
     } else {
-      let tempEerror = {
-        url: 'api/EldDashboard/uploadDVIR',
-        body: dvirData,
-      };
-      let offlineArray = await this.storage.get('offlineArray');
-      offlineArray.push(tempEerror);
-      await this.storage.set('offlineArray', offlineArray);
-      console.log('Pushed in offlineArray');
+      await this.updateDvirs(dvirData, false);
+      console.warn('Pushed dvirs in offline mode');
     }
 
     this.dvirs.unshift(dvirData);
     await this.storage.set('dvirs', this.dvirs);
     this.navCtrl.navigateBack('/unitab/dvir');
     // }
+  }
+
+  async updateDvirs(dvirData: DVIRs, online: boolean) {
+    dvirData.sent = online;
+    this.dvirs.push(dvirData);
+    await this.storage.set('dvirs', this.dvirs);
+    this.navCtrl.navigateBack('/unitab/dvir');
   }
 
   uuidv4() {

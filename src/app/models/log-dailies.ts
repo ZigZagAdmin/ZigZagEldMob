@@ -23,21 +23,23 @@
 //   Type!: string;
 // }
 
-export class LogDailies {
-  logDailyId!: string;
-  companyId!: string;
-  driverId!: string;
-  driverName!: string;
-  logDate!: string;
-  timeOffDuty!: number;
-  timeSleeper!: number;
-  timeDriving!: number;
-  timeOnDuty!: number;
-  timeWorked!: number;
-  violations!: string[];
-  formManner!: boolean;
-  certified!: boolean;
-  form!: IForm;
+export interface LogDailies {
+  logDailyId: string;
+  companyId: string;
+  driverId: string;
+  driverName: string;
+  logDate: string;
+  timeOffDuty: number;
+  timeSleeper: number;
+  timeDriving: number;
+  timeOnDuty: number;
+  timeWorked: number;
+  violations: string[];
+  formManner: boolean;
+  certified: boolean;
+  form: IForm;
+
+  sent?: boolean;
 }
 
 export interface IForm {

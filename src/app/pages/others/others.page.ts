@@ -115,49 +115,51 @@ export class OthersPage implements OnInit {
         eventDataCheck: '',
         inspection: false,
       };
-      this.logEvents.push(LogoutLogEvent);
-      this.storage.set('bAuthorized', false);
-      this.storage.set('logEvents', this.logEvents);
 
-      this.dashboardService.updateLogEvent(LogoutLogEvent).subscribe(
-        response => {
-          console.log('Logout LogEvent is updated on server:', response);
-        },
-        async error => {
-          console.log('Internet Status' + this.networkStatus);
-          let tempEerror = {
-            url: 'api/eldDashboard/UploadLogEvent',
-            body: LogoutLogEvent,
-          };
-          let offlineArray = await this.storage.get('offlineArray');
-          offlineArray.push(tempEerror);
-          await this.storage.set('offlineArray', offlineArray);
-          console.log('Logout LogEvent Pushed in offlineArray');
-        }
-      );
+      this.storage.set('bAuthorized', false);
 
       this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
         response => {
-          console.log('Predposlednii LogEvent is updated on server:', response);
+          console.log('Last LogEvent is updated on server:', response);
+          this.updateIndexLogEvents(lastLogEvent, true);
         },
         async error => {
-          console.log('Internet Status' + this.networkStatus);
-          let tempEerror = {
-            url: 'api/eldDashboard/UploadLogEvent',
-            body: lastLogEvent,
-          };
-          let offlineArray = await this.storage.get('offlineArray');
-          offlineArray.push(tempEerror);
-          await this.storage.set('offlineArray', offlineArray);
-          console.log('Predposlednii LogEvent Pushed in offlineArray');
+          console.log('Internet Status: ' + this.networkStatus);
+          this.updateIndexLogEvents(lastLogEvent, false);
+          console.log('Last LogEvent Pushed in offline logEvents array');
+        }
+      );
+
+      this.dashboardService.updateLogEvent(LogoutLogEvent).subscribe(
+        response => {
+          console.log('New status is updated on server:', response);
+          this.updateLogEvents(LogoutLogEvent, true);
+        },
+        async error => {
+          console.log('Internet Status: ' + this.networkStatus);
+          this.updateLogEvents(LogoutLogEvent, false);
+          console.log('New Log Event Status Pushed in offline logEvents Array');
         }
       );
     }
     this.storage.remove('accessToken');
     this.storage.remove('pickedVehicle');
     this.navCtrl.navigateForward('/login', { replaceUrl: true });
-    // Обработчик нажатия кнопки "Logout"
-    // Добавьте здесь код для выполнения выхода из аккаунта или другой логики
+  }
+
+  async updateLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    this.logEvents.push(logEventData);
+    await this.storage.set('dvirs', this.logEvents);
+  }
+
+  async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
+    if (index !== -1) {
+      this.logEvents[index] = logEventData;
+    }
+    await this.storage.set('dvirs', this.logEvents);
   }
 
   uuidv4() {
