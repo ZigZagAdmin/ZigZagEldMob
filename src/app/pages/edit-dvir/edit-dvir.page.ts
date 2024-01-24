@@ -235,7 +235,7 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         this.form.patchValue({ MechanicSignature: '' });
       }
 
-      const dvirData: DVIRs = {
+      let dvirData: DVIRs = {
         dvirId: this.dvir.DVIRId,
         driver: {
           driverId: this.driverId,
@@ -266,45 +266,38 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         mechanicSignatureId: '00000000-0000-0000-0000-000000000000',
         mechanicSignatureBase64: this.form.value.MechanicSignature.slice(22) || '',
         mechanicSignatureLink: '',
+        sent: true,
       };
-
-      console.log(dvirData);
 
       if (this.networkStatus === true) {
         this.dashboardService.updateDVIR(dvirData).subscribe(
-          response => {
-            console.log('DVIR is updated on server:', response);
+          async response => {
+            console.log('DVIRs got updated on the server: ', response);
+            this.updateDvirs(dvirData, true);
           },
           async error => {
-            console.log('Internet Status' + this.networkStatus);
-            let tempEerror = {
-              url: 'api/EldDashboard/uploadDVIR',
-              body: dvirData,
-            };
-            let offlineArray = await this.storage.get('offlineArray');
-            offlineArray.push(tempEerror);
-            await this.storage.set('offlineArray', offlineArray);
-            console.log('Pushed in offlineArray');
+            this.updateDvirs(dvirData, false);
+            console.warn('Server Error: ', error);
+            console.warn('Pushed dvirs in offline mode');
           }
         );
       } else {
-        let tempEerror = {
-          url: 'api/EldDashboard/uploadDVIR',
-          body: dvirData,
-        };
-        let offlineArray = await this.storage.get('offlineArray');
-        offlineArray.push(tempEerror);
-        await this.storage.set('offlineArray', offlineArray);
-        console.log('Pushed in offlineArray');
+        this.updateDvirs(dvirData, false);
+        console.warn('Pushed dvirs in offline mode');
       }
-
-      const index = this.dvirs.findIndex(item => item.dvirId === this.dvirId);
-      if (index !== -1) {
-        this.dvirs[index] = dvirData;
-      }
-      await this.storage.set('dvirs', this.dvirs);
-      this.navCtrl.navigateBack('/unitab/dvir');
     }
+  }
+
+  async updateDvirs(dvirData: DVIRs, online: boolean) {
+    let dvirArray = await this.storage.get('dvirs');
+    dvirData.sent = online;
+    const index = this.dvirs.findIndex(item => item.dvirId === this.dvirId);
+    if (index !== -1) {
+      this.dvirs[index] = dvirData;
+    }
+    dvirArray.push(dvirData);
+    await this.storage.set('dvirs', dvirArray);
+    this.navCtrl.navigateBack('/unitab/dvir');
   }
 
   initSignaturePad() {

@@ -24,6 +24,8 @@ export interface DVIRs {
   mechanicSignatureId?: string;
   mechanicSignatureBase64?: string;
   mechanicSignatureLink?: string;
+
+  sent?: boolean;
 }
 
 export interface Location {
