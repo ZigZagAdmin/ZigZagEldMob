@@ -42,6 +42,7 @@ export class LoginPage implements OnInit, OnDestroy {
     username: false,
     password: false,
   };
+  placesCity: PlacesCity[] = [];
 
   constructor(
     private authService: AuthService,
@@ -55,8 +56,8 @@ export class LoginPage implements OnInit, OnDestroy {
     private locationService: LocationService
   ) {}
 
-  ngOnInit() {
-    this.getPlacesCity().subscribe((data) => { })
+  async ngOnInit() {
+    this.placesCity = await this.storage.get('placesCity')
   }
 
   ngOnDestroy(): void {
@@ -96,7 +97,7 @@ export class LoginPage implements OnInit, OnDestroy {
           return this.saveAuthUser(res);
         }),
         switchMap(() => {
-          const fetchRequests: (Observable<Driver> | Observable<Company> | Observable<Vehicle[]> | Observable<Terminal[]> | Observable<ELD[]> | Observable<DVIRs[]> | Observable<LogDailies[]> | Observable<LogEvents[]> | Observable<PlacesCity[]>)[] = [
+          let fetchRequests: (Observable<Driver> | Observable<Company> | Observable<Vehicle[]> | Observable<Terminal[]> | Observable<ELD[]> | Observable<DVIRs[]> | Observable<LogDailies[]> | Observable<LogEvents[]> | Observable<PlacesCity[]>)[] = [
             this.manageService.getDrivers(),
             this.manageService.getCompany(),
             this.manageService.getVehicles(),
@@ -107,16 +108,11 @@ export class LoginPage implements OnInit, OnDestroy {
             this.manageService.getLogEvents(this.authUser.DriverId),
           ];
 
-          let placesSub = this.getPlacesCity().subscribe((data) => {
-            // console.log(data.length === 0);
-            console.log(!data);
-            if(!data) {
-              fetchRequests.push(this.manageService.getPlacesCity());
-            }
-            placesSub.unsubscribe();
-          });
-
-          console.log(fetchRequests);
+          const placesCity_ = this.manageService.getPlacesCity();
+          console.log(this.placesCity)
+          if(!this.placesCity) {
+            fetchRequests.push(placesCity_);
+          }
 
           return forkJoin(fetchRequests).pipe(
             catchError(error => {
@@ -137,17 +133,11 @@ export class LoginPage implements OnInit, OnDestroy {
             this.saveLogDailies(logDailies as LogDailies[]),
             this.saveLogEvents(logEvents as LogEvents[])
           ];
-
-          let placesSub = this.getPlacesCity().subscribe((data) => {
-            // console.log(data.length === 0);
-            if(!data) {
-              saveRequests.push(this.savePlacesCity(placesCity as PlacesCity[]));
-            }
-            placesSub.unsubscribe();
-          })
-
-          console.log(saveRequests);
-
+          
+          if(!this.placesCity) {
+            const placesCity_ = this.savePlacesCity(placesCity as PlacesCity[]);
+            saveRequests.push(placesCity_);
+          }
 
           return forkJoin(saveRequests).pipe(
             catchError(error => {
@@ -170,6 +160,7 @@ export class LoginPage implements OnInit, OnDestroy {
         },
         error => {
           // Обработка ошибки
+          console.log(error)
           const errorMessage = 'An error occurred during login';
           this.toastService.showToast(errorMessage, 'danger'); // Отобразить toast с ошибкой
           console.log(errorMessage);
