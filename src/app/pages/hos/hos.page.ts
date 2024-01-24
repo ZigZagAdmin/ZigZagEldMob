@@ -15,6 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Vehicle } from 'src/app/models/vehicle';
 import { timeZone } from 'src/app/models/timeZone';
 import { LocationService } from 'src/app/services/location.service';
+import { BluetoothService } from 'src/app/services/bluetooth.service';
 
 @Component({
   selector: 'app-hos',
@@ -73,9 +74,13 @@ export class HosPage implements OnInit, OnDestroy {
   comments = '';
   restMode = false;
 
+  serviceSub: Subscription;
+
   locationStatus: boolean = false;
   locationStatusSub: Subscription;
-  locationSub: Subscription;
+
+  bluetoothStatus: boolean = false;
+  bluetoothStatusSub: Subscription;
 
   constructor(
     private navCtrl: NavController,
@@ -86,18 +91,28 @@ export class HosPage implements OnInit, OnDestroy {
     private storage: Storage,
     public modalController: ModalController,
     private storageService: DatabaseService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private bluetoothService: BluetoothService
   ) {}
 
   ngOnInit(): void {
-    this.locationSub = interval(1000).subscribe(() => this.locationService.checkLocationStatus());
+    this.serviceSub = interval(1000).subscribe(() => {
+      this.locationService.checkLocationStatus();
+      if (!this.bluetoothStatus) {
+        this.bluetoothService.initialize();
+      }
+      this.bluetoothService.getBluetoothState();
+    });
     this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
       this.locationStatus = data;
+    });
+    this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
+      this.bluetoothStatus = data;
     });
   }
 
   ngOnDestroy(): void {
-    this.locationSub.unsubscribe();
+    this.serviceSub.unsubscribe();
   }
 
   async ionViewWillEnter() {
@@ -238,6 +253,31 @@ export class HosPage implements OnInit, OnDestroy {
 
   switchMode() {
     this.restMode = !this.restMode;
+  }
+
+  async checkLocation() {
+    if (!this.locationStatus) {
+      if (!(await this.locationService.checkLocationServices())) {
+        alert('Please Turn On Location Service.\nGo to Settings -> Location -> Toggle on the Location Service.');
+        return;
+      }
+
+      await this.locationService.requestPermission();
+
+      if (!(await this.locationService.checkPermission())) {
+        alert('The location permission is requiered to open the app.');
+        return;
+      }
+    }
+  }
+
+  async checkBluetooth() {
+    if (!this.bluetoothStatus) {
+      this.bluetoothService.initialize();
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        await this.bluetoothService.requestBluetoothPermission('must', 'not');
+      }
+    }
   }
 
   toggleMode() {

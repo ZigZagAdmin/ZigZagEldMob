@@ -88,18 +88,13 @@ export class OthersPage implements OnInit {
         companyId: '',
         driverId: this.driverId,
         eventTime: {
-          logDate: '',
+          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
           timeStamp: new Date().getTime(),
           timeStampEnd: new Date().getTime(),
           timeZone: '',
         },
         vehicle: {
           vehicleId: this.vehicleId,
-        },
-        eld: {
-          eldId: '',
-          macAddress: '',
-          serialNumber: '',
         },
         location: {
           locationType: 'AUTOMATIC',
@@ -131,7 +126,7 @@ export class OthersPage implements OnInit {
         async error => {
           console.log('Internet Status' + this.networkStatus);
           let tempEerror = {
-            url: 'api/eldDashboard/UploadLogDailies',
+            url: 'api/eldDashboard/UploadLogEvent',
             body: LogoutLogEvent,
           };
           let offlineArray = await this.storage.get('offlineArray');

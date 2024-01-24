@@ -44,7 +44,7 @@ export interface LogEvents {
   driverId: string;
   eventTime: IEventTime;
   vehicle: Partial<Vehicle>;
-  eld: IEld;
+  eld?: IEld;
   location: ILocation;
   sequenceNumber: number;
   type: ICodeName;

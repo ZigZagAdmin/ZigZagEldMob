@@ -33,12 +33,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // if (Capacitor.getPlatform() !== 'web') {
-    // alert(!(await this.bluetoothService.getBluetoothState()));
-    // if (!(await this.bluetoothService.getBluetoothState())) {
-      await this.bluetoothService.requestBluetoothPermission();
-    // }
-    // }
+    await this.bluetoothService.initialize();
+    await this.bluetoothService.requestBluetoothPermission();
   }
 
   ngOnDestroy(): void {
@@ -80,9 +76,13 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     this.navCtrl.navigateBack('/select-vehicle', { replaceUrl: true });
   }
 
-  connect() {
-    this.shareService.changeMessage(this.utilityService.generateString(5));
-    if (!this.utilityService.validateForm(this.validation)) return;
+  async connect() {
+    // this.shareService.changeMessage(this.utilityService.generateString(5));
+    // if (!this.utilityService.validateForm(this.validation)) return;
+    this.bluetoothService.initialize();
+    if (!(await this.bluetoothService.getBluetoothState())) {
+      await this.bluetoothService.requestBluetoothPermission('must');
+    }
   }
 
   handleRefresh(event: any) {

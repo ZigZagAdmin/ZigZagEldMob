@@ -17,6 +17,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ManageService } from 'src/app/services/manage.service';
+import { timeZone } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-log-item-daily',
@@ -505,7 +506,7 @@ export class LogItemDailyComponent implements OnInit {
         companyId: '',
         driverId: this.driverId,
         eventTime: {
-          logDate: '',
+          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
           timeStamp: new Date().getTime(),
           timeStampEnd: new Date().getTime(),
           timeZone: '',

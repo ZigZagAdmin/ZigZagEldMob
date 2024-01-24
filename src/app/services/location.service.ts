@@ -12,9 +12,13 @@ export class LocationService {
   constructor() {}
 
   async checkLocationStatus() {
-    await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 0 })
-      .then(async a => {
-        this.locationStatusSubject.next(true);
+    await Geolocation.checkPermissions()
+      .then(a => {
+        if (a.location === 'granted' && a.coarseLocation === 'granted') {
+          this.locationStatusSubject.next(true);
+        } else {
+          this.locationStatusSubject.next(false);
+        }
       })
       .catch(e => this.locationStatusSubject.next(false));
   }
