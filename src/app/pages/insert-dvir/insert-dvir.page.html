@@ -273,15 +273,6 @@
   </form>
 </ion-content> -->
 
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/unitab/dvir"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Insert Dvir</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content>
   <app-header [title]="'Insert Dvir'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <form class="padding-g" style="padding-top: 10px">
@@ -293,17 +284,17 @@
           <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
           <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
         </div>
-        <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="true" [(value)]="dvir.location.description" [noValidation]="true"></app-input>
+        <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="!!dvir.location.description" [(value)]="dvir.location.description" [(validation)]="validation['locationDescription']"></app-input>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="true" [value]="vehicleUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="!!vehicleUnit" [value]="vehicleUnit" [noValidation]="true"></app-input>
         <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="dvir.odometer.toString()" [noValidation]="true"></app-input>
         <app-select [label]="'Vehicle Defects (Optional)'" [options]="defectsVehicle"></app-select>
       </div>
       <p class="subtitle-lg">Trailer Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [noValidation]="true"></app-input>
+        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [(validation)]="validation['locationDescription']"></app-input>
         <app-select [label]="'Trailer Defects (Optional)'" [options]="defectsTrailers"></app-select>
       </div>
       <p class="subtitle-lg">Status</p>

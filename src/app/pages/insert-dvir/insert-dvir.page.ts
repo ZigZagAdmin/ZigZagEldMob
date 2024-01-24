@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -12,13 +12,15 @@ import { DashboardService } from 'src/app/services/dashboard.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { defectsVehicle, defectsTrailers, dvirStatuses } from 'src/app/utilities/defects';
 import { UtilityService } from 'src/app/services/utility.service';
+import { ShareService } from 'src/app/services/share.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-insert-dvir',
   templateUrl: './insert-dvir.page.html',
   styleUrls: ['./insert-dvir.page.scss'],
 })
-export class InsertDvirPage implements OnInit {
+export class InsertDvirPage implements OnInit, OnDestroy {
   defectsVehicle = defectsVehicle;
   defectsTrailers = defectsTrailers;
 
@@ -66,13 +68,20 @@ export class InsertDvirPage implements OnInit {
     signatureBase64: '',
   };
 
+  validation: { [key: string]: boolean } = {
+    trailerName: false,
+    locationDescription: false,
+  };
+
   constructor(
     private databaseService: DatabaseService,
     private storage: Storage,
     private dashboardService: DashboardService,
     private internetService: InternetService,
     private navCtrl: NavController,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private shareService: ShareService,
+    private toastService: ToastService
   ) {}
 
   async ngOnInit() {
@@ -88,34 +97,22 @@ export class InsertDvirPage implements OnInit {
         });
       }
     });
+
     this.vehicleUnit = await this.storage.get('vehicleUnit');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
 
-    // this.form.get('DefectsVehicle')?.valueChanges.subscribe(defectsVehicle => {
-    //   const defectsTrailers = this.form.value.DefectsTrailers || [];
-    //   this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
-    // });
-
-    // this.form.get('DefectsTrailers')?.valueChanges.subscribe(defectsTrailers => {
-    //   const defectsVehicle = this.form.value.DefectsVehicle || [];
-    //   this.updateDvirStatusCode(defectsVehicle, defectsTrailers);
-    // });
-
-    // this.form.get('DefectsTrailers')?.valueChanges.subscribe(selectedDefects => {
-    //   const trailersControl = this.form.get('Trailers');
-    //   if (selectedDefects && selectedDefects.length > 0) {
-    //     trailersControl?.setValidators(Validators.required);
-    //   } else {
-    //     trailersControl?.clearValidators();
-    //   }
-    //   trailersControl?.updateValueAndValidity();
-    // });
+    this.dvir.status.name = 'Vehicle Condition Satisfactory';
+    this.dvir.status.code = 'VCS';
 
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
       console.log('Intenet Status' + status);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.shareService.destroyMessage();
   }
 
   switchStatus(status: string) {
@@ -181,6 +178,8 @@ export class InsertDvirPage implements OnInit {
 
   async onSubmit() {
     // if (this.form.valid) {
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    if (!this.utilityService.validateForm(this.validation)) return;
 
     const dvirData: DVIRs = {
       dvirId: this.uuidv4(),
@@ -258,6 +257,7 @@ export class InsertDvirPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('/unitab/dvir');
+    this.shareService.destroyMessage();
   }
 
   getHour(value: number) {
