@@ -25,18 +25,40 @@ export class StatusRadioButtonComponent implements OnInit {
     { icon: 'error', label: 'Has Defects', value: 'D', checked: false },
   ];
 
-  // @Input() currentValue: string = '';
   @Input() half: boolean = false;
+  @Input() disableOption: boolean = false;
 
   @Output() selectedValue: EventEmitter<string> = new EventEmitter<string>();
+
+  private _value: string;
+
+  @Input()
+  get value(): string {
+    return this._value;
+  }
+
+  @Output() valueChange = new EventEmitter<string>();
+
+  set value(newValue: string) {
+    // console.log(newValue);
+    if (this._value !== newValue) {
+      this._value = newValue;
+      this.changeCurrentValue();
+      this.valueChange.emit(newValue);
+    }
+  }
 
   constructor() {}
 
   ngOnInit() {
-    // if(this.currentValue.length !== 0) {
-    //   let item = this.data.find(el => el.value === this.currentValue);
-    //   this.select(item);
-    // }
+    this.changeCurrentValue();
+  }
+
+  changeCurrentValue() {
+    if (this._value.length !== 0) {
+      let item = this.data.find(el => el.value === this._value);
+      this.select(item);
+    }
   }
 
   select(item: StatusItem) {

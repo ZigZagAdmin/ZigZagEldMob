@@ -1,8 +1,8 @@
 <div class="status-title">Status</div>
 <div class="list-container">
-  <div class="list-item" *ngFor="let item of (half ? dataHalf : data)" (click)="select(item)">
+  <div class="list-item" *ngFor="let item of half ? dataHalf : data" [ngClass]="{ 'disable-option': item.value === 'VCS' && disableOption }" (click)="select(item)">
     <div class="item-data">
-      <div class="status-icon"><img [src]="item.icon === 'success' ? 'assets/icon/shield-tick.svg' : 'assets/icon/shield-cross.svg'" ></div>
+      <div class="status-icon"><img [src]="item.icon === 'success' ? 'assets/icon/shield-tick.svg' : 'assets/icon/shield-cross.svg'" /></div>
       <div class="status-label" [ngClass]="item.icon">{{ item.label }}</div>
     </div>
     <div class="item-checkbox">

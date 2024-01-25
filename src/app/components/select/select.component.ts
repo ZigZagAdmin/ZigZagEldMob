@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.scss'],
 })
-export class SelectComponent  implements OnInit {
+export class SelectComponent implements OnInit {
   @Input() label: string;
   @Input() fill: boolean = true;
   @Input() validators: { regex: RegExp; message: string }[] = [];
@@ -14,6 +14,8 @@ export class SelectComponent  implements OnInit {
   @Input() required: boolean = false;
   @Input() labelPosition: 'top' | 'left' = 'top';
   @Input() options: string[];
+
+  @Output() changeDetection: EventEmitter<string> = new EventEmitter<string>();
 
   @Input()
   get value(): string {
@@ -27,6 +29,7 @@ export class SelectComponent  implements OnInit {
     if (this._value !== newValue) {
       this._value = newValue;
       this.valueChange.emit(newValue);
+      this.changeDetection.emit(newValue);
     }
   }
 
@@ -50,8 +53,7 @@ export class SelectComponent  implements OnInit {
   private _value: string;
 
   validateSubscription: Subscription;
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {}
-
 }

@@ -86,6 +86,12 @@ export class InspectionPreviewPage implements OnInit {
     });
   }
 
+  getDateSub(date: string) {
+    let date_ = formatDate(date, 'EEEE, MMM d', 'en_US');
+    let today_ = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
+    return date_ === today_ ? date_ + ' (Today)' : date_;
+  }
+
   drawGraph() {
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.eventGraphicLine = [];

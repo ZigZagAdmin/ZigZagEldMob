@@ -16,7 +16,7 @@
 
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
   <app-header [title]="'Inspection Preview'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <app-scroll-toolbar [title]="logDaily?.logDate | date: 'EEEE, MMM d'" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
+  <app-scroll-toolbar [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
   <div class="padding-g">
     <div class="card-info" style="margin-bottom: 20px">
       <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1570 270">

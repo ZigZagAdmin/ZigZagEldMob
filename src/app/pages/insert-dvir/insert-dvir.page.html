@@ -1,278 +1,3 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/unitab/dvir"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Insert Dvir</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<!-- <ion-content [fullscreen]="true">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <ion-row class="ion-align-items-center ion-justify-content-center">
-      <ion-col size="4">
-        <ion-label class="ion-text-center">Company</ion-label>
-      </ion-col>
-      <ion-col size="8">
-        <ion-item>
-          <ion-input readonly [value]="company?.Name"></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-
-    <ion-row class="ion-text-start">
-      <ion-col>
-        <ion-label>Time</ion-label>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col size="6">
-        <ion-item>
-          <ion-icon
-            name="calendar-outline"
-            slot="start"
-            size="small"
-          ></ion-icon>
-          <ion-input type="text" [value]="getCurrentDate()" readonly="true">
-          </ion-input
-        ></ion-item>
-      </ion-col>
-
-      <ion-col size="6">
-        <ion-item>
-          <ion-icon name="time-outline" slot="start" size="small"></ion-icon>
-          <ion-input
-            type="text"
-            [value]="getCurrentTime()"
-            readonly="true"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-label class="ion-text-center">Location</ion-label>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-item>
-          <ion-icon
-            name="location-outline"
-            slot="start"
-            size="small"
-          ></ion-icon>
-          <ion-input
-            readonly="true"
-            formControlName="LocationDescription"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-label class="ion-text-center">Vehicle</ion-label>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col size="6">
-        <ion-item>
-          <ion-icon name="car-outline" slot="start" size="small"></ion-icon>
-          <ion-input
-            readonly
-            formControlName="VehicleUnit"
-            [value]="pickedVehicle"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-
-      <ion-col size="6">
-        <ion-item>
-          <ion-icon
-            name="speedometer-outline"
-            slot="start"
-            size="small"
-          ></ion-icon>
-          <ion-input
-            readonly="true"
-            formControlName="Odometer"
-            type="text"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-list>
-          <ion-item>
-            <ion-icon
-              name="construct-outline"
-              slot="start"
-              size="small"
-            ></ion-icon>
-            <ion-select
-              formControlName="DefectsVehicle"
-              aria-label="Vehicle Defects"
-              placeholder="Defects"
-              [multiple]="true"
-            >
-              <ion-select-option
-                *ngFor="let defect of defectsVehicle"
-                [value]="defect"
-                >{{ defect }}</ion-select-option
-              >
-            </ion-select>
-          </ion-item>
-        </ion-list>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-label class="ion-text-center">Trailers</ion-label>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-item>
-          <ion-icon name="train-outline" slot="start" size="small"></ion-icon>
-          <ion-input
-            placeholder="Trailers"
-            formControlName="Trailers"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-list>
-          <ion-item>
-            <ion-icon
-              name="construct-outline"
-              slot="start"
-              size="small"
-            ></ion-icon>
-            <ion-select
-              formControlName="DefectsTrailers"
-              aria-label="Trailer Defects"
-              placeholder="Defects"
-              [multiple]="true"
-            >
-              <ion-select-option
-                *ngFor="let defect of defectsTrailers"
-                [value]="defect"
-                >{{ defect }}</ion-select-option
-              >
-            </ion-select>
-          </ion-item>
-        </ion-list>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-label class="ion-text-center">Remarks</ion-label>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-item>
-          <ion-icon name="chatbox-outline" slot="start" size="small"></ion-icon>
-          <ion-input
-            type="text"
-            formControlName="Remarks"
-            placeholder="Remarks"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-label class="ion-text-center">Status</ion-label>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-list>
-          <ion-item>
-            <ion-icon
-              *ngIf="form.value.StatusCode === 'VCS'"
-              name="checkmark-circle-outline"
-              slot="start"
-              size="small"
-              color="success"
-            ></ion-icon>
-            <ion-icon
-              *ngIf="form.value.StatusCode === 'D'"
-              name="alert-circle-outline"
-              slot="start"
-              size="small"
-              color="danger"
-            ></ion-icon>
-            <ion-select aria-label="DVIR status" formControlName="StatusCode">
-              <ion-select-option
-                *ngFor="let status of DvirStatuses"
-                [value]="status.StatusCode"
-                [disabled]="isStatusDisabled(status.StatusCode)"
-                >{{ status.StatusName }}</ion-select-option
-              >
-            </ion-select>
-          </ion-item>
-        </ion-list>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col>
-        <ion-label class="ion-text-center">Signature</ion-label>
-      </ion-col>
-    </ion-row>
-
-    <ion-row class="ion-justify-content-center">
-      <ion-col size="auto">
-        <canvas
-          #sPad
-          width="250"
-          height="200"
-          style="touch-action: none; border: 1px solid black"
-        ></canvas>
-      </ion-col>
-    </ion-row>
-
-    <ion-row class="ion-justify-content-center">
-      <ion-col size="auto">
-        <span (click)="clearSignature()" class="underline-text">
-          Clear Signature
-        </span>
-      </ion-col>
-    </ion-row>
-
-    <ion-row class="ion-justify-content-center">
-      <ion-col>
-        <ion-button
-          [disabled]="!form.valid"
-          color="success"
-          (click)="onSubmit()"
-          expand="block"
-        >
-          Sign
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </form>
-</ion-content> -->
-
 <ion-content>
   <app-header [title]="'Insert Dvir'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <form class="padding-g" style="padding-top: 10px">
@@ -284,23 +9,23 @@
           <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
           <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
         </div>
-        <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="!!dvir.location.description" [(value)]="dvir.location.description" [(validation)]="validation['locationDescription']"></app-input>
+        <app-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="locationDisable" [(value)]="dvir.location.description" [(validation)]="validation['locationDescription']"></app-input>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="!!vehicleUnit" [value]="vehicleUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="vehicleUnitDisable" [value]="vehicleUnit" [noValidation]="true"></app-input>
         <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="dvir.odometer.toString()" [noValidation]="true"></app-input>
-        <app-select [label]="'Vehicle Defects (Optional)'" [options]="defectsVehicle"></app-select>
+        <app-select [label]="'Vehicle Defects (Optional)'" [(value)]="dvir.defectsVehicle" (changeDetection)="checkSelectPresent($event)" [options]="defectsVehicle"></app-select>
       </div>
       <p class="subtitle-lg">Trailer Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [(validation)]="validation['locationDescription']"></app-input>
-        <app-select [label]="'Trailer Defects (Optional)'" [options]="defectsTrailers"></app-select>
+        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [(validation)]="validation['trailerName']"></app-input>
+        <app-select [label]="'Trailer Defects (Optional)'" [(value)]="dvir.defectsTrailers" (changeDetection)="checkSelectPresent($event)" [options]="defectsTrailers"></app-select>
       </div>
       <p class="subtitle-lg">Status</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)"></app-status-radio-button>
+          <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)" [(value)]="dvir.status.code" [disableOption]="optionDisable"></app-status-radio-button>
         </div>
         <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="Date" [noValidation]="true"></app-textarea>
       </div>
@@ -308,7 +33,7 @@
       <div class="signature-container">
         <canvas #sPad height="200" style="touch-action: none; user-select: none"></canvas>
       </div>
-      <button class="btn primary-btn" color="success" (click)="onSubmit()" expand="block">Save</button>
+      <button class="btn primary-btn" color="success" (click)="onSubmit()">Save</button>
     </div>
   </form>
 </ion-content>

@@ -30,6 +30,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     backgroundColor: '#FFFFFF',
     penColor: 'black',
   };
+
   DvirId: string = '';
   signaturePad!: SignaturePad;
   databaseSubscription: Subscription | undefined;
@@ -73,6 +74,12 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     locationDescription: false,
   };
 
+  locationDisable: boolean = false;
+  vehicleUnitDisable: boolean = false;
+
+  lastStatus: string = '';
+  optionDisable: boolean = false;
+
   constructor(
     private databaseService: DatabaseService,
     private storage: Storage,
@@ -85,6 +92,11 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.dvir.status.name = 'Vehicle Condition Satisfactory';
+    this.dvir.status.code = 'VCS';
+    this.dvir.defectsVehicle = 'No Defects';
+    this.dvir.defectsTrailers = 'No Defects';
+
     this.initSignaturePad();
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
@@ -99,11 +111,9 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     });
 
     this.vehicleUnit = await this.storage.get('vehicleUnit');
+    this.vehicleUnitDisable = !!this.vehicleUnit;
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
-
-    this.dvir.status.name = 'Vehicle Condition Satisfactory';
-    this.dvir.status.code = 'VCS';
 
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
@@ -115,10 +125,26 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     this.shareService.destroyMessage();
   }
 
+  checkSelectPresent(data: any) {
+    if (data && data.length !== 0) {
+      console.log(data);
+      if (data === 'No Defects') {
+        this.optionDisable = false;
+        this.switchStatus('VCS');
+      } else {
+        this.optionDisable = true;
+        this.switchStatus('D');
+      }
+    }
+  }
+
   switchStatus(status: string) {
-    console.log(status);
-    this.dvir.status.code = status;
-    this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
+    if (status.length !== 0 && status !== this.lastStatus) {
+      console.log(status);
+      this.lastStatus = status;
+      this.dvir.status.code = status;
+      this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
+    }
   }
 
   isStatusDisabled(statusToDisable: string): boolean {
@@ -178,11 +204,18 @@ export class InsertDvirPage implements OnInit, OnDestroy {
 
   async onSubmit() {
     // if (this.form.valid) {
+    console.log(this.validation);
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
 
+    if (this.dvir.signatureBase64.length === 0) {
+      console.log('here');
+      this.toastService.showToast('Please sign the form before saving!');
+      return;
+    }
+
     const dvirData: DVIRs = {
-      dvirId: this.uuidv4(),
+      dvirId: this.utilityService.uuidv4(),
       driver: {
         driverId: this.driverId,
       },
@@ -206,7 +239,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
       repairDate: 0,
       repairTimeZone: '',
 
-      signatureId: this.uuidv4(),
+      signatureId: this.utilityService.uuidv4(),
       signatureBase64: this.dvir.signatureBase64,
     };
 
@@ -238,14 +271,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     this.dvirs.push(dvirData);
     await this.storage.set('dvirs', this.dvirs);
     this.navCtrl.navigateBack('/unitab/dvir');
-  }
-
-  uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0,
-        v = c == 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
   }
 
   ionViewWillLeave() {

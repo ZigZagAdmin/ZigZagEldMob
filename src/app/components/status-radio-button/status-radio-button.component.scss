@@ -64,3 +64,7 @@ ion-checkbox::part(container) {
   color: var(--gray-500);
   margin-bottom: 5px;
 }
+
+.disable-option {
+  pointer-events: none;
+}
