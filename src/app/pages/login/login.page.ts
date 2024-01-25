@@ -57,7 +57,7 @@ export class LoginPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.placesCity = await this.storage.get('placesCity')
+    this.placesCity = await this.storage.get('placesCity');
   }
 
   ngOnDestroy(): void {
@@ -97,7 +97,17 @@ export class LoginPage implements OnInit, OnDestroy {
           return this.saveAuthUser(res);
         }),
         switchMap(() => {
-          let fetchRequests: (Observable<Driver> | Observable<Company> | Observable<Vehicle[]> | Observable<Terminal[]> | Observable<ELD[]> | Observable<DVIRs[]> | Observable<LogDailies[]> | Observable<LogEvents[]> | Observable<PlacesCity[]>)[] = [
+          let fetchRequests: (
+            | Observable<Driver>
+            | Observable<Company>
+            | Observable<Vehicle[]>
+            | Observable<Terminal[]>
+            | Observable<ELD[]>
+            | Observable<DVIRs[]>
+            | Observable<LogDailies[]>
+            | Observable<LogEvents[]>
+            | Observable<PlacesCity[]>
+          )[] = [
             this.manageService.getDrivers(),
             this.manageService.getCompany(),
             this.manageService.getVehicles(),
@@ -109,8 +119,8 @@ export class LoginPage implements OnInit, OnDestroy {
           ];
 
           const placesCity_ = this.manageService.getPlacesCity();
-          console.log(this.placesCity)
-          if(!this.placesCity) {
+          console.log(this.placesCity);
+          if (!this.placesCity) {
             fetchRequests.push(placesCity_);
           }
 
@@ -131,10 +141,10 @@ export class LoginPage implements OnInit, OnDestroy {
             this.saveDVIRs(dvirs as DVIRs[]),
             this.saveELDs(elds as ELD[]),
             this.saveLogDailies(logDailies as LogDailies[]),
-            this.saveLogEvents(logEvents as LogEvents[])
+            this.saveLogEvents(logEvents as LogEvents[]),
           ];
-          
-          if(!this.placesCity) {
+
+          if (!this.placesCity) {
             const placesCity_ = this.savePlacesCity(placesCity as PlacesCity[]);
             saveRequests.push(placesCity_);
           }
@@ -160,7 +170,7 @@ export class LoginPage implements OnInit, OnDestroy {
         },
         error => {
           // Обработка ошибки
-          console.log(error)
+          console.log(error);
           const errorMessage = 'An error occurred during login';
           this.toastService.showToast(errorMessage, 'danger'); // Отобразить toast с ошибкой
           console.log(errorMessage);
@@ -229,6 +239,9 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   private saveDVIRs(dvirs: DVIRs[]): Observable<any> {
+    if ((dvirs as Object).hasOwnProperty('code')) {
+      dvirs = [];
+    }
     return this.databaseService.saveDvirs(dvirs).pipe(
       catchError(error => {
         const errorMessage = 'Error saving dvirs to database';

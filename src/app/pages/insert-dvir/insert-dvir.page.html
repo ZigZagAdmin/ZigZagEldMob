@@ -33,7 +33,8 @@
       <div class="signature-container">
         <canvas #sPad height="200" style="touch-action: none; user-select: none"></canvas>
       </div>
-      <button class="btn primary-btn" color="success" (click)="onSubmit()">Save</button>
+
+      <button class="btn primary-btn" (click)="onSubmit()"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>
     </div>
   </form>
 </ion-content>

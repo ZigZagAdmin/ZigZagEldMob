@@ -122,6 +122,8 @@ export class HosPage implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.serviceSub.unsubscribe();
     this.shareService.destroyMessage();
+    this.bluetoothStatusSub.unsubscribe();
+    this.locationStatusSub.unsubscribe();
   }
 
   async ionViewWillEnter() {
@@ -1027,6 +1029,8 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   ionViewWillLeave() {
+    this.bluetoothStatusSub.unsubscribe();
+    this.locationStatusSub.unsubscribe();
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }

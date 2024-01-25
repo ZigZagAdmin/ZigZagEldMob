@@ -80,6 +80,8 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   lastStatus: string = '';
   optionDisable: boolean = false;
 
+  loading: boolean = false;
+
   constructor(
     private databaseService: DatabaseService,
     private storage: Storage,
@@ -203,7 +205,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
-    // if (this.form.valid) {
     console.log(this.validation);
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
@@ -244,33 +245,47 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     };
 
     if (this.networkStatus === true) {
-      this.dashboardService.updateDVIR(dvirData).subscribe(
-        async response => {
-          console.log('DVIRs got updated on the server: ', response);
-          await this.updateDvirs(dvirData, true);
-        },
-        async error => {
-          this.updateDvirs(dvirData, false);
-          console.warn('Server Error: ', error);
-          await console.warn('Pushed dvirs in offline mode');
-        }
-      );
+      this.loading = true;
+      this.dashboardService
+        .updateDVIR(dvirData)
+        .toPromise()
+        .then(async response => {
+          await this.updateDvirs(dvirData, true).then(() => {
+            console.log('DVIRs got updated on the server: ', response);
+            this.loading = false;
+            this.navCtrl.navigateBack('/unitab/dvir');
+          });
+        })
+        .catch(async error => {
+          await this.updateDvirs(dvirData, false).then(() => {
+            this.loading = false;
+            this.navCtrl.navigateBack('/unitab/dvir');
+            console.warn('Server Error: ', error);
+            console.warn('Pushed dvirs in offline mode');
+          });
+        });
     } else {
-      await this.updateDvirs(dvirData, false);
-      console.warn('Pushed dvirs in offline mode');
+      await this.updateDvirs(dvirData, false).then(() => {
+        this.loading = false;
+        console.warn('Pushed dvirs in offline mode');
+        this.navCtrl.navigateBack('/unitab/dvir');
+      });
     }
-
-    this.dvirs.unshift(dvirData);
-    await this.storage.set('dvirs', this.dvirs);
-    this.navCtrl.navigateBack('/unitab/dvir');
-    // }
   }
 
   async updateDvirs(dvirData: DVIRs, online: boolean) {
     dvirData.sent = online;
-    this.dvirs.push(dvirData);
+    this.dvirs.unshift(dvirData);
     await this.storage.set('dvirs', this.dvirs);
-    this.navCtrl.navigateBack('/unitab/dvir');
+  }
+
+  async updateIndexDvirs(dvirData: DVIRs, online: boolean) {
+    dvirData.sent = online;
+    const index = this.dvirs.findIndex(item => item.dvirId === dvirData.dvirId);
+    if (index !== -1) {
+      this.dvirs[index] = dvirData;
+    }
+    await this.storage.set('dvirs', this.dvirs);
   }
 
   ionViewWillLeave() {

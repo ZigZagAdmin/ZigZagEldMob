@@ -19,24 +19,24 @@ export class DvirPage implements OnInit {
   pickedVehicle: String = '';
   constructor(private route: ActivatedRoute, private navCtrl: NavController, private databaseService: DatabaseService) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     console.log('init dvirs');
-    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-      if (ready) {
-        this.bReady = ready;
-        this.databaseSubscription = this.databaseService.getDvirs().subscribe(dvirs => {
-          this.dvirs = dvirs;
-        });
-      }
-    });
-    this.paramsSubscription = this.route.params.subscribe(params => {
+    await this.databaseService
+      .getDvirs()
+      .toPromise()
+      .then(dvirs => {
+        this.dvirs = dvirs;
+      });
+
+    this.paramsSubscription = this.route.params.subscribe(async params => {
       console.log('after ngOnInit dvir');
-      if (this.bReady) {
-        this.databaseSubscription = this.databaseService.getDvirs().subscribe(dvirs => {
+      await this.databaseService
+        .getDvirs()
+        .toPromise()
+        .then(dvirs => {
           this.dvirs = dvirs;
           console.log(this.dvirs);
         });
-      }
     });
   }
 
@@ -50,8 +50,6 @@ export class DvirPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    if (this.databaseSubscription) {
-      this.databaseSubscription.unsubscribe();
-    }
+    this.paramsSubscription.unsubscribe();
   }
 }
