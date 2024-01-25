@@ -1,9 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
-
-import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { NavController } from '@ionic/angular';
@@ -12,77 +9,21 @@ import { Storage } from '@ionic/storage';
 import { Company } from 'src/app/models/company';
 import { DVIRs } from 'src/app/models/dvirs';
 import SignaturePad from 'signature_pad';
+import { ShareService } from 'src/app/services/share.service';
+import { defectsVehicle, dvirStatuses } from 'src/app/utilities/defects';
+import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
   selector: 'app-edit-dvir',
   templateUrl: './edit-dvir.page.html',
   styleUrls: ['./edit-dvir.page.scss'],
 })
-export class EditDvirPage implements OnInit, AfterViewChecked {
+export class EditDvirPage implements OnInit, OnDestroy {
   @ViewChild('sPad', { static: false }) signaturePadElement!: ElementRef;
   @ViewChild('mechanicSPad', { static: false }) mechanicSignaturePadElement!: ElementRef;
 
-  defectsVehicle = [
-    'Air Compressor',
-    'Battery',
-    'Body',
-    'Brake Accessories',
-    'Coupling Devices',
-    'Drive Line',
-    'Exhaust',
-    'Fluid Levels',
-    'Front Axle',
-    'Headlights',
-    'Horn',
-    'Muffler',
-    'Parking Breaks',
-    'Reflectors',
-    'Service Breaks',
-    'Starter',
-    'Suspension System',
-    'Tire Chains',
-    'Transmission',
-    'Turn Indicators',
-    'Windows',
-    'Wipers & Washers',
-    'Air Lines',
-    'Belts & Hoses',
-    'Clutch',
-    'Defroster',
-    'Engine',
-    'Fifth Wheel',
-    'Frame & Assembly',
-    'Fuel Tanks',
-    'Heater',
-    'Mirrors',
-    'Oil Level',
-    'Radiator Level',
-    'Safety Equipment',
-    'Service Door',
-    'Steering',
-    'Tail Lights',
-    'Tires',
-    'Trip Recorder',
-    'Wheels & Rims',
-    'Windshield',
-  ];
-  defectsTrailers = [
-    'Brake Connections',
-    'Coupling Devices',
-    'Doors',
-    'Landing Gear',
-    'Other',
-    'Roof',
-    'Suspension System',
-    'Wheels & Rims',
-    'Breaks',
-    'Coupling Pin',
-    'Hitch',
-    'Lights',
-    'Reflectors',
-    'Straps',
-    'Tarpaulin',
-  ];
+  defectsVehicle = defectsVehicle;
+  defectsTrailers = defectsVehicle;
   DvirStatuses = [
     { StatusCode: 'VCS', StatusName: 'Vehicle Condition Satisfactory' },
     { StatusCode: 'D', StatusName: 'Has Defects' },
@@ -104,187 +45,113 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
   mechanicSignaturePad!: SignaturePad | null;
   company: Company | undefined;
   dvirs: DVIRs[] = [];
-  dvir: any;
+  dvir: DVIRs;
   bReady: boolean = false;
   pickedVehicle: string = '';
   vehicleId: string = '';
   driverId: string = '';
   dvirId!: string | null;
-  form!: FormGroup;
   networkStatus = false;
-  networkSub!: Subscription;
+  networkSub: Subscription;
+
+  validation: { [key: string]: boolean } = {
+    trailerName: false,
+    locationDescription: false,
+  };
+
+  locationDisable: boolean = false;
+  vehicleUnitDisable: boolean = false;
+
+  lastStatus: string = '';
+  optionDisable: boolean = false;
+
+  loading: boolean = false;
+
+  pageLoading: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private storage: Storage,
-    private databaseService: DatabaseService,
     private dashboardService: DashboardService,
+    private databaseService: DatabaseService,
     private internetService: InternetService,
     private activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder,
-    private router: Router
-  ) {
-    this.form = this.formBuilder.group({
-      Date: [''],
-      Time: [''],
-      LocationDescription: ['3mi from Chisinau, Chisinau'],
-      VehicleUnit: [''],
-      Trailers: [''],
-      Odometer: ['0'],
-      DefectsVehicle: [''],
-      DefectsTrailers: [''],
-      Remarks: [''],
-      StatusName: ['', Validators.required],
-      StatusCode: ['', Validators.required],
-      Comments: [''],
-      Signature: ['', Validators.required],
-      MechanicSignature: [''],
-    });
+    private router: Router,
+    private shareService: ShareService
+  ) {}
+
+  ngOnInit() {
+    this.pageLoading = true;
+
+    let dvirId$ = firstValueFrom(this.activatedRoute.queryParams);
+    let company$ = firstValueFrom(this.databaseService.getCompany());
+    let dvirs$ = firstValueFrom(this.databaseService.getDvirs());
+
+    forkJoin([company$, dvirs$, dvirId$]).subscribe(
+      ([company, dvirs, params]) => {
+        this.dvirId = params['dvirId'];
+        console.log(params);
+        this.company = company;
+        this.dvirs = dvirs;
+        this.dvir = Object.create(this.dvirs.find(item => item.dvirId === this.dvirId));
+        this.pageLoading = false;
+      },
+      error => console.log(error)
+    );
+
+    this.networkSub = this.internetService.internetStatus$.subscribe(data => (this.networkStatus = data));
   }
 
-  async ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(params => {
-      this.dvirId = params.get('dvirId');
-    });
-    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-      if (ready) {
-        this.bReady = ready;
-        this.databaseService.getCompany().subscribe(company => {
-          this.company = company;
-        });
-        this.databaseService.getDvirs().subscribe(dvirs => {
-          this.dvirs = dvirs;
-          this.dvir = this.dvirs.find(item => item.dvirId === this.dvirId);
-          if (this.dvir) {
-            this.initSignaturePad();
-            this.fillFormWithDvirData();
-          }
-        });
-      }
-    });
-    this.pickedVehicle = await this.storage.get('vehicleUnit');
-    this.vehicleId = await this.storage.get('vehicleId');
-    this.driverId = await this.storage.get('driverId');
+  ionViewDidEnter(): void {
+    this.initSignaturePad();
+  }
 
-    this.form.get('DefectsTrailers')?.valueChanges.subscribe(selectedDefects => {
-      const trailersControl = this.form.get('Trailers');
-      if (selectedDefects && selectedDefects.length > 0) {
-        trailersControl?.setValidators(Validators.required);
-      } else {
-        trailersControl?.clearValidators();
-      }
-      trailersControl?.updateValueAndValidity();
-    });
-
-    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
-      this.networkStatus = status;
-      console.log('Intenet Status' + status);
-    });
+  ngOnDestroy(): void {
+    this.networkSub.unsubscribe();
   }
 
   switchStatus(status: string) {
-    if (status !== 'DC') {
-      this.mechanicSignaturePad = null;
+    if (status.length !== 0 && status !== this.lastStatus) {
+      console.log(status);
+      this.lastStatus = status;
+      this.dvir.status.code = status;
+      this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
     }
-    this.form.value.StatusCode = status;
+  }
+
+  checkSelectPresent(data: any) {
+    if (data && data.length !== 0) {
+      console.log(data);
+      if (data === 'No Defects') {
+        this.optionDisable = false;
+        this.switchStatus('VCS');
+      } else {
+        this.optionDisable = true;
+        this.switchStatus('D');
+      }
+    }
   }
 
   navigateBack() {
     this.router.navigate(['/unitab/dvir']);
   }
 
-  ngAfterViewChecked() {
-    if (this.form.value.StatusCode === 'DC' && this.mechanicSignaturePadElement && this.mechanicSignaturePadElement.nativeElement && !this.mechanicSignaturePad) {
-      this.initMechanicalSignaturePad();
-    }
-  }
-
-  fillFormWithDvirData() {
-    if (this.dvir) {
-      const defectsVehicleArray = this.dvir.DefectsVehicle.split(',').map((element: string) => element.trim());
-      const defectsTrailersArray = this.dvir.DefectsTrailers.split(',').map((element: string) => element.trim());
-
-      this.form.patchValue({
-        Date: formatDate(this.dvir.CreateDate, 'MMM d, y', 'en_US'),
-        Time: formatDate(this.dvir.CreateDate, 'h:mm a', 'en_US'),
-        LocationDescription: this.dvir.LocationDescription,
-        VehicleUnit: this.dvir.VehicleUnit,
-        Trailers: this.dvir.Trailers,
-        Odometer: this.dvir.Odometer,
-        DefectsVehicle: defectsVehicleArray,
-        DefectsTrailers: defectsTrailersArray,
-        Remarks: this.dvir.Remarks,
-        StatusName: this.dvir.StatusName,
-        StatusCode: this.dvir.StatusCode,
-        Signature: 'data:image/png;base64,' + this.dvir.Signature,
-        MechanicSignature: 'data:image/png;base64,' + this.dvir.MechanicSignature || '',
-      });
-    }
-  }
-
   async onSubmit() {
-    if (this.form.valid) {
-      const selectedStatusCode = this.form.value.StatusCode;
-      const selectedStatus = this.DvirStatuses.find(status => status.StatusCode === selectedStatusCode);
-      const selectedStatusName = selectedStatus?.StatusName || '';
-
-      const defectsVehicle = Array.isArray(this.form.value.DefectsVehicle) ? this.form.value.DefectsVehicle.join(', ') : this.form.value.DefectsVehicle || '';
-
-      const defectsTrailers = Array.isArray(this.form.value.DefectsTrailers) ? this.form.value.DefectsTrailers.join(', ') : this.form.value.DefectsTrailers || '';
-
-      if (this.form.value.StatusCode !== 'DC') {
-        this.form.patchValue({ MechanicSignature: '' });
-      }
-
-      let dvirData: DVIRs = {
-        dvirId: this.dvir.DVIRId,
-        driver: {
-          driverId: this.driverId,
+    if (this.networkStatus === true) {
+      this.dashboardService.updateDVIR(this.dvir).subscribe(
+        async response => {
+          console.log('DVIRs got updated on the server: ', response);
+          await this.updateDvirs(this.dvir, true);
         },
-        vehicle: {
-          vehicleUnit: this.pickedVehicle,
-          vehicleId: this.vehicleId,
-        },
-        odometer: this.form.value.Odometer,
-        trailers: this.form.value.Trailers,
-        defectsVehicle: defectsVehicle,
-        defectsTrailers: defectsTrailers,
-        remarks: this.form.value.Remarks || '',
-        status: { code: selectedStatusCode, name: selectedStatusName },
-        location: {
-          description: this.form.value.LocationDescription,
-          latitude: 0,
-          longitude: 0,
-        },
-        createDate: this.dvir.CreateDate,
-        createTimeZone: '',
-        repairDate: 0,
-        repairTimeZone: '',
-
-        signatureId: '00000000-0000-0000-0000-000000000000',
-        signatureBase64: this.form.value.Signature.slice(22),
-        signatureLink: '',
-        mechanicSignatureId: '00000000-0000-0000-0000-000000000000',
-        mechanicSignatureBase64: this.form.value.MechanicSignature.slice(22) || '',
-        mechanicSignatureLink: '',
-        sent: true,
-      };
-
-      if (this.networkStatus === true) {
-        this.dashboardService.updateDVIR(dvirData).subscribe(
-          async response => {
-            console.log('DVIRs got updated on the server: ', response);
-            await this.updateDvirs(dvirData, true);
-          },
-          async error => {
-            this.updateDvirs(dvirData, false);
-            console.warn('Server Error: ', error);
-            await console.warn('Pushed dvirs in offline mode');
-          }
-        );
-      } else {
-        await this.updateDvirs(dvirData, false);
-        console.warn('Pushed dvirs in offline mode');
-      }
+        async error => {
+          this.updateDvirs(this.dvir, false);
+          console.warn('Server Error: ', error);
+          await console.warn('Pushed dvirs in offline mode');
+        }
+      );
+    } else {
+      await this.updateDvirs(this.dvir, false);
+      console.warn('Pushed dvirs in offline mode');
     }
   }
 
@@ -307,14 +174,13 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         this.updateSignatureField();
       });
 
-      if (this.dvir && this.dvir.Signature) {
-        this.renderSignature('data:image/png;base64,' + this.dvir.Signature);
+      if (this.dvir && this.dvir.signatureBase64) {
+        this.renderSignature('data:image/png;base64,' + this.dvir.signatureBase64);
       }
     }
   }
 
   initMechanicalSignaturePad() {
-    console.log('vizvali');
     const mechanicSignatureCanvas: HTMLCanvasElement | null = this.mechanicSignaturePadElement.nativeElement;
 
     if (mechanicSignatureCanvas) {
@@ -323,8 +189,8 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
         this.updateMechanicSignatureField();
       });
 
-      if (this.dvir && this.dvir.MechanicSignature) {
-        this.renderMechanicSignature('data:image/png;base64,' + this.dvir.MechanicSignature);
+      if (this.dvir && this.dvir.mechanicSignatureBase64) {
+        this.renderMechanicSignature('data:image/png;base64,' + this.dvir.mechanicSignatureBase64);
       }
     }
   }
@@ -356,32 +222,32 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
   clearSignature() {
     if (this.signaturePad) {
       this.signaturePad.clear();
-      this.form.patchValue({ Signature: '' });
+      // this.form.patchValue({ Signature: '' });
     }
   }
 
   clearMechanicSignature() {
     if (this.mechanicSignaturePad) {
       this.mechanicSignaturePad.clear();
-      this.form.patchValue({ MechanicSignature: '' });
+      // this.form.patchValue({ MechanicSignature: '' });
     }
   }
 
   updateSignatureField() {
     if (this.signaturePad && !this.signaturePad.isEmpty()) {
       const signatureDataURL = this.signaturePad.toDataURL();
-      this.form.patchValue({ Signature: signatureDataURL });
+      // this.form.patchValue({ Signature: signatureDataURL });
     } else {
-      this.form.patchValue({ Signature: '' });
+      // this.form.patchValue({ Signature: '' });
     }
   }
 
   updateMechanicSignatureField() {
     if (this.mechanicSignaturePad && !this.mechanicSignaturePad.isEmpty()) {
       const mechanicSignatureDataURL = this.mechanicSignaturePad.toDataURL();
-      this.form.patchValue({ MechanicSignature: mechanicSignatureDataURL });
+      // this.form.patchValue({ MechanicSignature: mechanicSignatureDataURL });
     } else {
-      this.form.patchValue({ MechanicSignature: '' });
+      // this.form.patchValue({ MechanicSignature: '' });
     }
   }
 
@@ -401,23 +267,16 @@ export class EditDvirPage implements OnInit, AfterViewChecked {
     });
   }
 
-  ionViewWillEnter() {
-    if (this.bReady) {
-      this.databaseSubscription = this.databaseService.getDvirs().subscribe(dvirs => {
-        this.dvirs = dvirs;
-        console.log(this.dvirs);
-      });
-    }
-  }
-
-  ionViewWillLeave() {
-    if (this.databaseSubscription) {
-      this.databaseSubscription.unsubscribe();
-    }
-    this.networkSub.unsubscribe();
-  }
-
   goBack() {
     this.navCtrl.navigateBack('/unitab/dvir');
+    this.shareService.destroyMessage();
+  }
+
+  getHour(value: number) {
+    return formatDate(value, "LLL d'th', yyyy", 'en_US');
+  }
+
+  getTime(value: number) {
+    return formatDate(value, 'hh:mm a', 'en_US');
   }
 }

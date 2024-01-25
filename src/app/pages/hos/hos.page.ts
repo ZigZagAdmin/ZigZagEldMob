@@ -17,6 +17,7 @@ import { BluetoothService } from 'src/app/services/bluetooth.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-hos',
@@ -88,6 +89,8 @@ export class HosPage implements OnInit, OnDestroy {
     location: false,
   };
 
+  animateCircles: boolean = true;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -104,26 +107,30 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.serviceSub = interval(1000).subscribe(() => {
-      this.locationService.checkLocationStatus();
-      if (!this.bluetoothStatus) {
-        this.bluetoothService.initialize();
-      }
-      this.bluetoothService.getBluetoothState();
-    });
-    this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
-      this.locationStatus = data;
-    });
-    this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
-      this.bluetoothStatus = data;
-    });
+    if (Capacitor.getPlatform() !== 'web') {
+      this.serviceSub = interval(1000).subscribe(() => {
+        this.locationService.checkLocationStatus();
+        if (!this.bluetoothStatus) {
+          this.bluetoothService.initialize();
+        }
+        this.bluetoothService.getBluetoothState();
+      });
+      this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
+        this.locationStatus = data;
+      });
+      this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
+        this.bluetoothStatus = data;
+      });
+    }
   }
 
   ngOnDestroy(): void {
-    this.serviceSub.unsubscribe();
     this.shareService.destroyMessage();
-    this.bluetoothStatusSub.unsubscribe();
-    this.locationStatusSub.unsubscribe();
+    if (this.serviceSub) {
+      this.serviceSub.unsubscribe();
+      this.bluetoothStatusSub.unsubscribe();
+      this.locationStatusSub.unsubscribe();
+    }
   }
 
   async ionViewWillEnter() {
@@ -232,14 +239,12 @@ export class HosPage implements OnInit, OnDestroy {
 
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
-      console.log('Intenet Status' + status);
     });
 
     this.updateEveryMinute();
     this.calculateCircles();
 
     this.paramsSubscription = this.route.params.subscribe(params => {
-      console.log('after ngOnInit dvir');
       if (this.bReady) {
         this.databaseSubscription = this.databaseService.getLogDailies().subscribe(logDailies => {
           if (logDailies.length !== 0) this.logDailies = logDailies;
@@ -247,14 +252,12 @@ export class HosPage implements OnInit, OnDestroy {
       }
     });
 
-    console.log('willEnter hos');
     this.logDailies = this.countDays;
   }
 
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
     logEventData.sent = online;
     this.logEvents.push(logEventData);
-    console.log('Update Log Events: ', this.logEvents);
     await this.storage.set('logEvents', this.logEvents);
   }
 
@@ -322,7 +325,6 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async calculateCircles() {
-    console.log(this.logEvents);
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
 
     let iHoursOfServiceRulesHours = await this.storage.get('HoursOfServiceRuleHours');
@@ -364,7 +366,6 @@ export class HosPage implements OnInit, OnDestroy {
 
     let bResetTimeLast7Day = false;
 
-    // console.log(this.logEvents);
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
@@ -380,12 +381,7 @@ export class HosPage implements OnInit, OnDestroy {
           sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);
         }
 
-        // console.log('iHoursOfServiceRulesHours: ', iHoursOfServiceRulesHours);
-        // console.log('sDateEnd: ', sDateEnd);
-        // console.log('TimeZoneCity: ', this.TimeZoneCity);
-
         iTime = (new Date(sDateEnd).getTime() - new Date(sDateBgn).getTime()) / 1000;
-        // console.log('iTime: ', iTime);
 
         switch (sEventTypeCode) {
           case 'OFF':
@@ -460,12 +456,6 @@ export class HosPage implements OnInit, OnDestroy {
 
         iBreakReset = iBreakResetFull - iTimeNotDrive;
 
-        // console.log('sEventTypeCode: ', sEventTypeCode);
-
-        // console.log('iTimeD: ', iTimeD);
-        // console.log('iTimeON: ', iTimeON);
-        // console.log('iTimeCycle: ', iTimeCycle);
-        // console.log('iTimeOFF: ', iTimeOFF);
       }
     });
 
@@ -474,7 +464,6 @@ export class HosPage implements OnInit, OnDestroy {
       this.currentStatus.statusCode = sEventTypeCode;
       this.currentStatus.statusName = sEventTypeName;
     }
-    console.log(this.currentStatus);
     this.currentStatusTime = this.convertSecondToHours(iTime);
 
     this.restBreak = this.convertSecondToHours(0);
@@ -489,8 +478,6 @@ export class HosPage implements OnInit, OnDestroy {
     if (iShiftReset >= 0) {
       this.restShift = this.convertSecondToHours(iShiftReset);
       this.progressShift = (100 * iShiftReset) / (10 * 60 * 60) / 100;
-      // console.log('Shift Reset = ', iShiftReset);
-      // console.log('progressShify = ', this.progressShift);
     }
 
     if (iCycleReset >= 0) {
@@ -601,7 +588,6 @@ export class HosPage implements OnInit, OnDestroy {
       this.percentShift = iProgressShift;
       this.titleShift = iAvailableShift;
       this.redCircle += 0;
-      console.log(iProgressShift);
     } else {
       iProgressShift = (100 * -iAvailableShift) / iAvailableShiftFull;
       iAvailableShift = iAvailableShiftFull + iAvailableShift;
@@ -638,7 +624,6 @@ export class HosPage implements OnInit, OnDestroy {
       this.percentBreak = iProgressBreak;
       this.titleBreak = -iAvailableBreak;
       this.redCircle += 1;
-      console.log(this.percentBreak);
     }
 
     // iAvailableCycle
@@ -655,13 +640,6 @@ export class HosPage implements OnInit, OnDestroy {
       this.titleCycle = -iAvailableCycle;
       this.redCircle += 1;
     }
-
-    console.log('iAvailableBreak: ', iAvailableBreak);
-    console.log('iAvailableDrive: ', iAvailableDrive);
-    console.log('iAvailableShift: ', iAvailableShift);
-    console.log('iAvailableCycle: ', iAvailableCycle);
-
-    /////
   }
 
   toggleModal() {
@@ -704,7 +682,6 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async onWillDismiss() {
-    console.log(this.logEvents);
     const endTime = new Date().getTime();
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
@@ -712,7 +689,6 @@ export class HosPage implements OnInit, OnDestroy {
 
     if (lastLogEvent) {
       lastLogEvent.eventTime.timeStampEnd = endTime;
-      console.log('LAST LogEvent = ', lastLogEvent);
     }
 
     let statuses = {
@@ -810,7 +786,6 @@ export class HosPage implements OnInit, OnDestroy {
 
     this.updateLogDailies();
     this.calculateCircles();
-    console.log(this.logEvents);
     this.isModalOpen = false;
   }
 
@@ -849,19 +824,11 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   updateLogDailies() {
-    console.log('updating...');
-
     let currentDate = new Date();
     this.countDays = [];
-    console.log(this.logDailies);
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
-      // console.log(dateString);
       const foundLogDayIndex = this.logDailies.findIndex(logDay => logDay.logDate.includes(dateString));
-
-      // console.log(dateString);
-      // console.log(foundLogDayIndex);
-      // console.log(this.logDailies[foundLogDayIndex]);
 
       if (foundLogDayIndex !== -1) {
         this.countDays.push(this.logDailies[foundLogDayIndex]);
@@ -894,7 +861,6 @@ export class HosPage implements OnInit, OnDestroy {
       currentDate.setDate(currentDate.getDate() - 1);
     }
     this.logDailies.sort((a, b) => b.logDate.localeCompare(a.logDate));
-    console.log(this.logDailies);
 
     ///////////////////////////////////////////////////////
 
@@ -917,10 +883,8 @@ export class HosPage implements OnInit, OnDestroy {
     let hoursWorked = 0;
     let LogEventsForCurrencDay = [];
 
-    console.log(this.logDailies);
     for (let i = 0; i < this.logDailies.length; i++) {
       let currentDay = this.logDailies[i].logDate;
-      // console.log(currentDay);
 
       durationsOFF = 0;
       durationsSB = 0;
@@ -939,7 +903,6 @@ export class HosPage implements OnInit, OnDestroy {
             : formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(), 'yyyy-MM-dd', 'en_US');
 
           if (formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') && sDateEnd) {
-            // console.log('event', event);
 
             dateBgn = new Date(event.eventTime.timeStamp);
             if (dateBgn.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
@@ -975,15 +938,9 @@ export class HosPage implements OnInit, OnDestroy {
                 break;
             }
 
-            // console.log('Duration OFF', durationsOFF);
-            // console.log('Duration SB', durationsSB);
-            // console.log('Duration D', durationsD);
-            // console.log('Duration ON', durationsON);
-            // console.log('hours worked', (durationsD + durationsON) / 60 / 60);
           }
         }
       });
-      console.log(durationsBaseOFF != durationsOFF || durationsBaseSB != durationsSB || durationsBaseD != durationsD || durationsBaseON != durationsON);
       if (durationsBaseOFF != durationsOFF || durationsBaseSB != durationsSB || durationsBaseD != durationsD || durationsBaseON != durationsON) {
         this.logDailies[i].timeOffDuty = durationsOFF;
         this.logDailies[i].timeSleeper = durationsSB;
@@ -1023,14 +980,17 @@ export class HosPage implements OnInit, OnDestroy {
 
   updateEveryMinute() {
     setInterval(() => {
+      this.animateCircles = false;
       this.updateLogDailies();
       this.calculateCircles();
     }, 60000);
   }
 
   ionViewWillLeave() {
-    this.bluetoothStatusSub.unsubscribe();
-    this.locationStatusSub.unsubscribe();
+    if (this.bluetoothStatusSub) {
+      this.bluetoothStatusSub.unsubscribe();
+      this.locationStatusSub.unsubscribe();
+    }
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }

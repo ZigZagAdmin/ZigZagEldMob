@@ -27,7 +27,7 @@
         <div class="input-block-2">
           <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)" [(value)]="dvir.status.code" [disableOption]="optionDisable"></app-status-radio-button>
         </div>
-        <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="Date" [noValidation]="true"></app-textarea>
+        <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="dvir.comments" [noValidation]="true"></app-textarea>
       </div>
       <p class="subtitle-lg">Signature</p>
       <div class="signature-container">

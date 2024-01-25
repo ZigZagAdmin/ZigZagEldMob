@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { DVIRs } from 'src/app/models/dvirs';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -10,7 +10,7 @@ import { Router, ActivatedRoute } from '@angular/router';
   templateUrl: './dvir.page.html',
   styleUrls: ['./dvir.page.scss'],
 })
-export class DvirPage implements OnInit {
+export class DvirPage implements OnInit, OnDestroy {
   bLoading: boolean = true;
   bReady: boolean = false;
   dvirs: DVIRs[] = [];
@@ -20,14 +20,6 @@ export class DvirPage implements OnInit {
   constructor(private route: ActivatedRoute, private navCtrl: NavController, private databaseService: DatabaseService) {}
 
   async ngOnInit() {
-    console.log('init dvirs');
-    await this.databaseService
-      .getDvirs()
-      .toPromise()
-      .then(dvirs => {
-        this.dvirs = dvirs;
-      });
-
     this.paramsSubscription = this.route.params.subscribe(async params => {
       console.log('after ngOnInit dvir');
       await this.databaseService
@@ -35,14 +27,12 @@ export class DvirPage implements OnInit {
         .toPromise()
         .then(dvirs => {
           this.dvirs = dvirs;
-          console.log(this.dvirs);
         });
     });
   }
 
   editDvir(dvir: DVIRs) {
-    console.log(dvir.dvirId);
-    this.navCtrl.navigateForward(['/edit-dvir', { dvirId: dvir.dvirId }]);
+    this.navCtrl.navigateForward('/edit-dvir', { queryParams: { dvirId: dvir.dvirId } });
   }
 
   insertDvir() {
@@ -50,6 +40,10 @@ export class DvirPage implements OnInit {
   }
 
   ionViewWillLeave() {
+    this.paramsSubscription.unsubscribe();
+  }
+
+  ngOnDestroy(): void {
     this.paramsSubscription.unsubscribe();
   }
 }

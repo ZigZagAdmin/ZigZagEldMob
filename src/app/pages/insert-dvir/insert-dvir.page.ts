@@ -45,28 +45,54 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   networkSub!: Subscription;
   Date: string;
 
-  dvir: Partial<DVIRs> = {
-    createDate: new Date().getTime(),
-    location: {
-      description: '',
-      latitude: 0,
-      longitude: 0,
-    },
-    vehicle: {
-      vehicleUnit: '',
-    },
-    trailers: '',
-    odometer: 0,
-    defectsVehicle: '',
-    defectsTrailers: '',
-    remarks: '',
-    status: {
-      name: '',
-      code: '',
-    },
-    comments: '',
-    signatureId: this.utilityService.uuidv4(),
-    signatureBase64: '',
+  dvir: DVIRs = {
+    // createDate: new Date().getTime(),
+    // location: {
+    //   description: '',
+    //   latitude: 0,
+    //   longitude: 0,
+    // },
+    // vehicle: {
+    //   vehicleUnit: '',
+    // },
+    // trailers: '',
+    // odometer: 0,
+    // defectsVehicle: '',
+    // defectsTrailers: '',
+    // remarks: '',
+    // status: {
+    //   name: '',
+    //   code: '',
+    // },
+    // comments: '',
+    // signatureId: this.utilityService.uuidv4(),
+    // signatureBase64: '',
+    dvirId: this.utilityService.uuidv4(),
+      driver: {
+        driverId: '',
+      },
+      vehicle: {
+        vehicleUnit: '',
+        vehicleId: '',
+      },
+      odometer: 0,
+      trailers: '',
+      defectsVehicle: '',
+      defectsTrailers: '',
+      remarks: '',
+      status: { code: '', name: '' },
+      location: {
+        description: '',
+        latitude: 0,
+        longitude: 0,
+      },
+      createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
+      createTimeZone: '',
+      repairDate: 0,
+      repairTimeZone: '',
+
+      signatureId: this.utilityService.uuidv4(),
+      signatureBase64: '',
   };
 
   validation: { [key: string]: boolean } = {
@@ -149,32 +175,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     }
   }
 
-  isStatusDisabled(statusToDisable: string): boolean {
-    const defectsVehicle = this.dvir.defectsVehicle || '';
-    const defectsTrailers = this.dvir.defectsTrailers || '';
-    const hasDefects = defectsVehicle.length > 0 || defectsTrailers.length > 0;
-    if (hasDefects) {
-      return statusToDisable === 'VCS';
-    }
-    return statusToDisable === 'D';
-  }
-
-  getCurrentDate(): string {
-    return new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  }
-
-  getCurrentTime(): string {
-    return new Date().toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  }
-
   initSignaturePad() {
     const canvas: HTMLCanvasElement | null = document.querySelector('canvas');
     if (canvas) {
@@ -188,10 +188,8 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   updateSignatureField() {
     if (this.signaturePad && !this.signaturePad.isEmpty()) {
       const signatureDataURL = this.signaturePad.toDataURL().slice(22);
-      // this.form.patchValue({ Signature: signatureDataURL });
       this.dvir.signatureBase64 = signatureDataURL;
     } else {
-      // this.form.patchValue({ Signature: '' });
       this.dvir.signatureBase64 = '';
     }
   }
@@ -199,7 +197,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   clearSignature() {
     if (this.signaturePad) {
       this.signaturePad.clear();
-      // this.form.patchValue({ Signature: '' });
       this.dvir.signatureBase64 = '';
     }
   }
@@ -210,54 +207,57 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     if (!this.utilityService.validateForm(this.validation)) return;
 
     if (this.dvir.signatureBase64.length === 0) {
-      console.log('here');
       this.toastService.showToast('Please sign the form before saving!');
       return;
     }
 
-    const dvirData: DVIRs = {
-      dvirId: this.utilityService.uuidv4(),
-      driver: {
-        driverId: this.driverId,
-      },
-      vehicle: {
-        vehicleUnit: this.vehicleUnit,
-        vehicleId: this.vehicleId,
-      },
-      odometer: this.dvir.odometer,
-      trailers: this.dvir.trailers,
-      defectsVehicle: this.dvir.defectsVehicle,
-      defectsTrailers: this.dvir.defectsTrailers,
-      remarks: this.dvir.remarks || '',
-      status: { code: this.dvir.status.code, name: this.dvir.status.name },
-      location: {
-        description: this.dvir.location.description,
-        latitude: 0,
-        longitude: 0,
-      },
-      createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
-      createTimeZone: '',
-      repairDate: 0,
-      repairTimeZone: '',
+    this.dvir.vehicle.vehicleUnit = this.vehicleUnit;
+    this.dvir.vehicle.vehicleId = this.vehicleId;
+    this.dvir.driver.driverId = this.driverId; 
 
-      signatureId: this.utilityService.uuidv4(),
-      signatureBase64: this.dvir.signatureBase64,
-    };
+    // const dvirData: DVIRs = {
+    //   dvirId: this.utilityService.uuidv4(),
+    //   driver: {
+    //     driverId: this.driverId,
+    //   },
+    //   vehicle: {
+    //     vehicleUnit: this.vehicleUnit,
+    //     vehicleId: this.vehicleId,
+    //   },
+    //   odometer: this.dvir.odometer,
+    //   trailers: this.dvir.trailers,
+    //   defectsVehicle: this.dvir.defectsVehicle,
+    //   defectsTrailers: this.dvir.defectsTrailers,
+    //   remarks: this.dvir.remarks || '',
+    //   status: { code: this.dvir.status.code, name: this.dvir.status.name },
+    //   location: {
+    //     description: this.dvir.location.description,
+    //     latitude: 0,
+    //     longitude: 0,
+    //   },
+    //   createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
+    //   createTimeZone: '',
+    //   repairDate: 0,
+    //   repairTimeZone: '',
+
+    //   signatureId: this.utilityService.uuidv4(),
+    //   signatureBase64: this.dvir.signatureBase64,
+    // };
 
     if (this.networkStatus === true) {
       this.loading = true;
       this.dashboardService
-        .updateDVIR(dvirData)
+        .updateDVIR(this.dvir)
         .toPromise()
         .then(async response => {
-          await this.updateDvirs(dvirData, true).then(() => {
+          await this.updateDvirs(this.dvir, true).then(() => {
             console.log('DVIRs got updated on the server: ', response);
             this.loading = false;
             this.navCtrl.navigateBack('/unitab/dvir');
           });
         })
         .catch(async error => {
-          await this.updateDvirs(dvirData, false).then(() => {
+          await this.updateDvirs(this.dvir, false).then(() => {
             this.loading = false;
             this.navCtrl.navigateBack('/unitab/dvir');
             console.warn('Server Error: ', error);
@@ -265,7 +265,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
           });
         });
     } else {
-      await this.updateDvirs(dvirData, false).then(() => {
+      await this.updateDvirs(this.dvir, false).then(() => {
         this.loading = false;
         console.warn('Pushed dvirs in offline mode');
         this.navCtrl.navigateBack('/unitab/dvir');
@@ -276,15 +276,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   async updateDvirs(dvirData: DVIRs, online: boolean) {
     dvirData.sent = online;
     this.dvirs.unshift(dvirData);
-    await this.storage.set('dvirs', this.dvirs);
-  }
-
-  async updateIndexDvirs(dvirData: DVIRs, online: boolean) {
-    dvirData.sent = online;
-    const index = this.dvirs.findIndex(item => item.dvirId === dvirData.dvirId);
-    if (index !== -1) {
-      this.dvirs[index] = dvirData;
-    }
     await this.storage.set('dvirs', this.dvirs);
   }
 

@@ -11,6 +11,11 @@ import { EditDvirPage } from './edit-dvir.page';
 
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
+import { InputComponentModule } from 'src/app/components/input/input.module';
+import { SelectComponentModule } from 'src/app/components/select/select.module';
+import { TextareaComponentModule } from 'src/app/components/textarea/textarea.module';
+import { StatusRadioButtonComponentModule } from 'src/app/components/status-radio-button/status-radio-button.module';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -18,7 +23,11 @@ import { HeaderComponentModule } from 'src/app/components/header/header.module';
     IonicModule,
     EditDvirPageRoutingModule,
     ReactiveFormsModule,
-    HeaderComponentModule
+    HeaderComponentModule,
+    InputComponentModule,
+    SelectComponentModule,
+    TextareaComponentModule,
+    StatusRadioButtonComponentModule
   ],
   declarations: [EditDvirPage],
   providers: [NavParams],
