@@ -1,0 +1,23 @@
+<div class="custom-input" [ngClass]="{ 'custom-input-top': labelPosition === 'top', 'custom-input-left': labelPosition === 'left' }">
+  <div *ngIf="label" class="input-label" [ngClass]="{ 'label-error': !valid, 'input-label-top': labelPosition === 'top', 'input-label-left': labelPosition === 'left' }">
+    {{ label }}{{ required ? '*' : '' }}
+  </div>
+  <div class="input-box" (click)="openModal()" [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left' }">
+    <div class="input-box-value">{{ value || 'No option selected' }}</div>
+    <img src="assets/icon/bottom-arrow-18.svg" />
+  </div>
+  <ion-modal id="custom-modal" [isOpen]="isModalOpen">
+    <ng-template>
+      <div class="option-box" id="optionBox">
+        <div class="select-option" *ngFor="let option of optionsCheck; index as i" (click)="triggerCheck(option, i)">
+          <div class="select-value">{{ option.value }}</div>
+          <div class="select-icon"><ion-checkbox [checked]="option.checked"></ion-checkbox></div>
+        </div>
+      </div>
+      <div class="submit-buttons">
+        <div class="action-button default" (click)="closeModal()">Cancel</div>
+        <div class="action-button primary" (click)="submit()">Submit</div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</div>

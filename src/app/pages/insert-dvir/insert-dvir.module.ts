@@ -13,6 +13,8 @@ import { InputComponentModule } from 'src/app/components/input/input.module';
 import { SelectComponentModule } from 'src/app/components/select/select.module';
 import { TextareaComponentModule } from 'src/app/components/textarea/textarea.module';
 
+import { MultipleSelectComponentModule } from 'src/app/components/multiple-select/multiple-select.module';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -25,6 +27,7 @@ import { TextareaComponentModule } from 'src/app/components/textarea/textarea.mo
     InputComponentModule,
     SelectComponentModule,
     TextareaComponentModule,
+    MultipleSelectComponentModule,
   ],
   declarations: [InsertDvirPage],
 })

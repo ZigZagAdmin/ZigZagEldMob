@@ -93,6 +93,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
         this.company = company;
         this.dvirs = dvirs;
         this.dvir = Object.create(this.dvirs.find(item => item.dvirId === this.dvirId));
+        this.locationDisable = !!this.dvir.location.description;
+        this.vehicleUnitDisable = !!this.dvir.vehicle.vehicleUnit;
         this.pageLoading = false;
       },
       error => console.log(error)

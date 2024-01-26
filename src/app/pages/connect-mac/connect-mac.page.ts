@@ -8,6 +8,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { BluetoothService } from 'src/app/services/bluetooth.service';
 import { Capacitor } from '@capacitor/core';
+import { defectsVehicle } from 'src/app/utilities/defects';
 
 @Component({
   selector: 'app-connect-mac',
@@ -18,6 +19,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   pickedVehicle!: string;
   macAddress: string = '';
   vehicle: Vehicle;
+
+  defects = defectsVehicle;
 
   validation: { [key: string]: boolean } = {
     macAddress: false,
