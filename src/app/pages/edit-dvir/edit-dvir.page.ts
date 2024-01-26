@@ -123,7 +123,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
   checkSelectPresent(data: any) {
     if (data && data.length !== 0) {
       console.log(data);
-      if (data === 'No Defects') {
+      if (data === '') {
         this.optionDisable = false;
         this.switchStatus('VCS');
       } else {

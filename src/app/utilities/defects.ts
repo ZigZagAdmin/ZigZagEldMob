@@ -1,5 +1,4 @@
 export const defectsVehicle = [
-  'No Defects',
   'Air Compressor',
   'Battery',
   'Body',
@@ -45,7 +44,6 @@ export const defectsVehicle = [
 ];
 
 export const defectsTrailers = [
-  'No Defects',
   'Brake Connections',
   'Coupling Devices',
   'Doors',

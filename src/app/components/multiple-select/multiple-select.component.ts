@@ -56,11 +56,13 @@ export class MultipleSelectComponent implements OnInit {
   isModalOpen: boolean = false;
 
   optionsCheck: { value: string; checked: boolean }[] = [];
+  lastStatus: { value: string; checked: boolean }[] = [];
 
   constructor() {}
 
   ngOnInit() {
     this.optionsCheck = this.options.map(value => ({ value: value, checked: false }));
+    this.lastStatus = this.cloneArray(this.optionsCheck);
   }
 
   triggerCheck(option: { value: string; checked: boolean }, index: number) {
@@ -79,13 +81,19 @@ export class MultipleSelectComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
-    this.optionsCheck.forEach(el => (el.checked = false));
+    console.log(this.lastStatus);
+    this.optionsCheck = this.cloneArray(this.lastStatus);
   }
 
   submit() {
     let chosenElements: string[] = [];
     this.optionsCheck.forEach(el => (el.checked === true ? chosenElements.push(el.value) : null));
     this.value = chosenElements.join(', ');
+    this.lastStatus = this.cloneArray(this.optionsCheck);
     this.isModalOpen = false;
+  }
+
+  cloneArray(array: any) {
+    return JSON.parse(JSON.stringify(array));
   }
 }

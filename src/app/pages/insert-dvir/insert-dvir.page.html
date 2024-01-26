@@ -15,23 +15,33 @@
       <div class="edit-dvir-block">
         <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="vehicleUnitDisable" [value]="vehicleUnit" [noValidation]="true"></app-input>
         <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="dvir.odometer.toString()" [noValidation]="true"></app-input>
-        <app-select [label]="'Vehicle Defects (Optional)'" [(value)]="dvir.defectsVehicle" (changeDetection)="checkSelectPresent($event)" [options]="defectsVehicle"></app-select>
+        <app-multiple-select [label]="'Vehicle Defects (Optional)'" [(value)]="dvir.defectsVehicle" (changeDetection)="checkSelectPresent($event)" [options]="defectsVehicle"></app-multiple-select>
       </div>
       <p class="subtitle-lg">Trailer Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [(validation)]="validation['trailerName']"></app-input>
-        <app-select [label]="'Trailer Defects (Optional)'" [(value)]="dvir.defectsTrailers" (changeDetection)="checkSelectPresent($event)" [options]="defectsTrailers"></app-select>
+        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [(validation)]="validation['trailerName']" [noValidation]="!!!this.dvir.defectsTrailers.length"></app-input>
+        <app-multiple-select [label]="'Trailer Defects (Optional)'" [(value)]="dvir.defectsTrailers" (changeDetection)="checkSelectPresent($event)" [options]="defectsTrailers"></app-multiple-select>
       </div>
       <p class="subtitle-lg">Status</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
-          <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)" [(value)]="dvir.status.code" [disableOption]="optionDisable"></app-status-radio-button>
+          <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)" [(value)]="dvir.status.code" [disableOption]="true"></app-status-radio-button>
         </div>
         <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="dvir.comments" [noValidation]="true"></app-textarea>
       </div>
       <p class="subtitle-lg">Signature</p>
-      <div class="signature-container">
-        <canvas #sPad height="200" style="touch-action: none; user-select: none"></canvas>
+      <div>
+        <div class="canvas-container">
+          <canvas #sPad height="290" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
+          <div class="image-container" *ngIf="signatureFound">
+            <img [ngClass]="{ 'no-display': imageLoading }" [src]="dvir.signatureLink" (load)="imageLoaded()" />
+            <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
+          </div>
+        </div>
+        <div class="signature-buttons">
+          <div class="signature-button" (click)="clearSignature()">Clear signature</div>
+          <div class="signature-button" (click)="restoreSignature()">Restore signature</div>
+        </div>
       </div>
 
       <button class="btn primary-btn" (click)="onSubmit()"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>

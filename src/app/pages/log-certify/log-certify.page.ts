@@ -112,21 +112,6 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  renderSignature(signatureData: string) {
-    const canvas: HTMLCanvasElement | null = this.signaturePad.nativeElement;
-
-    if (canvas) {
-      const context = canvas.getContext('2d');
-      const image = new Image();
-
-      image.onload = () => {
-        context?.drawImage(image, 0, 0);
-      };
-      image.src = 'data:image/png;base64,' + signatureData;
-      this.signature = signatureData;
-    }
-  }
-
   updateSignatureField() {
     if (this.signaturePad && !this.signaturePadEl.isEmpty()) {
       const signatureDataURL = this.signaturePadEl.toDataURL().slice(22);
@@ -175,7 +160,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   activateSave() {
-    if (this.signature.length !== 0 || this.signatureLink.length !== 0) this.isConfirmButtonActive = true;
+    if ((this.signature && this.signature.length !== 0) || (this.signatureLink && this.signatureLink.length !== 0)) this.isConfirmButtonActive = true;
     else this.isConfirmButtonActive = false;
   }
 

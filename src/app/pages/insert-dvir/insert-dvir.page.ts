@@ -14,6 +14,7 @@ import { defectsVehicle, defectsTrailers, dvirStatuses } from 'src/app/utilities
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
+import { ManageService } from 'src/app/services/manage.service';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -45,54 +46,35 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   networkSub!: Subscription;
   Date: string;
 
-  dvir: DVIRs = {
-    // createDate: new Date().getTime(),
-    // location: {
-    //   description: '',
-    //   latitude: 0,
-    //   longitude: 0,
-    // },
-    // vehicle: {
-    //   vehicleUnit: '',
-    // },
-    // trailers: '',
-    // odometer: 0,
-    // defectsVehicle: '',
-    // defectsTrailers: '',
-    // remarks: '',
-    // status: {
-    //   name: '',
-    //   code: '',
-    // },
-    // comments: '',
-    // signatureId: this.utilityService.uuidv4(),
-    // signatureBase64: '',
-    dvirId: this.utilityService.uuidv4(),
-      driver: {
-        driverId: '',
-      },
-      vehicle: {
-        vehicleUnit: '',
-        vehicleId: '',
-      },
-      odometer: 0,
-      trailers: '',
-      defectsVehicle: '',
-      defectsTrailers: '',
-      remarks: '',
-      status: { code: '', name: '' },
-      location: {
-        description: '',
-        latitude: 0,
-        longitude: 0,
-      },
-      createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
-      createTimeZone: '',
-      repairDate: 0,
-      repairTimeZone: '',
+  imageLoading: boolean = false;
 
-      signatureId: this.utilityService.uuidv4(),
-      signatureBase64: '',
+  dvir: DVIRs = {
+    dvirId: this.utilityService.uuidv4(),
+    driver: {
+      driverId: '',
+    },
+    vehicle: {
+      vehicleUnit: '',
+      vehicleId: '',
+    },
+    odometer: 0,
+    trailers: '',
+    defectsVehicle: '',
+    defectsTrailers: '',
+    remarks: '',
+    status: { code: '', name: '' },
+    location: {
+      description: '',
+      latitude: 0,
+      longitude: 0,
+    },
+    createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
+    createTimeZone: '',
+    repairDate: 0,
+    repairTimeZone: '',
+
+    signatureId: this.utilityService.uuidv4(),
+    signatureBase64: '',
   };
 
   validation: { [key: string]: boolean } = {
@@ -107,6 +89,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   optionDisable: boolean = false;
 
   loading: boolean = false;
+  signatureFound: boolean = false;
 
   constructor(
     private databaseService: DatabaseService,
@@ -122,8 +105,8 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   async ngOnInit() {
     this.dvir.status.name = 'Vehicle Condition Satisfactory';
     this.dvir.status.code = 'VCS';
-    this.dvir.defectsVehicle = 'No Defects';
-    this.dvir.defectsTrailers = 'No Defects';
+    this.dvir.defectsVehicle = '';
+    this.dvir.defectsTrailers = '';
 
     this.initSignaturePad();
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
@@ -154,15 +137,10 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   }
 
   checkSelectPresent(data: any) {
-    if (data && data.length !== 0) {
-      console.log(data);
-      if (data === 'No Defects') {
-        this.optionDisable = false;
-        this.switchStatus('VCS');
-      } else {
-        this.optionDisable = true;
-        this.switchStatus('D');
-      }
+    if (this.dvir.defectsTrailers === '' && this.dvir.defectsVehicle === '') {
+      this.switchStatus('VCS');
+    } else {
+      this.switchStatus('D');
     }
   }
 
@@ -194,18 +172,41 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     }
   }
 
+  async restoreSignature() {
+    const firstNonEmptySignature = this.dvirs.find(dvir => dvir.signatureId !== '' && dvir.signatureId !== '00000000-0000-0000-0000-000000000000' && dvir.signatureLink !== '');
+
+    if (firstNonEmptySignature) {
+      this.dvir.signatureBase64 = '';
+      this.dvir.signatureLink = firstNonEmptySignature.signatureLink;
+      this.dvir.signatureId = firstNonEmptySignature.signatureId;
+      console.log(firstNonEmptySignature);
+      this.signatureFound = true;
+    } else {
+      this.signatureFound = false;
+      this.toastService.showToast('No signature found on other daily logs.');
+    }
+  }
+
   clearSignature() {
+    if (this.signatureFound) {
+      this.signatureFound = false;
+    }
     if (this.signaturePad) {
       this.signaturePad.clear();
       this.dvir.signatureBase64 = '';
     }
   }
 
+  imageLoaded() {
+    this.imageLoading = false;
+  }
+
   async onSubmit() {
+    console.log(this.dvir.defectsTrailers.length === 0);
+    if (this.dvir.defectsTrailers.length === 0) this.validation['trailerName'] = true;
     console.log(this.validation);
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
-
     if (this.dvir.signatureBase64.length === 0) {
       this.toastService.showToast('Please sign the form before saving!');
       return;
@@ -213,36 +214,9 @@ export class InsertDvirPage implements OnInit, OnDestroy {
 
     this.dvir.vehicle.vehicleUnit = this.vehicleUnit;
     this.dvir.vehicle.vehicleId = this.vehicleId;
-    this.dvir.driver.driverId = this.driverId; 
+    this.dvir.driver.driverId = this.driverId;
 
-    // const dvirData: DVIRs = {
-    //   dvirId: this.utilityService.uuidv4(),
-    //   driver: {
-    //     driverId: this.driverId,
-    //   },
-    //   vehicle: {
-    //     vehicleUnit: this.vehicleUnit,
-    //     vehicleId: this.vehicleId,
-    //   },
-    //   odometer: this.dvir.odometer,
-    //   trailers: this.dvir.trailers,
-    //   defectsVehicle: this.dvir.defectsVehicle,
-    //   defectsTrailers: this.dvir.defectsTrailers,
-    //   remarks: this.dvir.remarks || '',
-    //   status: { code: this.dvir.status.code, name: this.dvir.status.name },
-    //   location: {
-    //     description: this.dvir.location.description,
-    //     latitude: 0,
-    //     longitude: 0,
-    //   },
-    //   createDate: new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en-US')).getTime(),
-    //   createTimeZone: '',
-    //   repairDate: 0,
-    //   repairTimeZone: '',
-
-    //   signatureId: this.utilityService.uuidv4(),
-    //   signatureBase64: this.dvir.signatureBase64,
-    // };
+    console.log('here');
 
     if (this.networkStatus === true) {
       this.loading = true;
