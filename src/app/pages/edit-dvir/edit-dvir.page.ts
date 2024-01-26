@@ -90,7 +90,6 @@ export class EditDvirPage implements OnInit, OnDestroy {
     forkJoin([company$, dvirs$, dvirId$]).subscribe(
       ([company, dvirs, params]) => {
         this.dvirId = params['dvirId'];
-        console.log(params);
         this.company = company;
         this.dvirs = dvirs;
         this.dvir = Object.create(this.dvirs.find(item => item.dvirId === this.dvirId));

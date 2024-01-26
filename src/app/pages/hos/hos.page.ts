@@ -106,7 +106,7 @@ export class HosPage implements OnInit, OnDestroy {
     private shareService: ShareService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
     if (Capacitor.getPlatform() !== 'web') {
       this.serviceSub = interval(1000).subscribe(() => {
         this.locationService.checkLocationStatus();
@@ -134,6 +134,7 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async ionViewWillEnter() {
+    console.log('entered hos');
     this.getVehicle();
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
@@ -150,7 +151,7 @@ export class HosPage implements OnInit, OnDestroy {
         const logDailies$ = this.databaseService.getLogDailies();
         const logEvents$ = this.databaseService.getLogEvents();
 
-        forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
+        forkJoin([logDailies$, logEvents$]).subscribe(async ([logDailies, logEvents]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
           const filteredLogEvents = this.logEvents.filter(item => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(item.type.code));
@@ -231,7 +232,7 @@ export class HosPage implements OnInit, OnDestroy {
               });
           }
 
-          this.updateLogDailies();
+          await this.updateLogDailies();
           this.calculateCircles();
         });
       }
@@ -242,7 +243,6 @@ export class HosPage implements OnInit, OnDestroy {
     });
 
     this.updateEveryMinute();
-    this.calculateCircles();
 
     this.paramsSubscription = this.route.params.subscribe(params => {
       if (this.bReady) {
@@ -251,8 +251,6 @@ export class HosPage implements OnInit, OnDestroy {
         });
       }
     });
-
-    this.logDailies = this.countDays;
   }
 
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
@@ -366,7 +364,6 @@ export class HosPage implements OnInit, OnDestroy {
 
     let bResetTimeLast7Day = false;
 
-
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
         sDateBgn = new Date(event.eventTime.timeStamp).toISOString();
@@ -455,7 +452,6 @@ export class HosPage implements OnInit, OnDestroy {
         }
 
         iBreakReset = iBreakResetFull - iTimeNotDrive;
-
       }
     });
 
@@ -823,7 +819,7 @@ export class HosPage implements OnInit, OnDestroy {
     return sSign + sHours + ':' + sMinutes;
   }
 
-  updateLogDailies() {
+  async updateLogDailies() {
     let currentDate = new Date();
     this.countDays = [];
     for (let i = 0; i < 14; i++) {
@@ -856,11 +852,15 @@ export class HosPage implements OnInit, OnDestroy {
           },
         };
 
-        this.logDailies.push(newLogDaily);
+        this.countDays.push(newLogDaily);
       }
       currentDate.setDate(currentDate.getDate() - 1);
     }
-    this.logDailies.sort((a, b) => b.logDate.localeCompare(a.logDate));
+    this.countDays.sort((a, b) => b.logDate.localeCompare(a.logDate));
+
+    this.logDailies = this.countDays.slice();
+
+    await this.storage.set('logDailies', this.logDailies);
 
     ///////////////////////////////////////////////////////
 
@@ -903,7 +903,6 @@ export class HosPage implements OnInit, OnDestroy {
             : formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(), 'yyyy-MM-dd', 'en_US');
 
           if (formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') && sDateEnd) {
-
             dateBgn = new Date(event.eventTime.timeStamp);
             if (dateBgn.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
               xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
@@ -937,7 +936,6 @@ export class HosPage implements OnInit, OnDestroy {
                 durationsON = durationsON + (xEnd - xBgn) * 60;
                 break;
             }
-
           }
         }
       });

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthUser } from 'src/app/models/auth-user';
-import { Observable, forkJoin, throwError } from 'rxjs';
+import { Observable, firstValueFrom, forkJoin, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 import { Storage } from '@ionic/storage';
@@ -42,6 +42,8 @@ export class LoginPage implements OnInit, OnDestroy {
     username: false,
     password: false,
   };
+  companyId: string = '';
+  driverId: string = '';
   placesCity: PlacesCity[] = [];
 
   constructor(
@@ -89,6 +91,8 @@ export class LoginPage implements OnInit, OnDestroy {
       .pipe(
         switchMap(res => {
           this.authUser = res;
+          this.driverId = res.DriverId;
+          this.companyId = res.CompanyId;
           this.storage.set('accessToken', res.AccessToken);
           this.storage.set('driverId', res.DriverId);
           this.storage.set('companyId', res.CompanyId);
@@ -140,7 +144,7 @@ export class LoginPage implements OnInit, OnDestroy {
             this.saveTerminals(terminals as Terminal[]),
             this.saveDVIRs(dvirs as DVIRs[]),
             this.saveELDs(elds as ELD[]),
-            this.saveLogDailies(logDailies as LogDailies[]),
+            this.updateLogDailies(logDailies as LogDailies[]),
             this.saveLogEvents(logEvents as LogEvents[]),
           ];
 
@@ -289,6 +293,48 @@ export class LoginPage implements OnInit, OnDestroy {
         return throwError(errorMessage);
       })
     );
+  }
+
+  private async updateLogDailies(logDailies: LogDailies[]) {
+    let currentDate = new Date();
+    let countDays = [];
+    for (let i = 0; i < 14; i++) {
+      const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
+      const foundLogDayIndex = logDailies.findIndex(logDay => logDay.logDate.includes(dateString));
+
+      if (foundLogDayIndex !== -1) {
+        countDays.push(logDailies[foundLogDayIndex]);
+      } else {
+        let newLogDaily: LogDailies = {
+          logDailyId: this.utilityService.uuidv4(),
+          companyId: this.companyId,
+          driverId: this.driverId,
+          driverName: '',
+          logDate: dateString.replace(/-/g, '/'),
+          timeOffDuty: 0,
+          timeSleeper: 0,
+          timeDriving: 0,
+          timeOnDuty: 0,
+          timeWorked: 0,
+          violations: [],
+          formManner: false,
+          certified: false,
+          form: {
+            trailers: '',
+            shippingDoc: '',
+            fromAddress: '',
+            toAddress: '',
+            signatureId: '00000000-0000-0000-0000-000000000000',
+          },
+        };
+
+        countDays.push(newLogDaily);
+      }
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+    countDays.sort((a, b) => b.logDate.localeCompare(a.logDate));
+
+    await firstValueFrom(this.saveLogDailies(countDays));
   }
 
   forgotPassword() {}
