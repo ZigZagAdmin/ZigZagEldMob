@@ -62,6 +62,10 @@ export class MultipleSelectComponent implements OnInit {
 
   ngOnInit() {
     this.optionsCheck = this.options.map(value => ({ value: value, checked: false }));
+    if (this._value && this._value.length !== 0) {
+      const localArray = this._value.split(', ');
+      this.optionsCheck.forEach(option => localArray.forEach(valueSent => (option.value === valueSent ? (option.checked = true) : null)));
+    }
     this.lastStatus = this.cloneArray(this.optionsCheck);
   }
 

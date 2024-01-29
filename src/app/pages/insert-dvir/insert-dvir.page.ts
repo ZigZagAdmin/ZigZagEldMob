@@ -87,7 +87,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   vehicleUnitDisable: boolean = false;
 
   lastStatus: string = '';
-  optionDisable: boolean = false;
+  optionDisable: boolean = true;
 
   loading: boolean = false;
   signatureFound: boolean = false;
@@ -204,6 +204,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
+    this.shareService.changeMessage('reset');
     if (this.dvir.defectsTrailers.length === 0) this.validation['trailerName'] = true;
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
@@ -223,7 +224,8 @@ export class InsertDvirPage implements OnInit, OnDestroy {
       this.dashboardService
         .updateDVIR(this.dvir)
         .toPromise()
-        .then(async response => {
+        .then(async (response: any) => {
+          if (response.signatureLink) this.dvir.signatureLink = response.signatureLink;
           await this.updateDvirs(this.dvir, true).then(() => {
             console.log('DVIRs got updated on the server: ', response);
             this.loading = false;

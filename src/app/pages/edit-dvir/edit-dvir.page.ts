@@ -12,6 +12,8 @@ import SignaturePad from 'signature_pad';
 import { ShareService } from 'src/app/services/share.service';
 import { defectsVehicle, dvirStatuses } from 'src/app/utilities/defects';
 import { DatabaseService } from 'src/app/services/database.service';
+import { ToastService } from 'src/app/services/toast.service';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-edit-dvir',
@@ -63,11 +65,17 @@ export class EditDvirPage implements OnInit, OnDestroy {
   vehicleUnitDisable: boolean = false;
 
   lastStatus: string = '';
-  optionDisable: boolean = false;
+  optionDisable: boolean = true;
 
   loading: boolean = false;
 
   pageLoading: boolean = false;
+
+  signatureFound: boolean = false;
+  imageLoading: boolean = false;
+
+  today = new Date();
+  timeZone: string = '';
 
   constructor(
     private navCtrl: NavController,
@@ -77,7 +85,9 @@ export class EditDvirPage implements OnInit, OnDestroy {
     private internetService: InternetService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private shareService: ShareService
+    private shareService: ShareService,
+    private toastService: ToastService,
+    private utilityService: UtilityService
   ) {}
 
   ngOnInit() {
@@ -86,13 +96,19 @@ export class EditDvirPage implements OnInit, OnDestroy {
     let dvirId$ = firstValueFrom(this.activatedRoute.queryParams);
     let company$ = firstValueFrom(this.databaseService.getCompany());
     let dvirs$ = firstValueFrom(this.databaseService.getDvirs());
+    let timeZone$ = this.storage.get('TimeZoneCity');
 
-    forkJoin([company$, dvirs$, dvirId$]).subscribe(
-      ([company, dvirs, params]) => {
+    forkJoin([company$, dvirs$, dvirId$, timeZone$]).subscribe(
+      ([company, dvirs, params, timeZone]) => {
         this.dvirId = params['dvirId'];
         this.company = company;
         this.dvirs = dvirs;
-        this.dvir = Object.create(this.dvirs.find(item => item.dvirId === this.dvirId));
+        this.timeZone = timeZone;
+        this.dvir = this.dvirs.find(item => item.dvirId === this.dvirId);
+        this.dvir.signatureBase64 = '';
+        this.dvir.mechanicSignatureBase64 = '';
+        this.dvir.mechanicSignatureLink = '';
+        console.log(this.dvir);
         this.locationDisable = !!this.dvir.location.description;
         this.vehicleUnitDisable = !!this.dvir.vehicle.vehicleUnit;
         this.pageLoading = false;
@@ -105,6 +121,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   ionViewDidEnter(): void {
     this.initSignaturePad();
+    this.initMechanicalSignaturePad();
   }
 
   ngOnDestroy(): void {
@@ -118,18 +135,20 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.dvir.status.code = status;
       this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
     }
+    this.dvir.mechanicSignatureId = '00000000-0000-0000-0000-000000000000';
+    this.dvir.mechanicSignatureBase64 = '';
+    this.clearMechanicSignature();
+  }
+
+  imageLoaded() {
+    this.imageLoading = false;
   }
 
   checkSelectPresent(data: any) {
-    if (data && data.length !== 0) {
-      console.log(data);
-      if (data === '') {
-        this.optionDisable = false;
-        this.switchStatus('VCS');
-      } else {
-        this.optionDisable = true;
-        this.switchStatus('D');
-      }
+    if (this.dvir.defectsTrailers === '' && this.dvir.defectsVehicle === '') {
+      this.switchStatus('VCS');
+    } else {
+      this.switchStatus('D');
     }
   }
 
@@ -138,21 +157,52 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
+    this.shareService.changeMessage('reset');
+    if (this.dvir.defectsTrailers.length === 0) this.validation['trailerName'] = true;
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    if (!this.utilityService.validateForm(this.validation)) return;
+    if (this.dvir.status.code === 'D' && this.dvir.defectsTrailers.length === 0 && this.dvir.defectsVehicle.length === 0) {
+      this.toastService.showToast('You cannot select "Has Defects" without selecting any defect!');
+      return;
+    }
+    if (this.dvir.signatureBase64.length === 0 && this.dvir.signatureLink.length === 0) {
+      this.toastService.showToast('Please sign the form before saving!');
+      return;
+    }
+    if (this.dvir.status.code === 'DC') this.dvir.mechanicSignatureId = this.utilityService.uuidv4();
+    if (this.dvir.status.code === 'DC' && this.dvir.mechanicSignatureBase64.length === 0 && this.dvir.mechanicSignatureLink.length === 0) {
+      this.toastService.showToast('Please complete the mechanic signature!');
+      return;
+    }
+    console.log(this.dvir);
     if (this.networkStatus === true) {
-      this.dashboardService.updateDVIR(this.dvir).subscribe(
-        async response => {
-          console.log('DVIRs got updated on the server: ', response);
-          await this.updateDvirs(this.dvir, true);
-        },
-        async error => {
-          this.updateDvirs(this.dvir, false);
-          console.warn('Server Error: ', error);
-          await console.warn('Pushed dvirs in offline mode');
-        }
-      );
+      this.loading = true;
+      this.dashboardService
+        .updateDVIR(this.dvir)
+        .toPromise()
+        .then(async (response: any) => {
+          if (response.signatureLink) this.dvir.signatureLink = response.signatureLink;
+          if (response.mechanicSignatureLink) this.dvir.mechanicSignatureLink = response.mechanicSignatureLink;
+          await this.updateDvirs(this.dvir, true).then(() => {
+            console.log('DVIRs got updated on the server: ', response);
+            this.loading = false;
+            this.navCtrl.navigateBack('/unitab/dvir');
+          });
+        })
+        .catch(async error => {
+          await this.updateDvirs(this.dvir, false).then(() => {
+            this.loading = false;
+            this.navCtrl.navigateBack('/unitab/dvir');
+            console.warn('Server Error: ', error);
+            console.warn('Pushed dvirs in offline mode');
+          });
+        });
     } else {
-      await this.updateDvirs(this.dvir, false);
-      console.warn('Pushed dvirs in offline mode');
+      await this.updateDvirs(this.dvir, false).then(() => {
+        this.loading = false;
+        console.warn('Pushed dvirs in offline mode');
+        this.navCtrl.navigateBack('/unitab/dvir');
+      });
     }
   }
 
@@ -178,6 +228,9 @@ export class EditDvirPage implements OnInit, OnDestroy {
       if (this.dvir && this.dvir.signatureBase64) {
         this.renderSignature('data:image/png;base64,' + this.dvir.signatureBase64);
       }
+    }
+    if (this.dvir.signatureLink && this.dvir.signatureLink.length !== 0) {
+      this.signatureFound = true;
     }
   }
 
@@ -221,34 +274,55 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   clearSignature() {
+    if (this.signatureFound) {
+      this.signatureFound = false;
+      this.dvir.signatureLink = '';
+    }
     if (this.signaturePad) {
       this.signaturePad.clear();
-      // this.form.patchValue({ Signature: '' });
+      this.dvir.signatureBase64 = '';
+    }
+  }
+
+  async restoreSignature() {
+    const firstNonEmptySignature = this.dvirs.find(dvir => dvir.signatureId !== '' && dvir.signatureId !== '00000000-0000-0000-0000-000000000000' && dvir.signatureLink !== '');
+
+    if (firstNonEmptySignature) {
+      this.dvir.signatureBase64 = '';
+      this.dvir.signatureLink = firstNonEmptySignature.signatureLink;
+      this.dvir.signatureId = firstNonEmptySignature.signatureId;
+      console.log(firstNonEmptySignature);
+      this.signatureFound = true;
+    } else {
+      this.signatureFound = false;
+      this.toastService.showToast('No signature found on this current dvir.');
     }
   }
 
   clearMechanicSignature() {
     if (this.mechanicSignaturePad) {
       this.mechanicSignaturePad.clear();
-      // this.form.patchValue({ MechanicSignature: '' });
+      this.dvir.mechanicSignatureBase64 = '';
     }
   }
 
   updateSignatureField() {
     if (this.signaturePad && !this.signaturePad.isEmpty()) {
-      const signatureDataURL = this.signaturePad.toDataURL();
-      // this.form.patchValue({ Signature: signatureDataURL });
+      const signatureDataURL = this.signaturePad.toDataURL().slice(22);
+      this.dvir.signatureBase64 = signatureDataURL;
     } else {
-      // this.form.patchValue({ Signature: '' });
+      this.dvir.signatureBase64 = '';
     }
   }
 
   updateMechanicSignatureField() {
     if (this.mechanicSignaturePad && !this.mechanicSignaturePad.isEmpty()) {
       const mechanicSignatureDataURL = this.mechanicSignaturePad.toDataURL();
-      // this.form.patchValue({ MechanicSignature: mechanicSignatureDataURL });
+      this.dvir.mechanicSignatureBase64 = mechanicSignatureDataURL;
+      this.dvir.repairDate = this.today.getTime();
+      this.dvir.repairTimeZone = this.timeZone;
     } else {
-      // this.form.patchValue({ MechanicSignature: '' });
+      this.dvir.mechanicSignatureBase64 = '';
     }
   }
 
