@@ -19,11 +19,6 @@ const routes: Routes = [
       import('./tabs/tabs.module').then((m) => m.TabsPageModule),
   },
   {
-    path: 'loader',
-    loadChildren: () =>
-      import('./pages/loader/loader.module').then((m) => m.LoaderPageModule),
-  },
-  {
     path: 'select-vehicle',
     loadChildren: () =>
       import('./pages/select-vehicle/select-vehicle.module').then(
@@ -146,7 +141,8 @@ const routes: Routes = [
   {
     path: 'edit-duty-status',
     loadChildren: () => import('./pages/edit-duty-status/edit-duty-status.module').then( m => m.EditDutyStatusPageModule)
-  },  {
+  },
+  {
     path: 'log-certify',
     loadChildren: () => import('./pages/log-certify/log-certify.module').then( m => m.LogCertifyPageModule)
   },

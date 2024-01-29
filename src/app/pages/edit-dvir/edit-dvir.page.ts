@@ -92,6 +92,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.pageLoading = true;
+    this.imageLoading = true;
 
     let dvirId$ = firstValueFrom(this.activatedRoute.queryParams);
     let company$ = firstValueFrom(this.databaseService.getCompany());

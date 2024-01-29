@@ -1,105 +1,52 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/others"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Rules</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<!-- <ion-content [fullscreen]="true">
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Cycle Rule</ion-label>
-    <ion-label class="custom-label" slot="end">USA 70 hour / 8 day</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Cargo Type</ion-label>
-    <ion-label class="custom-label" slot="end">Property</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Rest Break</ion-label>
-    <ion-label class="custom-label" slot="end"
-      >30 minutes Rest Break Required</ion-label
-    >
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Restart</ion-label>
-    <ion-label class="custom-label" slot="end">34 Hour Restart</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start"
-      >M16-Hour Short-Haul Exception</ion-label
-    >
-    <ion-label class="custom-label" slot="end">Forbidden</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Personal Conveyance</ion-label>
-    <ion-label class="custom-label" slot="end">Allowed</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Yard Moves</ion-label>
-    <ion-label class="custom-label" slot="end">Allowed</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Unlimited Trailerse</ion-label>
-    <ion-label class="custom-label" slot="end">Forbidden</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start"
-      >Unlimited Shipping Documents</ion-label
-    >
-    <ion-label class="custom-label" slot="end">Forbidden</ion-label>
-  </ion-item>
-</ion-content> -->
-
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/others"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Rules</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Rules'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)">
+  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">
       <div class="flex-b">
         <p class="text-2">Cycle Rule</p>
-        <div class="btn secondary-btn">USA 70 hour / 8 day</div>
+        <div class="btn secondary-btn">{{ company.settings.hoursOfService.name }}</div>
       </div>
       <div class="flex-b">
         <p class="text-2">Cargo Type</p>
-        <div class="btn secondary-btn">Property</div>
+        <div class="btn secondary-btn">{{ company.settings.cargoType.name }}</div>
       </div>
       <div class="flex-b">
         <p class="text-2">Rest Break</p>
-        <div class="btn secondary-btn">30 Min Required</div>
+        <div class="btn secondary-btn">{{ company.settings.restBreak.name }}</div>
       </div>
       <div class="flex-b">
         <p class="text-2">Restart</p>
-        <div class="btn secondary-btn">34 hours Restart</div>
+        <div class="btn secondary-btn">{{ company.settings.restartHours.name }}</div>
       </div>
       <div class="flex-b">
         <p class="text-2">16-hour short-haul exeption</p>
-        <div class="btn error-btn">Forbidden</div>
+        <div class="btn" [ngClass]="{'error-btn': !company.settings.shortHaulException, 'success-btn': company.settings.shortHaulException}">
+          {{ company.settings.shortHaulException ? 'Allowed' : 'Forbidden' }}
+        </div>
       </div>
       <div class="flex-b">
         <p class="text-2">Personal Conveyance</p>
-        <div class="btn success-btn">Allowed</div>
+        <div class="btn" [ngClass]="{'error-btn': !company.settings.allowPersonalUse, 'success-btn': company.settings.allowPersonalUse}">
+          {{ company.settings.allowPersonalUse ? 'Allowed' : 'Forbidden' }}
+        </div>
       </div>
       <div class="flex-b">
         <p class="text-2">Yard Moves</p>
-        <div class="btn success-btn">Allowed</div>
+        <div class="btn" [ngClass]="{'error-btn': !company.settings.allowYardMoves, 'success-btn': company.settings.allowYardMoves}">
+          {{ company.settings.allowYardMoves ? 'Allowed' : 'Forbidden' }}
+        </div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Unlinited Trilerlease</p>
-        <div class="btn error-btn">Forbidden</div>
+        <p class="text-2">Unlimited Trailerlease</p>
+        <div class="btn" [ngClass]="{'error-btn': !company.settings.shortHaulException, 'success-btn': company.settings.shortHaulException}">
+          {{ company.settings.shortHaulException ? 'Allowed' : 'Forbidden' }}
+        </div>
       </div>
       <div class="flex-b">
         <p class="text-2">Unlimited Shipping Documents</p>
-        <div class="btn error-btn">Forbidden</div>
+        <div class="btn" [ngClass]="{'error-btn': !company.settings.exemptDriver, 'success-btn': company.settings.exemptDriver}">
+          {{ company.settings.exemptDriver ? 'Allowed' : 'Forbidden' }}
+        </div>
       </div>
     </div>
     <div style="flex: 1; display: flex; align-items: flex-end">
@@ -108,5 +55,9 @@
         <p class="reminder-text">In order to change your information please contact your fleet manager</p>
       </div>
     </div>
+  </div>
+  <div class="spinner-container" *ngIf="pageLoading">
+    <ion-spinner color="dark"></ion-spinner>
+    <div>LOADING</div>
   </div>
 </ion-content>
