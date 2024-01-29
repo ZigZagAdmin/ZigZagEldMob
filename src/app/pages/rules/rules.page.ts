@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-import { Company } from 'src/app/models/company';
+import { Driver } from 'src/app/models/driver';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
@@ -10,15 +10,15 @@ import { DatabaseService } from 'src/app/services/database.service';
   styleUrls: ['./rules.page.scss'],
 })
 export class RulesPage implements OnInit {
-  company: Company;
+  driver: Driver;
   pageLoading: boolean = false;
 
   constructor(private navCtrl: NavController, private databaseService: DatabaseService) {}
 
   async ngOnInit() {
     this.pageLoading = true;
-    await firstValueFrom(this.databaseService.getCompany()).then(res => {
-      this.company = res;
+    await firstValueFrom(this.databaseService.getDrivers()).then(res => {
+      this.driver = res[0];
       this.pageLoading = false;
     });
   }

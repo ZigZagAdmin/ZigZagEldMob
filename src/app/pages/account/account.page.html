@@ -1,116 +1,19 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/others"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Account</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<!-- <ion-content [fullscreen]="true">
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Name</ion-label>
-    <ion-label class="custom-label" slot="end">Nazarco Andrei</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Email</ion-label>
-    <ion-label class="custom-label" slot="end">123@gmail.com</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Phone</ion-label>
-    <ion-label class="custom-label" slot="end">+1234567</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Licence</ion-label>
-    <ion-label class="custom-label" slot="end">AR, 3333</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Main Office Address</ion-label>
-    <ion-label class="custom-label" slot="end"
-      >1 Main, New York, NY, 2075</ion-label
-    >
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start"
-      >Home Terminal Address</ion-label
-    >
-    <ion-label class="custom-label" slot="end"
-      >1 Main, New York, NY, 2075</ion-label
-    >
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Time Zone</ion-label>
-    <ion-label class="custom-label" slot="end">CT</ion-label>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-label class="custom-label" slot="start">Language</ion-label>
-    <ion-label class="custom-label" slot="end">English</ion-label>
-  </ion-item>
-</ion-content> -->
-<!-- <ion-footer>
-  <ion-toolbar class="ion-text-center" color="medium">
-    <span
-      >Please contact your fleet manager to change your account
-      information</span
-    >
-  </ion-toolbar>
-</ion-footer> -->
-
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/others"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Account</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Account'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <div style="display: flex; flex-direction: column; height: calc(100% - 47px)">
     <div class="edit-dvir-block padding-g">
-      <div class="input-block-2">
-        <p class="text-2">Name</p>
-        <input class="input-2 readonly" type="text" value="Nazarco Andrei" readonly />
+      <app-input [label]="'Name'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <app-input [label]="'Email'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <app-input [label]="'Phone Number'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <div style="display: flex; gap: 15px">
+        <app-input [label]="'License'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+        <app-input [label]="'Time Zone'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
       </div>
-      <div class="input-block-2">
-        <p class="text-2">Email</p>
-        <input class="input-2 readonly" type="text" value="123@gmail.com" readonly />
-      </div>
-      <div class="input-block-2">
-        <p class="text-2">Phone Number</p>
-        <input class="input-2 readonly" type="text" value="+1234567" readonly />
-      </div>
-      <div class="three-inputs">
-        <div class="input-block-2">
-          <p class="text-2">License</p>
-          <input class="input-2 readonly" type="text" value="AR, 3333" readonly />
-        </div>
-        <div class="input-block-2">
-          <p class="text-2">Time Zone</p>
-          <input class="input-2 readonly" type="text" value="CT" readonly />
-        </div>
-        <div class="input-block-2">
-          <p class="text-2">Odometer</p>
-          <input class="input-2 readonly" type="text" value="124344" readonly />
-        </div>
-      </div>
-      <div class="input-block-2">
-        <p class="text-2">Carrier</p>
-        <input class="input-2 readonly" type="text" value="ZigZag Plus" readonly />
-      </div>
-      <div class="input-block-2">
-        <p class="text-2">Main Office Address</p>
-        <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
-      </div>
-      <div class="input-block-2">
-        <p class="text-2">Home Terminal Address</p>
-        <input class="input-2 readonly" type="text" value="1 Main, New York, NY, 2075" readonly />
-      </div>
-      <div class="input-block-2">
-        <p class="text-2">Language</p>
-        <input class="input-2 readonly" type="text" value="English" readonly />
-      </div>
+      <app-input [label]="'Carrier'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <app-input [label]="'Main Office Address'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <app-input [label]="'Home Terminal Address'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <app-input [label]="'Language'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
     </div>
     <div style="flex: 1; display: flex; align-items: flex-end">
       <div class="reminder">
