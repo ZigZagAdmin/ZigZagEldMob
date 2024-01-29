@@ -32,7 +32,7 @@
       <p class="subtitle-lg">Signature</p>
       <div>
         <div class="canvas-container">
-          <canvas #sPad height="290" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
+          <canvas #sPad height="200" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
           <div class="image-container" *ngIf="signatureFound">
             <img [ngClass]="{ 'no-display': imageLoading }" [src]="dvir.signatureLink" (load)="imageLoaded()" />
             <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>

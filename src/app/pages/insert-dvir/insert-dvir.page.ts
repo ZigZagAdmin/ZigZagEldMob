@@ -75,6 +75,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
 
     signatureId: this.utilityService.uuidv4(),
     signatureBase64: '',
+    signatureLink: '',
   };
 
   validation: { [key: string]: boolean } = {
@@ -190,6 +191,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   clearSignature() {
     if (this.signatureFound) {
       this.signatureFound = false;
+      this.dvir.signatureLink = '';
     }
     if (this.signaturePad) {
       this.signaturePad.clear();
@@ -202,12 +204,10 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
-    console.log(this.dvir.defectsTrailers.length === 0);
     if (this.dvir.defectsTrailers.length === 0) this.validation['trailerName'] = true;
-    console.log(this.validation);
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
-    if (this.dvir.signatureBase64.length === 0) {
+    if (this.dvir.signatureBase64.length === 0 && this.dvir.signatureLink.length === 0) {
       this.toastService.showToast('Please sign the form before saving!');
       return;
     }
