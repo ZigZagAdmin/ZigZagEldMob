@@ -2,12 +2,12 @@
   <app-header [title]="'Account'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <div style="display: flex; flex-direction: column; height: calc(100% - 47px)">
     <div class="edit-dvir-block padding-g">
-      <app-input [label]="'Name'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
-      <app-input [label]="'Email'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
-      <app-input [label]="'Phone Number'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <app-input [label]="'Name'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.name" [noValidation]="true"></app-input>
+      <app-input [label]="'Email'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.email" [noValidation]="true"></app-input>
+      <app-input [label]="'Phone Number'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.phoneNumber" [noValidation]="true"></app-input>
       <div style="display: flex; gap: 15px">
-        <app-input [label]="'License'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
-        <app-input [label]="'Time Zone'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+        <app-input [label]="'License'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.driverInfo?.licenseCountry + ', ' + driver?.driverInfo?.licenseNumber" [noValidation]="true"></app-input>
+        <app-input [label]="'Time Zone'" [fill]="true" [type]="'text'" [disabled]="true" [value]="timeZone" [noValidation]="true"></app-input>
         <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
       </div>
       <app-input [label]="'Carrier'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>

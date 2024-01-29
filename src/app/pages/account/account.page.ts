@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
+import { Driver } from 'src/app/models/driver';
+import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
   selector: 'app-account',
@@ -7,9 +10,16 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./account.page.scss'],
 })
 export class AccountPage implements OnInit {
-  constructor(private navCtrl: NavController) {}
+  driver: Driver;
+  pageLoading: boolean = false;
+  timeZone: string = '';
 
-  ngOnInit() {}
+  constructor(private navCtrl: NavController, private databaseService: DatabaseService) {}
+
+  async ngOnInit() {
+    this.pageLoading = true;
+    let driver$ = firstValueFrom(this.databaseService.getDrivers());
+  }
 
   goBack() {
     this.navCtrl.navigateBack('unitab/others');
