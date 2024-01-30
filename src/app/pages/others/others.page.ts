@@ -5,9 +5,10 @@ import { InternetService } from 'src/app/services/internet.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { LogEvents } from 'src/app/models/log-histories';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { timeZone } from 'src/app/models/timeZone';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-others',
@@ -27,29 +28,62 @@ export class OthersPage implements OnInit {
   bAuthorized!: boolean;
   bReady: boolean = false;
 
+  isModalOpen: boolean = false;
+
+  lastStatusCode: string = '';
+
+  autoLogin: boolean = false;
+
+  loading: boolean = false;
+
+  statusList: { [key: string]: string } = {
+    OFF: 'Off Duty',
+    SB: 'Sleeper Berth',
+    ON: 'On Duty',
+    D: 'Driving',
+    PC: 'Personal Conveyance',
+    YM: 'Yard Moves',
+  };
+
+  forbiddenStatuses: string[] = ['ON', 'D', 'PC', 'YM'];
+
   constructor(
     private navCtrl: NavController,
     private databaseService: DatabaseService,
     private dashboardService: DashboardService,
     private internetService: InternetService,
-    private storage: Storage
+    private storage: Storage,
+    private utilityService: UtilityService
   ) {}
 
-  async ngOnInit() {
-    console.log('init hos');
-    this.vehicleId = await this.storage.get('vehicleId');
-    this.driverId = await this.storage.get('driverId');
-    this.companyId = await this.storage.get('companyId');
-    this.TimeZoneCity = await this.storage.get('TimeZoneCity');
-    this.bAuthorized = await this.storage.get('bAuthorized');
-    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-      if (ready) {
-        this.bReady = ready;
-        this.databaseService.getLogEvents().subscribe(logEvents => {
-          this.logEvents = logEvents;
-        });
+  ngOnInit(): void {}
+
+  async ionViewWillEnter() {
+    console.log('ohters page');
+    let vehicleId$ = this.storage.get('vehicleId');
+    let driverId$ = this.storage.get('driverId');
+    let companyId$ = this.storage.get('companyId');
+    let TimeZoneCity$ = this.storage.get('TimeZoneCity');
+    let bAuthorized$ = this.storage.get('bAuthorized');
+    let lastStatusCode$ = this.storage.get('lastStatusCode');
+    let autoLogin$ = this.storage.get('autoLogin');
+    let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
+
+    forkJoin([vehicleId$, driverId$, companyId$, TimeZoneCity$, bAuthorized$, lastStatusCode$, autoLogin$, logEvents$]).subscribe(
+      ([vehicleId, driverId, companyId, TimeZoneCity, bAuthorized, lastStatusCode, autoLogin, logEvents]) => {
+        this.vehicleId = vehicleId;
+        this.driverId = driverId;
+        this.companyId = companyId;
+        this.TimeZoneCity = TimeZoneCity;
+        this.bAuthorized = bAuthorized;
+        this.lastStatusCode = lastStatusCode;
+        if (autoLogin !== null && autoLogin !== undefined) {
+          this.autoLogin = autoLogin;
+        }
+        this.logEvents = logEvents;
       }
-    });
+    );
+
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
       console.log('Intenet Status' + status);
@@ -77,14 +111,19 @@ export class OthersPage implements OnInit {
     this.navCtrl.navigateForward('/information');
   }
 
-  onLogoutClick() {
+  logoutConfirm() {
+    this.isModalOpen = true;
+  }
+
+  async onLogoutClick() {
     if (this.bAuthorized === true) {
+      this.loading = true;
       const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
       if (lastLogEvent) lastLogEvent.eventTime.timeStampEnd = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone])).getTime();
 
       let LogoutLogEvent: LogEvents = {
-        logEventId: this.uuidv4(),
+        logEventId: this.utilityService.uuidv4(),
         companyId: '',
         driverId: this.driverId,
         eventTime: {
@@ -118,39 +157,55 @@ export class OthersPage implements OnInit {
 
       this.storage.set('bAuthorized', false);
 
-      this.dashboardService.updateLogEvent(lastLogEvent).subscribe(
-        response => {
-          console.log('Last LogEvent is updated on server:', response);
-          this.updateIndexLogEvents(lastLogEvent, true);
-        },
-        async error => {
+      await this.updateLogEvents(LogoutLogEvent, false);
+      await this.dashboardService
+        .updateLogEvent(LogoutLogEvent)
+        .toPromise()
+        .then(async response => {
+          console.log('Login LogEvents got updated on the server: ', response);
+          await this.updateIndexLogEvents(LogoutLogEvent, true);
+        })
+        .catch(async error => {
           console.log('Internet Status: ' + this.networkStatus);
-          this.updateIndexLogEvents(lastLogEvent, false);
-          console.log('Last LogEvent Pushed in offline logEvents array');
-        }
-      );
+          console.log('Login LogEvent in offline logEvents array');
+        });
 
-      this.dashboardService.updateLogEvent(LogoutLogEvent).subscribe(
-        response => {
-          console.log('New status is updated on server:', response);
-          this.updateLogEvents(LogoutLogEvent, true);
-        },
-        async error => {
+      await this.updateIndexLogEvents(lastLogEvent, false);
+      await this.dashboardService
+        .updateLogEvent(lastLogEvent)
+        .toPromise()
+        .then(async response => {
+          console.log('Second Last LogEvent is updated on server:', response);
+          await this.updateIndexLogEvents(lastLogEvent, true);
+        })
+        .catch(async error => {
           console.log('Internet Status: ' + this.networkStatus);
-          this.updateLogEvents(LogoutLogEvent, false);
-          console.log('New Log Event Status Pushed in offline logEvents Array');
-        }
-      );
+          console.log('Second Last LogEvent Pushed in offline logEvents array');
+        });
     }
+    this.loading = false;
     this.storage.remove('accessToken');
     this.storage.remove('pickedVehicle');
-    this.navCtrl.navigateForward('/login', { replaceUrl: true });
+    this.isModalOpen = false;
+    setTimeout(() => this.navCtrl.navigateForward('/login', { replaceUrl: true }), 0)
+  }
+
+  toggleCheck() {
+    if (this.autoLogin) {
+      this.autoLogin = false;
+    } else {
+      this.autoLogin = true;
+    }
+  }
+
+  isForbidden(currentStatus: string): boolean {
+    return this.forbiddenStatuses.includes(currentStatus);
   }
 
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
     logEventData.sent = online;
     this.logEvents.push(logEventData);
-    await this.storage.set('dvirs', this.logEvents);
+    await this.storage.set('logEvents', this.logEvents);
   }
 
   async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
@@ -159,15 +214,16 @@ export class OthersPage implements OnInit {
     if (index !== -1) {
       this.logEvents[index] = logEventData;
     }
-    await this.storage.set('dvirs', this.logEvents);
+    await this.storage.set('logEvents', this.logEvents);
   }
 
-  uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0,
-        v = c == 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+  goSwitchStatus() {
+    this.isModalOpen = false;
+    setTimeout(() => this.navCtrl.navigateBack('unitab/hos'), 0);
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
   }
 
   ionViewWillLeave() {

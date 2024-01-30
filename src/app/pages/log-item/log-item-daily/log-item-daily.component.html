@@ -135,7 +135,7 @@
         <p class="subtitle">Logs</p>
         <div class="logs-buttons">
           <button class="btn primary-btn" [ngClass]="{ 'btn-disabled ': currentDay === today }" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">Certify</button>
-          <button id="open-modal" class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">Certified</button>
+          <button class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">Certified</button>
         </div>
       </div>
       <ion-modal [isOpen]="isModalOpen">

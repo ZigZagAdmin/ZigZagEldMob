@@ -203,6 +203,7 @@ export class HosPage implements OnInit, OnDestroy {
               sent: true,
             };
 
+            this.storage.set('lastStatusCode', this.selectedButton);
             this.storage.set('bAuthorized', true);
 
             this.updateLogEvents(LoginLogEvent, false);
@@ -672,6 +673,7 @@ export class HosPage implements OnInit, OnDestroy {
       this.lastSelectedButton = this.selectedButton;
       this.isModalOpen = false;
       this.shareService.destroyMessage();
+      await this.storage.set('lastStatusCode', this.selectedButton);
       await this.onWillDismiss();
     } else {
       this.toastService.showToast('You need to select a different status!', 'warning');

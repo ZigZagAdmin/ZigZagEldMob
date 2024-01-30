@@ -1,102 +1,6 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Others</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<!-- <ion-content [fullscreen]="true">
-  <ion-grid>
-    <ion-row>
-      <ion-col size="12">
-        <ion-button
-          (click)="onVehicleClick()"
-          expand="full"
-          shape="round"
-          fill="outline"
-        >
-          <ion-icon name="car-outline"></ion-icon>
-          <ion-label color="dark">Vehicle</ion-label>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size="12">
-        <ion-button
-          (click)="onCoDriverClick()"
-          expand="full"
-          shape="round"
-          fill="outline"
-        >
-          <ion-icon name="people-outline"></ion-icon>
-          <ion-label color="dark">Co-Driver</ion-label>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size="12">
-        <ion-button
-          (click)="onAccountClick()"
-          expand="full"
-          shape="round"
-          fill="outline"
-        >
-          <ion-icon name="person-outline"></ion-icon>
-          <ion-label color="dark">Account</ion-label>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size="12">
-        <ion-button
-          (click)="onRulesClick()"
-          expand="full"
-          shape="round"
-          fill="outline"
-        >
-          <ion-icon name="book-outline"></ion-icon>
-          <ion-label color="dark">Rules</ion-label>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size="12">
-        <ion-button
-          (click)="onInformationClick()"
-          expand="full"
-          shape="round"
-          fill="outline"
-        >
-          <ion-icon name="information-circle-outline"></ion-icon>
-          <ion-label color="dark">Information</ion-label>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size="12">
-        <ion-button
-          (click)="onLogoutClick()"
-          expand="full"
-          shape="round"
-          fill="outline"
-        >
-          <ion-icon name="log-out-outline"></ion-icon>
-          <ion-label color="dark">Logout</ion-label>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</ion-content> -->
-
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-title>Others</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Others'"></app-header>
   <div class="edit-form padding-g">
-    <!-- <p class="title">Other</p> -->
     <div class="other-items">
       <div class="other-item" (click)="onVehicleClick()">
         <img src="assets/icon/truck.svg" alt="vehicle" />
@@ -122,10 +26,32 @@
         <img src="assets/icon/information.svg" alt="information" />
         <p class="text-14-600">Information</p>
       </div>
-      <div class="other-item" (click)="onLogoutClick()">
+      <div class="other-item" (click)="logoutConfirm()">
         <img src="assets/icon/logout.svg" alt="logout" />
-        <p class="text-14-600">Logout</p>
+        <p class="text-14-600" id="trigger-log-out-modal">Logout</p>
       </div>
     </div>
   </div>
+  <ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-log-out-modal">
+    <ng-template>
+      <div class="modal-box">
+        <div class="modal-title">{{ isForbidden(lastStatusCode) ? 'Unable to log out' : 'Log Out' }}</div>
+        <div class="modal-status">
+          {{ 'Your current status: '}}<span style="font-size: 16px; font-weight: 600" [ngClass]="{'label-error': isForbidden(lastStatusCode)}">{{ statusList[lastStatusCode] }}</span>
+        </div>
+        <div *ngIf="!isForbidden(lastStatusCode)" class="autologin-checkbox" (click)="toggleCheck()">
+          <ion-checkbox [checked]="autoLogin"></ion-checkbox>
+          <div class="autologin-checkbox-label">Auto login next time</div>
+        </div>
+      </div>
+      <div class="submit-buttons" [ngClass]="{'submit-buttons-error': isForbidden(lastStatusCode)}">
+        <div class="action-button default" (click)="closeModal()" [ngClass]="{ 'disable-click': loading }">Cancel</div>
+        <div class="action-button primary" *ngIf="!isForbidden(lastStatusCode)" [ngClass]="{ 'disable-click': loading }" (click)="onLogoutClick()">
+          <span *ngIf="!loading">Log Out</span>
+          <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+        </div>
+        <div class="action-button error" *ngIf="isForbidden(lastStatusCode)" (click)="goSwitchStatus()">Switch status</div>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>

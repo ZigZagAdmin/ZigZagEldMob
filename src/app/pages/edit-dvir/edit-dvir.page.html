@@ -67,7 +67,7 @@
           <div class="signature-button" (click)="clearMechanicSignature()">Clear signature</div>
         </div>
       </div>
-      <button class="btn primary-btn" (click)="onSubmit()"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>
+      <button class="btn primary-btn" (click)="onSubmit()" [ngClass]="{ 'disable-click': loading }"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>
     </div>
   </form>
   <div class="spinner-container" *ngIf="pageLoading">

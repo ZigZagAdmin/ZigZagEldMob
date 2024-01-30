@@ -44,7 +44,7 @@
         </div>
       </div>
 
-      <button class="btn primary-btn" (click)="onSubmit()"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>
+      <button class="btn primary-btn" [ngClass]="{ 'disable-click': loading }" (click)="onSubmit()"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>
     </div>
   </form>
 </ion-content>

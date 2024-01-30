@@ -22,8 +22,8 @@
         <div class="checkbox-text">I hereby certify that my data entries and my record of duty status for this 24-hour period are true and correct.</div>
       </div>
       <div class="confirm-buttons">
-        <button class="custom-btn secondary-btn" (click)="goBack()">Back</button>
-        <button class="custom-btn primary-btn" [ngClass]="{'btn-disabled': !isConfirmButtonActive}" (click)="save()" [disabled]="!isConfirmButtonActive">
+        <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">Back</button>
+        <button class="custom-btn primary-btn" [ngClass]="{'btn-disabled': !isConfirmButtonActive}" [ngClass]="{ 'disable-click': loading }" (click)="save()" [disabled]="!isConfirmButtonActive">
           <span *ngIf="!loading">Save</span>
           <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
         </button>
