@@ -661,6 +661,7 @@ export class HosPage implements OnInit, OnDestroy {
 
   cancel() {
     this.shareService.destroyMessage();
+    this.selectedButton = this.lastSelectedButton;
     this.isModalOpen = false;
   }
 
