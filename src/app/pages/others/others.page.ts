@@ -9,6 +9,8 @@ import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { timeZone } from 'src/app/models/timeZone';
 import { UtilityService } from 'src/app/services/utility.service';
+import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-others',
@@ -32,7 +34,7 @@ export class OthersPage implements OnInit {
 
   lastStatusCode: string = '';
 
-  autoLogin: boolean = false;
+  autoLogin: boolean = true;
 
   loading: boolean = false;
 
@@ -156,6 +158,7 @@ export class OthersPage implements OnInit {
       };
 
       this.storage.set('bAuthorized', false);
+      this.storage.set('autoLogin', this.autoLogin);
 
       await this.updateLogEvents(LogoutLogEvent, false);
       await this.dashboardService
@@ -187,7 +190,12 @@ export class OthersPage implements OnInit {
     this.storage.remove('accessToken');
     this.storage.remove('pickedVehicle');
     this.isModalOpen = false;
-    setTimeout(() => this.navCtrl.navigateForward('/login', { replaceUrl: true }), 0)
+    setTimeout(() => {
+      this.navCtrl.navigateForward('/login', { replaceUrl: true });
+      if (Capacitor.getPlatform() !== 'web') {
+        App.exitApp();
+      }
+    }, 0);
   }
 
   toggleCheck() {

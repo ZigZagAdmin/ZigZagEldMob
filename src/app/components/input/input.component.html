@@ -8,6 +8,7 @@
     [(ngModel)]="value"
     [disabled]="disabled"
     [placeholder]="placeholder"
+    autocomplete="one-time-code"
     class="input-box"
     [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left' }" />
 </div>

@@ -6,8 +6,6 @@ import { formatDate } from '@angular/common';
 import { Storage } from '@ionic/storage';
 import { NavController } from '@ionic/angular';
 
-import { ToastController } from '@ionic/angular';
-
 import { DatabaseService } from 'src/app/services/database.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ManageService } from 'src/app/services/manage.service';
@@ -26,6 +24,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { ShareService } from 'src/app/services/share.service';
 import { LocationService } from 'src/app/services/location.service';
 import { Capacitor } from '@capacitor/core';
+import { EncryptionService } from 'src/app/services/encryption.service';
 
 @Component({
   selector: 'app-login',
@@ -45,6 +44,7 @@ export class LoginPage implements OnInit, OnDestroy {
   companyId: string = '';
   driverId: string = '';
   placesCity: PlacesCity[] = [];
+  autoLogin: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -55,11 +55,31 @@ export class LoginPage implements OnInit, OnDestroy {
     private navCtrl: NavController,
     private utilityService: UtilityService,
     private shareService: ShareService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private encryptionService: EncryptionService
   ) {}
 
   async ngOnInit() {
+    console.log('Init login');
     this.placesCity = await this.storage.get('placesCity');
+    await this.storage.get('autoLogin').then(async res => {
+      if (res !== null && res !== undefined) {
+        this.autoLogin = res;
+      } else {
+        this.autoLogin = false;
+      }
+      if (this.autoLogin) {
+        let username = await this.storage.get('username').then(res => (res !== null && res !== undefined ? this.encryptionService.decrypt(res) : 'none'));
+        let password = await this.storage.get('password').then(res => (res !== null && res !== undefined ? this.encryptionService.decrypt(res) : 'none'));
+        if (username !== 'none' || password !== 'none') {
+          this.username = username;
+          this.password = password;
+          this.validation['username'] = true;
+          this.validation['password'] = true;
+          setTimeout(async () => await this.login(username, password), 0);
+        }
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -67,8 +87,10 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async login(username: string, password: string) {
+    console.log(this.validation);
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
+    this.shareService.changeMessage('reset');
 
     if (Capacitor.getPlatform() !== 'web') {
       if (!(await this.locationService.checkLocationServices())) {
@@ -98,7 +120,8 @@ export class LoginPage implements OnInit, OnDestroy {
           this.storage.set('companyId', res.CompanyId);
           this.storage.set('name', res.Name);
           this.storage.set('language', res.Language);
-          localStorage.setItem('accessToken', res.AccessToken);
+          this.storage.set('username', this.encryptionService.encrypt(username));
+          this.storage.set('password', this.encryptionService.encrypt(password));
           return this.saveAuthUser(res);
         }),
         switchMap(() => {
