@@ -6,14 +6,32 @@
       <app-input [label]="'Email'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.email" [noValidation]="true"></app-input>
       <app-input [label]="'Phone Number'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.phoneNumber" [noValidation]="true"></app-input>
       <div style="display: flex; gap: 15px">
-        <app-input [label]="'License'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.driverInfo?.licenseCountry + ', ' + driver?.driverInfo?.licenseNumber" [noValidation]="true"></app-input>
+        <app-input
+          [label]="'License'"
+          [fill]="true"
+          [type]="'text'"
+          [disabled]="true"
+          [value]="driver?.driverInfo?.licenseCountry + ', ' + driver?.driverInfo?.licenseNumber"
+          [noValidation]="true"></app-input>
         <app-input [label]="'Time Zone'" [fill]="true" [type]="'text'" [disabled]="true" [value]="timeZone" [noValidation]="true"></app-input>
-        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.driverInfo?.settings?.hoursOfService?.odometerUnit" [noValidation]="true"></app-input>
       </div>
-      <app-input [label]="'Carrier'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
-      <app-input [label]="'Main Office Address'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
-      <app-input [label]="'Home Terminal Address'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
-      <app-input [label]="'Language'" [fill]="true" [type]="'text'" [disabled]="true" [value]="" [noValidation]="true"></app-input>
+      <app-input [label]="'Carrier'" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
+      <app-input
+        [label]="'Main Office Address'"
+        [fill]="true"
+        [type]="'text'"
+        [disabled]="true"
+        [value]="company?.mainOffice?.street + ', ' + company?.mainOffice?.city + ', ' + company?.mainOffice?.stateProvinceCode + ' ' + company?.mainOffice?.zipCode + ', ' + company?.mainOffice?.countryCode"
+        [noValidation]="true"></app-input>
+      <app-input
+        [label]="'Home Terminal Address'"
+        [fill]="true"
+        [type]="'text'"
+        [disabled]="true"
+        [value]="company?.terminals[0].street + ', ' + company?.terminals[0].city + ', ' + company?.terminals[0].stateProvinceCode + ' ' + company?.terminals[0].zipCode + ', ' + company?.terminals[0].countryCode"
+        [noValidation]="true"></app-input>
+      <app-input [label]="'Language'" [fill]="true" [type]="'text'" [disabled]="true" [value]="language" [noValidation]="true"></app-input>
     </div>
     <div style="flex: 1; display: flex; align-items: flex-end">
       <div class="reminder">
