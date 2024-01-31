@@ -151,7 +151,6 @@ export class OthersPage implements OnInit {
         engineHours: 0,
         malfunction: false,
         dataDiagnosticEvent: false,
-        certificationDate: '',
         comment: '',
         eventDataCheck: '',
         inspection: false,
