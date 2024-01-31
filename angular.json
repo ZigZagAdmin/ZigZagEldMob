@@ -37,7 +37,7 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "localforage", "crypto-js"
+              "localforage", "crypto-js", "pdfjs-dist/build/pdf", "pdfjs-dist/web/pdf_viewer"
             ]
           },
           "configurations": {

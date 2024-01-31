@@ -9,13 +9,19 @@ import { InstructionsPageRoutingModule } from './instructions-routing.module';
 import { InstructionsPage } from './instructions.page';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+
+import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     InstructionsPageRoutingModule,
-    HeaderComponentModule
+    HeaderComponentModule,
+    PdfViewerModule,
+    PinchZoomModule
   ],
   declarations: [InstructionsPage]
 })
