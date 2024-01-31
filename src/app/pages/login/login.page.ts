@@ -25,6 +25,7 @@ import { ShareService } from 'src/app/services/share.service';
 import { LocationService } from 'src/app/services/location.service';
 import { Capacitor } from '@capacitor/core';
 import { EncryptionService } from 'src/app/services/encryption.service';
+import { Keyboard } from '@capacitor/keyboard';
 
 @Component({
   selector: 'app-login',
@@ -76,7 +77,7 @@ export class LoginPage implements OnInit, OnDestroy {
           this.password = password;
           this.validation['username'] = true;
           this.validation['password'] = true;
-          setTimeout(async () => await this.login(username, password), 0);
+          // setTimeout(async () => await this.login(username, password), 0);
         }
       }
     });
@@ -88,6 +89,9 @@ export class LoginPage implements OnInit, OnDestroy {
 
   async login(username: string, password: string) {
     console.log(this.validation);
+    if (Capacitor.getPlatform() !== 'web') {
+      Keyboard.hide();
+    }
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
     this.shareService.changeMessage('reset');

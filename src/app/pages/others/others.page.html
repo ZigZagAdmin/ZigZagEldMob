@@ -41,7 +41,7 @@
         </div>
         <div *ngIf="!isForbidden(lastStatusCode)" class="autologin-checkbox" (click)="toggleCheck()">
           <ion-checkbox [checked]="autoLogin"></ion-checkbox>
-          <div class="autologin-checkbox-label">Auto login next time</div>
+          <div class="autologin-checkbox-label">Remember me next time</div>
         </div>
       </div>
       <div class="submit-buttons" [ngClass]="{'submit-buttons-error': isForbidden(lastStatusCode)}">

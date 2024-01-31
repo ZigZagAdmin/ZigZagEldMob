@@ -190,12 +190,7 @@ export class OthersPage implements OnInit {
     this.storage.remove('accessToken');
     this.storage.remove('pickedVehicle');
     this.isModalOpen = false;
-    setTimeout(() => {
-      this.navCtrl.navigateForward('/login', { replaceUrl: true });
-      if (Capacitor.getPlatform() !== 'web') {
-        App.exitApp();
-      }
-    }, 0);
+    setTimeout(() => this.navCtrl.navigateForward('/login', { replaceUrl: true }), 0);
   }
 
   toggleCheck() {

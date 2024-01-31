@@ -4,9 +4,9 @@
     <div class="login-form-container">
       <div class="title">Welcome to ZigZag ELD</div>
       <div class="form-login">
-        <app-input [label]="'Username'" [fill]="false" [type]="'text'" [(value)]="username" [(validation)]="validation['username']"></app-input>
+        <app-input [label]="'Username'" [fill]="false" [type]="'text'" [(value)]="username" [disabled]="loading" [(validation)]="validation['username']"></app-input>
         <div style="display: flex; flex-direction: column">
-          <app-input [label]="'Password'" [fill]="false" [type]="'password'" [(value)]="password" [(validation)]="validation['password']" (keydown.enter)="login(username, password)"></app-input>
+          <app-input [label]="'Password'" [fill]="false" [type]="'password'" [(value)]="password" [(validation)]="validation['password']" [disabled]="loading" (keydown.enter)="login(username, password)"></app-input>
           <div class="forgot-password" (click)="forgotPassword()">Forgot Password?</div>
         </div>
         <button class="btn-login primary-btn f-submit-button" [ngClass]="{ 'disable-click': loading }" (click)="login(username, password)">
