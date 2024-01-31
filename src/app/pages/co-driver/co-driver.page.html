@@ -1,13 +1,9 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/others"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Co-Driver</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
   <app-header [title]="'Co-Driver'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div class="padding-g no-data">No data.</div>
+  <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px">
+    <app-select [label]="'Select Co-Driver'" (changeDetection)="showSelection()" [(value)]="chosenDriver" [options]="coDriverNames"></app-select>
+    <button class="btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
+      <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+    </button>
+  </div>
 </ion-content>

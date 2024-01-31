@@ -326,12 +326,17 @@ export class LoginPage implements OnInit, OnDestroy {
   private async updateLogDailies(logDailies: LogDailies[]) {
     let currentDate = new Date();
     let countDays = [];
+    let coDriverReset: boolean = true;
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
       const foundLogDayIndex = logDailies.findIndex(logDay => logDay.logDate.includes(dateString));
 
       if (foundLogDayIndex !== -1) {
         countDays.push(logDailies[foundLogDayIndex]);
+        if(coDriverReset) {
+          await this.storage.set('coDriver', {})
+          coDriverReset = false;
+        }
       } else {
         let newLogDaily: LogDailies = {
           logDailyId: this.utilityService.uuidv4(),

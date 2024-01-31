@@ -10,13 +10,16 @@ import { CoDriverPage } from './co-driver.page';
 
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
+import { SelectComponentModule } from 'src/app/components/select/select.module';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     CoDriverPageRoutingModule,
-    HeaderComponentModule
+    HeaderComponentModule,
+    SelectComponentModule
   ],
   declarations: [CoDriverPage]
 })
