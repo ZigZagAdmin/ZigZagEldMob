@@ -440,9 +440,9 @@ public class LogInActivity extends Activity implements OnClickListener, EasyPerm
                         cv.put("state_province_code", obj.getString("StateProvinceCode"));
                         cv.put("zip_code", obj.getString("ZipCode"));
                         cv.put("time_zone_code", obj.getString("TimeZoneCode"));
-                        cv.put("time_zone_city", obj.getString("TimeZoneCity"));
+                        cv.put("time_zone_city", obj.getString("timeZone"));
 
-                        edd.putString("sTimeZoneCity", obj.getString("TimeZoneCity"));
+                        edd.putString("stimeZone", obj.getString("timeZone"));
                         edd.commit();
 
                         if (sCompanyId.compareTo(obj.getString("CompanyId")) == 0)

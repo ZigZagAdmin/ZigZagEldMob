@@ -303,7 +303,7 @@ export class DatabaseService {
 //       state_province_code: companyData.StateProvinceCode,
 //       zip_code: companyData.ZipCode,
 //       time_zone_code: companyData.TimeZoneCode,
-//       time_zone_city: companyData.TimeZoneCity,
+//       time_zone_city: companyData.timeZone,
 //     };
 
 //     const existingCompany = await db.executeSql(

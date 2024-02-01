@@ -11,7 +11,7 @@ import { InternetService } from 'src/app/services/internet.service';
 import { formatDate } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Vehicle } from 'src/app/models/vehicle';
-import { timeZone } from 'src/app/models/timeZone';
+import { timeZones } from 'src/app/models/timeZone';
 import { LocationService } from 'src/app/services/location.service';
 import { BluetoothService } from 'src/app/services/bluetooth.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -46,7 +46,7 @@ export class HosPage implements OnInit, OnDestroy {
   companyId: string = '';
   name: string = '';
   pickedVehicle: string = '';
-  TimeZoneCity: string = '';
+  timeZone: string = '';
   networkStatus = false;
   networkSub!: Subscription;
   paramsSubscription!: Subscription;
@@ -122,6 +122,8 @@ export class HosPage implements OnInit, OnDestroy {
         this.bluetoothStatus = data;
       });
     }
+
+    setTimeout(() => this.animateCircles = false, 500) // It's ugly, but it works
   }
 
   ngOnDestroy(): void {
@@ -140,7 +142,7 @@ export class HosPage implements OnInit, OnDestroy {
     this.driverId = await this.storage.get('driverId');
     this.driverName = await this.storage.get('driverName');
     this.companyId = await this.storage.get('companyId');
-    this.TimeZoneCity = await this.storage.get('TimeZoneCity');
+    this.timeZone = await this.storage.get('timeZone');
     this.bAuthorized = await this.storage.get('bAuthorized');
     this.name = await this.storage.get('name');
     this.pickedVehicle = await this.storage.get('vehicleUnit');
@@ -161,17 +163,17 @@ export class HosPage implements OnInit, OnDestroy {
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
-            lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);
+            lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]);
 
             let LoginLogEvent: LogEvents = {
               logEventId: this.utilityService.uuidv4(),
               companyId: lastLogEvent.companyId,
               driverId: this.driverId,
               eventTime: {
-                logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
+                logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
                 timeStamp: new Date().getTime(),
                 timeStampEnd: new Date().getTime(),
-                timeZone: this.TimeZoneCity,
+                timeZone: this.timeZone,
               },
               vehicle: {
                 vehicleId: this.vehicleId,
@@ -376,7 +378,7 @@ export class HosPage implements OnInit, OnDestroy {
           sDateEnd = new Date().toISOString();
         }
         if (sDateEnd == '0001-01-01T00:00:00') {
-          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]);
+          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]);
         }
 
         iTime = (new Date(sDateEnd).getTime() - new Date(sDateBgn).getTime()) / 1000;
@@ -722,9 +724,9 @@ export class HosPage implements OnInit, OnDestroy {
       companyId: lastLogEvent.companyId,
       driverId: this.driverId,
       eventTime: {
-        logDate: formatDate(new Date(endTime), 'yyyy/MM/dd', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
+        logDate: formatDate(new Date(endTime), 'yyyy/MM/dd', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
         timeStamp: endTime,
-        timeZone: this.TimeZoneCity,
+        timeZone: this.timeZone,
       },
       vehicle: {
         vehicleId: this.vehicleId,
@@ -981,10 +983,9 @@ export class HosPage implements OnInit, OnDestroy {
 
   updateEveryMinute() {
     setInterval(() => {
-      this.animateCircles = false;
       this.updateLogDailies();
       this.calculateCircles();
-    }, 60000);
+    }, 5000);
   }
 
   ionViewWillLeave() {

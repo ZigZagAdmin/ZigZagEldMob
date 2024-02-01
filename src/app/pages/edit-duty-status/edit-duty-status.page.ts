@@ -30,7 +30,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   yEnd!: number;
   xBgnV!: number;
   yBgnV!: number;
-  TimeZoneCity: string;
+  timeZone: string;
   logEvents: LogEvents[] = [];
 
   isConfirmButtonActive: boolean = false;
@@ -76,7 +76,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
-              timeZone: this.TimeZoneCity,
+              timeZone: this.timeZone,
             }),
             'yyyy-MM-ddTHH:mm:ss',
             'en_US'

@@ -97,7 +97,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
     let dvirId$ = firstValueFrom(this.activatedRoute.queryParams);
     let company$ = firstValueFrom(this.databaseService.getCompany());
     let dvirs$ = firstValueFrom(this.databaseService.getDvirs());
-    let timeZone$ = this.storage.get('TimeZoneCity');
+    let timeZone$ = this.storage.get('timeZone');
 
     forkJoin([company$, dvirs$, dvirId$, timeZone$]).subscribe(
       ([company, dvirs, params, timeZone]) => {

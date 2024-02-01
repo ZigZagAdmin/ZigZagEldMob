@@ -38,7 +38,7 @@ export class SelectVehiclePage implements OnInit {
         });
         this.databaseService.getCompany().subscribe(company => {
           this.company = company;
-          this.storage.set('TimeZoneCity', this.company?.mainOffice.timeZoneCode);
+          this.storage.set('timeZone', this.company?.mainOffice.timeZoneCode);
         });
       }
     });

@@ -17,7 +17,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ManageService } from 'src/app/services/manage.service';
-import { timeZone } from 'src/app/models/timeZone';
+import { timeZones } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-log-item-daily',
@@ -29,7 +29,7 @@ export class LogItemDailyComponent implements OnInit {
   @ViewChild(IonModal) modal!: IonModal;
   LogDailiesId!: string | null;
   bReady: boolean = false;
-  TimeZoneCity: string = '';
+  timeZone: string = '';
   vehicleUnit: string = '';
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
@@ -103,7 +103,7 @@ export class LogItemDailyComponent implements OnInit {
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.vehicleUnit = await this.storage.get('vehicleUnit');
-    this.TimeZoneCity = await this.storage.get('TimeZoneCity');
+    this.timeZone = await this.storage.get('timeZone');
     this.activatedRoute.params.subscribe(params => {
       this.LogDailiesId = params['id'];
       // console.log(this.LogDailiesId);
@@ -213,7 +213,7 @@ export class LogItemDailyComponent implements OnInit {
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
-              timeZone: this.TimeZoneCity,
+              timeZone: this.timeZone,
             }),
             'yyyy-MM-ddTHH:mm:ss',
             'en_US'
@@ -513,7 +513,7 @@ export class LogItemDailyComponent implements OnInit {
         companyId: '',
         driverId: this.driverId,
         eventTime: {
-          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
+          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
           timeStamp: new Date().getTime(),
           timeStampEnd: new Date().getTime(),
           timeZone: '',

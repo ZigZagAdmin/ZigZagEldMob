@@ -24,7 +24,7 @@ export class AccountPage implements OnInit {
     this.pageLoading = true;
     let driver$ = firstValueFrom(this.databaseService.getDrivers());
     let company$ = firstValueFrom(this.databaseService.getCompany());
-    let timeZone$ = this.storage.get('TimeZoneCity');
+    let timeZone$ = this.storage.get('timeZone');
     let langauge$ = this.storage.get('language');
 
     forkJoin([driver$, company$, timeZone$, langauge$]).subscribe(([driver, company, timeZone, language]) => {
@@ -33,7 +33,7 @@ export class AccountPage implements OnInit {
       this.timeZone = timeZone;
       this.language = language;
       this.language = this.language.toUpperCase();
-    })
+    });
   }
 
   goBack() {

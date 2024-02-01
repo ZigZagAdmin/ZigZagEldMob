@@ -7,7 +7,7 @@ import { Storage } from '@ionic/storage';
 import { LogEvents } from 'src/app/models/log-histories';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
-import { timeZone } from 'src/app/models/timeZone';
+import { timeZones } from 'src/app/models/timeZone';
 import { UtilityService } from 'src/app/services/utility.service';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
@@ -23,7 +23,7 @@ export class OthersPage implements OnInit {
   networkStatus = false;
   networkSub!: Subscription;
   databaseSubscription: Subscription | undefined;
-  TimeZoneCity: string = '';
+  timeZone: string = '';
   vehicleId: string = '';
   driverId: string = '';
   companyId: string = '';
@@ -65,18 +65,18 @@ export class OthersPage implements OnInit {
     let vehicleId$ = this.storage.get('vehicleId');
     let driverId$ = this.storage.get('driverId');
     let companyId$ = this.storage.get('companyId');
-    let TimeZoneCity$ = this.storage.get('TimeZoneCity');
+    let timeZone$ = this.storage.get('timeZone');
     let bAuthorized$ = this.storage.get('bAuthorized');
     let lastStatusCode$ = this.storage.get('lastStatusCode');
     let autoLogin$ = this.storage.get('autoLogin');
     let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
 
-    forkJoin([vehicleId$, driverId$, companyId$, TimeZoneCity$, bAuthorized$, lastStatusCode$, autoLogin$, logEvents$]).subscribe(
-      ([vehicleId, driverId, companyId, TimeZoneCity, bAuthorized, lastStatusCode, autoLogin, logEvents]) => {
+    forkJoin([vehicleId$, driverId$, companyId$, timeZone$, bAuthorized$, lastStatusCode$, autoLogin$, logEvents$]).subscribe(
+      ([vehicleId, driverId, companyId, timeZone, bAuthorized, lastStatusCode, autoLogin, logEvents]) => {
         this.vehicleId = vehicleId;
         this.driverId = driverId;
         this.companyId = companyId;
-        this.TimeZoneCity = TimeZoneCity;
+        this.timeZone = timeZone;
         this.bAuthorized = bAuthorized;
         this.lastStatusCode = lastStatusCode;
         if (autoLogin !== null && autoLogin !== undefined) {
@@ -122,14 +122,14 @@ export class OthersPage implements OnInit {
       this.loading = true;
       const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
-      if (lastLogEvent) lastLogEvent.eventTime.timeStampEnd = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone])).getTime();
+      if (lastLogEvent) lastLogEvent.eventTime.timeStampEnd = new Date(formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones])).getTime();
 
       let LogoutLogEvent: LogEvents = {
         logEventId: this.utilityService.uuidv4(),
         companyId: '',
         driverId: this.driverId,
         eventTime: {
-          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZone[this.TimeZoneCity as keyof typeof timeZone]),
+          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
           timeStamp: new Date().getTime(),
           timeStampEnd: new Date().getTime(),
           timeZone: '',

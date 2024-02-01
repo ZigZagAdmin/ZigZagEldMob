@@ -6,7 +6,7 @@ export const timeZoneSummer ={
   AT : 'UTC-8',
   HT : 'UTC-10',
 }
-export const timeZone ={
+export const timeZones ={
   ET : 'UTC-4' ,
   CT : 'UTC-5',
   MT : 'UTC-6',
