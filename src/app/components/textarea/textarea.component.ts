@@ -13,6 +13,7 @@ export class TextareaComponent implements OnInit {
   @Input() type: string = 'text';
   @Input() placeholder: string = '';
   @Input() fill: boolean = true;
+  @Input() disabled: boolean = false;
   @Input() validators: { regex: RegExp; message: string }[] = [];
   @Input() noValidation: boolean = false;
 

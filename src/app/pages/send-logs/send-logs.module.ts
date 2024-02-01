@@ -10,13 +10,18 @@ import { SendLogsPage } from './send-logs.page';
 
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
+import { InputComponentModule } from 'src/app/components/input/input.module';
+import { TextareaComponentModule } from 'src/app/components/textarea/textarea.module';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     SendLogsPageRoutingModule,
-    HeaderComponentModule
+    HeaderComponentModule,
+    InputComponentModule,
+    TextareaComponentModule
   ],
   declarations: [SendLogsPage]
 })
