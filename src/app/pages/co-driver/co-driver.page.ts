@@ -17,7 +17,7 @@ export class CoDriverPage implements OnInit {
   chosenDriver: string = 'None';
 
   coDrivers: Driver[] = [];
-  coDriverNames: string[] = ['None', 'something', 'somethign', 'something'];
+  coDriverNames: string[] = ['None', '1', '2', '3'];
   loading: boolean = false;
 
   coDriver: ICoDriver | {};
@@ -33,7 +33,8 @@ export class CoDriverPage implements OnInit {
     forkJoin([coDriver$, logDailies$]).subscribe(([coDriver, logDailies]) => {
       this.coDriver = coDriver;
       this.logDailies = logDailies;
-      if(Object.keys(this.coDriver).length === 0) {
+      console.log(this.coDriver);
+      if (Object.keys(this.coDriver).length === 0) {
         this.chosenDriver = 'None';
       } else {
         this.chosenDriver = (this.coDriver as ICoDriver).name;
@@ -66,7 +67,7 @@ export class CoDriverPage implements OnInit {
     if (this.chosenDriver === 'None') {
       this.coDriver = {};
     } else {
-      this.coDriver = this.coDrivers.find((coDriver) => coDriver.name === this.chosenDriver);
+      this.coDriver = this.coDrivers.find(coDriver => coDriver.name === this.chosenDriver) || {};
     }
     if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' is now your co-driver', 'medium');
   }
