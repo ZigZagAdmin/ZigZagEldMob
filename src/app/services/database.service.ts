@@ -45,6 +45,13 @@ export class DatabaseService {
     return from(this.storage.set('drivers', drivers));
   }
 
+  saveCoDrivers(drivers: Driver): Observable<void> {
+    if (!this.databaseReady) {
+      return throwError('База данных не создана. Сначала вызовите метод create()');
+    }
+    return from(this.storage.set('coDrivers', drivers));
+  }
+
   getDrivers(): Observable<Driver[]> {
     if (!this.databaseReady) {
       return throwError('База данных не создана. Сначала вызовите метод create()');

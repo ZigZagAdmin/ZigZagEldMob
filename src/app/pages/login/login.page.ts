@@ -140,7 +140,8 @@ export class LoginPage implements OnInit, OnDestroy {
             | Observable<LogEvents[]>
             | Observable<PlacesCity[]>
           )[] = [
-            this.manageService.getDrivers(),
+            this.manageService.getDrivers(this.authUser.DriverId),
+            this.manageService.getDrivers('ALL'),
             this.manageService.getCompany(),
             this.manageService.getVehicles(),
             this.manageService.getTerminals(),
@@ -164,9 +165,10 @@ export class LoginPage implements OnInit, OnDestroy {
             })
           );
         }),
-        switchMap(([drivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents, placesCity]) => {
+        switchMap(([drivers, coDrivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents, placesCity]) => {
           const saveRequests = [
             this.saveDrivers(drivers as Driver),
+            this.saveCoDrivers(coDrivers as Driver),
             this.saveCompany(company as Company),
             this.saveVehicles(vehicles as Vehicle[]),
             this.saveTerminals(terminals as Terminal[]),
@@ -222,6 +224,16 @@ export class LoginPage implements OnInit, OnDestroy {
 
   private saveDrivers(drivers: Driver): Observable<any> {
     return this.databaseService.saveDrivers(drivers).pipe(
+      catchError(error => {
+        const errorMessage = 'Error saving drivers to database';
+        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
+        return throwError(errorMessage);
+      })
+    );
+  }
+
+  private saveCoDrivers(drivers: Driver): Observable<any> {
+    return this.databaseService.saveCoDrivers(drivers).pipe(
       catchError(error => {
         const errorMessage = 'Error saving drivers to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
@@ -333,8 +345,15 @@ export class LoginPage implements OnInit, OnDestroy {
 
       if (foundLogDayIndex !== -1) {
         countDays.push(logDailies[foundLogDayIndex]);
-        if(coDriverReset) {
-          await this.storage.set('coDriver', {})
+        if (coDriverReset) {
+          await this.storage.set('coDriver', {
+            driverId: '00000000-0000-0000-0000-000000000000',
+            driverIdentifier: null,
+            driverInfo: null,
+            email: null,
+            firstName: null,
+            lastName: null,
+          });
           coDriverReset = false;
         }
       } else {

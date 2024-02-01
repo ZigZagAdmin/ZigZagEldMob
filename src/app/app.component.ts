@@ -54,7 +54,8 @@ export class AppComponent implements OnInit, OnDestroy {
           if (this.authService.isAuthenticated()) {
             const loading = await this.presentLoading();
             const fetchRequests = [
-              this.manageService.getDrivers(),
+              this.manageService.getDrivers(driverId),
+              this.manageService.getDrivers('ALL'),
               this.manageService.getCompany(),
               this.manageService.getVehicles(),
               this.manageService.getTerminals(),
@@ -72,10 +73,11 @@ export class AppComponent implements OnInit, OnDestroy {
                   loading.dismiss();
                   return throwError(errorMessage);
                 }),
-                switchMap(([drivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents]) => {
+                switchMap(([drivers, coDrivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents]) => {
                   // Сохранение данных в storage
                   const saveRequests = [
                     this.storage.set('drivers', drivers),
+                    this.storage.set('coDrivers', coDrivers),
                     this.storage.set('company', company),
                     this.storage.set('dvirs', dvirs),
                     this.storage.set('vehicles', vehicles),

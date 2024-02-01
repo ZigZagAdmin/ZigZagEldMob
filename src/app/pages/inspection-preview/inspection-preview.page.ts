@@ -25,7 +25,6 @@ export class InspectionPreviewPage implements OnInit {
   vehicle: Vehicle;
   driver: Driver;
   eld: ELD;
-  coDriver: ICoDriver;
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
   logDaily: LogDailies;
@@ -53,25 +52,22 @@ export class InspectionPreviewPage implements OnInit {
     let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
     let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
     let elds$ = firstValueFrom(this.databaseService.getELDs());
-    let coDriver$ = this.storage.get('coDriver');
     let timeZone$ = this.storage.get('timeZone');
 
-    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, coDriver$, timeZone$]).subscribe(
-      ([queryParams, vehicles, drivers, logDailies, logEvents, elds, coDriver, timeZone]) => {
-        this.backUrl = queryParams['url'];
-        this.LogDailiesId = queryParams['logId'];
-        this.previousPage = queryParams['page'];
-        this.vehicle = vehicles[0];
-        this.driver = drivers[0];
-        this.coDriver = coDriver;
-        this.timeZone = timeZone;
-        this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
-        this.logDailies = logDailies.slice(0, 8);
-        this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-        this.logEvents = logEvents;
-        this.drawGraph();
-      }
-    );
+    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$]).subscribe(([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone]) => {
+      console.log(queryParams);
+      this.backUrl = queryParams['url'];
+      this.LogDailiesId = queryParams['logId'];
+      this.previousPage = queryParams['page'];
+      this.vehicle = vehicles[0];
+      this.driver = drivers[0];
+      this.timeZone = timeZone;
+      this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
+      this.logDailies = logDailies.slice(0, 8);
+      this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+      this.logEvents = logEvents;
+      this.drawGraph();
+    });
   }
 
   getDateSub(date: string) {
@@ -280,7 +276,7 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   isCoDriverPresent() {
-    return Object.keys(this.coDriver).length !== 0;
+    return this.logDailies[0]?.form?.coDriver && Object.keys(this.logDailies[0]?.form?.coDriver).length !== 0 && this.logDailies[0]?.form?.coDriver.driverId !== '00000000-0000-0000-0000-000000000000';
   }
 
   ionViewWillLeave() {

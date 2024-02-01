@@ -3,7 +3,7 @@ import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Driver } from 'src/app/models/driver';
-import { ICoDriver, LogDailies } from 'src/app/models/log-dailies';
+import { LogDailies } from 'src/app/models/log-dailies';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -17,34 +17,46 @@ export class CoDriverPage implements OnInit {
   chosenDriver: string = 'None';
 
   coDrivers: Driver[] = [];
-  coDriverNames: string[] = ['None', '1', '2', '3'];
+  coDriverNames: string[] = [];
   loading: boolean = false;
 
-  coDriver: ICoDriver | {};
+  coDriver: Driver | Partial<Driver>;
 
   logDailies: LogDailies[] = [];
+
+  pageLoading: boolean = false;
 
   constructor(private navCtrl: NavController, private toastService: ToastService, private storage: Storage, private databaseService: DatabaseService, private dashboardService: DashboardService) {}
 
   async ngOnInit() {
+    this.pageLoading = true;
+    let driverId$ = this.storage.get('driverId');
     let coDriver$ = this.storage.get('coDriver');
+    let coDrivers$ = this.storage.get('coDrivers');
     let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
 
-    forkJoin([coDriver$, logDailies$]).subscribe(([coDriver, logDailies]) => {
+    forkJoin([driverId$, coDriver$, coDrivers$, logDailies$]).subscribe(([driverId, coDriver, coDrivers, logDailies]) => {
       this.coDriver = coDriver;
+      coDrivers.forEach((el: Driver) => (el.driverId !== driverId ? this.coDrivers.push(el) : null));
+      this.coDrivers.forEach(el => this.coDriverNames.push(el.name));
+      this.coDriverNames.unshift('None');
       this.logDailies = logDailies;
-      console.log(this.coDriver);
       if (Object.keys(this.coDriver).length === 0) {
         this.chosenDriver = 'None';
       } else {
-        this.chosenDriver = (this.coDriver as ICoDriver).name;
+        if (this.coDriver.driverId === '00000000-0000-0000-0000-000000000000') {
+          this.chosenDriver = 'None';
+        } else {
+          this.chosenDriver = (this.coDriver as Driver).name;
+        }
       }
+      this.pageLoading = false;
     });
   }
 
   async save() {
     this.loading = true;
-    this.logDailies[0].form.coDriver = this.coDriver as ICoDriver;
+    this.logDailies[0].form.coDriver = this.coDriver as Driver;
     await this.storage.set('coDriver', this.coDriver);
     await this.dashboardService
       .updateLogDaily(this.logDailies[0])
@@ -54,6 +66,8 @@ export class CoDriverPage implements OnInit {
         await this.storage.set('logDailies', this.logDailies);
         this.goBack();
         this.loading = false;
+        if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' is now your co-driver', 'medium');
+        if (this.chosenDriver.length !== 0 && this.chosenDriver === 'None') this.toastService.showToast('You have no co-driver now', 'medium');
       })
       .catch(async error => {
         await this.storage.set('logDailies', this.logDailies);
@@ -65,11 +79,24 @@ export class CoDriverPage implements OnInit {
 
   showSelection() {
     if (this.chosenDriver === 'None') {
-      this.coDriver = {};
+      this.coDriver = {
+        driverId: '00000000-0000-0000-0000-000000000000',
+        driverIdentifier: null,
+        driverInfo: null,
+        email: null,
+        firstName: null,
+        lastName: null,
+      };
     } else {
-      this.coDriver = this.coDrivers.find(coDriver => coDriver.name === this.chosenDriver) || {};
+      this.coDriver = this.coDrivers.find(coDriver => coDriver.name === this.chosenDriver) || {
+        driverId: '00000000-0000-0000-0000-000000000000',
+        driverIdentifier: null,
+        driverInfo: null,
+        email: null,
+        firstName: null,
+        lastName: null,
+      };
     }
-    if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' is now your co-driver', 'medium');
   }
 
   goBack() {

@@ -44,7 +44,6 @@ export class HosPage implements OnInit, OnDestroy {
   driverId: string = '';
   driverName: string = '';
   companyId: string = '';
-  name: string = '';
   pickedVehicle: string = '';
   timeZone: string = '';
   networkStatus = false;
@@ -140,11 +139,10 @@ export class HosPage implements OnInit, OnDestroy {
     this.getVehicle();
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
-    this.driverName = await this.storage.get('driverName');
     this.companyId = await this.storage.get('companyId');
     this.timeZone = await this.storage.get('timeZone');
     this.bAuthorized = await this.storage.get('bAuthorized');
-    this.name = await this.storage.get('name');
+    this.driverName = await this.storage.get('name');
     this.pickedVehicle = await this.storage.get('vehicleUnit');
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
@@ -985,7 +983,7 @@ export class HosPage implements OnInit, OnDestroy {
     setInterval(() => {
       this.updateLogDailies();
       this.calculateCircles();
-    }, 5000);
+    }, 60000);
   }
 
   ionViewWillLeave() {
