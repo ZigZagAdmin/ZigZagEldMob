@@ -101,7 +101,9 @@
       <div class="form-title">
         <div class="status-circle" [ngClass]="{ 'status-circle-error': !logDaily?.formManner, 'status-circle-success': logDaily?.formManner }"></div>
         <p class="subtitle">Form</p>
-        <button class="btn primary-btn" (click)="onSubmit()">Save</button>
+        <button class="btn primary-btn" style="width: 63px" (click)="onSubmit()">
+          <span *ngIf="!saveFormLoading">Save</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
+        </button>
       </div>
       <div class="form-list">
         <app-input [label]="'Vehicle'" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>

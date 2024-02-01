@@ -1,13 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { EventGraphic } from 'src/app/models/event-graphic';
-import { LogDailies } from 'src/app/models/log-dailies';
+import { ICoDriver, LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { formatDate } from '@angular/common';
 import { NavController, ToastController } from '@ionic/angular';
+import { Vehicle } from 'src/app/models/vehicle';
+import { Driver } from 'src/app/models/driver';
+import { DVIRs } from 'src/app/models/dvirs';
+import { ELD } from 'src/app/models/eld';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -15,14 +19,17 @@ import { NavController, ToastController } from '@ionic/angular';
   styleUrls: ['./inspection-preview.page.scss'],
 })
 export class InspectionPreviewPage implements OnInit {
-  LogDailiesId!: string | null;
+  LogDailiesId: string = '';
   bReady: boolean = false;
   TimeZoneCity: string = '';
-  PickedVehicle: string = '';
+  vehicle: Vehicle;
+  driver: Driver;
+  eld: ELD;
+  coDriver: ICoDriver;
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
-  logDaily: LogDailies | undefined;
-  currentDay: string | undefined = '';
+  logDaily: LogDailies;
+  currentDay: string = '';
   graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
   statusesOnDay: LogEvents[] = [];
   xBgn!: number;
@@ -33,63 +40,47 @@ export class InspectionPreviewPage implements OnInit {
   yBgnV!: number;
   eventGraphicLine: EventGraphic[] = [];
   databaseSubscription: Subscription | undefined;
-  driverId: string = '';
-  vehicleId: string = '';
   previousPage!: string | null;
   today = new Date();
   backUrl = '';
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private databaseService: DatabaseService,
     private storage: Storage,
-    private toastController: ToastController,
     private navCtrl: NavController,
     private route: ActivatedRoute
   ) {}
 
   async ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.backUrl = params['url'];
-      this.LogDailiesId = params['logId'];
-      this.previousPage = params['page'];
-    });
+    let queryParams$ = firstValueFrom(this.route.queryParams);
+    let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
+    let drivers$ = firstValueFrom(this.databaseService.getDrivers());
+    let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
+    let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
+    let elds$ = firstValueFrom(this.databaseService.getELDs());
+    let coDriver$ = this.storage.get('coDriver');
+    let timeZone$ = this.storage.get('TimeZoneCity');
 
-    this.vehicleId = await this.storage.get('vehicleId');
-    this.driverId = await this.storage.get('driverId');
-    this.PickedVehicle = await this.storage.get('vehicleUnit');
-    this.TimeZoneCity = await this.storage.get('TimeZoneCity');
-    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-      if (ready) {
-        this.bReady = ready;
-        this.databaseService.getLogDailies().subscribe(logDailies => {
-          this.logDailies = logDailies.slice(0, 8);
-          this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-        });
-        this.databaseService.getLogEvents().subscribe(logEvents => {
-          this.logEvents = logEvents;
-          // this.logEvents.forEach(log => {
-          //   if (new Date(log.eventTime.timeStampEnd).toISOString() === '0001-01-01T00:00:00') {
-          //     log.eventTime.timeStampEnd = formatDate(
-          //       new Date().toLocaleString('en-US', {
-          //         timeZone: this.TimeZoneCity,
-          //       }),
-          //       'yyyy-MM-ddTHH:mm:ss',
-          //       'en_US'
-          //     );
-          //   }
-          // });
-          console.log(this.logEvents);
-          this.drawGraph();
-        });
-      }
+    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, coDriver$, timeZone$]).subscribe(([queryParams, vehicles, drivers, logDailies, logEvents, elds, coDriver, timeZone]) => {
+      this.backUrl = queryParams['url'];
+      this.LogDailiesId = queryParams['logId'];
+      this.previousPage = queryParams['page'];
+      this.vehicle = vehicles[0];
+      this.driver = drivers[0];
+      this.coDriver = coDriver;
+      this.TimeZoneCity = timeZone;
+      this.eld =elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
+      this.logDailies = logDailies.slice(0, 8);
+      this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+      this.logEvents = logEvents;
+      this.drawGraph();
     });
   }
 
   getDateSub(date: string) {
-    let date_ = formatDate(date, 'EEEE, MMM d', 'en_US');
-    let today_ = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
-    return date_ === today_ ? date_ + ' (Today)' : date_;
+    let _date = formatDate(date, 'EEEE, MMM d', 'en_US');
+    let _today = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
+    return _date === _today ? _date + ' (Today)' : _date;
   }
 
   drawGraph() {
@@ -291,13 +282,8 @@ export class InspectionPreviewPage implements OnInit {
     }
   }
 
-  private async presentToast(message: string, color: string = 'success') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 1500,
-      color: color,
-    });
-    toast.present();
+  isCoDriverPresent() {
+    return Object.keys(this.coDriver).length !== 0;
   }
 
   ionViewWillLeave() {

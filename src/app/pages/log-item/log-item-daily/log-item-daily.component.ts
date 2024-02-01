@@ -54,6 +54,7 @@ export class LogItemDailyComponent implements OnInit {
   today = formatDate(new Date(), 'yyyy/MM/dd', 'en_US');
   isModalOpen: boolean = false;
   imageLoading: boolean = false;
+  saveFormLoading: boolean = false;
 
   localForm: Partial<LogDailies> = {
     formManner: false,
@@ -410,20 +411,24 @@ export class LogItemDailyComponent implements OnInit {
       this.logDaily.formManner = true;
     }
 
+    this.saveFormLoading = true;
     if (this.networkStatus === true) {
       this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
         response => {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
-          this.toastService.showToast('Saved successfully!', 'success');
           this.updateLocalStorage();
+          this.saveFormLoading = false;
+          this.toastService.showToast('Saved successfully!', 'success');
         },
         async error => {
           this.updateLocalStorage();
+          this.saveFormLoading = false;
           this.toastService.showToast('Offline save!', 'warning');
         }
       );
     } else {
       this.updateLocalStorage();
+      this.saveFormLoading = false;
       this.toastService.showToast('Offline save!', 'warning');
     }
   }
@@ -504,7 +509,7 @@ export class LogItemDailyComponent implements OnInit {
     if (ev.detail.role === 'confirm') {
       const lastLogEvent = this.logEvents[this.logEvents.length - 1];
       let CetificationLogEvent: LogEvents = {
-        logEventId: this.uuidv4(),
+        logEventId: this.utilityService.uuidv4(),
         companyId: '',
         driverId: this.driverId,
         eventTime: {
@@ -604,14 +609,6 @@ export class LogItemDailyComponent implements OnInit {
       this.logDailies[index] = logDailyData;
     }
     await this.storage.set('dvirs', this.logEvents);
-  }
-
-  uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0,
-        v = c == 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
   }
 
   nevigateToInspection() {

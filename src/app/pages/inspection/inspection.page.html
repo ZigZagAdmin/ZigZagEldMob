@@ -1,51 +1,3 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>DOT Inspection</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<!-- <ion-content [fullscreen]="true">
-  <ion-text class="ion-text-center"
-    ><p>
-      Inspect logs for the 24-hour period and the previous days for one HOS
-      cycle
-    </p>
-    <p style="color: #a5a5a5">7 days + today</p>
-    <p style="color: #a5a5a5">
-      Select "Start Inspection" and give your device to the officer
-    </p>
-  </ion-text>
-  <ion-button
-    (click)="onStartInspectionClick()"
-    class="custom-button"
-    expand="block"
-    >Start Inspection</ion-button
-  >
-  <hr />
-  <ion-text class="ion-text-center"
-    ><p>
-      Send logs for the 24-hour period and the previous days for one HOS cycle
-    </p>
-    <p style="color: #a5a5a5">7 days + today</p>
-    <p style="color: #a5a5a5">Send your logs to the officer, if they request</p>
-  </ion-text>
-  <ion-button (click)="onSendLogsClick()" class="custom-button" expand="block"
-    >Send Logs</ion-button
-  >
-</ion-content> -->
-
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>DOT Inspection</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'DOT Inspection'"></app-header>
   <div class="edit-form padding-g">
@@ -56,8 +8,7 @@
     <p class="subtitle">Inspect logs for the 24-hour period and the previous days for one HOS cycle</p>
     <button class="btn secondary-btn">7 Days + Today</button>
     <p class="text-2">Press on “Start Inspection” Button and give your phone to the officer</p>
-    <hr />
-    <div class="flex-b">
+    <div class="flex-b" style="border-top: 1px solid var(--gray-200); padding-top: 20px">
       <p class="subtitle">Send Logs</p>
       <button class="btn primary-btn" (click)="onSendLogsClick()">Send Logs</button>
     </div>
