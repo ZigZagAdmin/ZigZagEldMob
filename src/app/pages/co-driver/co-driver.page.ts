@@ -47,7 +47,7 @@ export class CoDriverPage implements OnInit {
         if (this.coDriver.driverId === '00000000-0000-0000-0000-000000000000') {
           this.chosenDriver = 'None';
         } else {
-          this.chosenDriver = (this.coDriver as Driver).name;
+          this.chosenDriver = (this.coDriver as Driver).firstName + ' ' + (this.coDriver as Driver).lastName;
         }
       }
       this.pageLoading = false;

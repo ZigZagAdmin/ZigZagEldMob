@@ -276,7 +276,7 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   isCoDriverPresent() {
-    return this.logDailies[0]?.form?.coDriver && Object.keys(this.logDailies[0]?.form?.coDriver).length !== 0 && this.logDailies[0]?.form?.coDriver.driverId !== '00000000-0000-0000-0000-000000000000';
+    return !!this.logDaily?.form?.coDriver && Object.keys(this.logDaily?.form?.coDriver).length !== 0 && this.logDaily?.form?.coDriver.driverId !== '00000000-0000-0000-0000-000000000000';
   }
 
   ionViewWillLeave() {

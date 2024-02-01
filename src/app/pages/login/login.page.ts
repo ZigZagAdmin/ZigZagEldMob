@@ -338,24 +338,12 @@ export class LoginPage implements OnInit, OnDestroy {
   private async updateLogDailies(logDailies: LogDailies[]) {
     let currentDate = new Date();
     let countDays = [];
-    let coDriverReset: boolean = true;
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
       const foundLogDayIndex = logDailies.findIndex(logDay => logDay.logDate.includes(dateString));
 
       if (foundLogDayIndex !== -1) {
         countDays.push(logDailies[foundLogDayIndex]);
-        if (coDriverReset) {
-          await this.storage.set('coDriver', {
-            driverId: '00000000-0000-0000-0000-000000000000',
-            driverIdentifier: null,
-            driverInfo: null,
-            email: null,
-            firstName: null,
-            lastName: null,
-          });
-          coDriverReset = false;
-        }
       } else {
         let newLogDaily: LogDailies = {
           logDailyId: this.utilityService.uuidv4(),
@@ -372,6 +360,24 @@ export class LoginPage implements OnInit, OnDestroy {
           formManner: false,
           certified: false,
           form: {
+            coDriver: {
+              driverId: '00000000-0000-0000-0000-000000000000',
+              driverIdentifier: null,
+              driverInfo: null,
+              email: null,
+              firstName: null,
+              lastName: null,
+              companyId: '',
+              name: '',
+              emailConfirmed: '',
+              userName: '',
+              phoneNumber: '',
+              simCard: '',
+              deviceModel: '',
+              operatingSystem: '',
+              appVersion: '',
+              status: false,
+            },
             trailers: '',
             shippingDoc: '',
             fromAddress: '',
@@ -385,6 +391,21 @@ export class LoginPage implements OnInit, OnDestroy {
       currentDate.setDate(currentDate.getDate() - 1);
     }
     countDays.sort((a, b) => b.logDate.localeCompare(a.logDate));
+
+    let todayLogDate = countDays.find(el => el.logDate === new Date().toISOString().split('T')[0].replace(/-/g, '/'));
+
+    if (todayLogDate.form.coDriver.driverId === '00000000-0000-0000-0000-000000000000') {
+      await this.storage.set('coDriver', {
+        driverId: '00000000-0000-0000-0000-000000000000',
+        driverIdentifier: null,
+        driverInfo: null,
+        email: null,
+        firstName: null,
+        lastName: null,
+      });
+    } else {
+      await this.storage.set('coDriver', todayLogDate.form.coDriver);
+    }
 
     await firstValueFrom(this.saveLogDailies(countDays));
   }
