@@ -2,13 +2,16 @@
   <div *ngIf="label" class="input-label" [ngClass]="{ 'label-error': !valid, 'input-label-top': labelPosition === 'top', 'input-label-left': labelPosition === 'left', 'no-label': label === 'none' }">
     {{ label }}{{ required ? '*' : '' }}
   </div>
-  <input
-    [type]="type"
-    (input)="onInputChange($event)"
-    [(ngModel)]="value"
-    [disabled]="disabled"
-    [placeholder]="placeholder"
-    autocomplete="one-time-code"
-    class="input-box"
-    [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left' }" />
+  <div class="input-container">
+    <input
+      [type]="type"
+      (input)="onInputChange($event)"
+      [(ngModel)]="value"
+      [disabled]="disabled"
+      [placeholder]="placeholder"
+      autocomplete="one-time-code"
+      class="input-box"
+      [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left' }" />
+    <ion-spinner *ngIf="loading" class="input-loading" name="circular" color="medium"></ion-spinner>
+  </div>
 </div>

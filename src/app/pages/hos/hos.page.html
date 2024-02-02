@@ -34,8 +34,14 @@
           <app-header [title]="'Select Duty Status'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
           <div class="modal-content">
             <app-duty-radio-button (selectedValue)="selectButton($event)" [currentValue]="selectedButton"></app-duty-radio-button>
-            <!-- <app-input [label]="'Location'" [fill]="true" [type]="'text'" [(value)]="location" [(validation)]="validation['location']"></app-input> -->
-            <app-location-input [label]="'Location'" [fill]="true" [type]="'text'" [(value)]="locationDescription" [(validation)]="validation['location']"></app-location-input>
+            <app-location-input
+              [label]="'Location'"
+              [fill]="true"
+              [type]="'text'"
+              [(value)]="locationDescription"
+              [loading]="locationLoading"
+              [disabled]="locationDisable"
+              [(validation)]="validation['location']"></app-location-input>
             <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-textarea>
             <div class="btns-flex">
               <button class="btn secondary-btn" (click)="cancel()">Back</button>

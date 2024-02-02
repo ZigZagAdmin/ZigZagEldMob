@@ -85,6 +85,8 @@ export class HosPage implements OnInit, OnDestroy {
 
   locationStatus: boolean = false;
   locationStatusSub: Subscription;
+  locationLoading: boolean = false;
+  locationDisable: boolean = false;
 
   bluetoothStatus: boolean = false;
   bluetoothStatusSub: Subscription;
@@ -646,16 +648,33 @@ export class HosPage implements OnInit, OnDestroy {
 
   async toggleModal() {
     this.isModalOpen = true;
+    this.locationLoading = true;
 
     if (this.currentStatus) {
       this.selectButton(this.currentStatus.statusCode);
     }
 
-    await this.locationService.getCurrentLocation().then(res => {
-      this.location = res;
-      this.locationDescription = this.location.description;
-      console.log(this.locationDescription);
-    });
+    await this.locationService
+      .getCurrentLocation()
+      .then(res => {
+        this.location = res;
+        this.locationDescription = this.location.description;
+        this.locationLoading = false;
+        this.locationDisable = true;
+        console.log(this.locationDescription);
+      })
+      .catch(e => {
+        this.locationLoading = false;
+        this.locationDisable = false;
+        this.locationDescription = '';
+        this.location = {
+          locationType: 'MANUAL',
+          description: '',
+          latitude: 0,
+          longitude: 0,
+        };
+        console.log(e);
+      });
   }
 
   selectLog(log: LogDailies) {
@@ -746,10 +765,10 @@ export class HosPage implements OnInit, OnDestroy {
         serialNumber: '',
       },
       location: {
-        locationType: 'AUTOMATIC',
-        description: '2mi from Chisinau, Chisinau',
-        latitude: 0,
-        longitude: 0,
+        locationType: this.location.locationType,
+        description: this.locationDescription,
+        latitude: this.location.latitude,
+        longitude: this.location.longitude,
       },
       sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
       type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },

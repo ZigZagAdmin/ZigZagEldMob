@@ -13,6 +13,7 @@ export class LocationInputComponent  implements OnInit {
   @Input() type: string = 'text';
   @Input() placeholder: string = '';
   @Input() fill: boolean = true;
+  @Input() loading: boolean = false;
   @Input() validators: { regex: RegExp; message: string }[] = [];
   @Input() noValidation: boolean = false;
   @Input() disabled: boolean = false;

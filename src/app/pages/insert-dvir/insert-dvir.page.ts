@@ -15,6 +15,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ManageService } from 'src/app/services/manage.service';
+import { LocationService } from 'src/app/services/location.service';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -84,6 +85,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   };
 
   locationDisable: boolean = false;
+  locationLoading: boolean = false;
   vehicleUnitDisable: boolean = false;
 
   lastStatus: string = '';
@@ -100,10 +102,12 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     private navCtrl: NavController,
     private utilityService: UtilityService,
     private shareService: ShareService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private locationService: LocationService
   ) {}
 
   async ngOnInit() {
+    this.locationLoading = true;
     this.dvir.status.name = 'Vehicle Condition Satisfactory';
     this.dvir.status.code = 'VCS';
     this.dvir.defectsVehicle = '';
@@ -121,6 +125,26 @@ export class InsertDvirPage implements OnInit, OnDestroy {
         });
       }
     });
+
+    await this.locationService
+      .getCurrentLocation()
+      .then(res => {
+        this.dvir.location = res;
+        this.locationLoading = false;
+        this.locationDisable = true;
+        console.log(this.dvir.location.description);
+      })
+      .catch(e => {
+        this.locationLoading = false;
+        this.locationDisable = false;
+        this.dvir.location = {
+          locationType: 'MANUAL',
+          description: '',
+          latitude: 0,
+          longitude: 0,
+        };
+        console.log(e);
+      });
 
     this.vehicleUnit = await this.storage.get('vehicleUnit');
     this.vehicleUnitDisable = !!this.vehicleUnit;

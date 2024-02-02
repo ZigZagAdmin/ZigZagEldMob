@@ -74,3 +74,14 @@
 .no-label {
   color: transparent !important;
 }
+
+.input-container {
+  position: relative;
+}
+
+.input-loading {
+  position: absolute;
+  right: 20px;
+  top: 18px;
+  zoom: 0.7;
+}
