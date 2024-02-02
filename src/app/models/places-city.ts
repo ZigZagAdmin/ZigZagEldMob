@@ -1,14 +1,8 @@
-export class PlacesCity {
-  LogMapsId!: string;
-  DriverId!: string;
-  VehicleId!: string;
-  DateLog!: string;
-  CountryCode!: string;
-  StateProvinceCode!: string;
-  City!: string;
-  Latitude!: string;
-  Longitude!: string;
-  DistanceSince!: string;
-  Speed!: string;
-  LocationDescription!: string;
+export interface PlacesCity {
+  city: string;
+  countryCode: string;
+  latitude: number;
+  longitude: number;
+  stateProvinceCode: string;
+  stateProvinceName: string;
 }

@@ -29,6 +29,7 @@ export interface DVIRs {
 }
 
 export interface Location {
+  locationType?: string;
   description: string;
   latitude: number;
   longitude: number;

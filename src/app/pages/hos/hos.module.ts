@@ -12,6 +12,7 @@ import { ToggleSwitchComponentModule } from 'src/app/components/toggle-switch/to
 import { InputComponentModule } from 'src/app/components/input/input.module';
 import { TextareaComponentModule } from 'src/app/components/textarea/textarea.module';
 import { DutyRadioButtonComponentModule } from 'src/app/components/duty-radio-button/duty-radio-button.module';
+import { LocationInputComponentModule } from 'src/app/components/location-input/location-input.module';
 
 @NgModule({
   imports: [
@@ -25,6 +26,7 @@ import { DutyRadioButtonComponentModule } from 'src/app/components/duty-radio-bu
     InputComponentModule,
     TextareaComponentModule,
     DutyRadioButtonComponentModule,
+    LocationInputComponentModule
   ],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe],
 })

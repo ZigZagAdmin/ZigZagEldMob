@@ -18,6 +18,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { Capacitor } from '@capacitor/core';
+import { Location } from 'src/app/models/dvirs';
 
 @Component({
   selector: 'app-hos',
@@ -70,7 +71,13 @@ export class HosPage implements OnInit, OnDestroy {
   currentStatusTime = '';
 
   vehicle!: Vehicle;
-  location = '';
+  locationDescription = '';
+  location: Location = {
+    locationType: '',
+    description: '',
+    latitude: 0,
+    longitude: 0,
+  };
   comments = '';
   restMode = false;
 
@@ -106,23 +113,23 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    if (Capacitor.getPlatform() !== 'web') {
-      this.serviceSub = interval(1000).subscribe(() => {
-        this.locationService.checkLocationStatus();
-        if (!this.bluetoothStatus) {
-          this.bluetoothService.initialize();
-        }
-        this.bluetoothService.getBluetoothState();
-      });
-      this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
-        this.locationStatus = data;
-      });
-      this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
-        this.bluetoothStatus = data;
-      });
-    }
+    // if (Capacitor.getPlatform() !== 'web') {
+    this.serviceSub = interval(1000).subscribe(() => {
+      this.locationService.checkLocationStatus();
+      // if (!this.bluetoothStatus) {
+      //   this.bluetoothService.initialize();
+      // }
+      // this.bluetoothService.getBluetoothState();
+    });
+    this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
+      this.locationStatus = data;
+    });
+    // this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
+    //   this.bluetoothStatus = data;
+    // });
+    // }
 
-    setTimeout(() => this.animateCircles = false, 500) // It's ugly, but it works
+    setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
   }
 
   ngOnDestroy(): void {
@@ -637,12 +644,18 @@ export class HosPage implements OnInit, OnDestroy {
     }
   }
 
-  toggleModal() {
+  async toggleModal() {
     this.isModalOpen = true;
 
     if (this.currentStatus) {
       this.selectButton(this.currentStatus.statusCode);
     }
+
+    await this.locationService.getCurrentLocation().then(res => {
+      this.location = res;
+      this.locationDescription = this.location.description;
+      console.log(this.locationDescription);
+    });
   }
 
   selectLog(log: LogDailies) {

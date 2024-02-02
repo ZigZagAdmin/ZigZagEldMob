@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { BehaviorSubject } from 'rxjs';
+import { GeolocationService } from './geolocation.service';
+import { Location } from 'src/app/models/dvirs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +11,7 @@ import { BehaviorSubject } from 'rxjs';
 export class LocationService {
   private locationStatusSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
 
-  constructor() {}
+  constructor(private geolocationService: GeolocationService) {}
 
   async checkLocationStatus() {
     await Geolocation.checkPermissions()
@@ -21,6 +23,17 @@ export class LocationService {
         }
       })
       .catch(e => this.locationStatusSubject.next(false));
+  }
+
+  async getCurrentLocation() {
+    return await Geolocation.getCurrentPosition().then((res): Location => {
+      return {
+        locationType: 'AUTOMATIC',
+        latitude: res.coords.latitude,
+        longitude: res.coords.longitude,
+        description: this.geolocationService.getCurrentLocation(res.coords.latitude, res.coords.longitude),
+      };
+    });
   }
 
   getLocationStatusObservable() {
