@@ -61,7 +61,6 @@ export class LoginPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    console.log('Init login');
     this.placesCity = await this.storage.get('placesCity');
     await this.storage.get('autoLogin').then(async res => {
       if (res !== null && res !== undefined) {
@@ -88,7 +87,6 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async login(username: string, password: string) {
-    console.log(this.validation);
     if (Capacitor.getPlatform() !== 'web') {
       Keyboard.hide();
     }
@@ -152,7 +150,6 @@ export class LoginPage implements OnInit, OnDestroy {
           ];
 
           const placesCity_ = this.manageService.getPlacesCity();
-          console.log(this.placesCity);
           if (!this.placesCity) {
             fetchRequests.push(placesCity_);
           }
@@ -203,7 +200,6 @@ export class LoginPage implements OnInit, OnDestroy {
           this.navCtrl.navigateRoot('/select-vehicle', { animated: true, animationDirection: 'forward' });
         },
         error => {
-          // Обработка ошибки
           console.log(error);
           const errorMessage = 'An error occurred during login';
           this.toastService.showToast(errorMessage, 'danger'); // Отобразить toast с ошибкой

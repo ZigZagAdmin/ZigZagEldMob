@@ -75,8 +75,6 @@ export class TextareaComponent implements OnInit {
   }
 
   validateInput() {
-    // console.log(this.value);
-    // console.log(!this.value && this.value.length === 0);
     if (!this.noValidation) {
       if (this.value.length === 0) {
         this.valid = false;
@@ -95,7 +93,6 @@ export class TextareaComponent implements OnInit {
           return true;
         });
       }
-      console.log(this.valid);
       this.validation = this.valid;
     }
   }

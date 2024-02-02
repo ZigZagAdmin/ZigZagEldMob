@@ -135,7 +135,6 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async ionViewWillEnter() {
-    console.log('entered hos');
     this.getVehicle();
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
@@ -211,7 +210,6 @@ export class HosPage implements OnInit, OnDestroy {
               .updateLogEvent(LoginLogEvent)
               .toPromise()
               .then(response => {
-                console.log('Login LogEvents got updated on the server: ', response);
                 this.updateIndexLogEvents(LoginLogEvent, true);
               })
               .catch(async error => {

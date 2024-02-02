@@ -35,7 +35,6 @@ export class LocationService {
 
   async requestPermission(): Promise<void> {
     let res = await Geolocation.requestPermissions({ permissions: ['location', 'coarseLocation'] });
-    console.log(res);
     if (res.location === 'denied' || res.coarseLocation === 'denied') {
       let confirmSettings = confirm('Go to settings and grant location permission.');
       if (confirmSettings)
@@ -47,7 +46,6 @@ export class LocationService {
   }
 
   async checkPermission(): Promise<boolean> {
-    // console.log(await Geolocation.checkPermissions());
     return (await Geolocation.checkPermissions()).location === 'granted' && (await Geolocation.checkPermissions()).coarseLocation === 'granted';
   }
 }

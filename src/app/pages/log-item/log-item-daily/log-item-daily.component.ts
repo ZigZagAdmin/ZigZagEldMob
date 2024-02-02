@@ -99,14 +99,12 @@ export class LogItemDailyComponent implements OnInit {
   ngOnInit(): void {}
 
   async ionViewWillEnter() {
-    console.log('In LogIlask;dbfsbfkljsdbfadbfkjasdbfasbdf;asdbf;asldkbflkajsdbflsakjdbflkasdjbflaskdfb');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.vehicleUnit = await this.storage.get('vehicleUnit');
     this.timeZone = await this.storage.get('timeZone');
     this.activatedRoute.params.subscribe(params => {
       this.LogDailiesId = params['id'];
-      // console.log(this.LogDailiesId);
     });
 
     this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
@@ -122,15 +120,11 @@ export class LogItemDailyComponent implements OnInit {
 
           if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
 
-          // console.log(this.logDailies);
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           if (this.logDaily) {
-            // console.log(this.logDaily);
             this.currentDay = this.logDaily.logDate;
             this.fillFormWithLogDailyData();
           }
-          console.log(this.logEvents);
-          console.log(this.logDaily);
           this.drawGraph();
           this.fillFormWithLogDailyData();
         });
@@ -139,14 +133,11 @@ export class LogItemDailyComponent implements OnInit {
 
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
-      console.log('Intenet Status' + status);
     });
 
     this.logDailiesSub = this.manageService.getLogDailies(this.driverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14).subscribe(logDailies => {
-      // console.log(logDailies);
       this.logDailies = logDailies;
       this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-      console.log(this.logDailies);
     });
   }
 
@@ -209,7 +200,6 @@ export class LogItemDailyComponent implements OnInit {
         if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
         else sDateEnd = new Date().toISOString();
 
-        // console.log(sDateEnd);
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
@@ -225,15 +215,11 @@ export class LogItemDailyComponent implements OnInit {
           formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
           dateBgn = new Date(event.eventTime.timeStamp);
-          // console.log(dateBgn.toLocaleDateString());
-          // console.log(new Date(this.currentDay as string).toLocaleDateString());
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
           }
-
-          // console.log('X BEGIN =', this.xBgn);
 
           dateEnd = new Date(sDateEnd);
 
@@ -242,7 +228,6 @@ export class LogItemDailyComponent implements OnInit {
           } else {
             this.xEnd = 1440;
           }
-          // console.log('X END =', this.xEnd);
 
           switch (event.type.code) {
             case 'OFF':
@@ -396,7 +381,6 @@ export class LogItemDailyComponent implements OnInit {
       this.drawGraph();
     }
     this.shareService.changeMessage('reset');
-    console.log(this.validation);
   }
 
   async onSubmit() {
@@ -473,11 +457,9 @@ export class LogItemDailyComponent implements OnInit {
     } else {
       this.signature = '';
     }
-    console.log(this.signature);
   }
 
   clearSignature() {
-    console.log('clear');
     if (this.signaturePad) {
       this.signaturePad.clear();
       this.signature = '';
@@ -487,12 +469,9 @@ export class LogItemDailyComponent implements OnInit {
   openModal() {
     this.isModalOpen = true;
     this.imageLoading = true;
-    console.log(this.logDaily.form.signatureLink);
-    console.log(this.logDaily);
   }
 
   imageLoaded() {
-    console.log('kjnbasdkfjbakljfbalkjdfblkajdbflkasjd');
     this.imageLoading = false;
   }
 

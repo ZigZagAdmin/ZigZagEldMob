@@ -48,7 +48,6 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     this.storageService.getVehicles().subscribe(
       res => {
         this.vehicle = res[0];
-        console.log(res);
       },
       error => console.log(error)
     );
@@ -68,7 +67,6 @@ export class ConnectMacPage implements OnInit, OnDestroy {
 
   async getLocation() {
     const location = await Geolocation.getCurrentPosition();
-    console.log('location = ', location);
   }
 
   continueDisconected() {

@@ -129,7 +129,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
 
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
-      console.log('Intenet Status' + status);
     });
   }
 
@@ -147,7 +146,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
 
   switchStatus(status: string) {
     if (status.length !== 0 && status !== this.lastStatus) {
-      console.log(status);
       this.lastStatus = status;
       this.dvir.status.code = status;
       this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
@@ -180,7 +178,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
       this.dvir.signatureBase64 = '';
       this.dvir.signatureLink = firstNonEmptySignature.signatureLink;
       this.dvir.signatureId = firstNonEmptySignature.signatureId;
-      console.log(firstNonEmptySignature);
       this.signatureFound = true;
     } else {
       this.signatureFound = false;
@@ -216,8 +213,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     this.dvir.vehicle.vehicleUnit = this.vehicleUnit;
     this.dvir.vehicle.vehicleId = this.vehicleId;
     this.dvir.driver.driverId = this.driverId;
-
-    console.log('here');
 
     if (this.networkStatus === true) {
       this.loading = true;

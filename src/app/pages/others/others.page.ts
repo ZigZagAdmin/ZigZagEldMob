@@ -61,7 +61,6 @@ export class OthersPage implements OnInit {
   ngOnInit(): void {}
 
   async ionViewWillEnter() {
-    console.log('ohters page');
     let vehicleId$ = this.storage.get('vehicleId');
     let driverId$ = this.storage.get('driverId');
     let companyId$ = this.storage.get('companyId');
@@ -88,7 +87,6 @@ export class OthersPage implements OnInit {
 
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
-      console.log('Intenet Status' + status);
     });
   }
 

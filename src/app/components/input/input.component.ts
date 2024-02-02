@@ -27,7 +27,6 @@ export class InputComponent implements OnInit, OnDestroy {
   @Output() valueChange = new EventEmitter<string>();
 
   set value(newValue: string) {
-    // console.log(newValue);
     if (this._value !== newValue) {
       this._value = newValue;
       this.valueChange.emit(newValue);
@@ -78,8 +77,6 @@ export class InputComponent implements OnInit, OnDestroy {
   }
 
   validateInput() {
-    // console.log(this.value);
-    // console.log(!this.value && this.value.length === 0);
     if(!this.noValidation) {
       if (this.value.length === 0) {
         this.valid = false;
@@ -97,7 +94,6 @@ export class InputComponent implements OnInit, OnDestroy {
           return true;
         });
       }
-      // console.log(this.valid);
       this.validation = this.valid;
     }
   }

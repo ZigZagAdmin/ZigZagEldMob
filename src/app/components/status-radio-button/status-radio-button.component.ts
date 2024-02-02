@@ -40,7 +40,6 @@ export class StatusRadioButtonComponent implements OnInit {
   @Output() valueChange = new EventEmitter<string>();
 
   set value(newValue: string) {
-    // console.log(newValue);
     if (this._value !== newValue) {
       this._value = newValue;
       this.changeCurrentValue();

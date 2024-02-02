@@ -13,6 +13,7 @@ import { ManageService } from './services/manage.service';
 import { DatabaseService } from './services/database.service';
 import { LocationService } from './services/location.service';
 import { Capacitor } from '@capacitor/core';
+import { ToastService } from './services/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -32,8 +33,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private manageService: ManageService,
     private internetService: InternetService,
-    private toastController: ToastController,
     private loadingController: LoadingController,
+    private toastSerivice: ToastService,
     private locationService: LocationService
   ) {}
 
@@ -41,8 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
       this.networkStatus = status;
     });
-    this.loading = true; // Показать прогрузочное окно
-    console.log(this.loading);
+    this.loading = true;
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
       if (ready) {
         const accessToken = await this.storage.get('accessToken');
@@ -68,13 +68,12 @@ export class AppComponent implements OnInit, OnDestroy {
               .pipe(
                 catchError(error => {
                   const errorMessage = 'Error fetching data';
-                  this.presentToast(errorMessage); // Отобразить toast с ошибкой
+                  this.toastSerivice.showToast(errorMessage);
                   this.loading = false;
                   loading.dismiss();
                   return throwError(errorMessage);
                 }),
                 switchMap(([drivers, coDrivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents]) => {
-                  // Сохранение данных в storage
                   const saveRequests = [
                     this.storage.set('drivers', drivers),
                     this.storage.set('coDrivers', coDrivers),
@@ -89,13 +88,12 @@ export class AppComponent implements OnInit, OnDestroy {
                   return forkJoin(saveRequests).pipe(
                     catchError(error => {
                       const errorMessage = 'Error saving data to storage';
-                      this.presentToast(errorMessage); // Отобразить toast с ошибкой
+                      this.toastSerivice.showToast(errorMessage);
                       return throwError(errorMessage);
                     }),
                     tap(() => {
                       loading.dismiss();
                       this.loading = false;
-                      console.log(this.loading); // Скрыть прогрузочное окно
                       if (pickedVehicle) {
                         this.navCtrl.navigateForward('/connect-mac');
                       } else {
@@ -107,7 +105,7 @@ export class AppComponent implements OnInit, OnDestroy {
               )
               .subscribe(
                 () => {
-                  this.presentToast('Welcome Back!', 'success');
+                  this.toastSerivice.showToast('Welcome Back!', 'success');
                 },
                 error => {
                   console.log(error);
@@ -116,40 +114,28 @@ export class AppComponent implements OnInit, OnDestroy {
           } else {
             await this.storage.remove('accessToken');
             this.loading = false;
-            console.log(this.loading);
             this.navCtrl.navigateForward('/login', { replaceUrl: true });
-            this.presentToast('Access token has expired. Please log in again.', 'danger');
+            this.toastSerivice.showToast('Access token has expired. Please log in again.', 'danger');
           }
         } else {
           await this.storage.remove('accessToken');
           this.loading = false;
-          console.log(this.loading);
           this.navCtrl.navigateForward('/login', { replaceUrl: true });
         }
       }
     });
     this.loading = true;
-    console.log(this.loading);
     if (this.pickedVehicle) {
       this.navCtrl.navigateForward('/connect-mac');
     } else {
       this.navCtrl.navigateForward('/select-vehicle');
     }
     this.loading = false;
-    console.log(this.loading);
   }
 
   ngOnDestroy(): void {
   }
 
-  private async presentToast(message: string, color: string = 'danger') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2000,
-      color: color,
-    });
-    toast.present();
-  }
   private async presentLoading() {
     const loading = await this.loadingController.create({
       message: 'Loading data...',

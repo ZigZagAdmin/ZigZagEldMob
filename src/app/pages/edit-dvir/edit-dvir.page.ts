@@ -109,7 +109,6 @@ export class EditDvirPage implements OnInit, OnDestroy {
         this.dvir.signatureBase64 = '';
         this.dvir.mechanicSignatureBase64 = '';
         this.dvir.mechanicSignatureLink = '';
-        console.log(this.dvir);
         this.locationDisable = !!this.dvir.location.description;
         this.vehicleUnitDisable = !!this.dvir.vehicle.vehicleUnit;
         this.pageLoading = false;
@@ -131,7 +130,6 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   switchStatus(status: string) {
     if (status.length !== 0 && status !== this.lastStatus) {
-      console.log(status);
       this.lastStatus = status;
       this.dvir.status.code = status;
       this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
@@ -175,7 +173,6 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.toastService.showToast('Please complete the mechanic signature!');
       return;
     }
-    console.log(this.dvir);
     if (this.networkStatus === true) {
       this.loading = true;
       this.dashboardService
@@ -292,7 +289,6 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.dvir.signatureBase64 = '';
       this.dvir.signatureLink = firstNonEmptySignature.signatureLink;
       this.dvir.signatureId = firstNonEmptySignature.signatureId;
-      console.log(firstNonEmptySignature);
       this.signatureFound = true;
     } else {
       this.signatureFound = false;

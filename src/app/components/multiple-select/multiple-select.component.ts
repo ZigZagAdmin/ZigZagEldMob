@@ -25,7 +25,6 @@ export class MultipleSelectComponent implements OnInit {
   @Output() valueChange = new EventEmitter<string>();
 
   set value(newValue: string) {
-    console.log(newValue);
     if (this._value !== newValue) {
       this._value = newValue;
       this.valueChange.emit(newValue);
@@ -70,7 +69,6 @@ export class MultipleSelectComponent implements OnInit {
   }
 
   triggerCheck(option: { value: string; checked: boolean }, index: number) {
-    console.log(index);
     const el = this.optionsCheck.find(el => el.value === option.value);
     if (el.checked) {
       el.checked = false;
@@ -85,7 +83,6 @@ export class MultipleSelectComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
-    console.log(this.lastStatus);
     this.optionsCheck = this.cloneArray(this.lastStatus);
   }
 

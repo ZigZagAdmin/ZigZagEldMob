@@ -21,7 +21,6 @@ export class DvirPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.paramsSubscription = this.route.params.subscribe(async params => {
-      console.log('after ngOnInit dvir');
       await this.databaseService
         .getDvirs()
         .toPromise()

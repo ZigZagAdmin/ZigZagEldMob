@@ -26,7 +26,6 @@ export class InspectionPage implements OnInit {
         this.databaseService.getLogDailies().subscribe(logDailies => {
           this.logDailies = logDailies;
           this.LogDailiesId = this.logDailies[0].logDailyId;
-          console.log(this.LogDailiesId);
         });
       }
     });

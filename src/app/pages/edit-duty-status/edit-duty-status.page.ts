@@ -72,7 +72,6 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
         else sDateEnd = new Date().toISOString();
 
-        // console.log(sDateEnd);
         if (sDateEnd == '0001-01-01T00:00:00') {
           sDateEnd = formatDate(
             new Date().toLocaleString('en-US', {
@@ -88,15 +87,12 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
           formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
           dateBgn = new Date(event.eventTime.timeStamp);
-          // console.log(dateBgn.toLocaleDateString());
-          // console.log(new Date(this.currentDay as string).toLocaleDateString());
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
           }
 
-          // console.log('X BEGIN =', this.xBgn);
 
           dateEnd = new Date(sDateEnd);
 
@@ -105,7 +101,6 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
           } else {
             this.xEnd = 1440;
           }
-          // console.log('X END =', this.xEnd);
 
           switch (event.type.code) {
             case 'OFF':

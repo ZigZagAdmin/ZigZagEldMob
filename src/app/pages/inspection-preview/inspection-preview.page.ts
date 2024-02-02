@@ -55,7 +55,6 @@ export class InspectionPreviewPage implements OnInit {
     let timeZone$ = this.storage.get('timeZone');
 
     forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$]).subscribe(([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone]) => {
-      console.log(queryParams);
       this.backUrl = queryParams['url'];
       this.LogDailiesId = queryParams['logId'];
       this.previousPage = queryParams['page'];
@@ -92,7 +91,6 @@ export class InspectionPreviewPage implements OnInit {
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
-        console.log(event.eventTime.timeStampEnd);
         if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
         else sDateEnd = new Date().toISOString();
         if (sDateEnd == '0001-01-01T00:00:00') {
@@ -109,18 +107,13 @@ export class InspectionPreviewPage implements OnInit {
           formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
           formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
         ) {
-          console.log('event', event);
 
           dateBgn = new Date(event.eventTime.timeStamp);
-          console.log(dateBgn.toLocaleDateString());
-          console.log(new Date(this.currentDay as string).toLocaleDateString());
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
           }
-
-          console.log('X BEGIN =', this.xBgn);
 
           dateEnd = new Date(sDateEnd);
 
@@ -129,7 +122,6 @@ export class InspectionPreviewPage implements OnInit {
           } else {
             this.xEnd = 1440;
           }
-          console.log('X END =', this.xEnd);
 
           switch (event.type.code) {
             case 'OFF':
@@ -286,7 +278,6 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   goBack() {
-    console.log(this.backUrl);
     if (this.backUrl === 'log-item') this.navCtrl.navigateBack(['log-item', this.logDaily.logDailyId]);
     else this.navCtrl.navigateBack('unitab/inspection');
   }

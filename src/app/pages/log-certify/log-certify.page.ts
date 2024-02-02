@@ -69,7 +69,6 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     this.logDailies$ = this.databaseService.getLogDailies().subscribe(logDailies => {
       this.logDailies = logDailies;
       this.logDaily = this.logDailies.find(log => log.logDailyId === this.logId);
-      console.log(this.logDaily);
     });
   }
 
@@ -103,7 +102,6 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       this.signature = '';
       this.signatureLink = firstNonEmptySignature.form.signatureLink;
       this.foundSignatureId = firstNonEmptySignature.form.signatureId;
-      console.log(firstNonEmptySignature);
       this.signatureFound = true;
       this.activateSave();
     } else {
