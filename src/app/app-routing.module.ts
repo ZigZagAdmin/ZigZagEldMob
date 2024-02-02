@@ -130,10 +130,6 @@ const routes: Routes = [
       ),
   },
   {
-    path: 'insert-duty-status',
-    loadChildren: () => import('./pages/insert-duty-status/insert-duty-status.module').then( m => m.InsertDutyStatusPageModule)
-  },
-  {
     path: 'edit-duty-status',
     loadChildren: () => import('./pages/edit-duty-status/edit-duty-status.module').then( m => m.EditDutyStatusPageModule)
   },
