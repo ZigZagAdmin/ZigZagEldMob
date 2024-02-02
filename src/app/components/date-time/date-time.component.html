@@ -3,17 +3,11 @@
     {{ label }}{{ required ? '*' : '' }}
   </div>
   <div class="input-box" [id]="id" (click)="openModal()" [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left' }">
-    <div class="input-box-value">{{ value || 'No option selected' }}</div>
-    <img src="assets/icon/bottom-arrow-18.svg" />
+    <div class="input-box-value">{{ displayValue }}</div>
   </div>
   <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="id">
     <ng-template>
-      <div class="option-box" id="optionBox">
-        <div class="select-option" *ngFor="let option of optionsCheck; index as i" (click)="triggerCheck(option, i)">
-          <div class="select-value">{{ option.value }}</div>
-          <div class="select-icon"><ion-checkbox [checked]="option.checked"></ion-checkbox></div>
-        </div>
-      </div>
+      <ion-datetime (ionChange)="selectDate($event)" [value]="value" [ngClass]="{ 'calendar-height': localType === 'date-time' }" [presentation]="localType" [preferWheel]="enableWheel"></ion-datetime>
       <div class="submit-buttons">
         <div class="action-button default" (click)="closeModal()">Cancel</div>
         <div class="action-button primary" (click)="submit()">Submit</div>

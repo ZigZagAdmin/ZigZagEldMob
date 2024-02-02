@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-select',
@@ -57,9 +58,12 @@ export class SelectComponent implements OnInit {
   optionsCheck: { value: string; checked: boolean }[] = [];
   lastStatus: { value: string; checked: boolean }[] = [];
 
-  constructor() {}
+  id: string = '';
+
+  constructor(private utilityService: UtilityService) {}
 
   ngOnInit() {
+    this.id = this.utilityService.generateString(8);
     this.optionsCheck = this.options.map(value => ({ value: value, checked: false }));
     if (this._value && this._value.length !== 0) {
       const localArray = this._value.split(', ');

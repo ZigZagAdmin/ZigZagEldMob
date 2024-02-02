@@ -6,9 +6,10 @@ import { ConnectMacPageRoutingModule } from './connect-mac-routing.module';
 import { ConnectMacPage } from './connect-mac.page';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { InputComponentModule } from 'src/app/components/input/input.module';
+import { DateTimeComponentModule } from 'src/app/components/date-time/date-time.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ConnectMacPageRoutingModule, HeaderComponentModule, InputComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, ConnectMacPageRoutingModule, HeaderComponentModule, InputComponentModule, DateTimeComponentModule],
   providers: [],
   declarations: [ConnectMacPage],
 })
