@@ -115,21 +115,21 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // if (Capacitor.getPlatform() !== 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
     this.serviceSub = interval(1000).subscribe(() => {
       this.locationService.checkLocationStatus();
-      // if (!this.bluetoothStatus) {
-      //   this.bluetoothService.initialize();
-      // }
-      // this.bluetoothService.getBluetoothState();
+      if (!this.bluetoothStatus) {
+        this.bluetoothService.initialize();
+      }
+      this.bluetoothService.getBluetoothState();
     });
     this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
       this.locationStatus = data;
     });
-    // this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
-    //   this.bluetoothStatus = data;
-    // });
-    // }
+    this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
+      this.bluetoothStatus = data;
+    });
+    }
 
     setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
   }

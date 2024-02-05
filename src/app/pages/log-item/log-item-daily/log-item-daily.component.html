@@ -154,11 +154,11 @@
         </ng-template>
       </ion-modal>
       <div class="form-cards">
-        <div class="form-card" *ngFor="let logStatus of statusesOnDay">
+        <div class="form-card" *ngFor="let logStatus of statusesOnDay; index as i">
           <div class="card-row">
             <div class="status-circle" [ngStyle]="{ 'background-color': getStatusColor(logStatus.type.code) }"></div>
-            <p class="subtitle">{{ logStatus.eventTime.timeStamp | date : 'h:mm a' }} - {{ logStatus.type.name }}</p>
-            <p class="text-14-600">{{ logStatus.eventTime.timeStamp | date : 'mediumDate' }}</p>
+            <p class="subtitle">{{ logStatus.eventTime.timeStamp | date : 'h:mm a' }} <span style="font-size: 12px;">{{ i === 0 ? '(' + (logStatus.eventTime.timeStamp | date : 'mediumDate') + ')' : '' }}</span> - {{ logStatus.type.name }}</p>
+            <p class="text-14-600">{{ logEventDuration(logStatus) }}</p>
           </div>
           <div class="card-row">
             <img src="assets/icon/location.svg" alt="location" />

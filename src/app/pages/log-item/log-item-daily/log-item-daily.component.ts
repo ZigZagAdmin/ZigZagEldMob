@@ -17,7 +17,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ManageService } from 'src/app/services/manage.service';
-import { timeZones } from 'src/app/models/timeZone';
+import { timeZoneSummer, timeZoneWinter, seasonChanges } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-log-item-daily',
@@ -33,6 +33,8 @@ export class LogItemDailyComponent implements OnInit {
   vehicleUnit: string = '';
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
+  statusEvents: LogEvents[] = [];
+  timeZones: {[key: string]: string} = {};
   logDaily: LogDailies | undefined;
   currentDay: string | undefined = '';
   networkStatus = false;
@@ -96,7 +98,9 @@ export class LogItemDailyComponent implements OnInit {
     private manageService: ManageService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.timeZones = this.checkSeason();
+  }
 
   async ionViewWillEnter() {
     this.vehicleId = await this.storage.get('vehicleId');
@@ -117,6 +121,7 @@ export class LogItemDailyComponent implements OnInit {
         forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
+          this.logEvents.forEach(logEvent => logEvent.type.code !== 'LOGIN' && logEvent.type.code !== 'LOGOUT' ? this.statusEvents.push(logEvent) : null)
 
           if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
 
@@ -187,7 +192,7 @@ export class LogItemDailyComponent implements OnInit {
     this.statusesOnDay = [];
     let dateBgn = null;
     let dateEnd = null;
-    let sDateEnd = '';
+    let sDateEnd: any = '';
     this.xBgn = 0;
     this.xEnd = 0;
     this.xBgnV = 0;
@@ -197,31 +202,22 @@ export class LogItemDailyComponent implements OnInit {
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
-        if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
-        else sDateEnd = new Date().toISOString();
 
-        if (sDateEnd == '0001-01-01T00:00:00') {
-          sDateEnd = formatDate(
-            new Date().toLocaleString('en-US', {
-              timeZone: this.timeZone,
-            }),
-            'yyyy-MM-ddTHH:mm:ss',
-            'en_US'
-          );
-        }
+        if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd);
+        else sDateEnd = new Date().getTime();
+
+        dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+        dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
 
         if (
-          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
-          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
+          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]) <= formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])
         ) {
-          dateBgn = new Date(event.eventTime.timeStamp);
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
           }
-
-          dateEnd = new Date(sDateEnd);
 
           if (dateEnd.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xEnd = dateEnd.getHours() * 60 + dateEnd.getMinutes();
@@ -492,7 +488,7 @@ export class LogItemDailyComponent implements OnInit {
         companyId: '',
         driverId: this.driverId,
         eventTime: {
-          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
+          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]),
           timeStamp: new Date().getTime(),
           timeStampEnd: new Date().getTime(),
           timeZone: '',
@@ -619,6 +615,18 @@ export class LogItemDailyComponent implements OnInit {
     offlineLogDailies.splice(index, 1, this.logDaily);
     await this.storage.set('logDailies', offlineLogDailies);
     console.log('log-certify: logDailies updated in the storage');
+  }
+
+  logEventDuration(logStatus: LogEvents) {
+    return this.utilityService.msToTime(logStatus.eventTime.timeStampEnd !== undefined && logStatus.eventTime.timeStampEnd !== 0 ? logStatus.eventTime.timeStampEnd - logStatus.eventTime.timeStamp : (new Date()).getTime() - logStatus.eventTime.timeStamp)
+  }
+
+  checkSeason() {
+    if((new Date()).getTime() >= seasonChanges[(new Date()).getFullYear().toString() as keyof typeof seasonChanges].summer && (new Date()).getTime() < seasonChanges[(new Date()).getFullYear().toString() as keyof typeof seasonChanges].winter) {
+      return timeZoneSummer;
+    } else {
+      return timeZoneWinter;
+    }
   }
 
   canBeInspected() {
