@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   pickedVehicle!: string;
   databaseSubscription: Subscription | undefined;
-  networkStatus = false;
+  networkStatus: boolean = null;
   networkSub!: Subscription;
   constructor(
     private navCtrl: NavController,
@@ -34,12 +34,16 @@ export class AppComponent implements OnInit, OnDestroy {
     private manageService: ManageService,
     private internetService: InternetService,
     private loadingController: LoadingController,
-    private toastSerivice: ToastService,
+    private toastService: ToastService,
     private locationService: LocationService
   ) {}
 
   async ngOnInit() {
     this.networkSub = this.internetService.internetStatus$.subscribe(status => {
+      if (status === true && this.networkStatus !== status) {
+      } else {
+        this.toastService.showToast('You are now in OFFLINE MODE!', 'warning');
+      }
       this.networkStatus = status;
     });
     this.loading = true;
@@ -68,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
               .pipe(
                 catchError(error => {
                   const errorMessage = 'Error fetching data';
-                  this.toastSerivice.showToast(errorMessage);
+                  this.toastService.showToast(errorMessage);
                   this.loading = false;
                   loading.dismiss();
                   return throwError(errorMessage);
@@ -88,7 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   return forkJoin(saveRequests).pipe(
                     catchError(error => {
                       const errorMessage = 'Error saving data to storage';
-                      this.toastSerivice.showToast(errorMessage);
+                      this.toastService.showToast(errorMessage);
                       return throwError(errorMessage);
                     }),
                     tap(() => {
@@ -105,7 +109,7 @@ export class AppComponent implements OnInit, OnDestroy {
               )
               .subscribe(
                 () => {
-                  this.toastSerivice.showToast('Welcome Back!', 'success');
+                  this.toastService.showToast('Welcome Back!', 'success');
                 },
                 error => {
                   console.log(error);
@@ -115,7 +119,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.storage.remove('accessToken');
             this.loading = false;
             this.navCtrl.navigateForward('/login', { replaceUrl: true });
-            this.toastSerivice.showToast('Access token has expired. Please log in again.', 'danger');
+            this.toastService.showToast('Access token has expired. Please log in again.', 'danger');
           }
         } else {
           await this.storage.remove('accessToken');
@@ -134,6 +138,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    console.log('App Component Destroy');
+    if (this.databaseSubscription) {
+      this.databaseSubscription.unsubscribe();
+    }
+    this.networkSub.unsubscribe();
   }
 
   private async presentLoading() {
@@ -143,12 +152,5 @@ export class AppComponent implements OnInit, OnDestroy {
     });
     await loading.present();
     return loading;
-  }
-
-  ionViewWillLeave() {
-    if (this.databaseSubscription) {
-      this.databaseSubscription.unsubscribe();
-    }
-    this.networkSub.unsubscribe();
   }
 }

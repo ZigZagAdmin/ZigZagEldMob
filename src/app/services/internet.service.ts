@@ -18,24 +18,13 @@ export class InternetService {
   internetStatus$ = new BehaviorSubject(false);
 
   constructor(private storage: Storage, private dashboardService: DashboardService) {
-    this.checkInternetStatus();
     this.watchInternetStatus();
   }
 
-  private async checkInternetStatus() {
-    const status = await Network.getStatus();
-    this.internetStatus$.next(status.connected);
-    if (status.connected) {
-      this.postOfflineData();
-    }
-  }
 
   private watchInternetStatus() {
     Network.addListener('networkStatusChange', status => {
       this.internetStatus$.next(status.connected);
-      if (status.connected === true) {
-        this.postOfflineData();
-      }
     });
   }
 
