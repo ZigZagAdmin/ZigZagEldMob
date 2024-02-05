@@ -77,7 +77,10 @@ export class DateTimeComponent implements OnInit {
   ngOnInit() {
     this.id = this.utilityService.generateString(8);
     if (!this.value) {
-      this.selectDate(formatDate(new Date(), 'YYYY-MM-ddTHH:mm:ss', 'en_US'));
+      this.value = formatDate(new Date(), 'YYYY-MM-ddTHH:mm:ss', 'en_US');
+      this.selectDate(this.value);
+      this.previousDisplayValue = this.displayValue;
+      this.previousValue = this.value;
     }
   }
 
