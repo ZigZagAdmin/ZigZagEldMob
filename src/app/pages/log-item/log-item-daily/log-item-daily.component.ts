@@ -9,7 +9,6 @@ import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
 import { EventGraphic } from 'src/app/models/event-graphic';
 import { Storage } from '@ionic/storage';
-import { IonModal } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
 import SignaturePad from 'signature_pad';
 import { NavController } from '@ionic/angular';
@@ -26,7 +25,6 @@ import { timeZoneSummer, timeZoneWinter, seasonChanges } from 'src/app/models/ti
 })
 export class LogItemDailyComponent implements OnInit {
   @ViewChild('sPad', { static: false }) signaturePadElement!: ElementRef;
-  @ViewChild(IonModal) modal!: IonModal;
   LogDailiesId!: string | null;
   bReady: boolean = false;
   timeZone: string = '';
@@ -34,7 +32,7 @@ export class LogItemDailyComponent implements OnInit {
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
   statusEvents: LogEvents[] = [];
-  timeZones: {[key: string]: string} = {};
+  timeZones: { [key: string]: string } = {};
   logDaily: LogDailies | undefined;
   currentDay: string | undefined = '';
   networkStatus = false;
@@ -99,7 +97,7 @@ export class LogItemDailyComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.timeZones = this.checkSeason();
+    this.timeZones = this.utilityService.checkSeason();
   }
 
   async ionViewWillEnter() {
@@ -121,7 +119,7 @@ export class LogItemDailyComponent implements OnInit {
         forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
-          this.logEvents.forEach(logEvent => logEvent.type.code !== 'LOGIN' && logEvent.type.code !== 'LOGOUT' ? this.statusEvents.push(logEvent) : null)
+          this.logEvents.forEach(logEvent => (logEvent.type.code !== 'LOGIN' && logEvent.type.code !== 'LOGOUT' ? this.statusEvents.push(logEvent) : null));
 
           if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
 
@@ -202,7 +200,6 @@ export class LogItemDailyComponent implements OnInit {
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
-
         if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd);
         else sDateEnd = new Date().getTime();
 
@@ -210,7 +207,8 @@ export class LogItemDailyComponent implements OnInit {
         dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
 
         if (
-          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]) <= formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]) <=
+            formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
           formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])
         ) {
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
@@ -475,93 +473,6 @@ export class LogItemDailyComponent implements OnInit {
     this.isModalOpen = false;
   }
 
-  confirm() {
-    this.modal.dismiss(this.signature, 'confirm');
-  }
-
-  async onWillDismiss(event: Event) {
-    const ev = event as CustomEvent<OverlayEventDetail<string>>;
-    if (ev.detail.role === 'confirm') {
-      const lastLogEvent = this.logEvents[this.logEvents.length - 1];
-      let CetificationLogEvent: LogEvents = {
-        logEventId: this.utilityService.uuidv4(),
-        companyId: '',
-        driverId: this.driverId,
-        eventTime: {
-          logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]),
-          timeStamp: new Date().getTime(),
-          timeStampEnd: new Date().getTime(),
-          timeZone: '',
-        },
-        vehicle: {
-          vehicleId: this.vehicleId,
-        },
-        eld: {
-          eldId: '',
-          macAddress: '',
-          serialNumber: '',
-        },
-        location: {
-          locationType: 'AUTOMATIC',
-          description: '2mi from Chisinau, Chisinau',
-          latitude: 0,
-          longitude: 0,
-        },
-        sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
-        type: { name: 'Certification (1)', code: 'CERTIFICATION_1' },
-        recordStatus: { name: 'Driver', code: 'DRIVER' },
-        recordOrigin: { name: 'Active', code: 'ACTIVE' },
-        odometer: 0,
-        engineHours: 0,
-        malfunction: false,
-        dataDiagnosticEvent: false,
-        certificationDate: this.logDaily?.logDate,
-        comment: '',
-        eventDataCheck: '',
-        inspection: false,
-      };
-
-      if (this.networkStatus === true) {
-        this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
-          response => {
-            console.log('Certification LogEvent is on server:', response);
-            this.updateLogEvents(CetificationLogEvent, true);
-          },
-          async error => {
-            this.updateLogEvents(CetificationLogEvent, false);
-            console.log('Cerification LogEvent Pushed in offline logEvents array');
-          }
-        );
-      } else {
-        console.log('Internet Status:', this.networkStatus);
-        this.updateLogEvents(CetificationLogEvent, false);
-        console.log('Cerification LogEvent Pushed in offline logEvents array');
-      }
-
-      if (this.logDaily) {
-        this.logDaily.certified = true;
-        this.logDaily.form.signatureId = this.signature;
-      }
-
-      if (this.networkStatus === true) {
-        this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
-          response => {
-            console.log(' LogDaily is on server:', response);
-            this.updateLogDaily(this.logDaily, true);
-          },
-          async error => {
-            this.updateLogDaily(this.logDaily, false);
-            console.log('LogDaily Pushed in offline logDailies array');
-          }
-        );
-      } else {
-        console.log('Internet Status' + this.networkStatus);
-        this.updateLogDaily(this.logDaily, false);
-        console.log('LogDaily Pushed in offline logDailies array');
-      }
-    }
-  }
-
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
     logEventData.sent = online;
     this.logEvents.push(logEventData);
@@ -618,15 +529,11 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   logEventDuration(logStatus: LogEvents) {
-    return this.utilityService.msToTime(logStatus.eventTime.timeStampEnd !== undefined && logStatus.eventTime.timeStampEnd !== 0 ? logStatus.eventTime.timeStampEnd - logStatus.eventTime.timeStamp : (new Date()).getTime() - logStatus.eventTime.timeStamp)
-  }
-
-  checkSeason() {
-    if((new Date()).getTime() >= seasonChanges[(new Date()).getFullYear().toString() as keyof typeof seasonChanges].summer && (new Date()).getTime() < seasonChanges[(new Date()).getFullYear().toString() as keyof typeof seasonChanges].winter) {
-      return timeZoneSummer;
-    } else {
-      return timeZoneWinter;
-    }
+    return this.utilityService.msToTime(
+      logStatus.eventTime.timeStampEnd !== undefined && logStatus.eventTime.timeStampEnd !== 0
+        ? logStatus.eventTime.timeStampEnd - logStatus.eventTime.timeStamp
+        : new Date().getTime() - logStatus.eventTime.timeStamp
+    );
   }
 
   canBeInspected() {

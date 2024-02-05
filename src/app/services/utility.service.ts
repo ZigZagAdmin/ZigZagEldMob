@@ -1,6 +1,7 @@
 import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
+import { seasonChanges, timeZoneSummer, timeZoneWinter } from '../models/timeZone';
 
 @Injectable({
   providedIn: 'root',
@@ -38,12 +39,23 @@ export class UtilityService {
   msToTime(duration: number) {
     let seconds: string | number = Math.floor((duration / 1000) % 60);
     let minutes: string | number = Math.floor((duration / (1000 * 60)) % 60);
-    let hours: string | number = Math.floor((duration / (1000 * 60 * 60)));
-  
-    hours = (hours < 10) ? "0" + hours : hours;
-    minutes = (minutes < 10) ? "0" + minutes : minutes;
-    seconds = (seconds < 10) ? "0" + seconds : seconds;
-  
-    return hours + "h " + minutes + "min";
+    let hours: string | number = Math.floor(duration / (1000 * 60 * 60));
+
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+
+    return hours + 'h ' + minutes + 'min';
+  }
+
+  checkSeason() {
+    if (
+      new Date().getTime() >= seasonChanges[new Date().getFullYear().toString() as keyof typeof seasonChanges].summer &&
+      new Date().getTime() < seasonChanges[new Date().getFullYear().toString() as keyof typeof seasonChanges].winter
+    ) {
+      return timeZoneSummer;
+    } else {
+      return timeZoneWinter;
+    }
   }
 }

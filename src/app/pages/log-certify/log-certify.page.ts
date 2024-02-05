@@ -1,10 +1,13 @@
+import { formatDate } from '@angular/common';
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import SignaturePad from 'signature_pad';
 import { LogDailies } from 'src/app/models/log-dailies';
+import { LogEvents } from 'src/app/models/log-histories';
+import { Vehicle } from 'src/app/models/vehicle';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -25,15 +28,19 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   logDate: string = '';
   logId: string = '';
 
-  logDailies: LogDailies[];
+  logDailies: LogDailies[] = [];
+
+  logEvents: LogEvents[] = [];
+
+  timeZones: { [key: string]: string } = {};
+
+  timeZone: string = '';
 
   logDaily: LogDailies;
 
-  logDailies$: Subscription;
+  vehicleId: string;
 
   signature: string = '';
-
-  routeSubscription: Subscription;
 
   signatureFound: boolean = false;
   foundSignatureId: string = '';
@@ -62,13 +69,22 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.routeSubscription = this.route.queryParams.subscribe(params => {
-      this.logDate = params['date'];
-      this.logId = params['logId'];
-    });
-    this.logDailies$ = this.databaseService.getLogDailies().subscribe(logDailies => {
+    this.timeZones = this.utilityService.checkSeason();
+    let timeZone$ = this.storage.get('timeZone');
+    let queryParams$ = firstValueFrom(this.route.queryParams);
+    let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
+    let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
+    let vehicleId$ = this.storage.get('vehicleId');
+
+    forkJoin([queryParams$, timeZone$, logDailies$, logEvents$, vehicleId$]).subscribe(([queryParams, timeZone, logDailies, logEvents, vehicleId]) => {
+      this.logDate = queryParams['date'];
+      this.logId = queryParams['logId'];
+      this.timeZone = timeZone;
+      this.vehicleId = vehicleId;
+
       this.logDailies = logDailies;
       this.logDaily = this.logDailies.find(log => log.logDailyId === this.logId);
+      this.logEvents = logEvents;
     });
   }
 
@@ -76,9 +92,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     this.initSignaturePad();
   }
 
-  ngOnDestroy(): void {
-    this.logDailies$.unsubscribe();
-  }
+  ngOnDestroy(): void {}
 
   goBack() {
     this.navCtrl.navigateBack(['log-item', this.logId]);
@@ -141,6 +155,58 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       this.logDaily.form.signature = this.signature;
       this.logDaily.certified = true;
     }
+
+    const lastLogEvent = this.logEvents[this.logEvents.length - 1];
+
+    let CetificationLogEvent: LogEvents = {
+      logEventId: this.utilityService.uuidv4(),
+      companyId: '',
+      driverId: this.logDaily.driverId,
+      eventTime: {
+        logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]),
+        timeStamp: new Date().getTime(),
+        timeStampEnd: new Date().getTime(),
+        timeZone: '',
+      },
+      vehicle: {
+        vehicleId: this.vehicleId,
+      },
+      eld: {
+        eldId: '00000000-0000-0000-0000-000000000000',
+        macAddress: '',
+        serialNumber: '',
+      },
+      location: {
+        locationType: 'AUTOMATIC',
+        description: '2mi from Chisinau, Chisinau',
+        latitude: 0,
+        longitude: 0,
+      },
+      sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
+      type: { name: 'Certification (1)', code: 'CERTIFICATION_1' },
+      recordStatus: { name: 'Driver', code: 'DRIVER' },
+      recordOrigin: { name: 'Active', code: 'ACTIVE' },
+      odometer: 0,
+      engineHours: 0,
+      malfunction: false,
+      dataDiagnosticEvent: false,
+      certificationDate: this.logDaily?.logDate,
+      comment: '',
+      eventDataCheck: '',
+      inspection: false,
+    };
+    
+    this.updateLogEvents(CetificationLogEvent, false);
+    this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
+      response => {
+        this.updateIndexLogEvents(CetificationLogEvent, true);
+        console.log('Certification LogEvent is on server:', response);
+      },
+      async error => {
+        console.log('Cerification LogEvent Pushed in offline logEvents array');
+      }
+    );
+
     this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
       response => {
         this.toastService.showToast('Successfully signed the log certification.', 'success');
@@ -155,6 +221,22 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
         this.goBack();
       }
     );
+
+  }
+
+  async updateLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    this.logEvents.push(logEventData);
+    await this.storage.set('logEvents', this.logEvents);
+  }
+
+  async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
+    if (index !== -1) {
+      this.logEvents[index] = logEventData;
+    }
+    await this.storage.set('logEvents', this.logEvents);
   }
 
   activateSave() {
