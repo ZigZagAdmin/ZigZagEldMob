@@ -1016,7 +1016,8 @@ export class HosPage implements OnInit, OnDestroy {
     }, 60000);
   }
 
-  ionViewWillLeave() {
+  async ionViewWillLeave() {
+    await this.storage.set('lastKnownLocation', this.locationDescription);
     if (this.bluetoothStatusSub) {
       this.bluetoothStatusSub.unsubscribe();
       this.locationStatusSub.unsubscribe();

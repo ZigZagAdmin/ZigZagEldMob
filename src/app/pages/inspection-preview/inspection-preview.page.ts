@@ -12,6 +12,8 @@ import { Vehicle } from 'src/app/models/vehicle';
 import { Driver } from 'src/app/models/driver';
 import { DVIRs } from 'src/app/models/dvirs';
 import { ELD } from 'src/app/models/eld';
+import { Company } from 'src/app/models/company';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -42,31 +44,41 @@ export class InspectionPreviewPage implements OnInit {
   previousPage!: string | null;
   today = new Date();
   backUrl = '';
+  lastKnownLocation: string = '';
+  company: Company;
+  timeZones: { [key: string]: string } = {};
 
-  constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute) {}
+  constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
 
   async ngOnInit() {
+    this.timeZones = this.utilityService.checkSeason();
     let queryParams$ = firstValueFrom(this.route.queryParams);
     let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
     let drivers$ = firstValueFrom(this.databaseService.getDrivers());
     let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
     let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
     let elds$ = firstValueFrom(this.databaseService.getELDs());
+    let company$ = firstValueFrom(this.databaseService.getCompany());
     let timeZone$ = this.storage.get('timeZone');
+    let lastKnownLocation$ = this.storage.get('lastKnownLocation');
 
-    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$]).subscribe(([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone]) => {
-      this.backUrl = queryParams['url'];
-      this.LogDailiesId = queryParams['logId'];
-      this.previousPage = queryParams['page'];
-      this.vehicle = vehicles[0];
-      this.driver = drivers[0];
-      this.timeZone = timeZone;
-      this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
-      this.logDailies = logDailies.slice(0, 8);
-      this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-      this.logEvents = logEvents;
-      this.drawGraph();
-    });
+    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$, lastKnownLocation$, company$]).subscribe(
+      ([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone, lastKnownLocation, company]) => {
+        this.backUrl = queryParams['url'];
+        this.LogDailiesId = queryParams['logId'];
+        this.previousPage = queryParams['page'];
+        this.vehicle = vehicles[0];
+        this.driver = drivers[0];
+        this.timeZone = timeZone;
+        this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
+        this.logDailies = logDailies.slice(0, 8);
+        this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+        this.logEvents = logEvents;
+        this.lastKnownLocation = lastKnownLocation;
+        this.company = company;
+        this.drawGraph();
+      }
+    );
   }
 
   getDateSub(date: string) {
@@ -81,7 +93,7 @@ export class InspectionPreviewPage implements OnInit {
     this.statusesOnDay = [];
     let dateBgn = null;
     let dateEnd = null;
-    let sDateEnd = '';
+    let sDateEnd: any = '';
     this.xBgn = 0;
     this.xEnd = 0;
     this.xBgnV = 0;
@@ -91,31 +103,22 @@ export class InspectionPreviewPage implements OnInit {
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
-        if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
-        else sDateEnd = new Date().toISOString();
-        if (sDateEnd == '0001-01-01T00:00:00') {
-          sDateEnd = formatDate(
-            new Date().toLocaleString('en-US', {
-              timeZone: this.timeZone,
-            }),
-            'yyyy-MM-ddTHH:mm:ss',
-            'en_US'
-          );
-        }
+        if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd);
+        else sDateEnd = new Date().getTime();
+
+        dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+        dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
 
         if (
-          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') &&
-          formatDate(new Date(this.currentDay as string), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
+          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]) <=
+            formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
+          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])
         ) {
-
-          dateBgn = new Date(event.eventTime.timeStamp);
           if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
           }
-
-          dateEnd = new Date(sDateEnd);
 
           if (dateEnd.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xEnd = dateEnd.getHours() * 60 + dateEnd.getMinutes();
