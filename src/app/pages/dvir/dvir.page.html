@@ -2,8 +2,9 @@
   <app-header [title]="'Select Duty Status'">
     <div class="dvir-add" (click)="insertDvir()">+</div>
   </app-header>
-  <div class="dvirs-list" *ngIf="dvirs.length !== 0">
+  <div class="dvirs-list" *ngIf="dvirs.length !== 0 && !pageLoading">
     <app-card *ngFor="let dvir of dvirs" [dvir]="dvir" (click)="editDvir(dvir)"></app-card>
   </div>
-  <div class="no-data" *ngIf="dvirs.length === 0">No data.</div>
+  <div class="no-data" *ngIf="dvirs.length === 0 && !pageLoading">No data.</div>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

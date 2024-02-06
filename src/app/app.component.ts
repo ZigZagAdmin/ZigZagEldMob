@@ -14,6 +14,7 @@ import { DatabaseService } from './services/database.service';
 import { LocationService } from './services/location.service';
 import { Capacitor } from '@capacitor/core';
 import { ToastService } from './services/toast.service';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   pickedVehicle!: string;
   databaseSubscription: Subscription | undefined;
-  networkStatus: boolean = null;
+  lastNetworkStatus: boolean = null;
   networkSub!: Subscription;
   constructor(
     private navCtrl: NavController,
@@ -39,12 +40,25 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
-      if (status === true && this.networkStatus !== status) {
+    this.networkSub = this.internetService.internetStatus$.subscribe(async status => {
+      let currentStatus = await Network.getStatus();
+      if (currentStatus.connected === true) {
+        if (this.lastNetworkStatus === false) {
+          this.toastService.showToast('You are back online!', 'success');
+          await this.internetService
+            .postOfflineData()
+            .then(async () => {
+              this.toastService.showToast('All offline data uploaded successfully!', 'success');
+            })
+            .catch(e => {
+              this.toastService.showToast("There's been an error uploading the offline data!", 'error');
+              console.error(e);
+            });
+        }
       } else {
-        this.toastService.showToast('You are now in OFFLINE MODE!', 'warning');
+        this.toastService.showToast('You are now in Offline Mode!', 'warning');
       }
-      this.networkStatus = status;
+      this.lastNetworkStatus = currentStatus.connected;
     });
     this.loading = true;
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
@@ -72,7 +86,7 @@ export class AppComponent implements OnInit, OnDestroy {
               .pipe(
                 catchError(error => {
                   const errorMessage = 'Error fetching data';
-                  this.toastService.showToast(errorMessage);
+                  console.warn(errorMessage);
                   this.loading = false;
                   loading.dismiss();
                   return throwError(errorMessage);
@@ -92,7 +106,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   return forkJoin(saveRequests).pipe(
                     catchError(error => {
                       const errorMessage = 'Error saving data to storage';
-                      this.toastService.showToast(errorMessage);
+                      console.warn(errorMessage);
                       return throwError(errorMessage);
                     }),
                     tap(() => {

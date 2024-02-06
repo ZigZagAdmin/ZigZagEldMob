@@ -26,6 +26,7 @@ import { LocationService } from 'src/app/services/location.service';
 import { Capacitor } from '@capacitor/core';
 import { EncryptionService } from 'src/app/services/encryption.service';
 import { Keyboard } from '@capacitor/keyboard';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-login',
@@ -89,6 +90,11 @@ export class LoginPage implements OnInit, OnDestroy {
   async login(username: string, password: string) {
     if (Capacitor.getPlatform() !== 'web') {
       Keyboard.hide();
+    }
+    let networkStatus = await Network.getStatus();
+    if (!networkStatus.connected) {
+      this.toastService.showToast("You cannot login while you're offline!");
+      return;
     }
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;

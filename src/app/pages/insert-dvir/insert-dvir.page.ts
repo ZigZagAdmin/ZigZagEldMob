@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { NavController } from '@ionic/angular';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import SignaturePad from 'signature_pad';
 
@@ -16,13 +16,15 @@ import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ManageService } from 'src/app/services/manage.service';
 import { LocationService } from 'src/app/services/location.service';
+import { Network } from '@capacitor/network';
+import { InterService } from 'src/app/services/inter.service';
 
 @Component({
   selector: 'app-insert-dvir',
   templateUrl: './insert-dvir.page.html',
   styleUrls: ['./insert-dvir.page.scss'],
 })
-export class InsertDvirPage implements OnInit, OnDestroy {
+export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
   defectsVehicle = defectsVehicle;
   defectsTrailers = defectsTrailers;
 
@@ -43,8 +45,6 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   vehicleId: string = '';
   driverId: string = '';
   statusIcon = 'checkmark-circle-outline';
-  networkStatus = false;
-  networkSub!: Subscription;
   Date: string;
 
   imageLoading: boolean = false;
@@ -103,7 +103,8 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     private utilityService: UtilityService,
     private shareService: ShareService,
     private toastService: ToastService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private interService: InterService
   ) {}
 
   async ngOnInit() {
@@ -113,17 +114,19 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     this.dvir.defectsVehicle = '';
     this.dvir.defectsTrailers = '';
 
-    this.initSignaturePad();
-    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-      if (ready) {
-        this.bReady = ready;
-        this.databaseService.getCompany().subscribe(company => {
-          this.company = company;
-        });
-        this.databaseService.getDvirs().subscribe(dvirs => {
-          this.dvirs = dvirs;
-        });
-      }
+    let company$ = firstValueFrom(this.databaseService.getCompany());
+    let dvirs$ = firstValueFrom(this.databaseService.getDvirs());
+    let vehicleUnit$ = this.storage.get('vehicleUnit');
+    let vehicleId$ = this.storage.get('vehicleId');
+    let driverId$ = this.storage.get('driverId');
+
+    forkJoin([company$, dvirs$, vehicleUnit$, vehicleId$, driverId$]).subscribe(([company, dvirs, vehicleUnit, vehicleId, driverId]) => {
+      this.company = company;
+      this.dvirs = dvirs;
+      this.vehicleUnit = vehicleUnit;
+      this.vehicleUnitDisable = !!this.vehicleUnit;
+      this.vehicleId = vehicleId;
+      this.driverId = driverId;
     });
 
     await this.locationService
@@ -145,19 +148,14 @@ export class InsertDvirPage implements OnInit, OnDestroy {
         };
         console.log(e);
       });
-
-    this.vehicleUnit = await this.storage.get('vehicleUnit');
-    this.vehicleUnitDisable = !!this.vehicleUnit;
-    this.vehicleId = await this.storage.get('vehicleId');
-    this.driverId = await this.storage.get('driverId');
-
-    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
-      this.networkStatus = status;
-    });
   }
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
+  }
+
+  ngAfterViewInit(): void {
+    this.initSignaturePad();
   }
 
   checkSelectPresent(data: any) {
@@ -225,6 +223,7 @@ export class InsertDvirPage implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
+    let networkStatus = await Network.getStatus();
     this.shareService.changeMessage('reset');
     if (this.dvir.defectsTrailers.length === 0) this.validation['trailerName'] = true;
     this.shareService.changeMessage(this.utilityService.generateString(5));
@@ -238,8 +237,8 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     this.dvir.vehicle.vehicleId = this.vehicleId;
     this.dvir.driver.driverId = this.driverId;
 
-    if (this.networkStatus === true) {
-      this.loading = true;
+    this.loading = true;
+    if (networkStatus.connected === true) {
       this.dashboardService
         .updateDVIR(this.dvir)
         .toPromise()
@@ -248,13 +247,15 @@ export class InsertDvirPage implements OnInit, OnDestroy {
           await this.updateDvirs(this.dvir, true).then(() => {
             console.log('DVIRs got updated on the server: ', response);
             this.loading = false;
-            this.navCtrl.navigateBack('/unitab/dvir');
+            setTimeout(() => this.goBack(), 0);
           });
         })
         .catch(async error => {
           await this.updateDvirs(this.dvir, false).then(() => {
             this.loading = false;
-            this.navCtrl.navigateBack('/unitab/dvir');
+            setTimeout(() => {
+              this.goBack();
+            }, 0);
             console.warn('Server Error: ', error);
             console.warn('Pushed dvirs in offline mode');
           });
@@ -262,8 +263,8 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     } else {
       await this.updateDvirs(this.dvir, false).then(() => {
         this.loading = false;
+        setTimeout(() => this.goBack(), 0);
         console.warn('Pushed dvirs in offline mode');
-        this.navCtrl.navigateBack('/unitab/dvir');
       });
     }
   }
@@ -278,10 +279,10 @@ export class InsertDvirPage implements OnInit, OnDestroy {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
-    this.networkSub.unsubscribe();
   }
 
   goBack() {
+    this.interService.changeMessage({ topic: 'dvir' });
     this.navCtrl.navigateBack('/unitab/dvir');
     this.shareService.destroyMessage();
   }

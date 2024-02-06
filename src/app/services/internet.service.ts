@@ -1,15 +1,15 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Network } from '@capacitor/network';
-import { BehaviorSubject, forkJoin, switchMap } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, forkJoin } from 'rxjs';
 import { Storage } from '@ionic/storage';
-import { HttpClient } from '@angular/common/http';
-import { AUTH_API_URL } from '../app-injection-tokens';
-import { ManageService } from './manage.service';
 import { DVIRs } from '../models/dvirs';
 import { LogDailies } from '../models/log-dailies';
 import { LogEvents } from '../models/log-histories';
 import { ELD } from '../models/eld';
 import { DashboardService } from './dashboard.service';
+import { ManageService } from './manage.service';
+import { formatDate } from '@angular/common';
+import { DatabaseService } from './database.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,6 @@ export class InternetService {
   constructor(private storage: Storage, private dashboardService: DashboardService) {
     this.watchInternetStatus();
   }
-
 
   private watchInternetStatus() {
     Network.addListener('networkStatusChange', status => {
@@ -34,11 +33,43 @@ export class InternetService {
     let logEvents$ = this.storage.get('logEvents');
     let elds$ = this.storage.get('elds');
 
-    forkJoin([dvirs$, logDailies$, logEvents$, elds$]).subscribe(([dvirs, logDailies, logEvents, elds]) => {
-      if (dvirs && dvirs.length !== 0) dvirs.forEach((dvir: DVIRs) => !dvir.sent ? this.dashboardService.updateDVIR(dvir) : '');
-      if (logDailies && logDailies.length !== 0) logDailies.forEach((logDaily: LogDailies) => !logDaily.sent ? this.dashboardService.updateLogDaily(logDaily) : '');
-      if (logEvents && logEvents.length !== 0) logEvents.forEach((logEvent: LogEvents) => !logEvent.sent ? this.dashboardService.updateLogEvent(logEvent) : '');
-      if (elds && elds.length !== 0) elds.forEach((eld: ELD) => !eld.sent ? this.dashboardService.updateELD(eld) : '');
+    forkJoin([dvirs$, logDailies$, logEvents$, elds$]).subscribe(async ([dvirs, logDailies, logEvents, elds]) => {
+      if (dvirs && dvirs.length !== 0)
+        dvirs.forEach(async (dvir: DVIRs) => {
+          if (dvir?.sent === false) {
+            dvir.sent = true;
+            await firstValueFrom(this.dashboardService.updateDVIR(dvir)).then(async (res: any) => {
+              if (res.signatureLink && res.signatureLink.length !== 0) {
+                dvir.signatureLink = res.signatureLink;
+                await this.storage.set('dvirs', dvirs);
+              }
+            });
+          }
+        });
+      if (logDailies && logDailies.length !== 0)
+        logDailies.forEach(async (logDaily: LogDailies) => {
+          if (logDaily?.sent === false) {
+            logDaily.sent = true;
+            await firstValueFrom(this.dashboardService.updateLogDaily(logDaily));
+          }
+        });
+      await this.storage.set('logDailies', logDailies);
+      if (logEvents && logEvents.length !== 0)
+        logEvents.forEach(async (logEvent: LogEvents) => {
+          if (logEvent?.sent === false) {
+            logEvent.sent = true;
+            await firstValueFrom(this.dashboardService.updateLogEvent(logEvent));
+          }
+        });
+      await this.storage.set('logEvents', logEvents);
+      if (elds && elds.length !== 0)
+        elds.forEach(async (eld: ELD) => {
+          if (eld?.sent === false) {
+            eld.sent = true;
+            await firstValueFrom(this.dashboardService.updateELD(eld));
+          }
+        });
+      await this.storage.set('elds', elds);
     });
   }
 }

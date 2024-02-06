@@ -2,8 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { DVIRs } from 'src/app/models/dvirs';
 import { DatabaseService } from 'src/app/services/database.service';
-import { Subscription } from 'rxjs';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription, firstValueFrom } from 'rxjs';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { InterService } from 'src/app/services/inter.service';
 
 @Component({
   selector: 'app-dvir',
@@ -14,19 +15,30 @@ export class DvirPage implements OnInit, OnDestroy {
   bLoading: boolean = true;
   bReady: boolean = false;
   dvirs: DVIRs[] = [];
-  databaseSubscription: Subscription | undefined;
-  paramsSubscription!: Subscription;
+  interSub: Subscription;
   pickedVehicle: String = '';
-  constructor(private route: ActivatedRoute, private navCtrl: NavController, private databaseService: DatabaseService) {}
 
-  async ngOnInit() {
-    this.paramsSubscription = this.route.params.subscribe(async params => {
-      await this.databaseService
-        .getDvirs()
-        .toPromise()
-        .then(dvirs => {
+  pageLoading: boolean = false;
+
+  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private interSerivce: InterService) {}
+
+  ngOnInit() {
+    this.interSub = this.interSerivce.currentMessage.subscribe(async message => {
+      if (message && message.topic === 'dvir') {
+        this.pageLoading = true;
+        await firstValueFrom(this.databaseService.getDvirs()).then(dvirs => {
           this.dvirs = dvirs;
+          this.pageLoading = false;
         });
+      }
+    });
+  }
+
+  async ionViewWillEnter() {
+    this.pageLoading = true;
+    await firstValueFrom(this.databaseService.getDvirs()).then(dvirs => {
+      this.dvirs = dvirs;
+      this.pageLoading = false;
     });
   }
 
@@ -38,11 +50,7 @@ export class DvirPage implements OnInit, OnDestroy {
     this.navCtrl.navigateForward('/insert-dvir');
   }
 
-  ionViewWillLeave() {
-    this.paramsSubscription.unsubscribe();
-  }
-
   ngOnDestroy(): void {
-    this.paramsSubscription.unsubscribe();
+    this.interSub.unsubscribe();
   }
 }
