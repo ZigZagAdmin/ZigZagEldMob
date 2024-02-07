@@ -61,13 +61,20 @@
       </div>
       <div [ngClass]="{'no-display': !(dvir.status.code === 'DC')}">
         <div class="canvas-container">
-          <canvas #mechanicSPad height="200" style="touch-action: none; user-select: none"></canvas>
+          <canvas #mechanicSPad height="200" [ngClass]="{'no-display': mechanicSignatureFound}" style="touch-action: none; user-select: none"></canvas>
+          <div class="image-container" *ngIf="mechanicSignatureFound">
+            <img [ngClass]="{ 'no-display': mechanicImageLoading }" [src]="dvir.mechanicSignatureLink" (load)="mechanicImageLoaded()" />
+            <ion-spinner *ngIf="mechanicImageLoading" name="dots" color="dark"></ion-spinner>
+          </div>
         </div>
         <div class="signature-buttons">
           <div class="signature-button" (click)="clearMechanicSignature()">Clear signature</div>
+          <div class="signature-button" (click)="restoreMechanicSignature()">Restore signature</div>
         </div>
       </div>
-      <button class="btn primary-btn" (click)="onSubmit()" [ngClass]="{ 'disable-click': loading }"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>
+      <button class="btn primary-btn" (click)="onSubmit()" [ngClass]="{ 'disable-click': loading }">
+        <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      </button>
     </div>
   </form>
   <div class="spinner-container" *ngIf="pageLoading">

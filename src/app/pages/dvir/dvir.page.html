@@ -3,7 +3,47 @@
     <div class="dvir-add" (click)="insertDvir()">+</div>
   </app-header>
   <div class="dvirs-list" *ngIf="dvirs.length !== 0 && !pageLoading">
-    <app-card *ngFor="let dvir of dvirs" [dvir]="dvir" (click)="editDvir(dvir)"></app-card>
+    <div class="dvir-card" *ngFor="let dvir of dvirs" (click)="editDvir(dvir)">
+      <div class="dvir-card-header">
+        <div class="card-header-date">
+          <div
+            class="status-circle"
+            [ngClass]="{'status-error': dvir.status.code === 'D' || dvir.status.code === 'DNNBC', 'status-success': dvir.status.code === 'VCS' || dvir.status.code === 'DC' }"></div>
+          <div class="header-date">{{ dvir.createDate | date: "ccc, LLL d'th' yyyy" }}</div>
+        </div>
+        <div class="card-header-time">{{ dvir.createDate | date: "hh:mm a" }}</div>
+      </div>
+      <div class="card-vehicle">
+        <div class="card-vehicle-name">
+          <img src="../../../assets/icon/truck-fast.svg" />
+          <span>{{ dvir.vehicle.vehicleUnit }}</span>
+        </div>
+        <div class="card-vehicle-name">
+          <img src="../../../assets/icon/slider-vertical.svg" />
+          <span>{{ dvir.trailers || "No Trailers" }}</span>
+        </div>
+      </div>
+      <div class="card-defects" *ngIf="dvir.status.code === 'VCS' || dvir.status.code === 'DC'">
+        <div class="defects-header">
+          <img src="../../../assets/icon/tick-circle.svg" />
+          <span class="defect-success">{{ dvir.status.code === 'VCS' ? "Vehicle Condition Satisfactory" : "All Defects Corrected" }}</span>
+        </div>
+      </div>
+      <div class="card-defects" *ngIf="dvir.defectsVehicle.length !== 0">
+        <div class="defects-header">
+          <img *ngIf="dvir.status.code !== 'DC'" src="../../../assets/icon/warning-2.svg" />
+          <span class="defect-error" [ngClass]="{'defect-default': dvir.status.code === 'DC'}">Vehicle Defects</span>
+        </div>
+        <div class="defects-list">{{ dvir.defectsVehicle || "No defects listed." }}</div>
+      </div>
+      <div class="card-defects" *ngIf="dvir.defectsTrailers.length !== 0">
+        <div class="defects-header">
+          <img *ngIf="dvir.status.code !== 'DC'" src="../../../assets/icon/warning-2.svg" />
+          <span class="defect-error" [ngClass]="{'defect-default': dvir.status.code === 'DC'}">Trailer Defects</span>
+        </div>
+        <div class="defects-list">{{ dvir.defectsTrailers || "No defects listed." }}</div>
+      </div>
+    </div>
   </div>
   <div class="no-data" *ngIf="dvirs.length === 0 && !pageLoading">No data.</div>
   <app-page-loader *ngIf="pageLoading"></app-page-loader>

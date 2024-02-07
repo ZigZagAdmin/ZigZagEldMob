@@ -14,6 +14,8 @@ import { defectsVehicle, dvirStatuses } from 'src/app/utilities/defects';
 import { DatabaseService } from 'src/app/services/database.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
+import { InterService } from 'src/app/services/inter.service';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-edit-dvir',
@@ -53,8 +55,6 @@ export class EditDvirPage implements OnInit, OnDestroy {
   vehicleId: string = '';
   driverId: string = '';
   dvirId!: string | null;
-  networkStatus = false;
-  networkSub: Subscription;
 
   validation: { [key: string]: boolean } = {
     trailerName: false,
@@ -72,7 +72,14 @@ export class EditDvirPage implements OnInit, OnDestroy {
   pageLoading: boolean = false;
 
   signatureFound: boolean = false;
+  signatureRestored: boolean = false;
   imageLoading: boolean = false;
+  finishedLoading: boolean = false;
+
+  mechanicSignatureFound: boolean = false;
+  mechanicSignatureRestored: boolean = false;
+  mechanicImageLoading: boolean = false;
+  mechanicFinishedLoading: boolean = false;
 
   today = new Date();
   timeZone: string = '';
@@ -87,12 +94,14 @@ export class EditDvirPage implements OnInit, OnDestroy {
     private router: Router,
     private shareService: ShareService,
     private toastService: ToastService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private interService: InterService
   ) {}
 
   ngOnInit() {
     this.pageLoading = true;
     this.imageLoading = true;
+    this.mechanicImageLoading = true;
 
     let dvirId$ = firstValueFrom(this.activatedRoute.queryParams);
     let company$ = firstValueFrom(this.databaseService.getCompany());
@@ -106,17 +115,18 @@ export class EditDvirPage implements OnInit, OnDestroy {
         this.dvirs = dvirs;
         this.timeZone = timeZone;
         this.dvir = this.dvirs.find(item => item.dvirId === this.dvirId);
-        this.dvir.signatureBase64 = '';
-        this.dvir.mechanicSignatureBase64 = '';
-        this.dvir.mechanicSignatureLink = '';
+        console.log(this.dvir);
+        if (!(this.dvir.signatureBase64 && this.dvir.signatureBase64.length !== 0)) this.dvir.signatureBase64 = '';
+        if (!(this.dvir.mechanicSignatureBase64 && this.dvir.mechanicSignatureBase64.length !== 0)) this.dvir.mechanicSignatureBase64 = '';
+        if (!(this.dvir.mechanicSignatureLink && this.dvir.mechanicSignatureLink.length !== 0)) this.dvir.mechanicSignatureLink = '';
         this.locationDisable = !!this.dvir.location.description;
         this.vehicleUnitDisable = !!this.dvir.vehicle.vehicleUnit;
         this.pageLoading = false;
       },
       error => console.log(error)
     );
-
-    this.networkSub = this.internetService.internetStatus$.subscribe(data => (this.networkStatus = data));
+    this.signatureTimeout();
+    this.mechanicSignatureTimeout();
   }
 
   ionViewDidEnter(): void {
@@ -124,9 +134,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
     this.initMechanicalSignaturePad();
   }
 
-  ngOnDestroy(): void {
-    this.networkSub.unsubscribe();
-  }
+  ngOnDestroy(): void {}
 
   switchStatus(status: string) {
     if (status.length !== 0 && status !== this.lastStatus) {
@@ -134,20 +142,50 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.dvir.status.code = status;
       this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
     }
-    this.dvir.mechanicSignatureId = '00000000-0000-0000-0000-000000000000';
-    this.dvir.mechanicSignatureBase64 = '';
-    this.clearMechanicSignature();
+    if (!(this.dvir.mechanicSignatureId && this.dvir.mechanicSignatureId.length !== 0)) {
+      this.dvir.mechanicSignatureId = '00000000-0000-0000-0000-000000000000';
+      this.dvir.mechanicSignatureBase64 = '';
+      this.clearMechanicSignature();
+    }
   }
 
   imageLoaded() {
     this.imageLoading = false;
+    this.finishedLoading = true;
+  }
+
+  mechanicImageLoaded() {
+    this.mechanicImageLoading = false;
+    this.mechanicFinishedLoading = true;
+  }
+
+  signatureTimeout() {
+    setTimeout(() => {
+      if (!this.finishedLoading && this.dvir.signatureLink && this.dvir.signatureLink.length !== 0) {
+        this.imageLoading = false;
+        this.signatureRestored = false;
+        this.clearSignature();
+      }
+    }, 5000);
+  }
+
+  mechanicSignatureTimeout() {
+    setTimeout(() => {
+      if (!this.mechanicFinishedLoading && this.dvir.mechanicSignatureLink && this.dvir.mechanicSignatureLink.length !== 0) {
+        this.mechanicImageLoading = false;
+        this.mechanicSignatureRestored = false;
+        this.clearMechanicSignature();
+      }
+    }, 5000);
   }
 
   checkSelectPresent(data: any) {
-    if (this.dvir.defectsTrailers === '' && this.dvir.defectsVehicle === '') {
-      this.switchStatus('VCS');
-    } else {
-      this.switchStatus('D');
+    if (this.dvir.status.code !== 'DC' && this.dvir.status.code !== 'DNNBC') {
+      if (this.dvir.defectsTrailers === '' && this.dvir.defectsVehicle === '') {
+        this.switchStatus('VCS');
+      } else {
+        this.switchStatus('D');
+      }
     }
   }
 
@@ -173,7 +211,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.toastService.showToast('Please complete the mechanic signature!');
       return;
     }
-    if (this.networkStatus === true) {
+    let networkStatus = await Network.getStatus();
+    if (networkStatus.connected === true) {
       this.loading = true;
       this.dashboardService
         .updateDVIR(this.dvir)
@@ -184,13 +223,13 @@ export class EditDvirPage implements OnInit, OnDestroy {
           await this.updateDvirs(this.dvir, true).then(() => {
             console.log('DVIRs got updated on the server: ', response);
             this.loading = false;
-            this.navCtrl.navigateBack('/unitab/dvir');
+            this.goBack();
           });
         })
         .catch(async error => {
           await this.updateDvirs(this.dvir, false).then(() => {
             this.loading = false;
-            this.navCtrl.navigateBack('/unitab/dvir');
+            this.goBack();
             console.warn('Server Error: ', error);
             console.warn('Pushed dvirs in offline mode');
           });
@@ -199,7 +238,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
       await this.updateDvirs(this.dvir, false).then(() => {
         this.loading = false;
         console.warn('Pushed dvirs in offline mode');
-        this.navCtrl.navigateBack('/unitab/dvir');
+        this.goBack();
       });
     }
   }
@@ -245,6 +284,9 @@ export class EditDvirPage implements OnInit, OnDestroy {
         this.renderMechanicSignature('data:image/png;base64,' + this.dvir.mechanicSignatureBase64);
       }
     }
+    if (this.dvir.mechanicSignatureLink && this.dvir.mechanicSignatureLink.length !== 0) {
+      this.mechanicSignatureFound = true;
+    }
   }
 
   renderSignature(signatureData: string) {
@@ -272,6 +314,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   clearSignature() {
+    this.signatureRestored = false;
     if (this.signatureFound) {
       this.signatureFound = false;
       this.dvir.signatureLink = '';
@@ -283,6 +326,11 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   async restoreSignature() {
+    if (this.signatureRestored) {
+      this.toastService.showToast('Signatured already restored!', 'warning');
+      return;
+    }
+    this.imageLoading = true;
     const firstNonEmptySignature = this.dvirs.find(dvir => dvir.signatureId !== '' && dvir.signatureId !== '00000000-0000-0000-0000-000000000000' && dvir.signatureLink !== '');
 
     if (firstNonEmptySignature) {
@@ -290,6 +338,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.dvir.signatureLink = firstNonEmptySignature.signatureLink;
       this.dvir.signatureId = firstNonEmptySignature.signatureId;
       this.signatureFound = true;
+      this.signatureRestored = true;
+      this.signatureTimeout();
     } else {
       this.signatureFound = false;
       this.toastService.showToast('No signature found on this current dvir.');
@@ -297,9 +347,27 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   clearMechanicSignature() {
+    this.mechanicSignatureRestored = false;
+    this.mechanicSignatureFound = false;
     if (this.mechanicSignaturePad) {
       this.mechanicSignaturePad.clear();
       this.dvir.mechanicSignatureBase64 = '';
+    }
+  }
+
+  restoreMechanicSignature() {
+    if (this.signatureRestored) {
+      this.toastService.showToast('Signatured already restored!', 'warning');
+      return;
+    }
+    this.mechanicImageLoading = true;
+    if (this.dvir.mechanicSignatureLink && this.dvir.mechanicSignatureLink.length !== 0) {
+      this.mechanicSignatureFound = true;
+      this.mechanicSignatureRestored = true;
+      this.mechanicSignatureTimeout();
+    } else {
+      this.mechanicSignatureFound = false;
+      this.toastService.showToast('No mechanic signature found!');
     }
   }
 
@@ -314,7 +382,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   updateMechanicSignatureField() {
     if (this.mechanicSignaturePad && !this.mechanicSignaturePad.isEmpty()) {
-      const mechanicSignatureDataURL = this.mechanicSignaturePad.toDataURL();
+      const mechanicSignatureDataURL = this.mechanicSignaturePad.toDataURL().slice(22);
       this.dvir.mechanicSignatureBase64 = mechanicSignatureDataURL;
       this.dvir.repairDate = this.today.getTime();
       this.dvir.repairTimeZone = this.timeZone;
@@ -340,6 +408,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   goBack() {
+    this.interService.changeMessage({ topic: 'dvir' });
     this.navCtrl.navigateBack('/unitab/dvir');
     this.shareService.destroyMessage();
   }

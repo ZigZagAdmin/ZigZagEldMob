@@ -41,6 +41,10 @@ export class InternetService {
             await firstValueFrom(this.dashboardService.updateDVIR(dvir)).then(async (res: any) => {
               if (res.signatureLink && res.signatureLink.length !== 0) {
                 dvir.signatureLink = res.signatureLink;
+                if (res.mechanicSignatureLink && res.mechanicSignatureLink.length !== 0) {
+                  dvir.mechanicSignatureLink = res.mechanicSignatureLink;
+                }
+                console.error(res);
                 await this.storage.set('dvirs', dvirs);
               }
             });

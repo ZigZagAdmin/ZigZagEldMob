@@ -135,7 +135,6 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
         this.dvir.location = res;
         this.locationLoading = false;
         this.locationDisable = true;
-        console.log(this.dvir.location.description);
       })
       .catch(e => {
         this.locationLoading = false;
@@ -146,7 +145,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
           latitude: 0,
           longitude: 0,
         };
-        console.log(e);
+        console.error(e);
       });
   }
 
