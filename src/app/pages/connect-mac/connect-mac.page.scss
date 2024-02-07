@@ -73,6 +73,9 @@
 
 .custom-button {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px !important;
   padding: 15px 10px;
 }

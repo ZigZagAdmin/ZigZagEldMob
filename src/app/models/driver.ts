@@ -31,6 +31,13 @@ export interface IDriverInfo {
 
 export interface IAssignedVehicle {
   vehicleId: string;
+  companyId: string;
   vehicleUnit: string;
   vin: string;
+  make?: string;
+  model?: string;
+  year?: string;
+  fuel?: string;
+  licensePlate?: string;
+  status?: boolean;
 }

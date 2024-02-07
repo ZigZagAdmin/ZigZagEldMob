@@ -5,8 +5,10 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngFor="let vehicle of vehicles" class="vehicle-container">
-    <app-card [vehicle]="vehicle" (click)="selectVehicle(vehicle)"></app-card>
+  <div class="vehicle-container">
+    <div class="vehicle-card" *ngFor="let vehicle of driver?.driverInfo?.assignedVehicles" (click)="selectVehicle(vehicle)">
+      <div class="vehicle-card-title">{{ vehicle?.make + ' ' + vehicle?.model }}</div>
+      <div class="vehicle-card-subtitle">{{ vehicle?.year + ', Vehicle Unit: ' + vehicle?.vehicleUnit }}</div>
+    </div>
   </div>
 </ion-content>
-

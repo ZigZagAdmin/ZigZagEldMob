@@ -75,7 +75,7 @@ export class AppComponent implements OnInit, OnDestroy {
               this.manageService.getDrivers(driverId),
               this.manageService.getDrivers('ALL'),
               this.manageService.getCompany(),
-              this.manageService.getVehicles(),
+              // this.manageService.getVehicles(),
               this.manageService.getTerminals(),
               this.manageService.getELDs(),
               this.manageService.getDVIRs(),
@@ -91,13 +91,13 @@ export class AppComponent implements OnInit, OnDestroy {
                   loading.dismiss();
                   return throwError(errorMessage);
                 }),
-                switchMap(([drivers, coDrivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents]) => {
+                switchMap(([drivers, coDrivers, company, terminals, elds, dvirs, logDailies, logEvents]) => {
                   const saveRequests = [
                     this.storage.set('drivers', drivers),
                     this.storage.set('coDrivers', coDrivers),
                     this.storage.set('company', company),
                     this.storage.set('dvirs', dvirs),
-                    this.storage.set('vehicles', vehicles),
+                    // this.storage.set('vehicles', vehicles),
                     this.storage.set('terminals', terminals),
                     this.storage.set('elds', elds),
                     this.storage.set('logDailies', logDailies),

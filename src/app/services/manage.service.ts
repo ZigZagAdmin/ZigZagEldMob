@@ -32,12 +32,12 @@ export class ManageService {
     });
   }
 
-  getVehicles(): Observable<Vehicle[]> {
-    const httpParams = new HttpParams();
-    return this.http.get<Vehicle[]>(this.apiUrl + 'api/EldManage/vehicles', {
-      params: httpParams,
-    });
-  }
+  // getVehicles(): Observable<Vehicle[]> {
+  //   const httpParams = new HttpParams();
+  //   return this.http.get<Vehicle[]>(this.apiUrl + 'api/EldManage/vehicles', {
+  //     params: httpParams,
+  //   });
+  // }
 
   getTerminals(): Observable<Terminal[]> {
     const httpParams = new HttpParams();

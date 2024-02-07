@@ -147,7 +147,7 @@ export class LoginPage implements OnInit, OnDestroy {
             this.manageService.getDrivers(this.authUser.DriverId),
             this.manageService.getDrivers('ALL'),
             this.manageService.getCompany(),
-            this.manageService.getVehicles(),
+            // this.manageService.getVehicles(),
             this.manageService.getTerminals(),
             this.manageService.getELDs(),
             this.manageService.getDVIRs(),
@@ -168,12 +168,12 @@ export class LoginPage implements OnInit, OnDestroy {
             })
           );
         }),
-        switchMap(([drivers, coDrivers, company, vehicles, terminals, elds, dvirs, logDailies, logEvents, placesCity]) => {
+        switchMap(([drivers, coDrivers, company, terminals, elds, dvirs, logDailies, logEvents, placesCity]) => {
           const saveRequests = [
             this.saveDrivers(drivers as Driver),
             this.saveCoDrivers(coDrivers as Driver),
             this.saveCompany(company as Company),
-            this.saveVehicles(vehicles as Vehicle[]),
+            // this.saveVehicles(vehicles as Vehicle[]),
             this.saveTerminals(terminals as Terminal[]),
             this.saveDVIRs(dvirs as DVIRs[]),
             this.saveELDs(elds as ELD[]),

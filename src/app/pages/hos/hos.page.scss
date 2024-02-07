@@ -1,120 +1,3 @@
-// ion-grid {
-//   margin: 0;
-// }
-
-// ion-col {
-//   font-size: 15px;
-//   text-align: center;
-// }
-
-// .custom-col {
-//   margin: 0 15%;
-// }
-
-// .custom-button {
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-// }
-
-// .custom-toggle {
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   width: 100%;
-// }
-
-// .logsRecap {
-//   background: #3880ff;
-//   height: 3em;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   color: white;
-// }
-
-// .logsSubtitle {
-//   background: #3880ff;
-//   height: 1.5em;
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   color: white;
-// }
-
-// .logsInfo {
-//   height: 1.5em;
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   margin-bottom: 5px;
-// }
-// .left {
-//   flex: 1;
-//   text-align: left;
-// }
-
-// .center {
-//   flex: 1;
-//   text-align: center;
-// }
-
-// .right {
-//   flex: 1;
-//   text-align: right;
-// }
-// .statusBtn {
-//   height: 100px;
-// }
-
-// ion-button.statusBtn {
-//   --background: #f4f5f8;
-//   --color: black;
-// }
-
-// .rest_mode_item {
-//   height: 3rem;
-// }
-
-// ion-button.selected.off {
-//   --background: #bdc3bf;
-//   --background-hover: #bdc3bf;
-//   --background-activated: #bdc3bf;
-//   --background-focused: #bdc3bf;
-// }
-
-// ion-button.selected.on {
-//   --background: #fae057;
-//   --background-hover: #fae057;
-//   --background-activated: #fae057;
-//   --background-focused: #fae057;
-// }
-
-// ion-button.selected.ym {
-//   --background: #fae057;
-//   --background-hover: #fae057;
-//   --background-activated: #fae057;
-//   --background-focused: #fae057;
-// }
-// ion-button.selected.sb {
-//   --background: #7e7e7e;
-//   --background-hover: #7e7e7e;
-//   --background-activated: #7e7e7e;
-//   --background-focused: #7e7e7e;
-// }
-// ion-button.selected.pc {
-//   --background: #bdc3bf;
-//   --background-hover: #bdc3bf;
-//   --background-activated: #bdc3bf;
-//   --background-focused: #bdc3bf;
-// }
-// ion-button.selected.d {
-//   --background: #8bc34a;
-//   --background-hover: #8bc34a;
-//   --background-activated: #8bc34a;
-//   --background-focused: #8bc34a;
-// }
-
 .hos-wrapper {
   width: 100%;
   display: flex;
@@ -280,6 +163,12 @@
           display: flex;
           align-items: center;
           gap: 10px;
+
+          p {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-500);
+          }
         }
       }
       .log-right {
