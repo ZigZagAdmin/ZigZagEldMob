@@ -200,21 +200,6 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     let networkStatus = (await Network.getStatus()).connected;
 
     if (networkStatus) {
-      this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
-        async response => {
-          this.toastService.showToast('Successfully signed the log certification.', 'success');
-          this.loading = false;
-          await this.updateIndexLogDaily(this.logDaily as LogDailies, true);
-          this.goBack();
-        },
-        async error => {
-          this.loading = false;
-          this.toastService.showToast('Could not update the signture. Uploading offline only.');
-          await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
-          this.goBack();
-        }
-      );
-
       this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
         async response => {
           await this.updateLogEvents(CetificationLogEvent, true);
@@ -225,10 +210,31 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
           await this.updateLogEvents(CetificationLogEvent, false);
         }
       );
+
+      this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
+        async (response: any) => {
+          this.toastService.showToast('Successfully signed the log certification.', 'success');
+          this.loading = false;
+          if (response.signatureLink) this.logDaily.form.signatureLink = response.signatureLink;
+          await this.updateIndexLogDaily(this.logDaily as LogDailies, true).then(() => {
+            console.log('logDaily got updated on the server: ', response);
+            this.loading = false;
+            setTimeout(() => this.goBack(), 0);
+          });
+        },
+        async error => {
+          this.loading = false;
+          this.toastService.showToast('Could not update the signture. Uploading offline only.');
+          await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
+          this.goBack();
+        }
+      );
     } else {
       console.log('Updated logEvents in offline array');
+      this.loading = false;
       await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
       await this.updateLogEvents(CetificationLogEvent, false);
+      this.goBack();
     }
   }
 

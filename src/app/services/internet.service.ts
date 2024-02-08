@@ -37,44 +37,52 @@ export class InternetService {
       if (dvirs && dvirs.length !== 0)
         dvirs.forEach(async (dvir: DVIRs) => {
           if (dvir?.sent === false) {
-            dvir.sent = true;
             await firstValueFrom(this.dashboardService.updateDVIR(dvir)).then(async (res: any) => {
+              dvir.sent = true;
               if (res.signatureLink && res.signatureLink.length !== 0) {
                 dvir.signatureLink = res.signatureLink;
                 if (res.mechanicSignatureLink && res.mechanicSignatureLink.length !== 0) {
                   dvir.mechanicSignatureLink = res.mechanicSignatureLink;
                 }
                 console.error(res);
-                await this.storage.set('dvirs', dvirs);
               }
+              await this.storage.set('dvirs', dvirs);
             });
           }
         });
       if (logDailies && logDailies.length !== 0)
         logDailies.forEach(async (logDaily: LogDailies) => {
           if (logDaily?.sent === false) {
-            logDaily.sent = true;
-            await firstValueFrom(this.dashboardService.updateLogDaily(logDaily));
+            await firstValueFrom(this.dashboardService.updateLogDaily(logDaily)).then(async (res: any) => {
+              logDaily.sent = true;
+              console.error(res);
+              if (res.signatureLink && res.signatureLink.length !== 0) {
+                logDaily.form.signatureLink = res.signatureLink;
+                console.error(res.signatureLink);
+              }
+              await this.storage.set('logDailies', logDailies);
+            });
           }
         });
-      await this.storage.set('logDailies', logDailies);
       if (logEvents && logEvents.length !== 0)
         logEvents.forEach(async (logEvent: LogEvents) => {
           if (logEvent?.sent === false) {
-            logEvent.sent = true;
             console.error(logEvent);
-            await firstValueFrom(this.dashboardService.updateLogEvent(logEvent));
+            await firstValueFrom(this.dashboardService.updateLogEvent(logEvent)).then(async () => {
+              logEvent.sent = true;
+              await this.storage.set('logEvents', logEvents);
+            });
           }
         });
-      await this.storage.set('logEvents', logEvents);
       if (elds && elds.length !== 0)
         elds.forEach(async (eld: ELD) => {
           if (eld?.sent === false) {
-            eld.sent = true;
-            await firstValueFrom(this.dashboardService.updateELD(eld));
+            await firstValueFrom(this.dashboardService.updateELD(eld)).then(async () => {
+              eld.sent = true;
+              await this.storage.set('elds', elds);
+            });
           }
         });
-      await this.storage.set('elds', elds);
     });
   }
 }

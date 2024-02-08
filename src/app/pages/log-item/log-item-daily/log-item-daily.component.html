@@ -148,6 +148,7 @@
               <div class="signature-visualization">
                 <img [ngClass]="{ 'no-image': imageLoading }" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
                 <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
+                <div class="no-signature" *ngIf="!finishedLoading && !imageLoading">Signature could not be loaded.</div>
               </div>
             </div>
           </ion-content>

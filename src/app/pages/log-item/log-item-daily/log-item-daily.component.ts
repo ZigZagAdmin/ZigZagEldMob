@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
 import { DashboardService } from 'src/app/services/dashboard.service';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
@@ -36,8 +36,6 @@ export class LogItemDailyComponent implements OnInit {
   timeZones: { [key: string]: string } = {};
   logDaily: LogDailies | undefined;
   currentDay: string | undefined = '';
-  networkStatus = false;
-  networkSub!: Subscription;
   graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
   statusesOnDay: LogEvents[] = [];
   xBgn!: number;
@@ -83,6 +81,10 @@ export class LogItemDailyComponent implements OnInit {
     fromAddress: false,
   };
 
+  finishedLoading: boolean = false;
+
+  networkSub: Subscription;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -99,6 +101,14 @@ export class LogItemDailyComponent implements OnInit {
 
   ngOnInit(): void {
     this.timeZones = this.utilityService.checkSeason();
+    this.networkSub = this.internetService.internetStatus$.subscribe(async state => {
+      if (state) {
+        this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
+        if (this.LogDailiesId) {
+          this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+        }
+      }
+    });
   }
 
   async ionViewWillEnter() {
@@ -134,20 +144,19 @@ export class LogItemDailyComponent implements OnInit {
         });
       }
     });
-
-    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
-      this.networkStatus = status;
-    });
-
-    this.logDailiesSub = this.manageService.getLogDailies(this.driverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14).subscribe(logDailies => {
-      this.logDailies = logDailies;
-      this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-    });
   }
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
-    this.logDailiesSub.unsubscribe();
+  }
+
+  signatureTimeout() {
+    setTimeout(() => {
+      if (!this.finishedLoading) {
+        this.imageLoading = false;
+        this.clearSignature();
+      }
+    }, 5000);
   }
 
   getStatusColor(status: string) {
@@ -395,6 +404,7 @@ export class LogItemDailyComponent implements OnInit {
     let networkStatus = (await Network.getStatus()).connected;
 
     if (networkStatus) {
+      console.error(this.logDaily);
       this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
         async response => {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
@@ -410,7 +420,9 @@ export class LogItemDailyComponent implements OnInit {
       );
     } else {
       console.log('Updated logEvents in offline array');
+      this.saveFormLoading = false;
       await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
+      this.toastService.showToast('Offline save!', 'warning');
     }
   }
 
@@ -481,10 +493,12 @@ export class LogItemDailyComponent implements OnInit {
   openModal() {
     this.isModalOpen = true;
     this.imageLoading = true;
+    this.signatureTimeout();
   }
 
   imageLoaded() {
     this.imageLoading = false;
+    this.finishedLoading = true;
   }
 
   cancel() {
@@ -499,7 +513,6 @@ export class LogItemDailyComponent implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
-    this.networkSub.unsubscribe();
   }
 
   certifyLog() {
