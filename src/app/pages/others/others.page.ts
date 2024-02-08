@@ -11,6 +11,7 @@ import { timeZones } from 'src/app/models/timeZone';
 import { UtilityService } from 'src/app/services/utility.service';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-others',
@@ -157,31 +158,38 @@ export class OthersPage implements OnInit {
       this.storage.set('bAuthorized', false);
       this.storage.set('autoLogin', this.autoLogin);
 
-      await this.updateLogEvents(LogoutLogEvent, false);
-      await this.dashboardService
-        .updateLogEvent(LogoutLogEvent)
-        .toPromise()
-        .then(async response => {
-          console.log('Login LogEvents got updated on the server: ', response);
-          await this.updateIndexLogEvents(LogoutLogEvent, true);
-        })
-        .catch(async error => {
-          console.log('Internet Status: ' + this.networkStatus);
-          console.log('Login LogEvent in offline logEvents array');
-        });
+      let networkStatus = (await Network.getStatus()).connected;
 
-      await this.updateIndexLogEvents(lastLogEvent, false);
-      await this.dashboardService
-        .updateLogEvent(lastLogEvent)
-        .toPromise()
-        .then(async response => {
-          console.log('Second Last LogEvent is updated on server:', response);
-          await this.updateIndexLogEvents(lastLogEvent, true);
-        })
-        .catch(async error => {
-          console.log('Internet Status: ' + this.networkStatus);
-          console.log('Second Last LogEvent Pushed in offline logEvents array');
-        });
+      if (networkStatus) {
+        this.dashboardService
+          .updateLogEvent(lastLogEvent)
+          .toPromise()
+          .then(async response => {
+            console.log('Last LogEvent is updated on server:', response);
+            await this.updateIndexLogEvents(lastLogEvent, true);
+          })
+          .catch(async error => {
+            console.log('Internet Status: ' + networkStatus);
+            console.log('Last LogEvent Pushed in offline logEvents array');
+            await this.updateIndexLogEvents(lastLogEvent, false);
+          });
+        this.dashboardService
+          .updateLogEvent(LogoutLogEvent)
+          .toPromise()
+          .then(response => {
+            console.log('New status is updated on server:', response);
+            this.updateLogEvents(LogoutLogEvent, true);
+          })
+          .catch(async error => {
+            console.log('Internet Status: ' + networkStatus);
+            console.log('New Log Event Status Pushed in offline logEvents Array');
+            this.updateLogEvents(LogoutLogEvent, false);
+          });
+      } else {
+        console.log('Updated logEvents in offline array');
+        await this.updateIndexLogEvents(lastLogEvent, false);
+        this.updateLogEvents(LogoutLogEvent, false);
+      }
     }
     this.loading = false;
     this.storage.remove('accessToken');

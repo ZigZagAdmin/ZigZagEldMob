@@ -17,6 +17,7 @@ import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ManageService } from 'src/app/services/manage.service';
 import { timeZoneSummer, timeZoneWinter, seasonChanges } from 'src/app/models/timeZone';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-log-item-daily',
@@ -390,25 +391,42 @@ export class LogItemDailyComponent implements OnInit {
     }
 
     this.saveFormLoading = true;
-    if (this.networkStatus === true) {
+
+    let networkStatus = (await Network.getStatus()).connected;
+
+    if (networkStatus) {
       this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
-        response => {
+        async response => {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
-          this.updateLocalStorage();
+          await this.updateIndexLogDaily(this.logDaily as LogDailies, true);
           this.saveFormLoading = false;
           this.toastService.showToast('Saved successfully!', 'success');
         },
         async error => {
-          this.updateLocalStorage();
+          await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
           this.saveFormLoading = false;
           this.toastService.showToast('Offline save!', 'warning');
         }
       );
     } else {
-      this.updateLocalStorage();
-      this.saveFormLoading = false;
-      this.toastService.showToast('Offline save!', 'warning');
+      console.log('Updated logEvents in offline array');
+      await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
     }
+  }
+
+  async updateLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    this.logDailies.push(logDailyData);
+    await this.storage.set('logDailies', this.logDailies);
+  }
+
+  async updateIndexLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    const index = this.logDailies.findIndex(item => item.logDailyId === logDailyData.logDailyId);
+    if (index !== -1) {
+      this.logDailies[index] = logDailyData;
+    }
+    await this.storage.set('logDailies', this.logDailies);
   }
 
   initSignaturePad() {
@@ -473,30 +491,6 @@ export class LogItemDailyComponent implements OnInit {
     this.isModalOpen = false;
   }
 
-  async updateLogEvents(logEventData: LogEvents, online: boolean) {
-    logEventData.sent = online;
-    this.logEvents.push(logEventData);
-    await this.storage.set('dvirs', this.logEvents);
-  }
-
-  async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
-    logEventData.sent = online;
-    const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
-    if (index !== -1) {
-      this.logEvents[index] = logEventData;
-    }
-    await this.storage.set('dvirs', this.logEvents);
-  }
-
-  async updateLogDaily(logDailyData: LogDailies, online: boolean) {
-    logDailyData.sent = online;
-    const index = this.logDailies.findIndex(item => item.logDailyId === logDailyData.logDailyId);
-    if (index !== -1) {
-      this.logDailies[index] = logDailyData;
-    }
-    await this.storage.set('dvirs', this.logEvents);
-  }
-
   nevigateToInspection() {
     this.navCtrl.navigateForward('/inspection-preview', { queryParams: { logId: this.logDaily.logDailyId, url: 'log-item' } });
   }
@@ -518,14 +512,6 @@ export class LogItemDailyComponent implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('unitab/hos');
-  }
-
-  async updateLocalStorage() {
-    let offlineLogDailies = await this.storage.get('logDailies');
-    let index = offlineLogDailies.findIndex((el: LogDailies) => el.logDailyId === this.logDaily.logDailyId);
-    offlineLogDailies.splice(index, 1, this.logDaily);
-    await this.storage.set('logDailies', offlineLogDailies);
-    console.log('log-certify: logDailies updated in the storage');
   }
 
   logEventDuration(logStatus: LogEvents) {

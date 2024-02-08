@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { firstValueFrom, forkJoin } from 'rxjs';
@@ -58,23 +59,48 @@ export class CoDriverPage implements OnInit {
     this.loading = true;
     this.logDailies[0].form.coDriver = this.coDriver as Driver;
     await this.storage.set('coDriver', this.coDriver);
-    await this.dashboardService
-      .updateLogDaily(this.logDailies[0])
-      .toPromise()
-      .then(async response => {
-        console.log('LogDaily (durationStatuses) is updated on server:', response);
-        await this.storage.set('logDailies', this.logDailies);
-        this.goBack();
-        this.loading = false;
-        if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' is now your co-driver', 'medium');
-        if (this.chosenDriver.length !== 0 && this.chosenDriver === 'None') this.toastService.showToast('You have no co-driver now', 'medium');
-      })
-      .catch(async error => {
-        await this.storage.set('logDailies', this.logDailies);
-        console.log('Pushed in offline logDailies');
-        this.goBack();
-        this.loading = false;
-      });
+
+    let networkStatus = (await Network.getStatus()).connected;
+
+    if (networkStatus) {
+      await this.dashboardService
+        .updateLogDaily(this.logDailies[0])
+        .toPromise()
+        .then(async response => {
+          console.log('LogDaily (durationStatuses) is updated on server:', response);
+          await this.updateIndexLogDaily(this.logDailies[0], true);
+          this.goBack();
+          this.loading = false;
+          if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' is now your co-driver', 'medium');
+          if (this.chosenDriver.length !== 0 && this.chosenDriver === 'None') this.toastService.showToast('You have no co-driver now', 'medium');
+        })
+        .catch(async error => {
+          await this.updateIndexLogDaily(this.logDailies[0], false);
+          console.log('Pushed in offline logDailies');
+          this.goBack();
+          this.loading = false;
+        });
+    } else {
+      console.log('Updated logEvents in offline array');
+      await this.updateIndexLogDaily(this.logDailies[0], false);
+      this.goBack();
+      this.loading = false;
+    }
+  }
+
+  async updateLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    this.logDailies.push(logDailyData);
+    await this.storage.set('logDailies', this.logDailies);
+  }
+
+  async updateIndexLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    const index = this.logDailies.findIndex(item => item.logDailyId === logDailyData.logDailyId);
+    if (index !== -1) {
+      this.logDailies[index] = logDailyData;
+    }
+    await this.storage.set('logDailies', this.logDailies);
   }
 
   showSelection() {

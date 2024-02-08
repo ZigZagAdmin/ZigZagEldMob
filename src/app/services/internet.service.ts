@@ -62,6 +62,7 @@ export class InternetService {
         logEvents.forEach(async (logEvent: LogEvents) => {
           if (logEvent?.sent === false) {
             logEvent.sent = true;
+            console.error(logEvent);
             await firstValueFrom(this.dashboardService.updateLogEvent(logEvent));
           }
         });

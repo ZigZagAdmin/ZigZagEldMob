@@ -1,6 +1,7 @@
 import { formatDate } from '@angular/common';
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
@@ -145,7 +146,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     this.isConfirmButtonActive = false;
   }
 
-  save() {
+  async save() {
     this.loading = true;
     if (this.signatureFound) {
       this.logDaily.form.signatureId = this.foundSignatureId;
@@ -195,33 +196,55 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       eventDataCheck: '',
       inspection: false,
     };
-    
-    this.updateLogEvents(CetificationLogEvent, false);
-    this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
-      response => {
-        this.updateIndexLogEvents(CetificationLogEvent, true);
-        console.log('Certification LogEvent is on server:', response);
-      },
-      async error => {
-        console.log('Cerification LogEvent Pushed in offline logEvents array');
-      }
-    );
 
-    this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
-      response => {
-        this.toastService.showToast('Successfully signed the log certification.', 'success');
-        this.loading = false;
-        this.updateLocalStorage();
-        this.goBack();
-      },
-      async error => {
-        this.loading = false;
-        this.toastService.showToast('Could not update the signture. Uploading offline only.');
-        this.updateLocalStorage();
-        this.goBack();
-      }
-    );
+    let networkStatus = (await Network.getStatus()).connected;
 
+    if (networkStatus) {
+      this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
+        async response => {
+          this.toastService.showToast('Successfully signed the log certification.', 'success');
+          this.loading = false;
+          await this.updateIndexLogDaily(this.logDaily as LogDailies, true);
+          this.goBack();
+        },
+        async error => {
+          this.loading = false;
+          this.toastService.showToast('Could not update the signture. Uploading offline only.');
+          await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
+          this.goBack();
+        }
+      );
+
+      this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
+        async response => {
+          await this.updateLogEvents(CetificationLogEvent, true);
+          console.log('Certification LogEvent is on server:', response);
+        },
+        async error => {
+          console.log('Cerification LogEvent Pushed in offline logEvents array');
+          await this.updateLogEvents(CetificationLogEvent, false);
+        }
+      );
+    } else {
+      console.log('Updated logEvents in offline array');
+      await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
+      await this.updateLogEvents(CetificationLogEvent, false);
+    }
+  }
+
+  async updateLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    this.logDailies.push(logDailyData);
+    await this.storage.set('logDailies', this.logDailies);
+  }
+
+  async updateIndexLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    const index = this.logDailies.findIndex(item => item.logDailyId === logDailyData.logDailyId);
+    if (index !== -1) {
+      this.logDailies[index] = logDailyData;
+    }
+    await this.storage.set('logDailies', this.logDailies);
   }
 
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
@@ -246,13 +269,5 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   imageLoaded() {
     this.imageLoading = false;
-  }
-
-  async updateLocalStorage() {
-    let offlineLogDailies = await this.storage.get('logDailies');
-    let index = offlineLogDailies.findIndex((el: LogDailies) => el.logDailyId === this.logDaily.logDailyId);
-    offlineLogDailies.splice(index, 1, this.logDaily);
-    await this.storage.set('logDailies', offlineLogDailies);
-    console.log('log-certify: logDailies updated in the storage');
   }
 }
