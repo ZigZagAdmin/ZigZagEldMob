@@ -99,6 +99,7 @@ export class HosPage implements OnInit, OnDestroy {
   animateCircles: boolean = true;
 
   internetSub: Subscription;
+  networkStatus: boolean = true;
 
   constructor(
     private navCtrl: NavController,
@@ -133,6 +134,7 @@ export class HosPage implements OnInit, OnDestroy {
     }
 
     this.internetSub = this.internetService.internetStatus$.subscribe(async state => {
+      this.networkStatus = state;
       if (state) {
         this.logEvents = await firstValueFrom(this.databaseService.getLogEvents());
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
@@ -222,9 +224,7 @@ export class HosPage implements OnInit, OnDestroy {
             this.storage.set('lastStatusCode', this.selectedButton);
             this.storage.set('bAuthorized', true);
 
-            let networkStatus = (await Network.getStatus()).connected;
-
-            if (networkStatus) {
+            if (this.networkStatus) {
               this.dashboardService
                 .updateLogEvent(lastLogEvent)
                 .toPromise()
@@ -233,7 +233,7 @@ export class HosPage implements OnInit, OnDestroy {
                   await this.updateIndexLogEvents(lastLogEvent, true);
                 })
                 .catch(async error => {
-                  console.log('Internet Status: ' + networkStatus);
+                  console.log('Internet Status: ' + this.networkStatus);
                   console.log('Last LogEvent Pushed in offline logEvents array');
                   await this.updateIndexLogEvents(lastLogEvent, false);
                 });
@@ -245,7 +245,7 @@ export class HosPage implements OnInit, OnDestroy {
                   this.updateLogEvents(LoginLogEvent, true);
                 })
                 .catch(async error => {
-                  console.log('Internet Status: ' + networkStatus);
+                  console.log('Internet Status: ' + this.networkStatus);
                   console.log('New Log Event Status Pushed in offline logEvents Array');
                   this.updateLogEvents(LoginLogEvent, false);
                 });
@@ -798,9 +798,7 @@ export class HosPage implements OnInit, OnDestroy {
       sent: true,
     };
 
-    let networkStatus = (await Network.getStatus()).connected;
-
-    if (networkStatus) {
+    if (this.networkStatus) {
       this.dashboardService
         .updateLogEvent(lastLogEvent)
         .toPromise()
@@ -809,7 +807,7 @@ export class HosPage implements OnInit, OnDestroy {
           await this.updateIndexLogEvents(lastLogEvent, true);
         })
         .catch(async error => {
-          console.log('Internet Status: ' + networkStatus);
+          console.log('Internet Status: ' + this.networkStatus);
           console.log('Last LogEvent Pushed in offline logEvents array');
           await this.updateIndexLogEvents(lastLogEvent, false);
         });
@@ -821,7 +819,7 @@ export class HosPage implements OnInit, OnDestroy {
           this.updateLogEvents(newLogEvent, true);
         })
         .catch(async error => {
-          console.log('Internet Status: ' + networkStatus);
+          console.log('Internet Status: ' + this.networkStatus);
           console.log('New Log Event Status Pushed in offline logEvents Array');
           this.updateLogEvents(newLogEvent, false);
         });
@@ -991,8 +989,6 @@ export class HosPage implements OnInit, OnDestroy {
         }
       });
 
-      let networkStatus = (await Network.getStatus()).connected;
-
       if (durationsBaseOFF != durationsOFF || durationsBaseSB != durationsSB || durationsBaseD != durationsD || durationsBaseON != durationsON) {
         this.logDailies[i].timeOffDuty = durationsOFF;
         this.logDailies[i].timeSleeper = durationsSB;
@@ -1000,16 +996,14 @@ export class HosPage implements OnInit, OnDestroy {
         this.logDailies[i].timeOnDuty = durationsON;
         this.logDailies[i].timeWorked = durationsD + durationsON;
 
-        let networkStatus = (await Network.getStatus()).connected;
-
-        if (networkStatus) {
+        if (this.networkStatus) {
           this.dashboardService.updateLogDaily(this.logDailies[i]).subscribe(
             async response => {
               console.log('LogDaily (durationStatuses) is updated on server:', response);
               await this.updateIndexLogDaily(this.logDailies[i], true);
             },
             async error => {
-              console.log('Internet Status: ' + networkStatus);
+              console.log('Internet Status: ' + this.networkStatus);
               await this.updateIndexLogDaily(this.logDailies[i], false);
               console.log('Pushed in logDailies');
             }
