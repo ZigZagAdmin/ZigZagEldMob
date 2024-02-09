@@ -14,6 +14,7 @@ import { DatabaseService } from './services/database.service';
 import { ToastService } from './services/toast.service';
 import { Network } from '@capacitor/network';
 import { LocationService } from './services/location.service';
+import { BluetoothService } from './services/bluetooth.service';
 
 @Component({
   selector: 'app-root',
@@ -35,7 +36,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private internetService: InternetService,
     private loadingController: LoadingController,
     private toastService: ToastService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private bluetoothService: BluetoothService
   ) {}
 
   async ngOnInit() {
@@ -60,6 +62,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.lastNetworkStatus = currentStatus.connected;
     });
     this.locationService.watchLocationStatus();
+    this.bluetoothService.watchBluetoothStatus();
     this.loading = true;
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
       if (ready) {

@@ -118,14 +118,20 @@ export class HosPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.getLocationState();
+    await this.getBluetoothState();
     this.platform.resume.subscribe(() => {
       this.ngZone.run(async () => {
         await this.getLocationState();
+        await this.getBluetoothState();
       });
     });
     this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
       this.locationServiceState = status;
       await this.getLocationState();
+    });
+    this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
+      await this.getBluetoothState();
+      await this.bluetoothService.getBluetoothAuthorizationStatus();
     });
 
     this.internetSub = this.internetService.internetStatus$.subscribe(async state => {
@@ -278,6 +284,12 @@ export class HosPage implements OnInit, OnDestroy {
     });
   }
 
+  async getBluetoothState() {
+    let authorization = (await this.bluetoothService.getBluetoothAuthorizationStatus()).status;
+    this.bluetoothStatus = (await this.bluetoothService.getBluetoothState()) && authorization;
+    this.changeDetectorRef.detectChanges();
+  }
+
   async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
     logEventData.sent = online;
     const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
@@ -309,12 +321,16 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async checkBluetooth() {
-    if (!this.bluetoothStatus) {
-      this.bluetoothService.initialize();
-      if (!(await this.bluetoothService.getBluetoothState())) {
-        await this.bluetoothService.requestBluetoothPermission('must', 'not');
+    if (!(await this.bluetoothService.getBluetoothState())) {
+      let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
+      if (confirmation) {
+        await this.bluetoothService.goToBluetoothServiceSettings();
+      } else {
+        alert('In order to connect to a device, you to turn on the bluetooth service');
+        return;
       }
     }
+    await this.bluetoothService.requestBluetoothPermission();
   }
 
   toggleMode() {

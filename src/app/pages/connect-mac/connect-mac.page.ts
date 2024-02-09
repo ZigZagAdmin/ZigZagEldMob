@@ -6,7 +6,7 @@ import { Vehicle } from 'src/app/models/vehicle';
 import { DatabaseService } from 'src/app/services/database.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
-// import { BluetoothService } from 'src/app/services/bluetooth.service';
+import { BluetoothService } from 'src/app/services/bluetooth.service';
 import { Capacitor } from '@capacitor/core';
 import { defectsVehicle } from 'src/app/utilities/defects';
 
@@ -32,12 +32,11 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     private storageService: DatabaseService,
     private utilityService: UtilityService,
     private shareService: ShareService,
-    // private bluetoothService: BluetoothService
+    private bluetoothService: BluetoothService
   ) {}
 
   async ngOnInit() {
-    // await this.bluetoothService.initialize();
-    // await this.bluetoothService.requestBluetoothPermission();
+    await this.bluetoothService.requestBluetoothPermission(true);
   }
 
   ngOnDestroy(): void {
@@ -78,12 +77,16 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   async connect() {
-    // this.shareService.changeMessage(this.utilityService.generateString(5));
-    // if (!this.utilityService.validateForm(this.validation)) return;
-    // this.bluetoothService.initialize();
-    // if (!(await this.bluetoothService.getBluetoothState())) {
-    //   await this.bluetoothService.requestBluetoothPermission('must');
-    // }
+    if (!(await this.bluetoothService.getBluetoothState())) {
+      let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
+      if (confirmation) {
+        await this.bluetoothService.goToBluetoothServiceSettings();
+      } else {
+        alert('In order to connect to a device, you to turn on the bluetooth service');
+        return;
+      }
+    }
+    await this.bluetoothService.requestBluetoothPermission();
   }
 
   handleRefresh(event: any) {
