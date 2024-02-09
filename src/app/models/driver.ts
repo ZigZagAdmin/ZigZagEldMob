@@ -1,4 +1,5 @@
 import { ISettings } from "./company";
+import { ICodeName, ILicensePlate } from "./vehicle";
 
 export class Driver {
   driverId!: string;
@@ -37,7 +38,7 @@ export interface IAssignedVehicle {
   make?: string;
   model?: string;
   year?: string;
-  fuel?: string;
-  licensePlate?: string;
+  fuel?: ICodeName;
+  licensePlate?: ILicensePlate;
   status?: boolean;
 }

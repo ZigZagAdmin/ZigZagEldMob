@@ -1,5 +1,10 @@
 <ion-content [forceOverscroll]="false">
-  <app-header [title]="'Others'"></app-header>
+  <app-header [title]="'Others'">
+    <div class="sync-button" (click)="syncData()">
+      <span *ngIf="!syncLoading">sync</span>
+      <ion-spinner *ngIf="syncLoading" name="circular" color="medium"></ion-spinner>
+    </div>
+  </app-header>
   <div class="edit-form padding-g">
     <div class="other-items">
       <div class="other-item" (click)="onVehicleClick()">

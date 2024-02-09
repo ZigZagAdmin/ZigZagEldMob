@@ -9,9 +9,9 @@ import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { timeZones } from 'src/app/models/timeZone';
 import { UtilityService } from 'src/app/services/utility.service';
-import { App } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
 import { Network } from '@capacitor/network';
+import { ManageService } from 'src/app/services/manage.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-others',
@@ -21,8 +21,6 @@ import { Network } from '@capacitor/network';
 export class OthersPage implements OnInit {
   logEvents: LogEvents[] = [];
 
-  networkStatus = false;
-  networkSub!: Subscription;
   databaseSubscription: Subscription | undefined;
   timeZone: string = '';
   vehicleId: string = '';
@@ -50,13 +48,17 @@ export class OthersPage implements OnInit {
 
   forbiddenStatuses: string[] = ['ON', 'D', 'PC', 'YM'];
 
+  syncLoading: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private databaseService: DatabaseService,
     private dashboardService: DashboardService,
     private internetService: InternetService,
     private storage: Storage,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private manageService: ManageService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {}
@@ -85,10 +87,47 @@ export class OthersPage implements OnInit {
         this.logEvents = logEvents;
       }
     );
+  }
 
-    this.networkSub = this.internetService.internetStatus$.subscribe(status => {
-      this.networkStatus = status;
-    });
+  async syncData() {
+    if(!((await Network.getStatus()).connected)) {
+      this.toastService.showToast("Cannot sync data while offline!", 'warning');
+      return;
+    }
+    this.syncLoading = true;
+    this.toastService.showToast("Syncing data... Please wait.", 'medium');
+    let driver$ = firstValueFrom(this.manageService.getDrivers(this.driverId));
+    let drivers$ = firstValueFrom(this.manageService.getDrivers('ALL'));
+    let company$ = firstValueFrom(this.manageService.getCompany());
+    let terminals$ = firstValueFrom(this.manageService.getTerminals());
+    let elds$ = firstValueFrom(this.manageService.getELDs());
+    let dvirs$ = firstValueFrom(this.manageService.getDVIRs());
+    let logDailies$ = firstValueFrom(this.manageService.getLogDailies(this.driverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14));
+    let logEvents$ = firstValueFrom(this.manageService.getLogEvents(this.driverId));
+
+    forkJoin([driver$, drivers$, company$, terminals$, elds$, dvirs$, logDailies$, logEvents$]).subscribe(async ([driver, drivers, company, terminals, elds, dvirs, logDailies, logEvents]) => {
+      await this.storage.set('drivers', driver);
+      await this.storage.set('coDrivers', drivers);
+      await this.storage.set('company', company);
+      await this.storage.set('terminals', terminals);
+      await this.storage.set('elds', elds);
+      await this.storage.set('dvirs', dvirs);
+      await this.storage.set('logDailies', logDailies);
+      await this.storage.set('logEvents', logEvents);
+      await this.storage.set('HoursOfServiceRuleDays', driver[0]?.driverInfo?.settings?.hoursOfService?.days);
+      await this.storage.set('HoursOfServiceRuleHours', driver[0]?.driverInfo?.settings?.hoursOfService?.hours);
+      await this.storage.set('companyId', company?.companyId);
+      await this.storage.set('driverId', driver[0]?.driverId);
+      await this.storage.set('name', driver[0]?.name);
+      // await this.storage.set('vehicles', driver[0]?.driverInfo?.assignedVehicles[0]);
+      // await this.storage.set('vehicleId', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleId);
+      // await this.storage.set('vehicleUnit', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleUnit);
+      this.toastService.showToast("Data successfully synced", 'success');
+      this.syncLoading = false;
+    }, async (error) => {
+      this.toastService.showToast("There was a problem syncing data.", 'error');
+      this.syncLoading = false;
+    })
   }
 
   onVehicleClick() {
@@ -238,6 +277,5 @@ export class OthersPage implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
-    this.networkSub.unsubscribe();
   }
 }

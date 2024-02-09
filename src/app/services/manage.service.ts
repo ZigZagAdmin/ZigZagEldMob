@@ -18,9 +18,9 @@ import { PlacesCity } from '../models/places-city';
 export class ManageService {
   constructor(private http: HttpClient, @Inject(AUTH_API_URL) private apiUrl: string) {}
 
-  getDrivers(driverId: string): Observable<Driver> {
+  getDrivers(driverId: string): Observable<Driver[]> {
     const httpParams = new HttpParams().set('driverId', driverId);
-    return this.http.get<Driver>(this.apiUrl + 'api/EldManage/drivers', {
+    return this.http.get<Driver[]>(this.apiUrl + 'api/EldManage/drivers', {
       params: httpParams,
     });
   }

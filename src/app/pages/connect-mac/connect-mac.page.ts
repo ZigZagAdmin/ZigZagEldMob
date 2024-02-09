@@ -36,7 +36,9 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    await this.bluetoothService.requestBluetoothPermission(true);
+    if(Capacitor.getPlatform() === 'web') {
+      await this.bluetoothService.requestBluetoothPermission(true);
+    }
   }
 
   ngOnDestroy(): void {

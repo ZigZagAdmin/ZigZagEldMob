@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, getPlatform } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
 import { forkJoin, throwError } from 'rxjs';
@@ -15,6 +15,8 @@ import { ToastService } from './services/toast.service';
 import { Network } from '@capacitor/network';
 import { LocationService } from './services/location.service';
 import { BluetoothService } from './services/bluetooth.service';
+import { Capacitor } from '@capacitor/core';
+// import { Driver } from './models/driver';
 
 @Component({
   selector: 'app-root',
@@ -61,8 +63,10 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       this.lastNetworkStatus = currentStatus.connected;
     });
-    this.locationService.watchLocationStatus();
-    this.bluetoothService.watchBluetoothStatus();
+    if(Capacitor.getPlatform() === 'web') {
+      this.locationService.watchLocationStatus();
+      this.bluetoothService.watchBluetoothStatus();
+    }
     this.loading = true;
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
       if (ready) {
@@ -100,7 +104,7 @@ export class AppComponent implements OnInit, OnDestroy {
                     this.storage.set('coDrivers', coDrivers),
                     this.storage.set('company', company),
                     this.storage.set('dvirs', dvirs),
-                    // this.storage.set('vehicles', vehicles),
+                    // this.storage.set('vehicles', (drivers as Driver[])[0]?.driverInfo?.assignedVehicles[0]),
                     this.storage.set('terminals', terminals),
                     this.storage.set('elds', elds),
                     this.storage.set('logDailies', logDailies),

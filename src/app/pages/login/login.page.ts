@@ -126,7 +126,7 @@ export class LoginPage implements OnInit, OnDestroy {
         }),
         switchMap(() => {
           let fetchRequests: (
-            | Observable<Driver>
+            | Observable<Driver[]>
             | Observable<Company>
             | Observable<Vehicle[]>
             | Observable<Terminal[]>
@@ -162,10 +162,10 @@ export class LoginPage implements OnInit, OnDestroy {
         }),
         switchMap(([drivers, coDrivers, company, terminals, elds, dvirs, logDailies, logEvents, placesCity]) => {
           const saveRequests = [
-            this.saveDrivers(drivers as Driver),
-            this.saveCoDrivers(coDrivers as Driver),
+            this.saveDrivers(drivers as Driver[]),
+            this.saveCoDrivers(coDrivers as Driver[]),
             this.saveCompany(company as Company),
-            // this.saveVehicles(vehicles as Vehicle[]),
+            // this.saveVehicles([(drivers as Driver[])[0]?.driverInfo.assignedVehicles[0]] as Vehicle[]),
             this.saveTerminals(terminals as Terminal[]),
             this.saveDVIRs(dvirs as DVIRs[]),
             this.saveELDs(elds as ELD[]),
@@ -234,7 +234,7 @@ export class LoginPage implements OnInit, OnDestroy {
     );
   }
 
-  private saveDrivers(drivers: Driver): Observable<any> {
+  private saveDrivers(drivers: Driver[]): Observable<any> {
     return this.databaseService.saveDrivers(drivers).pipe(
       catchError(error => {
         const errorMessage = 'Error saving drivers to database';
@@ -244,7 +244,7 @@ export class LoginPage implements OnInit, OnDestroy {
     );
   }
 
-  private saveCoDrivers(drivers: Driver): Observable<any> {
+  private saveCoDrivers(drivers: Driver[]): Observable<any> {
     return this.databaseService.saveCoDrivers(drivers).pipe(
       catchError(error => {
         const errorMessage = 'Error saving drivers to database';
