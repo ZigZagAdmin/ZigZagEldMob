@@ -128,24 +128,16 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       this.driverId = driverId;
     });
 
-    await this.locationService
-      .getCurrentLocation()
-      .then(res => {
-        this.dvir.location = res;
-        this.locationLoading = false;
+    await this.locationService.getCurrentLocation().then(res => {
+      this.dvir.location = res;
+      this.locationLoading = false;
+      if (this.dvir.location.locationType === 'AUTOMATIC') {
         this.locationDisable = true;
-      })
-      .catch(e => {
-        this.locationLoading = false;
+      } else {
         this.locationDisable = false;
-        this.dvir.location = {
-          locationType: 'MANUAL',
-          description: '',
-          latitude: 0,
-          longitude: 0,
-        };
-        console.error(e);
-      });
+      }
+      console.log(this.dvir.location);
+    });
   }
 
   ngOnDestroy(): void {

@@ -8,42 +8,46 @@ import { Storage } from '@ionic/storage';
 export class GeolocationService {
   private placesCity: PlacesCity[] = [];
 
-  constructor(private storage: Storage) {
-    this.storage.get('placesCity').then(res => (this.placesCity = res));
-  }
+  constructor(private storage: Storage) {}
 
-  public getCurrentLocation(latitude: number, longitude: number): string {
+  public async getCurrentLocation(latitude: number, longitude: number): Promise<string> {
+    console.log(latitude, longitude);
     let dDistanceFinal = 0;
     let sCurrentLocationDescription: string = '';
-    for (const cityPlace of this.placesCity) {
-      let dLatitude: number = cityPlace.latitude !== null && cityPlace.latitude !== undefined ? cityPlace.latitude : 0;
-      let dLongitude: number = cityPlace.longitude !== null && cityPlace.longitude !== undefined ? cityPlace.longitude : 0;
+    await this.storage.get('placesCity').then(res => (this.placesCity = res));
+    try {
+      for (const cityPlace of this.placesCity) {
+        let dLatitude: number = cityPlace.latitude !== null && cityPlace.latitude !== undefined ? cityPlace.latitude : 0;
+        let dLongitude: number = cityPlace.longitude !== null && cityPlace.longitude !== undefined ? cityPlace.longitude : 0;
 
-      let dDistance: number =
-        3959 *
-        Math.acos(
-          Math.cos(this.toRadians(latitude)) * Math.cos(this.toRadians(dLatitude)) * Math.cos(this.toRadians(dLongitude) - this.toRadians(longitude)) +
-            Math.sin(this.toRadians(latitude)) * Math.sin(this.toRadians(dLatitude))
-        );
+        let dDistance: number =
+          3959 *
+          Math.acos(
+            Math.cos(this.toRadians(latitude)) * Math.cos(this.toRadians(dLatitude)) * Math.cos(this.toRadians(dLongitude) - this.toRadians(longitude)) +
+              Math.sin(this.toRadians(latitude)) * Math.sin(this.toRadians(dLatitude))
+          );
 
-      if (dDistanceFinal == 0) {
-        dDistanceFinal = dDistance;
-      }
+        if (dDistanceFinal == 0) {
+          dDistanceFinal = dDistance;
+        }
 
-      if (dDistanceFinal > dDistance) {
-        dDistanceFinal = dDistance;
+        if (dDistanceFinal > dDistance) {
+          dDistanceFinal = dDistance;
 
-        let sCurrentCountryCode: string = cityPlace.countryCode;
-        let sCurrentStateProvinceCode: string = cityPlace.stateProvinceCode;
-        let sCurrentCity: string = cityPlace.city;
+          let sCurrentCountryCode: string = cityPlace.countryCode;
+          let sCurrentStateProvinceCode: string = cityPlace.stateProvinceCode;
+          let sCurrentCity: string = cityPlace.city;
 
-        if (dDistanceFinal > 1) {
-          let sCardinalDetailed = this.degreesToCardinalDetailed(this.calculateBearingAngle(dLatitude, dLongitude, latitude, longitude));
-          sCurrentLocationDescription = Math.round(dDistanceFinal) + '.0mi ' + sCardinalDetailed + ' from ' + sCurrentCity + ', ' + sCurrentStateProvinceCode;
-        } else {
-          sCurrentLocationDescription = sCurrentCity + ', ' + sCurrentStateProvinceCode;
+          if (dDistanceFinal > 1) {
+            let sCardinalDetailed = this.degreesToCardinalDetailed(this.calculateBearingAngle(dLatitude, dLongitude, latitude, longitude));
+            sCurrentLocationDescription = Math.round(dDistanceFinal) + '.0mi ' + sCardinalDetailed + ' from ' + sCurrentCity + ', ' + sCurrentStateProvinceCode;
+          } else {
+            sCurrentLocationDescription = sCurrentCity + ', ' + sCurrentStateProvinceCode;
+          }
         }
       }
+    } catch (e) {
+      sCurrentLocationDescription = '';
     }
 
     return sCurrentLocationDescription;

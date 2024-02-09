@@ -302,7 +302,6 @@ export class HosPage implements OnInit, OnDestroy {
 
   async checkLocation() {
     if (!(await this.locationService.isLocationServiceAvailable())) {
-      
       await this.locationService.goToLocationServiceSettings();
       return;
     }
@@ -653,32 +652,23 @@ export class HosPage implements OnInit, OnDestroy {
   async toggleModal() {
     this.isModalOpen = true;
     this.locationLoading = true;
+    this.locationDescription = '';
 
     if (this.currentStatus) {
       this.selectButton(this.currentStatus.statusCode);
     }
 
-    await this.locationService
-      .getCurrentLocation()
-      .then(res => {
-        this.location = res;
-        this.locationDescription = this.location.description;
-        this.locationLoading = false;
+    await this.locationService.getCurrentLocation().then(res => {
+      this.location = res;
+      this.locationDescription = this.location.description;
+      this.locationLoading = false;
+      if (this.location.locationType === 'AUTOMATIC') {
         this.locationDisable = true;
-        console.log(this.locationDescription);
-      })
-      .catch(e => {
-        this.locationLoading = false;
+      } else {
         this.locationDisable = false;
-        this.locationDescription = '';
-        this.location = {
-          locationType: 'MANUAL',
-          description: '',
-          latitude: 0,
-          longitude: 0,
-        };
-        console.log(e);
-      });
+      }
+      console.log(this.locationDescription);
+    });
   }
 
   selectLog(log: LogDailies) {

@@ -35,14 +35,36 @@ export class LocationService {
   }
 
   async getCurrentLocation() {
-    return await Geolocation.getCurrentPosition().then((res): Location => {
-      return {
-        locationType: 'AUTOMATIC',
-        latitude: res.coords.latitude,
-        longitude: res.coords.longitude,
-        description: this.geolocationService.getCurrentLocation(res.coords.latitude, res.coords.longitude),
-      };
+    const geolocationPromise = Geolocation.getCurrentPosition({ timeout: 10000, enableHighAccuracy: true })
+      .then(async res => {
+        return {
+          locationType: 'AUTOMATIC',
+          latitude: res.coords.latitude,
+          longitude: res.coords.longitude,
+          description: await this.geolocationService.getCurrentLocation(res.coords.latitude, res.coords.longitude),
+        };
+      })
+      .catch(e => {
+        return {
+          locationType: 'MANUAL',
+          latitude: 0,
+          longitude: 0,
+          description: '',
+        };
+      });
+
+    const timeoutPromise = new Promise<any>((resolve, reject) => {
+      setTimeout(() => {
+        resolve({
+          locationType: 'MANUAL',
+          latitude: 0,
+          longitude: 0,
+          description: '',
+        });
+      }, 10000);
     });
+
+    return await Promise.race([geolocationPromise, timeoutPromise]);
   }
 
   getLocationStatusObservable() {

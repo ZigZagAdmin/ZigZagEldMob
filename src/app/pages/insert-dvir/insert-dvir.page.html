@@ -9,7 +9,14 @@
           <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
           <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
         </div>
-        <app-location-input [label]="'Location'" [fill]="true" [type]="'text'" [disabled]="locationDisable" [(value)]="dvir.location.description" [(validation)]="validation['locationDescription']"></app-location-input>
+        <app-location-input
+          [label]="'Location'"
+          [fill]="true"
+          [type]="'text'"
+          [disabled]="locationDisable"
+          [loading]="locationLoading"
+          [(value)]="dvir.location.description"
+          [(validation)]="validation['locationDescription']"></app-location-input>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>
       <div class="edit-dvir-block">
@@ -19,7 +26,13 @@
       </div>
       <p class="subtitle-lg">Trailer Info</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Trailer Name'" [fill]="true" [type]="'text'" [(value)]="dvir.trailers" [(validation)]="validation['trailerName']" [noValidation]="!!!this.dvir.defectsTrailers.length"></app-input>
+        <app-input
+          [label]="'Trailer Name'"
+          [fill]="true"
+          [type]="'text'"
+          [(value)]="dvir.trailers"
+          [(validation)]="validation['trailerName']"
+          [noValidation]="!!!this.dvir.defectsTrailers.length"></app-input>
         <app-multiple-select [label]="'Trailer Defects (Optional)'" [(value)]="dvir.defectsTrailers" (changeDetection)="checkSelectPresent($event)" [options]="defectsTrailers"></app-multiple-select>
       </div>
       <p class="subtitle-lg">Status</p>
@@ -44,7 +57,9 @@
         </div>
       </div>
 
-      <button class="btn primary-btn" [ngClass]="{ 'disable-click': loading }" (click)="onSubmit()"><span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner></button>
+      <button class="btn primary-btn" [ngClass]="{ 'disable-click': loading }" (click)="onSubmit()">
+        <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      </button>
     </div>
   </form>
 </ion-content>
