@@ -82,7 +82,7 @@ export class LocationService {
   async isLocationAvailable(): Promise<boolean> {
     return new Promise<boolean>(resolve => {
       this.platform.ready().then(() => {
-        cordova.plugins.diagnostic.isLocationEnabled(
+        cordova.plugins.diagnostic.isLocationAvailable(
           (available: any) => {
             resolve(available);
           },
@@ -130,8 +130,9 @@ export class LocationService {
   isLocationServiceAvailable() {
     return new Promise<boolean>(resolve => {
       this.platform.ready().then(() => {
-        cordova.plugins.diagnostic.isLocationEnabled(
+        cordova.plugins.diagnostic.isLocationAvailable(
           (enabled: any) => {
+            console.log('isLocationServiceAvailable: ', enabled)
             resolve(enabled);
           },
           (error: any) => {
