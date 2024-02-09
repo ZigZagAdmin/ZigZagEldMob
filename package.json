@@ -40,6 +40,7 @@
     "@meddv/ngx-pinch-zoom": "^15.0.1",
     "awesome-cordova-plugins": "^5.40.0",
     "capacitor-native-settings": "^5.0.1",
+    "cordova.plugins.diagnostic": "^7.1.4",
     "crypto-js": "^4.2.0",
     "install": "^0.13.0",
     "ionicons": "^7.0.0",

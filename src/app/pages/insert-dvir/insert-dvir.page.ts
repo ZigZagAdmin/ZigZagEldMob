@@ -14,8 +14,7 @@ import { defectsVehicle, defectsTrailers, dvirStatuses } from 'src/app/utilities
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
-import { ManageService } from 'src/app/services/manage.service';
-import { LocationService } from 'src/app/services/location.service';
+// import { LocationService } from 'src/app/services/location.service';
 import { Network } from '@capacitor/network';
 import { InterService } from 'src/app/services/inter.service';
 
@@ -103,7 +102,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     private utilityService: UtilityService,
     private shareService: ShareService,
     private toastService: ToastService,
-    private locationService: LocationService,
+    // private locationService: LocationService,
     private interService: InterService
   ) {}
 
@@ -129,24 +128,24 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       this.driverId = driverId;
     });
 
-    await this.locationService
-      .getCurrentLocation()
-      .then(res => {
-        this.dvir.location = res;
-        this.locationLoading = false;
-        this.locationDisable = true;
-      })
-      .catch(e => {
-        this.locationLoading = false;
-        this.locationDisable = false;
-        this.dvir.location = {
-          locationType: 'MANUAL',
-          description: '',
-          latitude: 0,
-          longitude: 0,
-        };
-        console.error(e);
-      });
+    // await this.locationService
+    //   .getCurrentLocation()
+    //   .then(res => {
+    //     this.dvir.location = res;
+    //     this.locationLoading = false;
+    //     this.locationDisable = true;
+    //   })
+    //   .catch(e => {
+    //     this.locationLoading = false;
+    //     this.locationDisable = false;
+    //     this.dvir.location = {
+    //       locationType: 'MANUAL',
+    //       description: '',
+    //       latitude: 0,
+    //       longitude: 0,
+    //     };
+    //     console.error(e);
+    //   });
   }
 
   ngOnDestroy(): void {

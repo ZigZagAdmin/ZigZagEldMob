@@ -4,6 +4,9 @@ import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-s
 import { BehaviorSubject } from 'rxjs';
 import { GeolocationService } from './geolocation.service';
 import { Location } from 'src/app/models/dvirs';
+import { Platform } from '@ionic/angular';
+
+declare let cordova: any;
 
 @Injectable({
   providedIn: 'root',
@@ -11,18 +14,24 @@ import { Location } from 'src/app/models/dvirs';
 export class LocationService {
   private locationStatusSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
 
-  constructor(private geolocationService: GeolocationService) {}
+  constructor(private geolocationService: GeolocationService, private platform: Platform) {}
 
-  async checkLocationStatus() {
-    await Geolocation.checkPermissions()
-      .then(a => {
-        if (a.location === 'granted' && a.coarseLocation === 'granted') {
-          this.locationStatusSubject.next(true);
-        } else {
+  watchLocationStatus() {
+    this.platform.ready().then(() => {
+      cordova.plugins.diagnostic.registerLocationStateChangeHandler(
+        (state: any) => {
+          console.log('location state: ', state);
+          if (state === 'location_off') {
+            this.locationStatusSubject.next(false);
+          } else {
+            this.locationStatusSubject.next(true);
+          }
+        },
+        (error: any) => {
           this.locationStatusSubject.next(false);
         }
-      })
-      .catch(e => this.locationStatusSubject.next(false));
+      );
+    });
   }
 
   async getCurrentLocation() {
@@ -40,25 +49,125 @@ export class LocationService {
     return this.locationStatusSubject.asObservable();
   }
 
-  async checkLocationServices(): Promise<boolean> {
-    return await Geolocation.checkPermissions()
-      .then(() => true)
-      .catch(() => false);
+  async goToLocationServiceSettings() {
+    return new Promise<boolean>(resolve => {
+      this.platform.ready().then(() => {
+        cordova.plugins.diagnostic.switchToLocationSettings();
+      });
+    });
   }
 
-  async requestPermission(): Promise<void> {
-    let res = await Geolocation.requestPermissions({ permissions: ['location', 'coarseLocation'] });
-    if (res.location === 'denied' || res.coarseLocation === 'denied') {
-      let confirmSettings = confirm('Go to settings and grant location permission.');
-      if (confirmSettings)
-        await NativeSettings.open({
-          optionAndroid: AndroidSettings.ApplicationDetails,
-          optionIOS: IOSSettings.App,
-        });
-    }
+  async isLocationAvailable(): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      this.platform.ready().then(() => {
+        cordova.plugins.diagnostic.isLocationAvailable(
+          (available: any) => {
+            resolve(available);
+          },
+          (error: any) => {
+            console.error('Error checking location availability:', error);
+            resolve(false);
+          }
+        );
+      });
+    });
   }
 
-  async checkPermission(): Promise<boolean> {
-    return (await Geolocation.checkPermissions()).location === 'granted' && (await Geolocation.checkPermissions()).coarseLocation === 'granted';
+  isLocationPermissionGranted(): Promise<{ value: string; status: boolean }> {
+    return new Promise<{ value: string; status: boolean }>(resolve => {
+      cordova.plugins.diagnostic.getLocationAuthorizationStatus(
+        (status: any) => {
+          let state: boolean;
+          console.log('req permission', status);
+          switch (status) {
+            case cordova.plugins.diagnostic.permissionStatus.NOT_REQUESTED:
+              state = false;
+              break;
+            case cordova.plugins.diagnostic.permissionStatus.DENIED_ONCE:
+              state = false;
+              break;
+            case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
+              state = false;
+              break;
+            case cordova.plugins.diagnostic.permissionStatus.GRANTED:
+              state = true;
+              break;
+            case cordova.plugins.diagnostic.permissionStatus.GRANTED_WHEN_IN_USE:
+              state = true;
+              break;
+          }
+          resolve({ value: status, status: state });
+        },
+        (error: any) => {
+          resolve({ value: error, status: false });
+        }
+      );
+    });
+  }
+
+  isLocationServiceAvailable() {
+    return new Promise<boolean>(resolve => {
+      this.platform.ready().then(() => {
+        cordova.plugins.diagnostic.isLocationEnabled(
+          (enabled: any) => {
+            resolve(enabled);
+          },
+          (error: any) => {
+            console.error('Error checking location availability:', error);
+            resolve(false);
+          }
+        );
+      });
+    });
+  }
+
+  async requestPermission() {
+    return new Promise<{ value: string; status: boolean }>((resolve, reject) => {
+      this.platform.ready().then(() => {
+        cordova.plugins.diagnostic.requestLocationAuthorization(
+          async (accuracyAuthorization: any) => {
+            let status;
+            console.log('Authorization: ', accuracyAuthorization);
+            switch (accuracyAuthorization) {
+              case cordova.plugins.diagnostic.permissionStatus.NOT_REQUESTED:
+                status = false;
+                this.locationStatusSubject.next(false);
+                break;
+              case cordova.plugins.diagnostic.permissionStatus.DENIED_ONCE:
+                status = false;
+                this.locationStatusSubject.next(false);
+                alert('You need to give location permissions in order to normally use the app');
+                break;
+              case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
+                status = false;
+                this.locationStatusSubject.next(false);
+                let state = confirm('You need to give access to your location.\nProceed to settings?');
+                if (state) {
+                  await NativeSettings.open({
+                    optionAndroid: AndroidSettings.ApplicationDetails,
+                    optionIOS: IOSSettings.App,
+                  });
+                }
+                break;
+              case cordova.plugins.diagnostic.permissionStatus.GRANTED:
+                status = false;
+                this.locationStatusSubject.next(true);
+                break;
+              case cordova.plugins.diagnostic.permissionStatus.GRANTED_WHEN_IN_USE:
+                status = false;
+                this.locationStatusSubject.next(true);
+                break;
+            }
+            resolve({ value: accuracyAuthorization, status: status });
+          },
+          (error: any) => {
+            console.error('Error requesting location authorization:', error);
+            reject({ value: error, status: false });
+          },
+          cordova.plugins.diagnostic.locationAuthorizationMode.WHEN_IN_USE,
+          cordova.plugins.diagnostic.locationAccuracyAuthorization.FULL
+        );
+      });
+    });
   }
 }

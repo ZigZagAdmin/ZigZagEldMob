@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { IonModal } from '@ionic/angular';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { IonModal, Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, firstValueFrom, forkJoin, interval } from 'rxjs';
 import { NavController } from '@ionic/angular';
@@ -80,15 +80,12 @@ export class HosPage implements OnInit, OnDestroy {
   comments = '';
   restMode = false;
 
-  serviceSub: Subscription;
-
   locationStatus: boolean = false;
-  locationStatusSub: Subscription;
+  locationServiceState: boolean = false;
   locationLoading: boolean = false;
   locationDisable: boolean = false;
 
   bluetoothStatus: boolean = false;
-  bluetoothStatusSub: Subscription;
 
   lastSelectedButton: string = '';
 
@@ -113,25 +110,23 @@ export class HosPage implements OnInit, OnDestroy {
     private bluetoothService: BluetoothService,
     private toastService: ToastService,
     private utilityService: UtilityService,
-    private shareService: ShareService
+    private shareService: ShareService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private platform: Platform,
+    private ngZone: NgZone
   ) {}
 
   async ngOnInit() {
-    if (Capacitor.getPlatform() !== 'web') {
-      this.serviceSub = interval(1000).subscribe(() => {
-        this.locationService.checkLocationStatus();
-        if (!this.bluetoothStatus) {
-          this.bluetoothService.initialize();
-        }
-        this.bluetoothService.getBluetoothState();
+    await this.getLocationState();
+    this.platform.resume.subscribe(() => {
+      this.ngZone.run(async () => {
+        await this.getLocationState();
       });
-      this.locationStatusSub = this.locationService.getLocationStatusObservable().subscribe(data => {
-        this.locationStatus = data;
-      });
-      this.bluetoothStatusSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(data => {
-        this.bluetoothStatus = data;
-      });
-    }
+    });
+    this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
+      this.locationServiceState = status;
+      await this.getLocationState();
+    });
 
     this.internetSub = this.internetService.internetStatus$.subscribe(async state => {
       this.networkStatus = state;
@@ -146,11 +141,6 @@ export class HosPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
-    if (this.serviceSub) {
-      this.serviceSub.unsubscribe();
-      this.bluetoothStatusSub.unsubscribe();
-      this.locationStatusSub.unsubscribe();
-    }
   }
 
   async ionViewWillEnter() {
@@ -279,6 +269,15 @@ export class HosPage implements OnInit, OnDestroy {
     await this.storage.set('logEvents', this.logEvents);
   }
 
+  async getLocationState() {
+    await this.locationService.isLocationAvailable().then((state: boolean) => {
+      if (state !== undefined && state !== null) {
+        this.locationStatus = state;
+      }
+      this.changeDetectorRef.detectChanges();
+    });
+  }
+
   async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
     logEventData.sent = online;
     const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
@@ -302,19 +301,12 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async checkLocation() {
-    if (!this.locationStatus) {
-      if (!(await this.locationService.checkLocationServices())) {
-        alert('Please Turn On Location Service.\nGo to Settings -> Location -> Toggle on the Location Service.');
-        return;
-      }
-
-      await this.locationService.requestPermission();
-
-      if (!(await this.locationService.checkPermission())) {
-        alert('The location permission is requiered to open the app.');
-        return;
-      }
+    if (!(await this.locationService.isLocationServiceAvailable())) {
+      
+      await this.locationService.goToLocationServiceSettings();
+      return;
     }
+    await this.locationService.requestPermission();
   }
 
   async checkBluetooth() {
@@ -1055,10 +1047,6 @@ export class HosPage implements OnInit, OnDestroy {
 
   async ionViewWillLeave() {
     await this.storage.set('lastKnownLocation', this.locationDescription);
-    if (this.bluetoothStatusSub) {
-      this.bluetoothStatusSub.unsubscribe();
-      this.locationStatusSub.unsubscribe();
-    }
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }

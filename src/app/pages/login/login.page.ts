@@ -101,15 +101,7 @@ export class LoginPage implements OnInit, OnDestroy {
     this.shareService.changeMessage('reset');
 
     if (Capacitor.getPlatform() !== 'web') {
-      if (!(await this.locationService.checkLocationServices())) {
-        alert('Please Turn On Location Service.\nGo to Settings -> Location -> Toggle on the Location Service.');
-        return;
-      }
-
-      await this.locationService.requestPermission();
-
-      if (!(await this.locationService.checkPermission())) {
-        alert('The location permission is requiered to open the app.');
+      if (!(await this.checkLocation())) {
         return;
       }
     }
@@ -212,6 +204,20 @@ export class LoginPage implements OnInit, OnDestroy {
           console.log(errorMessage);
         }
       );
+  }
+
+  async checkLocation() {
+    if (!(await this.locationService.isLocationServiceAvailable())) {
+      let state = confirm('Looks like the location service is turned off.\nProceed to settings?');
+      if (state) {
+        await this.locationService.goToLocationServiceSettings();
+      } else {
+        alert('You have to turn on the location service in order to continue.');
+        return false;
+      }
+    }
+    await this.locationService.requestPermission();
+    return (await this.locationService.isLocationPermissionGranted()).status;
   }
 
   private saveAuthUser(authUser: AuthUser): Observable<any> {

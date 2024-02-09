@@ -1,9 +1,5 @@
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="vuesax/linear/warning-2">
-<g id="warning-2">
-<path id="Vector" d="M8 5.16666V8.66666" stroke="#D92D20" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_2" d="M14.0534 5.72002V10.28C14.0534 11.0267 13.6534 11.72 13.0067 12.1L9.04669 14.3867C8.40002 14.76 7.60001 14.76 6.94668 14.3867L2.98667 12.1C2.34001 11.7267 1.94 11.0333 1.94 10.28V5.72002C1.94 4.97335 2.34001 4.27999 2.98667 3.89999L6.94668 1.61333C7.59334 1.24 8.39336 1.24 9.04669 1.61333L13.0067 3.89999C13.6534 4.27999 14.0534 4.96669 14.0534 5.72002Z" stroke="#D92D20" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_3" d="M8 10.8V10.8667" stroke="#D92D20" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-</g>
+<path d="M8 5.16666V8.66666" stroke="#D92D20" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.0534 5.72002V10.28C14.0534 11.0267 13.6534 11.72 13.0067 12.1L9.04669 14.3867C8.40002 14.76 7.60001 14.76 6.94668 14.3867L2.98667 12.1C2.34001 11.7267 1.94 11.0333 1.94 10.28V5.72002C1.94 4.97335 2.34001 4.27999 2.98667 3.89999L6.94668 1.61333C7.59334 1.24 8.39336 1.24 9.04669 1.61333L13.0067 3.89999C13.6534 4.27999 14.0534 4.96669 14.0534 5.72002Z" stroke="#D92D20" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 10.8V10.8667" stroke="#D92D20" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

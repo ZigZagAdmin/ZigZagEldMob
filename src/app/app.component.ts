@@ -1,20 +1,19 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
-import { forkJoin, interval, throwError } from 'rxjs';
+import { forkJoin, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
-import { ToastController, LoadingController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { InternetService } from './services/internet.service';
 
 import { ManageService } from './services/manage.service';
 import { DatabaseService } from './services/database.service';
-import { LocationService } from './services/location.service';
-import { Capacitor } from '@capacitor/core';
 import { ToastService } from './services/toast.service';
 import { Network } from '@capacitor/network';
+import { LocationService } from './services/location.service';
 
 @Component({
   selector: 'app-root',
@@ -60,6 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       this.lastNetworkStatus = currentStatus.connected;
     });
+    this.locationService.watchLocationStatus();
     this.loading = true;
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
       if (ready) {
