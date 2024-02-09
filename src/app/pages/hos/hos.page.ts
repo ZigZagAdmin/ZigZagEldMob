@@ -314,7 +314,11 @@ export class HosPage implements OnInit, OnDestroy {
 
   async checkLocation() {
     if (!(await this.locationService.isLocationServiceAvailable())) {
-      await this.locationService.goToLocationServiceSettings();
+      if (Capacitor.getPlatform() === 'android') {
+        await this.locationService.goToLocationServiceSettings();
+      } else {
+        alert('Go to Settings -> Location Services to enable the location service.');
+      }
       return;
     }
     await this.locationService.requestPermission();
@@ -324,9 +328,13 @@ export class HosPage implements OnInit, OnDestroy {
     if (!(await this.bluetoothService.getBluetoothState())) {
       let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
       if (confirmation) {
-        await this.bluetoothService.goToBluetoothServiceSettings();
+        if (Capacitor.getPlatform() === 'android') {
+          await this.bluetoothService.goToBluetoothServiceSettings();
+        } else {
+          alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+        }
       } else {
-        alert('In order to connect to a device, you to turn on the bluetooth service');
+        alert('In order to connect to a device, you have to turn on the bluetooth service');
         return;
       }
     }

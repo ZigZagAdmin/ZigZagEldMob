@@ -80,7 +80,11 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     if (!(await this.bluetoothService.getBluetoothState())) {
       let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
       if (confirmation) {
-        await this.bluetoothService.goToBluetoothServiceSettings();
+        if(Capacitor.getPlatform() === 'android') {
+          await this.bluetoothService.goToBluetoothServiceSettings();
+        } else {
+          alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.')
+        }
       } else {
         alert('In order to connect to a device, you to turn on the bluetooth service');
         return;

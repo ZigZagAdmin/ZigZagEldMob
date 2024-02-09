@@ -4,7 +4,7 @@ import { Observable, firstValueFrom, forkJoin, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 import { Storage } from '@ionic/storage';
-import { NavController } from '@ionic/angular';
+import { NavController, Platform } from '@ionic/angular';
 
 import { DatabaseService } from 'src/app/services/database.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -210,7 +210,11 @@ export class LoginPage implements OnInit, OnDestroy {
     if (!(await this.locationService.isLocationServiceAvailable())) {
       let state = confirm('Looks like the location service is turned off.\nProceed to settings?');
       if (state) {
-        await this.locationService.goToLocationServiceSettings();
+        if(Capacitor.getPlatform() === 'android') {
+          await this.locationService.goToLocationServiceSettings();
+        } else {
+          alert('Go to Settings -> Location Services to enable the location service.')
+        }
       } else {
         alert('You have to turn on the location service in order to continue.');
         return false;

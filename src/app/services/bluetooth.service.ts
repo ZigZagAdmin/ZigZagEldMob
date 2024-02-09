@@ -47,7 +47,7 @@ export class BluetoothService {
   async getBluetoothState() {
     return new Promise<boolean>(resolve => {
       this.platform.ready().then(() => {
-        cordova.plugins.diagnostic.isBluetoothEnabled(
+        cordova.plugins.diagnostic.isBluetoothAvailable(
           (enabled: any) => {
             resolve(enabled);
           },
@@ -107,14 +107,14 @@ export class BluetoothService {
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ONCE:
                 status = false;
                 this.bluetoothStatusSubject.next(false);
-                if(!noPop){
+                if (!noPop) {
                   alert('You need to give bluetooth permissions in order to connect');
                 }
                 break;
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
                 status = false;
                 this.bluetoothStatusSubject.next(false);
-                if(!noPop){ 
+                if (!noPop) {
                   let state = confirm('You need to give access to your bluetooth.\nProceed to settings?');
                   if (state) {
                     await NativeSettings.open({
