@@ -280,6 +280,29 @@ export class InspectionPreviewPage implements OnInit {
     }
   }
 
+  getStatusColor(status: string) {
+    if (status) {
+      let colorObj = {
+        OFF: 'var(--gray-300)',
+        SB: 'var(--gray-500)',
+        ON: 'var(--warning-400)',
+        D: 'var(--success-500)',
+        PC: 'var(--gray-300)',
+        YM: 'var(--warning-400)',
+      };
+      return colorObj[status as keyof typeof colorObj];
+    }
+    return 'var(--success-500)';
+  }
+
+  logEventDuration(logStatus: LogEvents) {
+    return this.utilityService.msToTime(
+      logStatus.eventTime.timeStampEnd !== undefined && logStatus.eventTime.timeStampEnd !== 0
+        ? logStatus.eventTime.timeStampEnd - logStatus.eventTime.timeStamp
+        : new Date().getTime() - logStatus.eventTime.timeStamp
+    );
+  }
+
   goBack() {
     if (this.backUrl === 'log-item') this.navCtrl.navigateBack(['log-item', this.logDaily.logDailyId]);
     else this.navCtrl.navigateBack('unitab/inspection');

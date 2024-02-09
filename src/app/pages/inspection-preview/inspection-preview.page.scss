@@ -296,3 +296,40 @@ ion-col {
     }
   }
 }
+
+.form-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  .form-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: var(--gray-100);
+    border-radius: 10px;
+    padding: 15px;
+    .card-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      .text-2 {
+        flex-grow: 1;
+      }
+    }
+  }
+}
+
+.status-circle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50px;
+}
+
+.status-circle-error {
+  background-color: var(--error-500);
+}
+
+.status-circle-success {
+  background-color: var(--success-500);
+}
