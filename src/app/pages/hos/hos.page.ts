@@ -98,6 +98,13 @@ export class HosPage implements OnInit, OnDestroy {
   internetSub: Subscription;
   networkStatus: boolean = true;
 
+  bannerInfo: { show: boolean; type: 'success' | 'warning' | 'default' | 'error'; title: string; subtitle: string } = {
+    show: false,
+    type: 'default',
+    title: '',
+    subtitle: '',
+  };
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -136,6 +143,14 @@ export class HosPage implements OnInit, OnDestroy {
 
     this.internetSub = this.internetService.internetStatus$.subscribe(async state => {
       this.networkStatus = state;
+      if (!state) {
+        this.bannerInfo = {
+          show: true,
+          title: 'Offline Mode',
+          subtitle: 'Check your internet connection.',
+          type: 'warning',
+        };
+      }
       if (state) {
         this.logEvents = await firstValueFrom(this.databaseService.getLogEvents());
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
@@ -1057,6 +1072,12 @@ export class HosPage implements OnInit, OnDestroy {
       this.updateLogDailies();
       this.calculateCircles();
     }, 60000);
+  }
+
+  getTotalWorkedHours() {
+    return this.logDailies.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.timeWorked
+    },0);
   }
 
   async ionViewWillLeave() {

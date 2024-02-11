@@ -13,13 +13,8 @@
       </div>
     </div>
 
-    <div class="warning">
-      <img src="assets/icon/warning.svg" alt="warning" />
-      <div class="warning-text">
-        <p class="subtitle">Warning</p>
-        <p class="text-1">Make sure that ELD hardware is properly installed and Vehicle power is ON</p>
-      </div>
-    </div>
+    <app-message-banner *ngIf="bannerInfo.show" [title]="bannerInfo.title" [subtitle]="bannerInfo.subtitle" [type]="bannerInfo.type"></app-message-banner>
+
     <div class="status-bar">
       <p class="subtitle">Current Status</p>
       <div class="green" id="trigger-status" [ngStyle]="{'background-color': getStatusColor(selectedButton)}" style="max-width: 39%" (click)="toggleModal()">
@@ -181,7 +176,7 @@
     </div>
     <div class="time">
       <div class="time-block">
-        <p class="subtitle">8 h 33 m</p>
+        <p class="subtitle">{{ getTotalWorkedHours() | convertSecondsToHoursAndMinutesHm }}</p>
         <p class="text-1">WH Last 7 Days</p>
       </div>
       <div class="time-block">

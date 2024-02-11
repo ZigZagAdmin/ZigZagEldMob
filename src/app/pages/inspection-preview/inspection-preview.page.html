@@ -192,16 +192,20 @@
     <div class="form-cards">
       <div class="form-card" *ngFor="let logStatus of statusesOnDay; index as i">
         <div class="card-row">
-          <div class="status-circle" [ngStyle]="{ 'background-color': getStatusColor(logStatus.type.code) }"></div>
-          <p class="subtitle">
-            {{ logStatus.eventTime.timeStamp | date : 'h:mm a' }} <span style="font-size: 12px">{{ i === 0 ? '(' + (logStatus.eventTime.timeStamp | date : 'mediumDate') + ')' : '' }}</span> -
-            {{ logStatus.type.name }}
-          </p>
-          <p class="text-14-600" style="color: var(--gray-600)">{{ logEventDuration(logStatus) }}</p>
+          <div class="row-status">
+            <div class="status-circle" [ngStyle]="{ 'background-color': getStatusColor(logStatus.type.code) }"></div>
+            <p class="subtitle">
+              {{ logStatus.eventTime.timeStamp | date : 'h:mm a' }} <span style="font-size: 12px">{{ i === 0 ? '(' + (logStatus.eventTime.timeStamp | date : 'mediumDate') + ')' : '' }}</span> -
+              {{ logStatus.type.name }}
+            </p>
+          </div>
+          <p class="card-time" style="color: var(--gray-600)">{{ logEventDuration(logStatus) }}</p>
         </div>
         <div class="card-row">
-          <img src="assets/icon/location.svg" alt="location" />
-          <p class="text-2" style="font-weight: 500; font-size: 14px">{{ logStatus.location.description }}</p>
+          <div class="row-status">
+            <img src="assets/icon/location.svg" alt="location" />
+            <p class="text-2" style="font-weight: 500; font-size: 14px">{{ logStatus.location.description }}</p>
+          </div>
         </div>
       </div>
     </div>

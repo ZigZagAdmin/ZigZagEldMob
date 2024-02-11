@@ -236,6 +236,7 @@ ion-col {
   display: flex;
   flex-direction: column;
   gap: 15px;
+
   .form-card {
     display: flex;
     flex-direction: column;
@@ -243,10 +244,18 @@ ion-col {
     background-color: var(--gray-100);
     border-radius: 10px;
     padding: 15px;
+
     .card-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+
+      .row-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
       .text-2 {
         flex-grow: 1;
       }
@@ -254,8 +263,17 @@ ion-col {
   }
 }
 .subtitle {
-  flex-grow: 1;
+  flex: 1 calc(100% - 25px);
   font-size: 15px;
+}
+
+.card-time {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
 }
 
 .preview-container {
@@ -270,6 +288,7 @@ ion-col {
 }
 
 .status-circle {
+  flex: 1 15px;
   width: 15px;
   height: 15px;
   border-radius: 50px;
