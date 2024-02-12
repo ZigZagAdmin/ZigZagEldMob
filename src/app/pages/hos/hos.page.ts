@@ -124,22 +124,24 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    await this.getLocationState();
-    await this.getBluetoothState();
-    this.platform.resume.subscribe(() => {
-      this.ngZone.run(async () => {
-        await this.getLocationState();
-        await this.getBluetoothState();
-      });
-    });
-    this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
-      this.locationServiceState = status;
+    if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
-    });
-    this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
       await this.getBluetoothState();
-      await this.bluetoothService.getBluetoothAuthorizationStatus();
-    });
+      this.platform.resume.subscribe(() => {
+        this.ngZone.run(async () => {
+          await this.getLocationState();
+          await this.getBluetoothState();
+        });
+      });
+      this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
+        this.locationServiceState = status;
+        await this.getLocationState();
+      });
+      this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
+        await this.getBluetoothState();
+        await this.bluetoothService.getBluetoothAuthorizationStatus();
+      });
+    }
 
     this.internetSub = this.internetService.internetStatus$.subscribe(async state => {
       this.networkStatus = state;
@@ -1076,8 +1078,8 @@ export class HosPage implements OnInit, OnDestroy {
 
   getTotalWorkedHours() {
     return this.logDailies.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.timeWorked
-    },0);
+      return accumulator + currentValue.timeWorked;
+    }, 0);
   }
 
   async ionViewWillLeave() {

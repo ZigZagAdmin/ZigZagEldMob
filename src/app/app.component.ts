@@ -63,7 +63,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       this.lastNetworkStatus = currentStatus.connected;
     });
-    if(Capacitor.getPlatform() === 'web') {
+    if(Capacitor.getPlatform() !== 'web') {
       this.locationService.watchLocationStatus();
       this.bluetoothService.watchBluetoothStatus();
     }

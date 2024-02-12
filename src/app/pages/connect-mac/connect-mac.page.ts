@@ -36,7 +36,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    if(Capacitor.getPlatform() === 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
       await this.bluetoothService.requestBluetoothPermission(true);
     }
   }
@@ -82,10 +82,10 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     if (!(await this.bluetoothService.getBluetoothState())) {
       let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
       if (confirmation) {
-        if(Capacitor.getPlatform() === 'android') {
+        if (Capacitor.getPlatform() === 'android') {
           await this.bluetoothService.goToBluetoothServiceSettings();
         } else {
-          alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.')
+          alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
         }
       } else {
         alert('In order to connect to a device, you to turn on the bluetooth service');
