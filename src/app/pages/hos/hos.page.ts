@@ -125,27 +125,28 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // if (Capacitor.getPlatform() !== 'web') {
-    await this.getLocationState();
-    await this.getBluetoothState();
-    this.platform.resume.subscribe(() => {
-      this.ngZone.run(async () => {
-        await this.getLocationState();
-        await this.getBluetoothState();
-      });
-    });
-    this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
-      this.locationServiceState = status;
+    if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
-    });
-    this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
       await this.getBluetoothState();
-      await this.bluetoothService.getBluetoothAuthorizationStatus();
-    });
-    // }
+      this.platform.resume.subscribe(() => {
+        this.ngZone.run(async () => {
+          await this.getLocationState();
+          await this.getBluetoothState();
+        });
+      });
+      this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
+        this.locationServiceState = status;
+        await this.getLocationState();
+      });
+      this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
+        await this.getBluetoothState();
+        await this.bluetoothService.getBluetoothAuthorizationStatus();
+      });
+    }
 
-    this.internetSub = this.internetService.internetStatus$.subscribe(async state => {
+    this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
+      console.log('HoS network: ', state);
       if (!state) {
         this.bannerInfo = {
           show: true,
@@ -153,6 +154,10 @@ export class HosPage implements OnInit, OnDestroy {
           subtitle: 'Check your internet connection.',
           type: 'warning',
         };
+        this.changeDetectorRef.detectChanges();
+      } else {
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
       }
       if (state) {
         this.logEvents = await firstValueFrom(this.databaseService.getLogEvents());

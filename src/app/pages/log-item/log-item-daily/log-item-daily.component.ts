@@ -101,7 +101,7 @@ export class LogItemDailyComponent implements OnInit {
 
   ngOnInit(): void {
     this.timeZones = this.utilityService.checkSeason();
-    this.networkSub = this.internetService.internetStatus$.subscribe(async state => {
+    this.networkSub = this.internetService.interetStatusObs.subscribe(async state => {
       if (state) {
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
         if (this.LogDailiesId) {

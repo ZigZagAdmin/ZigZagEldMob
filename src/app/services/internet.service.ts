@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Network } from '@capacitor/network';
-import { BehaviorSubject, firstValueFrom, forkJoin } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom, forkJoin } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import { DVIRs } from '../models/dvirs';
 import { LogDailies } from '../models/log-dailies';
@@ -15,14 +15,20 @@ import { DatabaseService } from './database.service';
   providedIn: 'root',
 })
 export class InternetService {
-  internetStatus$ = new BehaviorSubject(false);
+  internetStatus$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
+  interetStatusObs: Observable<boolean> = this.internetStatus$.asObservable();
 
   constructor(private storage: Storage, private dashboardService: DashboardService) {
     this.watchInternetStatus();
+    Network.getStatus().then(value => {
+      this.internetStatus$.next(value.connected);
+      console.log('internet service constructor');
+    });
   }
 
   private watchInternetStatus() {
     Network.addListener('networkStatusChange', status => {
+      console.log('Network Status:', status);
       this.internetStatus$.next(status.connected);
     });
   }

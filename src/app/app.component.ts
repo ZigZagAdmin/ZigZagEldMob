@@ -43,7 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.networkSub = this.internetService.internetStatus$.subscribe(async status => {
+    this.networkSub = this.internetService.interetStatusObs.subscribe(async status => {
       let currentStatus = await Network.getStatus();
       if (currentStatus.connected === true) {
         if (this.lastNetworkStatus === false) {
