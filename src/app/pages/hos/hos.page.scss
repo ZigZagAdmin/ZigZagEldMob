@@ -236,6 +236,12 @@ ion-progress-bar #progress-cycle {
   border-radius: 50%;
 }
 
+.btn-custom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .status-dot-error {
   background-color: var(--error-600);
 }

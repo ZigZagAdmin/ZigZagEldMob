@@ -40,7 +40,8 @@ export class HosPage implements OnInit, OnDestroy {
   progressShift = 0;
   progressCycle = 0;
 
-  isModalOpen!: boolean;
+  isModalOpen: boolean;
+  modalLoading: boolean = false;
   isConfirmButtonActive: boolean = true;
   vehicleId: string = '';
   driverId: string = '';
@@ -124,24 +125,24 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    if (Capacitor.getPlatform() !== 'web') {
-      await this.getLocationState();
-      await this.getBluetoothState();
-      this.platform.resume.subscribe(() => {
-        this.ngZone.run(async () => {
-          await this.getLocationState();
-          await this.getBluetoothState();
-        });
-      });
-      this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
-        this.locationServiceState = status;
+    // if (Capacitor.getPlatform() !== 'web') {
+    await this.getLocationState();
+    await this.getBluetoothState();
+    this.platform.resume.subscribe(() => {
+      this.ngZone.run(async () => {
         await this.getLocationState();
-      });
-      this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
         await this.getBluetoothState();
-        await this.bluetoothService.getBluetoothAuthorizationStatus();
       });
-    }
+    });
+    this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
+      this.locationServiceState = status;
+      await this.getLocationState();
+    });
+    this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
+      await this.getBluetoothState();
+      await this.bluetoothService.getBluetoothAuthorizationStatus();
+    });
+    // }
 
     this.internetSub = this.internetService.internetStatus$.subscribe(async state => {
       this.networkStatus = state;
@@ -238,7 +239,7 @@ export class HosPage implements OnInit, OnDestroy {
             this.storage.set('bAuthorized', true);
 
             if (this.networkStatus) {
-              this.dashboardService
+              await this.dashboardService
                 .updateLogEvent(lastLogEvent)
                 .toPromise()
                 .then(async response => {
@@ -250,27 +251,27 @@ export class HosPage implements OnInit, OnDestroy {
                   console.log('Last LogEvent Pushed in offline logEvents array');
                   await this.updateIndexLogEvents(lastLogEvent, false);
                 });
-              this.dashboardService
+              await this.dashboardService
                 .updateLogEvent(LoginLogEvent)
                 .toPromise()
-                .then(response => {
+                .then(async response => {
                   console.log('New status is updated on server:', response);
-                  this.updateLogEvents(LoginLogEvent, true);
+                  await this.updateLogEvents(LoginLogEvent, true);
                 })
                 .catch(async error => {
                   console.log('Internet Status: ' + this.networkStatus);
                   console.log('New Log Event Status Pushed in offline logEvents Array');
-                  this.updateLogEvents(LoginLogEvent, false);
+                  await this.updateLogEvents(LoginLogEvent, false);
                 });
             } else {
               console.log('Updated logEvents in offline array');
               await this.updateIndexLogEvents(lastLogEvent, false);
-              this.updateLogEvents(LoginLogEvent, false);
+              await this.updateLogEvents(LoginLogEvent, false);
             }
           }
 
           await this.updateLogDailies();
-          this.calculateCircles();
+          await this.calculateCircles();
         });
       }
     });
@@ -708,7 +709,6 @@ export class HosPage implements OnInit, OnDestroy {
       } else {
         this.locationDisable = false;
       }
-      console.log(this.locationDescription);
     });
   }
 
@@ -736,16 +736,19 @@ export class HosPage implements OnInit, OnDestroy {
     if (!this.utilityService.validateForm(this.validation)) return;
     if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
       this.lastSelectedButton = this.selectedButton;
-      this.isModalOpen = false;
       this.shareService.destroyMessage();
       await this.storage.set('lastStatusCode', this.selectedButton);
-      await this.onWillDismiss();
+      await this.onWillDismiss().then(() => {
+        this.isModalOpen = false;
+        this.modalLoading = false;
+      });
     } else {
       this.toastService.showToast('You need to select a different status!', 'warning');
     }
   }
 
   async onWillDismiss() {
+    this.modalLoading = true;
     const endTime = new Date().getTime();
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
@@ -822,7 +825,7 @@ export class HosPage implements OnInit, OnDestroy {
     };
 
     if (this.networkStatus) {
-      this.dashboardService
+      await this.dashboardService
         .updateLogEvent(lastLogEvent)
         .toPromise()
         .then(async response => {
@@ -834,27 +837,26 @@ export class HosPage implements OnInit, OnDestroy {
           console.log('Last LogEvent Pushed in offline logEvents array');
           await this.updateIndexLogEvents(lastLogEvent, false);
         });
-      this.dashboardService
+      await this.dashboardService
         .updateLogEvent(newLogEvent)
         .toPromise()
-        .then(response => {
+        .then(async response => {
           console.log('New status is updated on server:', response);
-          this.updateLogEvents(newLogEvent, true);
+          await this.updateLogEvents(newLogEvent, true);
         })
         .catch(async error => {
           console.log('Internet Status: ' + this.networkStatus);
           console.log('New Log Event Status Pushed in offline logEvents Array');
-          this.updateLogEvents(newLogEvent, false);
+          await this.updateLogEvents(newLogEvent, false);
         });
     } else {
       console.log('Updated logEvents in offline array');
       await this.updateIndexLogEvents(lastLogEvent, false);
-      this.updateLogEvents(newLogEvent, false);
+      await this.updateLogEvents(newLogEvent, false);
     }
 
-    this.updateLogDailies();
-    this.calculateCircles();
-    this.isModalOpen = false;
+    await this.updateLogDailies();
+    await this.calculateCircles();
   }
 
   convertSecondToHours(secs: number): string {

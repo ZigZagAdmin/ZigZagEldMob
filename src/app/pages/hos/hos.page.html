@@ -39,8 +39,8 @@
               [(validation)]="validation['location']"></app-location-input>
             <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-textarea>
             <div class="btns-flex">
-              <button class="btn secondary-btn" (click)="cancel()">Back</button>
-              <button class="btn primary-btn" (click)="confirm()">Save</button>
+              <button class="btn secondary-btn btn-custom" (click)="cancel()">Back</button>
+              <button class="btn primary-btn btn-custom" (click)="confirm()"><span *ngIf="!modalLoading">Save</span> <ion-spinner *ngIf="modalLoading" name="circular" color="light"></ion-spinner></button>
             </div>
           </div>
         </ion-content>
