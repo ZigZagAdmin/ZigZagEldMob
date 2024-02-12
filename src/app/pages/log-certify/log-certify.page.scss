@@ -110,3 +110,65 @@ ion-checkbox::part(container) {
   height: 0;
   border: none;
 }
+
+.modal-box {
+  padding: 20px 20px 0px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.modal-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.modal-status {
+  font-size: 15px;
+}
+
+ion-modal#custom-modal {
+  --width: fit-content;
+  --min-width: 80%;
+  --max-height: 100%;
+  --overflow: hidden;
+  --height: fit-content;
+  --border-radius: 10px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.submit-buttons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 15px 20px 20px 20px;
+
+  .action-button {
+    flex: 1;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 38px;
+    padding: 10px;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+}
+
+.default {
+  color: var(--gray-500);
+  background-color: var(--gray-100);
+}
+
+.primary {
+  color: var(--gray-25);
+  background-color: var(--primary-600);
+}

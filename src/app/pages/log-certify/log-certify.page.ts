@@ -59,6 +59,10 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     penColor: 'black',
   };
 
+  isModalOpen: boolean = false;
+  enableModalTrigger: boolean = false;
+  certifyLogDailies: number[] = [];
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -156,6 +160,17 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       this.logDaily.form.signature = this.signature;
       this.logDaily.certified = true;
     }
+
+    let stateLogEvents = this.logEvents
+      .slice()
+      .reverse()
+      .filter(el => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(el.type.code));
+    this.logDailies.forEach(logDaily => {
+      let logEventIndex = stateLogEvents.findIndex(el => el.eventTime.logDate === logDaily.logDate);
+      if (logEventIndex === -1) {
+        this.logDaily.formManner = true;
+      }
+    });
 
     const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
@@ -262,6 +277,54 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   activateSave() {
     if ((this.signature && this.signature.length !== 0) || (this.signatureLink && this.signatureLink.length !== 0)) this.isConfirmButtonActive = true;
     else this.isConfirmButtonActive = false;
+  }
+
+  async closeModal() {
+    this.isModalOpen = false;
+    await this.save();
+  }
+
+  async confirmModal() {
+    this.isModalOpen = false;
+    await this.save();
+    this.certifyLogDailies.forEach(async index => {
+      console.log(index);
+      this.logDaily = this.logDailies[index];
+      console.log(this.logDaily);
+      this.logDaily.formManner = true;
+      this.logDaily.certified = true;
+      this.logDaily.form.signatureId = this.utilityService.uuidv4();
+      this.logDaily.form.signature = this.signature;
+      await this.save();
+    });
+  }
+
+  async openModal() {
+    this.certifyLogDailies = [];
+    console.log(this.logDailies);
+    let stateLogEvents = this.logEvents
+      .slice()
+      .reverse()
+      .filter(el => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(el.type.code));
+    this.logDailies.forEach((logDaily, i) => {
+      let logEventIndex = stateLogEvents.findIndex(el => el.eventTime.logDate === logDaily.logDate);
+      // console.log(logEventIndex);
+      // console.log(logDaily.logDate);
+      if (logEventIndex === -1 && !logDaily.certified && logDaily.logDate !== formatDate(new Date(), 'yyyy/MM/d', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])) {
+        this.certifyLogDailies.push(i);
+        console.log(this.logDailies[i]);
+        console.log(this.logDailies[i].logDate);
+      }
+    });
+    console.log(this.certifyLogDailies);
+    if (this.certifyLogDailies.length !== 0) {
+      this.enableModalTrigger = true;
+      this.isModalOpen = true;
+    } else {
+      this.enableModalTrigger = false;
+      this.isModalOpen = false;
+      await this.save();
+    }
   }
 
   imageLoaded() {

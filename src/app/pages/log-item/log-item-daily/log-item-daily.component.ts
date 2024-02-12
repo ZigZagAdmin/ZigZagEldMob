@@ -100,6 +100,8 @@ export class LogItemDailyComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.shareService.destroyMessage();
+    this.shareService.changeMessage('reset');
     this.timeZones = this.utilityService.checkSeason();
     this.networkSub = this.internetService.interetStatusObs.subscribe(async state => {
       if (state) {
@@ -112,7 +114,8 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   async ionViewWillEnter() {
-    console.log(this.validation);
+    this.shareService.destroyMessage();
+    this.shareService.changeMessage('reset');
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.vehicleUnit = await this.storage.get('vehicleUnit');
@@ -508,6 +511,8 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   ionViewWillLeave() {
+    this.shareService.destroyMessage();
+    this.shareService.changeMessage('reset');
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
