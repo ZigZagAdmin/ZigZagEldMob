@@ -34,12 +34,12 @@ export class SelectVehiclePage implements OnInit {
 
         forkJoin([vehicles$, drivers$, company$]).subscribe(([vehicles, drivers, company]) => {
           this.vehicles = vehicles;
-          this.driver = drivers[0];
+          if (drivers && drivers.length !== 0) this.driver = drivers[0];
           this.company = company;
           this.storage.set('HoursOfServiceRuleDays', this.driver?.driverInfo?.settings.hoursOfService.days);
           this.storage.set('HoursOfServiceRuleHours', this.driver?.driverInfo?.settings.hoursOfService.hours);
           this.storage.set('timeZone', this.company?.mainOffice.timeZoneCode);
-        })
+        });
 
         // await firstValueFrom(this.databaseService.getVehicles()).then(vehicles => {
         //   this.vehicles = vehicles;

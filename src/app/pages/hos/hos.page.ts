@@ -106,6 +106,8 @@ export class HosPage implements OnInit, OnDestroy {
     subtitle: '',
   };
 
+  hoursRecap: number = 0;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -164,6 +166,8 @@ export class HosPage implements OnInit, OnDestroy {
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
       }
     });
+
+    this.updateEveryMinute();
 
     setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
   }
@@ -226,8 +230,8 @@ export class HosPage implements OnInit, OnDestroy {
               },
               sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
               type: { name: 'Login', code: 'LOGIN' },
-              recordStatus: { name: 'Driver', code: 'DRIVER' },
-              recordOrigin: { name: 'Active', code: 'ACTIVE' },
+              recordStatus: { name: 'Active', code: 'ACTIVE' },
+              recordOrigin: { name: 'Driver', code: 'DRIVER' },
               odometer: 0,
               engineHours: 0,
               malfunction: false,
@@ -280,9 +284,6 @@ export class HosPage implements OnInit, OnDestroy {
         });
       }
     });
-
-    this.updateEveryMinute();
-
     this.paramsSubscription = this.route.params.subscribe(params => {
       if (this.bReady) {
         this.databaseSubscription = this.databaseService.getLogDailies().subscribe(logDailies => {
@@ -815,8 +816,8 @@ export class HosPage implements OnInit, OnDestroy {
       },
       sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
       type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
-      recordStatus: { name: 'Driver', code: 'DRIVER' },
-      recordOrigin: { name: 'Active', code: 'ACTIVE' },
+      recordStatus: { name: 'Active', code: 'ACTIVE' },
+      recordOrigin: { name: 'Driver', code: 'DRIVER' },
       odometer: 0,
       engineHours: 0,
       malfunction: false,
@@ -1076,21 +1077,69 @@ export class HosPage implements OnInit, OnDestroy {
     return 'var(--success-500)';
   }
 
+  async uploadDriverStatus() {
+    if (this.networkStatus) {
+      let currentLocation;
+      await this.locationService.getCurrentLocation().then(res => {
+        if (res.locationType === 'MANUAL') {
+          let lastLogEvent = this.logEvents
+            .slice()
+            .reverse()
+            .findIndex(el => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(el.type.code));
+          currentLocation = this.logEvents.slice().reverse()[lastLogEvent].location;
+        } else {
+          currentLocation = res;
+        }
+      });
+      await firstValueFrom(
+        this.dashboardService.updateDriverStatuses({
+          driverId: this.driverId,
+          vehicleId: this.vehicleId,
+          eventType: { code: this.currentStatus.statusCode },
+          location: currentLocation,
+          breakTime: {
+            availableTime: parseInt(this.titleBreak.toPrecision()),
+            limitTime: 0,
+            accumulatedTime: 0,
+          },
+          driveTime: {
+            availableTime: parseInt(this.titleDriving.toPrecision()),
+            limitTime: 0,
+            accumulatedTime: 0,
+          },
+          shiftTime: {
+            availableTime: parseInt(this.titleShift.toPrecision()),
+            limitTime: 0,
+            accumulatedTime: 0,
+          },
+          cycleTime: {
+            availableTime: parseInt(this.titleCycle.toPrecision()),
+            limitTime: 0,
+            accumulatedTime: 0,
+          },
+          lastEventDate: this.logEvents[this.logEvents.length - 1].eventTime.timeStamp,
+          updateDate: new Date().getTime(),
+        })
+      );
+    }
+  }
+
   updateEveryMinute() {
-    setInterval(() => {
-      this.updateLogDailies();
-      this.calculateCircles();
+    setInterval(async () => {
+      console.log('Every Minute Update');
+      await this.updateLogDailies();
+      await this.calculateCircles();
+      await this.uploadDriverStatus();
     }, 60000);
   }
 
   getTotalWorkedHours() {
-    return this.logDailies.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.timeWorked;
+    return this.logDailies.slice(1, 8).reduce((accumulator, currentValue) => {
+      return accumulator + (currentValue.timeWorked === undefined || currentValue.timeWorked === null ? 0 : currentValue.timeWorked);
     }, 0);
   }
 
   async ionViewWillLeave() {
-    await this.storage.set('lastKnownLocation', this.locationDescription);
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }

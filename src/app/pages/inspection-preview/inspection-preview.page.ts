@@ -14,6 +14,8 @@ import { DVIRs } from 'src/app/models/dvirs';
 import { ELD } from 'src/app/models/eld';
 import { Company } from 'src/app/models/company';
 import { UtilityService } from 'src/app/services/utility.service';
+import { LocationService } from 'src/app/services/location.service';
+import { timeZones } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -44,9 +46,9 @@ export class InspectionPreviewPage implements OnInit {
   previousPage!: string | null;
   today = new Date();
   backUrl = '';
-  lastKnownLocation: string = '';
   company: Company;
   timeZones: { [key: string]: string } = {};
+  currentLogEvents: LogEvents[] = [];
 
   constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
 
@@ -60,25 +62,21 @@ export class InspectionPreviewPage implements OnInit {
     let elds$ = firstValueFrom(this.databaseService.getELDs());
     let company$ = firstValueFrom(this.databaseService.getCompany());
     let timeZone$ = this.storage.get('timeZone');
-    let lastKnownLocation$ = this.storage.get('lastKnownLocation');
 
-    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$, lastKnownLocation$, company$]).subscribe(
-      ([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone, lastKnownLocation, company]) => {
-        this.backUrl = queryParams['url'];
-        this.LogDailiesId = queryParams['logId'];
-        this.previousPage = queryParams['page'];
-        this.vehicle = vehicles[0];
-        this.driver = drivers[0];
-        this.timeZone = timeZone;
-        this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
-        this.logDailies = logDailies.slice(0, 8);
-        this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-        this.logEvents = logEvents;
-        this.lastKnownLocation = lastKnownLocation;
-        this.company = company;
-        this.drawGraph();
-      }
-    );
+    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$, company$]).subscribe(([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone, company]) => {
+      this.backUrl = queryParams['url'];
+      this.LogDailiesId = queryParams['logId'];
+      this.previousPage = queryParams['page'];
+      this.vehicle = vehicles[0];
+      this.driver = drivers[0];
+      this.timeZone = timeZone;
+      this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
+      this.logDailies = logDailies.slice(0, 8);
+      this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+      this.logEvents = logEvents;
+      this.company = company;
+      this.drawGraph();
+    });
   }
 
   getDateSub(date: string) {
@@ -100,6 +98,16 @@ export class InspectionPreviewPage implements OnInit {
     this.yBgnV = 0;
 
     this.currentDay = this.logDaily?.logDate;
+
+    let logDateIndex = this.logDailies.findIndex(el => el.logDailyId === this.logDaily.logDailyId);
+    this.currentLogEvents = [];
+    this.logEvents.forEach((logEvent: LogEvents) => {
+      if (
+        new Date(this.logDaily.logDate).getTime() === new Date(formatDate(logEvent.eventTime.timeStamp, 'yyyy/LL/d', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime()
+      ) {
+        this.currentLogEvents.push(logEvent);
+      }
+    });
 
     this.logEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
@@ -248,6 +256,8 @@ export class InspectionPreviewPage implements OnInit {
         }
       }
     });
+
+    this.currentLogEvents.unshift(this.statusesOnDay[0]);
   }
 
   goToNextLog() {

@@ -188,7 +188,7 @@ ion-col {
   display: flex;
   align-items: center;
   gap: 15px;
-  .subtitle {
+  .custom-subtitle {
     flex-grow: 1;
   }
   .btn {
@@ -249,6 +249,7 @@ ion-col {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 5px;
 
       .row-status {
         display: flex;
@@ -289,6 +290,12 @@ ion-col {
 
 .status-circle {
   flex: 1 15px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50px;
+}
+
+.custom-status-circle {
   width: 15px;
   height: 15px;
   border-radius: 50px;

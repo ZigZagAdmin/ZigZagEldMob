@@ -22,13 +22,11 @@ export class InternetService {
     this.watchInternetStatus();
     Network.getStatus().then(value => {
       this.internetStatus$.next(value.connected);
-      console.log('internet service constructor');
     });
   }
 
   private watchInternetStatus() {
     Network.addListener('networkStatusChange', status => {
-      console.log('Network Status:', status);
       this.internetStatus$.next(status.connected);
     });
   }

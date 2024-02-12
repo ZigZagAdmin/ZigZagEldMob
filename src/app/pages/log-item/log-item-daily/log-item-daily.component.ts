@@ -112,6 +112,7 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   async ionViewWillEnter() {
+    console.log(this.validation);
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.vehicleUnit = await this.storage.get('vehicleUnit');
@@ -367,7 +368,6 @@ export class LogItemDailyComponent implements OnInit {
 
     if (nextIndex < this.logDailies.length) {
       this.logDaily = this.logDailies[nextIndex];
-      // this.navCtrl.navigateRoot(['log-item', this.logDaily.logDailyId], { animated: false });
       this.fillFormWithLogDailyData();
       this.drawGraph();
     }
@@ -380,7 +380,6 @@ export class LogItemDailyComponent implements OnInit {
 
     if (previousIndex >= 0) {
       this.logDaily = this.logDailies[previousIndex];
-      // this.navCtrl.navigateRoot(['log-item', this.logDaily.logDailyId], { animated: false });
       this.fillFormWithLogDailyData();
       this.drawGraph();
     }
@@ -404,7 +403,6 @@ export class LogItemDailyComponent implements OnInit {
     let networkStatus = (await Network.getStatus()).connected;
 
     if (networkStatus) {
-      console.error(this.logDaily);
       this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
         async response => {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
@@ -516,6 +514,23 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   certifyLog() {
+    if (!this.logDaily.formManner && this.statusesOnDay.length >= 2) {
+      this.toastService.showToast('You must complete the form first!');
+      this.validation = {
+        shippingDoc: false,
+        toAddress: false,
+        fromAddress: false,
+      };
+      this.shareService.changeMessage(this.utilityService.generateString(5));
+      if (!this.utilityService.validateForm(this.validation)) return;
+      return;
+    }
+    this.validation = {
+      shippingDoc: true,
+      toAddress: true,
+      fromAddress: true,
+    };
+    console.log(this.validation);
     this.navCtrl.navigateForward('log-certify', { queryParams: { date: this.logDaily.logDate, logId: this.logDaily.logDailyId } });
   }
 
@@ -533,6 +548,10 @@ export class LogItemDailyComponent implements OnInit {
         ? logStatus.eventTime.timeStampEnd - logStatus.eventTime.timeStamp
         : new Date().getTime() - logStatus.eventTime.timeStamp
     );
+  }
+
+  formatLocalDate(date: number) {
+    return formatDate(new Date(date), 'h:mm a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
   }
 
   canBeInspected() {

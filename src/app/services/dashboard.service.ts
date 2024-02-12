@@ -6,6 +6,7 @@ import { DVIRs } from '../models/dvirs';
 import { LogDailies } from '../models/log-dailies';
 import { LogEvents } from '../models/log-histories';
 import { ELD } from '../models/eld';
+import { DriverStatus } from '../models/driver-statuses';
 
 @Injectable({
   providedIn: 'root',
@@ -28,4 +29,9 @@ export class DashboardService {
   updateELD(eld: ELD) {
     return this.http.post(this.apiUrl + 'api/eldDashboard/UploadLogEvent', eld);
   }
+
+  updateDriverStatuses(driverStatus: DriverStatus) {
+    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadDriverStatuses', driverStatus);
+  }
+
 }

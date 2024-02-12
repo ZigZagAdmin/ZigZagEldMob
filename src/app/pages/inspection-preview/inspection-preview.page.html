@@ -94,7 +94,7 @@
         </g>
       </svg>
     </div>
-    
+
     <div class="inspection-table">
       <div class="inspection-row">
         <div class="inspection-row-item">
@@ -105,7 +105,7 @@
         </div>
         <div class="inspection-row-item">
           <div class="inspection-item-value">{{ driver?.name || "-" }}</div>
-          <div class="inspection-item-value">{{ driver?.driverId || "-" }}</div>
+          <div class="inspection-item-value">{{ driver?.driverIdentifier || "-" }}</div>
           <div class="inspection-item-value">{{ driver?.driverInfo?.licenseNumber || "-" }}</div>
           <div class="inspection-item-value">{{ driver?.driverInfo?.licenseState || "-" }}</div>
         </div>
@@ -118,10 +118,12 @@
           <div class="inspection-item-label">Co-driver ID</div>
         </div>
         <div class="inspection-row-item">
-          <div class="inspection-item-value">{{ '-' }}</div>
+          <div class="inspection-item-value">{{ driver?.driverInfo?.settings?.shortHaulException ? 'Yes' : 'No' }}</div>
           <div class="inspection-item-value">{{ '-' }}</div>
           <div class="inspection-item-value">{{ logDaily?.form?.coDriver?.firstName ? (logDaily?.form?.coDriver?.firstName + ' ' + logDaily?.form?.coDriver?.lastName) : "-" }}</div>
-          <div class="inspection-item-value">{{ logDaily?.form?.coDriver?.driverId && logDaily?.form?.coDriver?.driverId !== '00000000-0000-0000-0000-000000000000' ? logDaily?.form?.coDriver?.driverId : "-" }}</div>
+          <div class="inspection-item-value">
+            {{ logDaily?.form?.coDriver?.driverIdentifier && logDaily?.form?.coDriver?.driverIdentifier !== '00000000-0000-0000-0000-000000000000' ? logDaily?.form?.coDriver?.driverIdentifier : "-" }}
+          </div>
         </div>
       </div>
       <div class="inspection-row">
@@ -133,32 +135,32 @@
         </div>
         <div class="inspection-row-item">
           <div class="inspection-item-value">{{ (logDaily?.logDate | date: "LLLL d, yyyy") || "-" }}</div>
-          <div class="inspection-item-value">{{ (currentDay | date: "LLLL d, yyyy") || "-" }}</div>
-          <div class="inspection-item-value">{{ lastKnownLocation || "-"}}</div>
+          <div class="inspection-item-value">{{ (today | date: "LLLL d, yyyy") || "-" }}</div>
+          <div class="inspection-item-value">{{ currentLogEvents[currentLogEvents.length - 1]?.location?.description || "-" }}</div>
           <div class="inspection-item-value">{{ logDaily?.certified ? "Yes" : "No" }}</div>
         </div>
       </div>
       <div class="inspection-row">
-        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-label">24 Period Starting Time</div>
           <div class="inspection-item-label">Data Daig. Indicators</div>
           <div class="inspection-item-label">Device Malfunction Indicators</div>
         </div>
-        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-value">{{ "-" }}</div>
           <div class="inspection-item-value">{{ "-" }}</div>
           <div class="inspection-item-value">{{ "-" }}</div>
         </div>
       </div>
       <div class="inspection-row">
-        <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr)">
           <div class="inspection-item-label">Vehicle</div>
           <div class="inspection-item-label">VIN</div>
           <div class="inspection-item-label">Odometer</div>
           <div class="inspection-item-label">Distance</div>
           <div class="inspection-item-label">Engine Hours</div>
         </div>
-        <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr)">
           <div class="inspection-item-value">{{ vehicle?.vehicleUnit }}</div>
           <div class="inspection-item-value">{{ vehicle?.vin }}</div>
           <div class="inspection-item-value">{{ "-" }}</div>
@@ -167,46 +169,54 @@
         </div>
       </div>
       <div class="inspection-row">
-        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-label">Trailers</div>
           <div class="inspection-item-label">Shipping Docs</div>
           <div class="inspection-item-label">Carrier</div>
         </div>
-        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-value">{{ logDaily?.form?.trailers || "-" }}</div>
           <div class="inspection-item-value">{{ logDaily?.form?.shippingDoc || "-" }}</div>
           <div class="inspection-item-value">{{ "-" }}</div>
         </div>
       </div>
       <div class="inspection-row">
-        <div class="inspection-row-item" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="inspection-row-item" style="grid-template-columns: repeat(2, 1fr)">
           <div class="inspection-item-label">Main Office</div>
           <div class="inspection-item-label">Home Terminal</div>
         </div>
-        <div class="inspection-row-item" style="grid-template-columns: repeat(2, 1fr);">
-          <div class="inspection-item-value">{{ company?.mainOffice?.street + ', ' + company?.mainOffice?.city + ', ' + company?.mainOffice?.stateProvinceCode + ' ' + company?.mainOffice?.zipCode + ', ' + company?.mainOffice?.countryCode }}</div>
-          <div class="inspection-item-value">{{ company?.terminals[0].street + ', ' + company?.terminals[0].city + ', ' + company?.terminals[0].stateProvinceCode + ' ' + company?.terminals[0].zipCode + ', ' + company?.terminals[0].countryCode }}</div>
+        <div class="inspection-row-item" style="grid-template-columns: repeat(2, 1fr)">
+          <div class="inspection-item-value">
+            {{ company?.mainOffice?.street + ', ' + company?.mainOffice?.city + ', ' + company?.mainOffice?.stateProvinceCode + ' ' + company?.mainOffice?.zipCode + ', ' +
+            company?.mainOffice?.countryCode }}
+          </div>
+          <div class="inspection-item-value">
+            {{ company?.terminals[0].street + ', ' + company?.terminals[0].city + ', ' + company?.terminals[0].stateProvinceCode + ' ' + company?.terminals[0].zipCode + ', ' +
+            company?.terminals[0].countryCode }}
+          </div>
         </div>
       </div>
     </div>
-    <div class="form-cards">
-      <div class="form-card" *ngFor="let logStatus of statusesOnDay; index as i">
-        <div class="card-row">
-          <div class="row-status">
-            <div class="status-circle" [ngStyle]="{ 'background-color': getStatusColor(logStatus.type.code) }"></div>
-            <p class="subtitle">
-              {{ logStatus.eventTime.timeStamp | date : 'h:mm a' }} <span style="font-size: 12px">{{ i === 0 ? '(' + (logStatus.eventTime.timeStamp | date : 'mediumDate') + ')' : '' }}</span> -
-              {{ logStatus.type.name }}
-            </p>
-          </div>
-          <p class="card-time" style="color: var(--gray-600)">{{ logEventDuration(logStatus) }}</p>
-        </div>
-        <div class="card-row">
-          <div class="row-status">
-            <img src="assets/icon/location.svg" alt="location" />
-            <p class="text-2" style="font-weight: 500; font-size: 14px">{{ logStatus.location.description }}</p>
-          </div>
-        </div>
+
+    <div class="inspection-logs-title">Logs</div>
+    <div class="inspection-logs-container">
+      <div class="inspection-logs-row inspection-logs-header">
+        <div class="logs-row-item">{{ 'Time (' + timeZone + ')' }}</div>
+        <div class="logs-row-item">{{ 'Code' }}</div>
+        <div class="logs-row-item">{{ 'Location' }}</div>
+        <div class="logs-row-item">{{ 'Odometer' }}</div>
+        <div class="logs-row-item">{{ 'Engine Hours' }}</div>
+        <div class="logs-row-item">{{ 'Origin' }}</div>
+        <div class="logs-row-item">{{ 'Notes' }}</div>
+      </div>
+      <div class="inspection-logs-row" *ngFor="let logEvent of currentLogEvents">
+        <div class="logs-row-item">{{ logEvent?.eventTime?.timeStamp | date: "LLL d, hh:mm:ss a" }}</div>
+        <div class="logs-row-item">{{ logEvent?.type?.name}}{{ !(logEvent.type.code === 'CERTIFICATION_1') ? "" : " " + logEvent?.certificationDate | date: "L/d/yyyy" }}</div>
+        <div class="logs-row-item">{{ logEvent?.location?.description }}</div>
+        <div class="logs-row-item">{{ logEvent.odometer }}</div>
+        <div class="logs-row-item">{{ logEvent.engineHours }}</div>
+        <div class="logs-row-item">{{ logEvent?.recordOrigin?.name }}</div>
+        <div class="logs-row-item">{{ logEvent.comment }}</div>
       </div>
     </div>
   </div>
