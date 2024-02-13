@@ -210,7 +210,7 @@
         <div class="logs-row-item">{{ 'Notes' }}</div>
       </div>
       <div class="inspection-logs-row" *ngFor="let logEvent of currentLogEvents">
-        <div class="logs-row-item">{{ logEvent?.eventTime?.timeStamp | date: "LLL d, hh:mm:ss a" }}</div>
+        <div class="logs-row-item">{{ dateWithTimeZone(logEvent?.eventTime?.timeStamp, "LLL d, hh:mm:ss a") }}</div>
         <div class="logs-row-item">{{ logEvent?.type?.name}}{{ !(logEvent.type.code === 'CERTIFICATION_1') ? "" : " " + logEvent?.certificationDate | date: "L/d/yyyy" }}</div>
         <div class="logs-row-item">{{ logEvent?.location?.description }}</div>
         <div class="logs-row-item">{{ logEvent.odometer }}</div>

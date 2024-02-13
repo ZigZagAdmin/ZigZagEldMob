@@ -298,6 +298,10 @@ export class InspectionPreviewPage implements OnInit {
     return !!this.logDaily?.form?.coDriver && Object.keys(this.logDaily?.form?.coDriver).length !== 0 && this.logDaily?.form?.coDriver.driverId !== '00000000-0000-0000-0000-000000000000';
   }
 
+  dateWithTimeZone(date: number, format: string) {
+    return formatDate(new Date(date), format, 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])
+  }
+
   ionViewWillLeave() {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
