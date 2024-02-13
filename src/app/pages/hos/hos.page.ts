@@ -902,6 +902,7 @@ export class HosPage implements OnInit, OnDestroy {
   async updateLogDailies() {
     let currentDate = new Date();
     this.countDays = [];
+    this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
       const foundLogDayIndex = this.logDailies.findIndex(logDay => logDay.logDate.includes(dateString));

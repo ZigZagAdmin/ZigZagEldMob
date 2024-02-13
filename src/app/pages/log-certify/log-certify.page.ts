@@ -150,7 +150,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     this.isConfirmButtonActive = false;
   }
 
-  async save() {
+  async save(nocheck: string = '') {
     this.loading = true;
     if (this.signatureFound) {
       this.logDaily.form.signatureId = this.foundSignatureId;
@@ -161,16 +161,18 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       this.logDaily.certified = true;
     }
 
-    let stateLogEvents = this.logEvents
-      .slice()
-      .reverse()
-      .filter(el => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(el.type.code));
-    this.logDailies.forEach(logDaily => {
-      let logEventIndex = stateLogEvents.findIndex(el => el.eventTime.logDate === logDaily.logDate);
-      if (logEventIndex === -1) {
-        this.logDaily.formManner = true;
-      }
-    });
+    if (nocheck.length === 0) {
+      let stateLogEvents = this.logEvents
+        .slice()
+        .reverse()
+        .filter(el => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(el.type.code));
+      this.logDailies.forEach(logDaily => {
+        let logEventIndex = stateLogEvents.findIndex(el => el.eventTime.logDate === logDaily.logDate);
+        if (logEventIndex === -1) {
+          this.logDaily.formManner = true;
+        }
+      });
+    }
 
     const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
@@ -206,7 +208,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     let networkStatus = (await Network.getStatus()).connected;
 
     if (networkStatus) {
-      this.dashboardService.updateLogEvent(CetificationLogEvent).subscribe(
+      await firstValueFrom(this.dashboardService.updateLogEvent(CetificationLogEvent)).then(
         async response => {
           await this.updateLogEvents(CetificationLogEvent, true);
           console.log('Certification LogEvent is on server:', response);
@@ -217,30 +219,38 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
         }
       );
 
-      this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
+      await firstValueFrom(this.dashboardService.updateLogDaily(this.logDaily as LogDailies)).then(
         async (response: any) => {
           this.toastService.showToast('Successfully signed the log certification.', 'success');
-          this.loading = false;
           if (response.signatureLink) this.logDaily.form.signatureLink = response.signatureLink;
           await this.updateIndexLogDaily(this.logDaily as LogDailies, true).then(() => {
             console.log('logDaily got updated on the server: ', response);
-            this.loading = false;
-            setTimeout(() => this.goBack(), 0);
+            // console.log(nocheck.length !== 0 && this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId);
+            if (nocheck.length === 0 || (nocheck.length !== 0 && this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId)) {
+              this.loading = false;
+              setTimeout(() => this.goBack(), 0);
+            }
           });
         },
         async error => {
-          this.loading = false;
           this.toastService.showToast('Could not update the signture. Uploading offline only.');
+          // console.log(this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId);
           await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
-          this.goBack();
+          if (nocheck.length === 0 || (nocheck.length !== 0 && this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId)) {
+            this.loading = false;
+            this.goBack();
+          }
         }
       );
     } else {
       console.log('Updated logEvents in offline array');
-      this.loading = false;
       await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
       await this.updateLogEvents(CetificationLogEvent, false);
-      this.goBack();
+      // console.log(this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId);
+      if (nocheck.length === 0 || (nocheck.length !== 0 && this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId)) {
+        this.loading = false;
+        this.goBack();
+      }
     }
   }
 
@@ -286,22 +296,21 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   async confirmModal() {
     this.isModalOpen = false;
-    await this.save();
-    this.certifyLogDailies.forEach(async index => {
-      console.log(index);
+    for (const index of this.certifyLogDailies) {
+      // console.log(index);
       this.logDaily = this.logDailies[index];
       console.log(this.logDaily);
       this.logDaily.formManner = true;
       this.logDaily.certified = true;
       this.logDaily.form.signatureId = this.utilityService.uuidv4();
       this.logDaily.form.signature = this.signature;
-      await this.save();
-    });
+      await this.save('nocheck');
+    }
   }
 
   async openModal() {
     this.certifyLogDailies = [];
-    console.log(this.logDailies);
+    // console.log(this.logDailies);
     let stateLogEvents = this.logEvents
       .slice()
       .reverse()
@@ -312,14 +321,18 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       // console.log(logDaily.logDate);
       if (logEventIndex === -1 && !logDaily.certified && logDaily.logDate !== formatDate(new Date(), 'yyyy/MM/d', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])) {
         this.certifyLogDailies.push(i);
-        console.log(this.logDailies[i]);
-        console.log(this.logDailies[i].logDate);
+        // console.log(this.logDailies[i]);
+        // console.log(this.logDailies[i].logDate);
       }
     });
     console.log(this.certifyLogDailies);
     if (this.certifyLogDailies.length !== 0) {
       this.enableModalTrigger = true;
       this.isModalOpen = true;
+      let currentIndex = this.logDailies.findIndex(el => el.logDailyId === this.logDaily.logDailyId);
+      if (!this.certifyLogDailies.includes(currentIndex)) {
+        this.certifyLogDailies.push(this.logDailies.findIndex(el => el.logDailyId === this.logDaily.logDailyId));
+      }
     } else {
       this.enableModalTrigger = false;
       this.isModalOpen = false;
