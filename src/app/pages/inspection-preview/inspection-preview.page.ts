@@ -50,6 +50,11 @@ export class InspectionPreviewPage implements OnInit {
   timeZones: { [key: string]: string } = {};
   currentLogEvents: LogEvents[] = [];
 
+  durationsOFF = 0;
+  durationsSB = 0;
+  durationsD = 0;
+  durationsON = 0;
+
   constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
 
   async ngOnInit() {
@@ -97,6 +102,11 @@ export class InspectionPreviewPage implements OnInit {
     this.xBgnV = 0;
     this.yBgnV = 0;
 
+    this.durationsOFF = 0;
+    this.durationsSB = 0;
+    this.durationsD = 0;
+    this.durationsON = 0;
+
     this.currentDay = this.logDaily?.logDate;
 
     let logDateIndex = this.logDailies.findIndex(el => el.logDailyId === this.logDaily.logDailyId);
@@ -139,22 +149,26 @@ export class InspectionPreviewPage implements OnInit {
             case 'PC':
               this.yBgn = 25;
               this.yEnd = 25;
+              this.durationsOFF += (this.xEnd - this.xBgn)
               break;
 
             case 'SB':
               this.yBgn = 75;
               this.yEnd = 75;
+              this.durationsSB += (this.xEnd - this.xBgn)
               break;
 
             case 'D':
               this.yBgn = 125;
               this.yEnd = 125;
+              this.durationsD += (this.xEnd - this.xBgn)
               break;
 
             case 'ON':
             case 'YM':
               this.yBgn = 175;
               this.yEnd = 175;
+              this.durationsON += (this.xEnd - this.xBgn)
               break;
           }
 
@@ -288,29 +302,6 @@ export class InspectionPreviewPage implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
-  }
-
-  getStatusColor(status: string) {
-    if (status) {
-      let colorObj = {
-        OFF: 'var(--gray-300)',
-        SB: 'var(--gray-500)',
-        ON: 'var(--warning-400)',
-        D: 'var(--success-500)',
-        PC: 'var(--gray-300)',
-        YM: 'var(--warning-400)',
-      };
-      return colorObj[status as keyof typeof colorObj];
-    }
-    return 'var(--success-500)';
-  }
-
-  logEventDuration(logStatus: LogEvents) {
-    return this.utilityService.msToTime(
-      logStatus.eventTime.timeStampEnd !== undefined && logStatus.eventTime.timeStampEnd !== 0
-        ? logStatus.eventTime.timeStampEnd - logStatus.eventTime.timeStamp
-        : new Date().getTime() - logStatus.eventTime.timeStamp
-    );
   }
 
   goBack() {

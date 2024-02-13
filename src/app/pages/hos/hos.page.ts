@@ -108,6 +108,19 @@ export class HosPage implements OnInit, OnDestroy {
 
   hoursRecap: number = 0;
 
+  last7hours: number = 0;
+  recapData: any[] = [];
+  todayWorkTime: any;
+  cycle8Time: any = 0;
+  availableToday: number = 0;
+  availableTomorrow: number = 0;
+  restartTime = 122400000; // 34 часа
+  cycleLimit = 252000000; // 70 часов
+  restartFlag = false;
+  recapLoading: boolean = false;
+  bResetTimeLast7Day: boolean = false;
+  timeZones: { [key: string]: string } = {};
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -127,6 +140,7 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
       await this.getBluetoothState();
@@ -383,7 +397,7 @@ export class HosPage implements OnInit, OnDestroy {
 
   async calculateCircles() {
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
-
+    this.bResetTimeLast7Day = false;
     let iHoursOfServiceRulesHours = await this.storage.get('HoursOfServiceRuleHours');
     let iHoursOfServiceRulesDay = await this.storage.get('HoursOfServiceRuleDays');
     let iAvailableBreakFull = 8 * 60 * 60;
@@ -421,20 +435,25 @@ export class HosPage implements OnInit, OnDestroy {
     let sEventTypeCode = '';
     let sEventTypeName = '';
 
-    let bResetTimeLast7Day = false;
+    // let bResetTimeLast7Day = false;
+    let temp = new Date().setDate(new Date().getDate() - 8);
+    // let last7DaysLogEvents = this.logEvents.filter(el => el.eventTime.timeStamp >= temp);
+    let last7DaysLogEvents = this.logEvents.filter(
+      el => new Date(el.eventTime.logDate) >= new Date(formatDate(new Date(temp), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]))
+    );
 
-    this.logEvents.forEach(event => {
+    last7DaysLogEvents.forEach(event => {
       if (allSt.includes(event.type.code)) {
-        sDateBgn = new Date(event.eventTime.timeStamp).toISOString();
+        sDateBgn = formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
         sEventTypeCode = event.type.code;
         sEventTypeName = event.type.name;
         if (event.eventTime.timeStampEnd) {
-          sDateEnd = new Date(event.eventTime.timeStampEnd).toISOString();
+          sDateEnd = formatDate(new Date(event.eventTime.timeStampEnd), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
         } else {
-          sDateEnd = new Date().toISOString();
+          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
         }
         if (sDateEnd == '0001-01-01T00:00:00') {
-          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]);
+          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
         }
 
         iTime = (new Date(sDateEnd).getTime() - new Date(sDateBgn).getTime()) / 1000;
@@ -467,7 +486,7 @@ export class HosPage implements OnInit, OnDestroy {
             if (iTime >= iCycleResetFull) {
               iTimeCycle = 0;
               iTimeRecap = 0;
-              bResetTimeLast7Day = true;
+              this.bResetTimeLast7Day = true;
             }
 
             // Непрерывный отдых 10 часа - для сброса времени: вождения и работы
@@ -695,6 +714,8 @@ export class HosPage implements OnInit, OnDestroy {
       this.titleCycle = -iAvailableCycle;
       this.redCircle += 1;
     }
+
+    this.hoursRecap = this.bResetTimeLast7Day ? iAvailableCycle : iAvailableCycle + this.logDailies[7].timeWorked;
   }
 
   async toggleModal() {
@@ -980,42 +1001,48 @@ export class HosPage implements OnInit, OnDestroy {
 
       this.logEvents.forEach(event => {
         if (allSt.includes(event.type.code)) {
-          let sDateEnd = event.eventTime.timeStampEnd
-            ? formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(event.eventTime.timeStampEnd), 'yyyy-MM-dd', 'en_US')
-            : formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(), 'yyyy-MM-dd', 'en_US');
+          dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+          dateEnd = new Date(
+            formatDate(
+              new Date(event.eventTime?.timeStampEnd ? event.eventTime.timeStampEnd : new Date()),
+              'yyyy-MM-ddTHH:mm:ss',
+              'en_US',
+              this.timeZones[this.timeZone as keyof typeof this.timeZones]
+            )
+          );
 
-          if (formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(currentDay), 'yyyy-MM-dd', 'en_US') && sDateEnd) {
-            dateBgn = new Date(event.eventTime.timeStamp);
+          if (
+            formatDate(dateBgn, 'yyyy-MM-dd', 'en_US') <= formatDate(currentDay, 'yyyy-MM-dd', 'en_US') &&
+            formatDate(currentDay, 'yyyy-MM-dd', 'en_US') <= formatDate(dateEnd, 'yyyy-MM-dd', 'en_US')
+          ) {
             if (dateBgn.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
-              xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
+              xBgn = dateBgn.getHours() * 60 * 60 + dateBgn.getMinutes() * 60 + dateBgn.getSeconds();
             } else {
               xBgn = 0;
             }
 
-            dateEnd = new Date(event.eventTime.timeStampEnd);
             if (dateEnd.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
-              xEnd = dateEnd.getHours() * 60 + dateEnd.getMinutes();
+              xEnd = dateEnd.getHours() * 60 * 60 + dateEnd.getMinutes() * 60 + dateEnd.getSeconds();
             } else {
-              xEnd = 1440;
+              xEnd = 1440 * 60;
             }
-
             switch (event.type.code.toUpperCase()) {
               case 'OFF':
               case 'PC':
-                durationsOFF = durationsOFF + (xEnd - xBgn) * 60;
+                durationsOFF = durationsOFF + (xEnd - xBgn);
                 break;
 
               case 'SB':
-                durationsSB = durationsSB + (xEnd - xBgn) * 60;
+                durationsSB = durationsSB + (xEnd - xBgn);
                 break;
 
               case 'D':
-                durationsD = durationsD + (xEnd - xBgn) * 60;
+                durationsD = durationsD + (xEnd - xBgn);
                 break;
 
               case 'ON':
               case 'YM':
-                durationsON = durationsON + (xEnd - xBgn) * 60;
+                durationsON = durationsON + (xEnd - xBgn);
                 break;
             }
           }

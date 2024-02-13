@@ -45,7 +45,7 @@ export class UtilityService {
     minutes = minutes < 10 ? '0' + minutes : minutes;
     seconds = seconds < 10 ? '0' + seconds : seconds;
 
-    return hours + 'h ' + minutes + 'min';
+    return hours + 'h ' + minutes + 'min ' + seconds + 's';
   }
 
   checkSeason() {

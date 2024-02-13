@@ -79,10 +79,10 @@
         </g>
 
         <g class="durations" transform="translate(1520, 40)">
-          <text class="label" transform="translate(0, 25)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 75)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 125)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 175)" dy="0.35em">00:00</text>
+          <text class="label" transform="translate(0, 25)" dy="0.35em">{{ durationsOFF * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 75)" dy="0.35em">{{ durationsSB * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 125)" dy="0.35em">{{ durationsD * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 175)" dy="0.35em">{{ durationsON * 60 | convertSecotdsToHoursAndMinutes }}</text>
         </g>
 
         <g class="eventLine" transform="translate(65, 40)">

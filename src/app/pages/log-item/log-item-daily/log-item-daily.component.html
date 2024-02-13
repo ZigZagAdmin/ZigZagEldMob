@@ -82,10 +82,10 @@
         </g>
 
         <g class="durations" transform="translate(1520, 40)">
-          <text class="label" transform="translate(0, 25)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 75)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 125)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 175)" dy="0.35em">00:00</text>
+          <text class="label" transform="translate(0, 25)" dy="0.35em">{{ durationsOFF * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 75)" dy="0.35em">{{ durationsSB * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 125)" dy="0.35em">{{ durationsD * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 175)" dy="0.35em">{{ durationsON * 60 | convertSecotdsToHoursAndMinutes }}</text>
         </g>
 
         <g class="eventLine" transform="translate(65, 40)">
@@ -134,7 +134,7 @@
           [(validation)]="validation['toAddress']"></app-input>
       </div>
       <div class="logs-certified">
-        <p class="subtitle">Logs</p>
+        <p class="subtitle" style="font-size: 15px">Logs</p>
         <div class="logs-buttons">
           <button class="btn primary-btn" [ngClass]="{ 'btn-disabled ': currentDay === today }" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">Certify</button>
           <button class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">Certified</button>
@@ -159,17 +159,17 @@
           <div class="card-row">
             <div class="row-status">
               <div class="status-circle" [ngStyle]="{ 'background-color': getStatusColor(logStatus.type.code) }"></div>
-              <p class="subtitle">
-                {{ formatLocalDate(logStatus.eventTime.timeStamp) }} <span style="font-size: 12px">{{ i === 0 ? '(' + (logStatus.eventTime.logDate | date : 'mediumDate') + ')' : '' }}</span> -
-                {{ logStatus.type.name }}
-              </p>
+              <div style="display: flex; flex-direction: column">
+                <p class="subtitle">{{ formatLocalDate(logStatus.eventTime.timeStamp) }} - {{ logStatus.type.name }}</p>
+                <div style="font-size: 12px">{{ i === 0 ? '(' + (logStatus.eventTime.logDate | date : 'mediumDate') + ')' : '' }}</div>
+              </div>
             </div>
             <p class="card-time" style="color: var(--gray-600)">{{ logEventDuration(logStatus) }}</p>
           </div>
           <div class="card-row">
             <div class="row-status">
               <img src="assets/icon/location.svg" alt="location" />
-              <p class="text-2" style="font-weight: 500; font-size: 14px">{{ logStatus.location.description }}</p>
+              <p class="text-2" style="font-weight: 500; font-size: 13px">{{ logStatus.location.description }}</p>
             </div>
             <img src="assets/icon/edit.svg" (click)="editLog()" alt="edit" />
           </div>

@@ -12,9 +12,19 @@ import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { ScrollToolbarComponentModule } from 'src/app/components/scroll-toolbar/scroll-toolbar.module';
 import { InputComponentModule } from 'src/app/components/input/input.module';
 import { LogItemDailyComponent } from './log-item-daily/log-item-daily.component';
-
+import { HosPageModule } from '../hos/hos.module';
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, LogItemPageRoutingModule, ReactiveFormsModule, HeaderComponentModule, ScrollToolbarComponentModule, InputComponentModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    LogItemPageRoutingModule,
+    ReactiveFormsModule,
+    HeaderComponentModule,
+    ScrollToolbarComponentModule,
+    InputComponentModule,
+    HosPageModule
+  ],
   declarations: [LogItemPage, ConverStringDateToMilisecondsPipe, ConvertMilisecondsToHoursAndMinutesPipe, LogItemDailyComponent],
 })
 export class LogItemPageModule {}

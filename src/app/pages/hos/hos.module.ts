@@ -31,8 +31,9 @@ import { CommentsComponentModule } from 'src/app/components/comments/comments.mo
     DutyRadioButtonComponentModule,
     LocationInputComponentModule,
     MessageBannerComponentModule,
-    CommentsComponentModule
+    CommentsComponentModule,
   ],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe],
+  exports: [ConvertSecondsToHoursAndMinutesPipe],
 })
 export class HosPageModule {}

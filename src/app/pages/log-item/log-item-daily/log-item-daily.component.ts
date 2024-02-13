@@ -85,6 +85,11 @@ export class LogItemDailyComponent implements OnInit {
 
   networkSub: Subscription;
 
+  durationsOFF = 0;
+  durationsSB = 0;
+  durationsD = 0;
+  durationsON = 0;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -210,6 +215,11 @@ export class LogItemDailyComponent implements OnInit {
     this.xBgnV = 0;
     this.yBgnV = 0;
 
+    this.durationsOFF = 0;
+    this.durationsSB = 0;
+    this.durationsD = 0;
+    this.durationsON = 0;
+
     this.currentDay = this.logDaily?.logDate;
 
     this.logEvents.forEach(event => {
@@ -242,22 +252,26 @@ export class LogItemDailyComponent implements OnInit {
             case 'PC':
               this.yBgn = 25;
               this.yEnd = 25;
+              this.durationsOFF += (this.xEnd - this.xBgn)
               break;
 
             case 'SB':
               this.yBgn = 75;
               this.yEnd = 75;
+              this.durationsSB += (this.xEnd - this.xBgn)
               break;
 
             case 'D':
               this.yBgn = 125;
               this.yEnd = 125;
+              this.durationsD += (this.xEnd - this.xBgn)
               break;
 
             case 'ON':
             case 'YM':
               this.yBgn = 175;
               this.yEnd = 175;
+              this.durationsON += (this.xEnd - this.xBgn)
               break;
           }
 
@@ -556,7 +570,7 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   formatLocalDate(date: number) {
-    return formatDate(new Date(date), 'h:mm a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
+    return formatDate(new Date(date), 'h:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
   }
 
   canBeInspected() {
