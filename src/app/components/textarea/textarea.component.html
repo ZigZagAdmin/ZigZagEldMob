@@ -1,4 +1,4 @@
 <div class="custom-input">
   <div *ngIf="label" class="input-label" [ngClass]="{ 'label-error': !valid }">{{ label }}</div>
-  <textarea (input)="onInputChange($event)" [disabled]="disabled" [placeholder]="placeholder" class="input-box" [ngClass]="{ 'input-fill': fill, 'validation-error': !valid }"></textarea>
+  <textarea (input)="onInputChange($event)" [(ngModel)]="value" [disabled]="disabled" [placeholder]="placeholder" class="input-box" [ngClass]="{ 'input-fill': fill, 'validation-error': !valid }"></textarea>
 </div>

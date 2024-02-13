@@ -37,7 +37,7 @@
               [loading]="locationLoading"
               [disabled]="locationDisable"
               [(validation)]="validation['location']"></app-location-input>
-            <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-textarea>
+            <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-comments>
             <div class="btns-flex">
               <button class="btn secondary-btn btn-custom" (click)="cancel()">Back</button>
               <button class="btn primary-btn btn-custom" (click)="confirm()"><span *ngIf="!modalLoading">Save</span> <ion-spinner *ngIf="modalLoading" name="circular" color="light"></ion-spinner></button>
@@ -177,11 +177,11 @@
     <div class="time">
       <div class="time-block">
         <p class="subtitle">{{ getTotalWorkedHours() | convertSecondsToHoursAndMinutesHm }}</p>
-        <p class="text-1">WH Last 7 Days</p>
+        <p class="text-1">Last 7 Days</p>
       </div>
       <div class="time-block">
         <p class="subtitle">{{ hoursRecap | convertSecondsToHoursAndMinutesHm }}</p>
-        <p class="text-1">Hours Recap</p>
+        <p class="text-1">Hours Tomorrow</p>
       </div>
     </div>
     <div class="switch-sleep">

@@ -1,0 +1,17 @@
+export const suggestions: string[] = [
+  'Break',
+  'Pre-Trip Inspection',
+  'Post-Trip Inspection',
+  'Waiting',
+  'Loading',
+  'Download',
+  'Meal',
+  'Drop',
+  'Hook',
+  'Fuel',
+  'Lunch',
+  'Shop',
+  'Delivery',
+  'Driving',
+  'Sleeper',
+];

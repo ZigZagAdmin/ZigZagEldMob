@@ -1,0 +1,22 @@
+<div class="custom-input">
+  <div *ngIf="label" class="input-label" [ngClass]="{ 'label-error': !valid }">{{ label }}</div>
+  <textarea
+    (input)="onInputChange($event)"
+    id="custom-textarea"
+    [(ngModel)]="value"
+    [disabled]="disabled"
+    [placeholder]="placeholder"
+    class="input-box"
+    [ngClass]="{ 'input-fill': fill, 'validation-error': !valid }"></textarea>
+  <div class="custom-tooltip" id="custom-tooltip" [ngClass]="{ 'hide-tooltip': !showTooltip }">
+    <div class="tooltip-box" id="tooltip-box">
+      <div class="tooltip-buttons">
+        <div class="button-box" *ngFor="let suggestion of foundSuggestions">
+          <div class="tooltip-button" (click)="completeWord(suggestion)">{{ suggestion }}</div>
+          <div class="tooltip-button-separator"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tooltip-triangle"></div>
+  </div>
+</div>

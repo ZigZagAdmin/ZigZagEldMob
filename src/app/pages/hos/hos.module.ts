@@ -15,6 +15,7 @@ import { DutyRadioButtonComponentModule } from 'src/app/components/duty-radio-bu
 import { LocationInputComponentModule } from 'src/app/components/location-input/location-input.module';
 import { MessageBannerComponentModule } from 'src/app/components/message-banner/message-banner.module';
 import { ConvertSecondsToHoursAndMinutesHmPipe } from 'src/app/pipe/convert-seconds-to-hours-and-minutes-hm.pipe';
+import { CommentsComponentModule } from 'src/app/components/comments/comments.module';
 
 @NgModule({
   imports: [
@@ -29,7 +30,8 @@ import { ConvertSecondsToHoursAndMinutesHmPipe } from 'src/app/pipe/convert-seco
     TextareaComponentModule,
     DutyRadioButtonComponentModule,
     LocationInputComponentModule,
-    MessageBannerComponentModule
+    MessageBannerComponentModule,
+    CommentsComponentModule
   ],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe],
 })

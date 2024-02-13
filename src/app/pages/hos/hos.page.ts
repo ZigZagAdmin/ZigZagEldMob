@@ -823,7 +823,7 @@ export class HosPage implements OnInit, OnDestroy {
       malfunction: false,
       dataDiagnosticEvent: false,
       certificationDate: lastLogEvent.certificationDate,
-      comment: '',
+      comment: this.comments,
       eventDataCheck: '',
       inspection: false,
 
