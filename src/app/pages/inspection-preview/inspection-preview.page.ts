@@ -9,7 +9,7 @@ import { Storage } from '@ionic/storage';
 import { formatDate } from '@angular/common';
 import { NavController, ToastController } from '@ionic/angular';
 import { Vehicle } from 'src/app/models/vehicle';
-import { Driver } from 'src/app/models/driver';
+import { Driver, IAssignedVehicle } from 'src/app/models/driver';
 import { DVIRs } from 'src/app/models/dvirs';
 import { ELD } from 'src/app/models/eld';
 import { Company } from 'src/app/models/company';
@@ -54,6 +54,8 @@ export class InspectionPreviewPage implements OnInit {
   durationsSB = 0;
   durationsD = 0;
   durationsON = 0;
+
+  logEventsVehicles: { vehicle: Partial<Vehicle>; odomoter: string; distance: number; engineHours: string }[] = [];
 
   constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
 
@@ -149,26 +151,26 @@ export class InspectionPreviewPage implements OnInit {
             case 'PC':
               this.yBgn = 25;
               this.yEnd = 25;
-              this.durationsOFF += (this.xEnd - this.xBgn)
+              this.durationsOFF += this.xEnd - this.xBgn;
               break;
 
             case 'SB':
               this.yBgn = 75;
               this.yEnd = 75;
-              this.durationsSB += (this.xEnd - this.xBgn)
+              this.durationsSB += this.xEnd - this.xBgn;
               break;
 
             case 'D':
               this.yBgn = 125;
               this.yEnd = 125;
-              this.durationsD += (this.xEnd - this.xBgn)
+              this.durationsD += this.xEnd - this.xBgn;
               break;
 
             case 'ON':
             case 'YM':
               this.yBgn = 175;
               this.yEnd = 175;
-              this.durationsON += (this.xEnd - this.xBgn)
+              this.durationsON += this.xEnd - this.xBgn;
               break;
           }
 
@@ -272,6 +274,7 @@ export class InspectionPreviewPage implements OnInit {
     });
 
     this.currentLogEvents.unshift(this.statusesOnDay[0]);
+    this.getVehiclesFromLogEvents();
   }
 
   goToNextLog() {
@@ -299,13 +302,44 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   dateWithTimeZone(date: number, format: string) {
-    return formatDate(new Date(date), format, 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])
+    return formatDate(new Date(date), format, 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
   }
 
   ionViewWillLeave() {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+
+  getVehiclesFromLogEvents() {
+    this.logEventsVehicles = [];
+    this.currentLogEvents.forEach(logEvent => {
+      if (!this.logEventsVehicles.some(item => item.vehicle.vehicleId === logEvent.vehicle.vehicleId)) {
+        this.logEventsVehicles.push({ vehicle: logEvent.vehicle, odomoter: '', distance: 0, engineHours: '' });
+      }
+    });
+    this.logEventsVehicles.forEach(vehicle => {
+      let odometer: number[] = [];
+      let engineHours: number[] = [];
+      this.currentLogEvents.forEach(logEvent => {
+        if (logEvent.vehicle.vehicleId === vehicle.vehicle.vehicleId) {
+          if (logEvent.odometer && logEvent.odometer !== 0) odometer.push(logEvent.odometer);
+          if (logEvent.engineHours && logEvent.engineHours !== 0) engineHours.push(logEvent.engineHours);
+        }
+      });
+      if (odometer.length !== 0) {
+        vehicle.odomoter = Math.min(...odometer) + ' - ' + Math.max(...odometer);
+        vehicle.distance = Math.max(...odometer) - Math.min(...odometer);
+      } else {
+        vehicle.odomoter = '0 - 0';
+        vehicle.distance = 0;
+      }
+      if (engineHours.length !== 0) {
+        vehicle.engineHours = Math.min(...engineHours) + ' - ' + Math.max(...engineHours);
+      } else {
+        vehicle.engineHours = '0 - 0';
+      }
+    });
   }
 
   goBack() {

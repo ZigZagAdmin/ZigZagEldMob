@@ -143,7 +143,7 @@
       <div class="inspection-row">
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-label">24 Period Starting Time</div>
-          <div class="inspection-item-label">Data Daig. Indicators</div>
+          <div class="inspection-item-label">Data Diag. Indicators</div>
           <div class="inspection-item-label">Device Malfunction Indicators</div>
         </div>
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
@@ -160,12 +160,12 @@
           <div class="inspection-item-label">Distance</div>
           <div class="inspection-item-label">Engine Hours</div>
         </div>
-        <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr)">
-          <div class="inspection-item-value">{{ vehicle?.vehicleUnit }}</div>
-          <div class="inspection-item-value">{{ vehicle?.vin }}</div>
-          <div class="inspection-item-value">{{ "-" }}</div>
-          <div class="inspection-item-value">{{ "-" }}</div>
-          <div class="inspection-item-value">{{ "-" }}</div>
+        <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr)" *ngFor="let logEventsVehicle of logEventsVehicles">
+          <div class="inspection-item-value">{{ logEventsVehicle?.vehicle.vehicleUnit }}</div>
+          <div class="inspection-item-value">{{ logEventsVehicle?.vehicle.vin }}</div>
+          <div class="inspection-item-value">{{ logEventsVehicle?.odomoter }}</div>
+          <div class="inspection-item-value">{{ logEventsVehicle?.distance }}</div>
+          <div class="inspection-item-value">{{ logEventsVehicle?.engineHours }}</div>
         </div>
       </div>
       <div class="inspection-row">
@@ -177,7 +177,7 @@
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-value">{{ logDaily?.form?.trailers || "-" }}</div>
           <div class="inspection-item-value">{{ logDaily?.form?.shippingDoc || "-" }}</div>
-          <div class="inspection-item-value">{{ "-" }}</div>
+          <div class="inspection-item-value">{{ company.name }}</div>
         </div>
       </div>
       <div class="inspection-row">
