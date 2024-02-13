@@ -701,6 +701,7 @@ export class HosPage implements OnInit, OnDestroy {
     this.isModalOpen = true;
     this.locationLoading = true;
     this.locationDescription = '';
+    this.comments = '';
 
     if (this.currentStatus) {
       this.selectButton(this.currentStatus.statusCode);
