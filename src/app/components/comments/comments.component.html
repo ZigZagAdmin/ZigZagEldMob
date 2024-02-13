@@ -4,7 +4,7 @@
     (input)="onInputChange($event)"
     id="custom-textarea"
     [(ngModel)]="value"
-    [disabled]="disabled"
+    [readonly]="disabled"
     [placeholder]="placeholder"
     class="input-box"
     [ngClass]="{ 'input-fill': fill, 'validation-error': !valid }"></textarea>

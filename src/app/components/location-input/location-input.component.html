@@ -7,7 +7,7 @@
       [type]="type"
       (input)="onInputChange($event)"
       [(ngModel)]="value"
-      [disabled]="disabled || loading"
+      [readonly]="disabled || loading"
       [placeholder]="placeholder"
       autocomplete="one-time-code"
       class="input-box"
