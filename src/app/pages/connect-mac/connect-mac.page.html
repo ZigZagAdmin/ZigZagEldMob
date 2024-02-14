@@ -8,6 +8,17 @@
       </div>
       <button class="btn primary-btn custom-button" (click)="connect()">Connect</button>
     </div>
+    <div class="card-connect-container" *ngIf="elds.length !== 0">
+      <div class="card-connect" *ngFor="let eld of elds" (click)="connectToELD()">
+        <div class="card-connect-content">
+          <div class="card-connect-title">{{ eld?.name || 'Generic ELD' }}</div>
+          <div class="card-connect-mac">{{ 'MAC Address: ' + eld.macAddress.toUpperCase() }}</div>
+        </div>
+        <div class="card-connect-icon">
+          <img src="../../../assets/icon/smart-car.svg" />
+        </div>
+      </div>
+    </div>
     <div class="or-container">
       <div class="line"></div>
       <div class="word">or</div>

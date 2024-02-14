@@ -9,6 +9,8 @@ import { ShareService } from 'src/app/services/share.service';
 import { BluetoothService } from 'src/app/services/bluetooth.service';
 import { Capacitor } from '@capacitor/core';
 import { defectsVehicle } from 'src/app/utilities/defects';
+import { firstValueFrom, forkJoin } from 'rxjs';
+import { ELD } from 'src/app/models/eld';
 
 @Component({
   selector: 'app-connect-mac',
@@ -19,6 +21,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   pickedVehicle!: string;
   macAddress: string = '';
   vehicle: Vehicle;
+  elds: ELD[] = [];
 
   defects = defectsVehicle;
 
@@ -29,7 +32,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   constructor(
     private storage: Storage,
     private navCtrl: NavController,
-    private storageService: DatabaseService,
+    private databaseService: DatabaseService,
     private utilityService: UtilityService,
     private shareService: ShareService,
     private bluetoothService: BluetoothService
@@ -41,29 +44,23 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     }
   }
 
+  async ionViewWillEnter() {
+    let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
+    // let elds$ = firstValueFrom(this.databaseService.getELDs());
+
+    forkJoin([vehicles$]).subscribe(([vehicles]) => {
+      this.vehicle = vehicles[0];
+      this.pickedVehicle = this.vehicle.vehicleUnit;
+      // this.elds = elds;
+    });
+  }
+
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
   }
 
-  getVehicle() {
-    this.storageService.getVehicles().subscribe(
-      res => {
-        this.vehicle = res[0];
-      },
-      error => console.log(error)
-    );
-  }
-
   goBack() {
     this.navCtrl.navigateBack('/select-vehicle');
-  }
-
-  ionViewWillEnter() {
-    this.getVehicle();
-
-    this.storage.get('vehicleUnit').then(pickedVehicle => {
-      this.pickedVehicle = pickedVehicle;
-    });
   }
 
   async getLocation() {
@@ -94,6 +91,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     }
     await this.bluetoothService.requestBluetoothPermission();
   }
+
+  connectToELD() {}
 
   handleRefresh(event: any) {
     setTimeout(() => {
