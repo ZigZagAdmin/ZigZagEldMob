@@ -55,6 +55,10 @@ export class InspectionPreviewPage implements OnInit {
   durationsD = 0;
   durationsON = 0;
 
+  unindentifiedDrivingRecords: string = '';
+  dataDaigIndicators: string = '';
+  deviceMalfIndicators: string = '';
+
   logEventsVehicles: { vehicle: Partial<Vehicle>; odomoter: string; distance: number; engineHours: string }[] = [];
 
   constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
@@ -275,6 +279,7 @@ export class InspectionPreviewPage implements OnInit {
 
     this.currentLogEvents.unshift(this.statusesOnDay[0]);
     this.getVehiclesFromLogEvents();
+    this.findUDRandDDIandDMI();
   }
 
   goToNextLog() {
@@ -338,6 +343,27 @@ export class InspectionPreviewPage implements OnInit {
         vehicle.engineHours = Math.min(...engineHours) + ' - ' + Math.max(...engineHours);
       } else {
         vehicle.engineHours = '0 - 0';
+      }
+    });
+  }
+
+  findUDRandDDIandDMI() {
+    this.unindentifiedDrivingRecords = 'No';
+    this.dataDaigIndicators = 'No';
+    this.deviceMalfIndicators = 'No';
+    this.currentLogEvents.forEach(logEvent => {
+      switch (logEvent.type.code) {
+        case 'UNIDENTIFIED_DRIVER':
+          this.unindentifiedDrivingRecords = 'Yes';
+          break;
+        case 'EVT_LOGGED':
+        case 'EVT_CLEARED':
+          this.dataDaigIndicators = 'Yes';
+          break;
+        case 'ERR_LOGGED':
+        case 'ERR_CLEARED':
+          this.deviceMalfIndicators = 'Yes';
+          break;
       }
     });
   }

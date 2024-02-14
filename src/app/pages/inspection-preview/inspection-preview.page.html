@@ -119,7 +119,7 @@
         </div>
         <div class="inspection-row-item">
           <div class="inspection-item-value">{{ driver?.driverInfo?.settings?.shortHaulException ? 'Yes' : 'No' }}</div>
-          <div class="inspection-item-value">{{ '-' }}</div>
+          <div class="inspection-item-value">{{ unindentifiedDrivingRecords }}</div>
           <div class="inspection-item-value">{{ logDaily?.form?.coDriver?.firstName ? (logDaily?.form?.coDriver?.firstName + ' ' + logDaily?.form?.coDriver?.lastName) : "-" }}</div>
           <div class="inspection-item-value">
             {{ logDaily?.form?.coDriver?.driverIdentifier && logDaily?.form?.coDriver?.driverIdentifier !== '00000000-0000-0000-0000-000000000000' ? logDaily?.form?.coDriver?.driverIdentifier : "-" }}
@@ -136,7 +136,7 @@
         <div class="inspection-row-item">
           <div class="inspection-item-value">{{ (logDaily?.logDate | date: "LLLL d, yyyy") || "-" }}</div>
           <div class="inspection-item-value">{{ (today | date: "LLLL d, yyyy") || "-" }}</div>
-          <div class="inspection-item-value">{{ currentLogEvents[currentLogEvents.length - 1]?.location?.description || "-" }}</div>
+          <div class="inspection-item-value">{{ statusesOnDay[statusesOnDay.length - 1]?.location?.description || "-" }}</div>
           <div class="inspection-item-value">{{ logDaily?.certified ? "Yes" : "No" }}</div>
         </div>
       </div>
@@ -147,9 +147,9 @@
           <div class="inspection-item-label">Device Malfunction Indicators</div>
         </div>
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
-          <div class="inspection-item-value">{{ "-" }}</div>
-          <div class="inspection-item-value">{{ "-" }}</div>
-          <div class="inspection-item-value">{{ "-" }}</div>
+          <div class="inspection-item-value">{{ "00:00" }}</div>
+          <div class="inspection-item-value">{{ dataDaigIndicators }}</div>
+          <div class="inspection-item-value">{{ deviceMalfIndicators }}</div>
         </div>
       </div>
       <div class="inspection-row">
