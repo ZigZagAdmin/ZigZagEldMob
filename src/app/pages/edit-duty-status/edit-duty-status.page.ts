@@ -8,6 +8,7 @@ import { EventGraphic } from 'src/app/models/event-graphic';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
 import { DatabaseService } from 'src/app/services/database.service';
+import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
 
@@ -54,13 +55,20 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
 
   duration: number = 0;
 
+  validation = {
+    startTime: false,
+    endTime: false,
+    location: false,
+  };
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
     private utilityService: UtilityService,
     private storage: Storage,
     private databaseService: DatabaseService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private shareService: ShareService
   ) {}
 
   ngOnInit() {
@@ -267,28 +275,47 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   save() {}
 
   getNewStartDate(date: number) {
-    console.log('old start:', this.logEvent.eventTime.timeStamp);
-    console.log('new start: ', date);
-    let utcDate = date;
-    let oldValue = this.logEvent.eventTime.timeStamp;
-    const pm: boolean = this.logEvent.eventTime.timeStamp - utcDate > 0 ? false : true;
-    this.logEvent.eventTime.timeStamp = utcDate;
+    const minPeriod = 60000;
+
+    if (!this.logEvent.eventTime.timeStampEnd || (this.logEvent.eventTime.timeStampEnd && this.logEvent.eventTime.timeStampEnd === 0)) this.logEvent.eventTime.timeStampEnd = new Date().getTime();
+
+    if (date > this.logEvent.eventTime.timeStampEnd + minPeriod) {
+      this.toastService.showToast('Log Start Time cannot be bigger than End Time');
+    }
+
+    const leftOrRight: boolean = this.logEvent.eventTime.timeStamp - date > 0 ? false : true; // left = false, right = true
+
     let index = this.statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
-    // let index = this.logEvents.findIndex(el => el.logEventId === this.logEvent.logEventId);
-    // this.logEvents[index] = this.logEvent;
-    this.statusesOnDay[index] = this.logEvent;
-    if (!pm) {
-      if (this.statusesOnDay[index - 1].eventTime.timeStampEnd - this.statusesOnDay[index].eventTime.timeStamp <= 0) {
-        this.logEvent.eventTime.timeStamp = oldValue;
-        this.statusesOnDay[index] = this.logEvent;
-        this.toastService.showToast('Log event must be at least 1 minute');
+
+    if (!leftOrRight) {
+      if (date - this.statusesOnDay[index - 1].eventTime.timeStamp <= minPeriod) {
+        this.toastService.showToast('Previous log event must be at least 1 minute long');
+      }
+      this.logEvent.eventTime.timeStamp = date;
+      this.statusesOnDay[index].eventTime.timeStamp = date;
+      this.statusesOnDay[index - 1].eventTime.timeStampEnd = date;
+      this.calculateDuration();
+    } else {
+      if (this.statusesOnDay[index + 1]) {
+        if (this.statusesOnDay[index + 1].eventTime.timeStamp - date <= minPeriod) {
+          this.toastService.showToast('Current log event must be at least 1 minute long');
+        }
+        this.logEvent.eventTime.timeStamp = date;
+        this.statusesOnDay[index].eventTime.timeStamp = date;
+        this.statusesOnDay[index - 1].eventTime.timeStampEnd = date;
+        this.calculateDuration();
       } else {
-        this.statusesOnDay[index - 1].eventTime.timeStampEnd = utcDate;
+        if (new Date().getTime() - date <= minPeriod) {
+          this.toastService.showToast('Current log event must be at least 1 minute long');
+        }
+        this.logEvent.eventTime.timeStamp = date;
+        this.statusesOnDay[index].eventTime.timeStamp = date;
+        this.statusesOnDay[index - 1].eventTime.timeStampEnd = date;
+        this.calculateDuration();
       }
     }
     this.logEvents.forEach(el => this.statusesOnDay.forEach(status => (el.logEventId === status.logEventId ? (el = status) : null)));
     this.drawGraph();
-    console.log(this.logEvent);
   }
 
   calculateDuration() {

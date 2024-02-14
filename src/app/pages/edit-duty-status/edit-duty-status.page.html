@@ -99,11 +99,11 @@
         [label]="'Start Time (' + timeZone + ')'"
         [fill]="true"
         [labelPosition]="'top'"
-        [type]="'date-time'"
+        [type]="'time'"
         [timeZone]="timeZone"
         [value]="logEvent.eventTime.timeStamp"
         (emitValue)="getNewStartDate($event)"
-        [noValidation]="true"></app-date-time>
+        [validation]="validation['startTime']"></app-date-time>
       <app-input
         [label]="'Duration'"
         [fill]="true"
