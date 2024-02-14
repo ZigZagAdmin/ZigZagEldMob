@@ -16,6 +16,7 @@ import { LocationInputComponentModule } from 'src/app/components/location-input/
 import { MessageBannerComponentModule } from 'src/app/components/message-banner/message-banner.module';
 import { ConvertSecondsToHoursAndMinutesHmPipe } from 'src/app/pipe/convert-seconds-to-hours-and-minutes-hm.pipe';
 import { CommentsComponentModule } from 'src/app/components/comments/comments.module';
+import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import { CommentsComponentModule } from 'src/app/components/comments/comments.mo
     LocationInputComponentModule,
     MessageBannerComponentModule,
     CommentsComponentModule,
+    PageLoaderComponentModule
   ],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe],
   exports: [ConvertSecondsToHoursAndMinutesPipe],

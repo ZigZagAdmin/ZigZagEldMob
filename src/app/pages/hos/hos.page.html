@@ -1,12 +1,12 @@
 <ion-content [forceOverscroll]="false">
-  <div class="hos-wrapper" *ngIf="vehicle">
+  <div class="hos-wrapper" *ngIf="!pageLoading">
     <div class="hos-header">
       <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}" (click)="checkLocation()">
         <img src="assets/icon/location_icon.svg" />
       </div>
       <div class="hos-name">
         <p class="subtitle">{{ driverName }}</p>
-        <p class="text-1">Vehicle Unit: {{ vehicle.vehicleUnit }}</p>
+        <p class="text-1">Vehicle Unit: {{ vehicle?.vehicleUnit }}</p>
       </div>
       <div class="service" [ngClass]="{'service-on': bluetoothStatus, 'service-off': !bluetoothStatus}" (click)="checkBluetooth()">
         <img src="assets/icon/bluetooth_icon.svg" />
@@ -40,7 +40,9 @@
             <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-comments>
             <div class="btns-flex">
               <button class="btn secondary-btn btn-custom" (click)="cancel()">Back</button>
-              <button class="btn primary-btn btn-custom" (click)="confirm()"><span *ngIf="!modalLoading">Save</span> <ion-spinner *ngIf="modalLoading" name="circular" color="light"></ion-spinner></button>
+              <button class="btn primary-btn btn-custom" (click)="confirm()">
+                <span *ngIf="!modalLoading">Save</span> <ion-spinner *ngIf="modalLoading" name="circular" color="light"></ion-spinner>
+              </button>
             </div>
           </div>
         </ion-content>
@@ -211,4 +213,5 @@
       </div>
     </div>
   </div>
+  <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>
 </ion-content>

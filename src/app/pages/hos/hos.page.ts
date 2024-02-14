@@ -121,6 +121,8 @@ export class HosPage implements OnInit, OnDestroy {
   bResetTimeLast7Day: boolean = false;
   timeZones: { [key: string]: string } = {};
 
+  pageLoading: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -140,6 +142,7 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
@@ -295,6 +298,7 @@ export class HosPage implements OnInit, OnDestroy {
 
           await this.updateLogDailies();
           await this.calculateCircles();
+          this.pageLoading = false;
         });
       }
     });
