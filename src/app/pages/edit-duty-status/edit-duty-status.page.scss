@@ -102,6 +102,14 @@ line {
 .time-inputs {
   display: flex;
   gap: 10px;
+
+  app-date-time {
+    flex: 1;
+  }
+
+  app-input {
+    flex: 1;
+  }
 }
 
 .location-comments {

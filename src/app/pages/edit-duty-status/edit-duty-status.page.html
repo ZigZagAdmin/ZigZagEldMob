@@ -1,14 +1,14 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
-  <app-header [title]="'Edit Duty Status'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <app-header *ngIf="!pageLoading" [title]="'Edit Duty Status'" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
-  <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px">
+  <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">
     <div class="card-info">
       <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
         <g class="grid" transform="translate(65, 40)">
           <rect class="border" x="0" y="0" width="1440" height="200" rx="8" ry="8"></rect>
 
           <g class="" *ngFor="let hours of graphicsHour">
-            <g class="column" [style.transform]="'translateX('+(hours*60)+'px)'">
+            <g class="column" [style.transform]="'translateX(' + hours * 60 + 'px)'">
               <line x1="0" x2="0" y1="0" y2="200"></line>
               <g class="cell top" transform="translate(0, 0)">
                 <line x1="15" x2="15" y1="0" y2="17.5"></line>
@@ -79,10 +79,10 @@
         </g>
 
         <g class="durations" transform="translate(1520, 40)">
-          <text class="label" transform="translate(0, 25)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 75)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 125)" dy="0.35em">00:00</text>
-          <text class="label" transform="translate(0, 175)" dy="0.35em">00:00</text>
+          <text class="label" transform="translate(0, 25)" dy="0.35em">{{ durationsOFF * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 75)" dy="0.35em">{{ durationsSB * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 125)" dy="0.35em">{{ durationsD * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 175)" dy="0.35em">{{ durationsON * 60 | convertSecotdsToHoursAndMinutes }}</text>
         </g>
 
         <g class="eventLine" transform="translate(65, 40)">
@@ -95,19 +95,35 @@
       </svg>
     </div>
     <div class="time-inputs">
-      <app-input [label]="'Start Time (CT)'" [fill]="true" [labelPosition]="'top'" [type]="'text'" [(value)]="location" [noValidation]="true"></app-input>
-      <app-input [label]="'End Time (CT)'" [fill]="true" [labelPosition]="'top'" [type]="'text'" [(value)]="location" [noValidation]="true"></app-input>
+      <app-date-time
+        [label]="'Start Time (' + timeZone + ')'"
+        [fill]="true"
+        [labelPosition]="'top'"
+        [type]="'date-time'"
+        [timeZone]="timeZone"
+        [value]="logEvent.eventTime.timeStamp"
+        (emitValue)="getNewStartDate($event)"
+        [noValidation]="true"></app-date-time>
+      <app-input
+        [label]="'Duration'"
+        [fill]="true"
+        [disabled]="true"
+        [labelPosition]="'top'"
+        [type]="'text'"
+        [value]="duration | convertMsToHoursAndMinutesAndSecondsHm"
+        [noValidation]="true"></app-input>
     </div>
     <div class="status-change">
-      <app-duty-radio-button (selectedValue)="selectButton($event)"></app-duty-radio-button>
+      <app-duty-radio-button [currentValue]="selectedButton" (selectedValue)="selectButton($event)"></app-duty-radio-button>
     </div>
     <div class="location-comments">
-      <app-input [label]="'Location'" [fill]="true" [labelPosition]="'top'" [type]="'text'" [(value)]="location" [noValidation]="true"></app-input>
-      <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-textarea>
+      <app-input [label]="'Location'" [fill]="true" [labelPosition]="'top'" [type]="'text'" [(value)]="logEvent.location.description" [noValidation]="true"></app-input>
+      <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [noValidation]="true"></app-comments>
     </div>
     <div class="confirm-buttons">
       <button class="custom-btn secondary-btn" (click)="goBack()">Back</button>
       <button class="custom-btn primary-btn" [ngClass]="{'btn-disabled': !isConfirmButtonActive}" (click)="save()" [disabled]="!isConfirmButtonActive">Save</button>
     </div>
   </div>
+  <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>
 </ion-content>

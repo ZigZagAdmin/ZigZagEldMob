@@ -17,6 +17,7 @@ import { MessageBannerComponentModule } from 'src/app/components/message-banner/
 import { ConvertSecondsToHoursAndMinutesHmPipe } from 'src/app/pipe/convert-seconds-to-hours-and-minutes-hm.pipe';
 import { CommentsComponentModule } from 'src/app/components/comments/comments.module';
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
+import { ConvertMsToHoursAndMinutesAndSecondsHmPipe } from 'src/app/pipe/convert-ms-to-hours-and-minutes-and-seconds-hm.pipe';
 
 @NgModule({
   imports: [
@@ -33,9 +34,9 @@ import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-l
     LocationInputComponentModule,
     MessageBannerComponentModule,
     CommentsComponentModule,
-    PageLoaderComponentModule
+    PageLoaderComponentModule,
   ],
-  declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe],
-  exports: [ConvertSecondsToHoursAndMinutesPipe],
+  declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],
+  exports: [ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],
 })
 export class HosPageModule {}

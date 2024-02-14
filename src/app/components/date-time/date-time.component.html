@@ -7,7 +7,12 @@
   </div>
   <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="id">
     <ng-template>
-      <ion-datetime (ionChange)="selectDate($event)" [value]="value" [ngClass]="{ 'calendar-height': localType === 'date-time' }" [presentation]="localType" [preferWheel]="enableWheel"></ion-datetime>
+      <ion-datetime
+        (ionChange)="selectDate($event)"
+        [value]="formValue"
+        [ngClass]="{ 'calendar-height': localType === 'date-time' }"
+        [presentation]="localType"
+        [preferWheel]="enableWheel"></ion-datetime>
       <div class="submit-buttons">
         <div class="action-button default" (click)="closeModal()">Cancel</div>
         <div class="action-button primary" (click)="submit()">Submit</div>

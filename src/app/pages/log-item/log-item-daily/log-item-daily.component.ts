@@ -553,8 +553,8 @@ export class LogItemDailyComponent implements OnInit {
     this.navCtrl.navigateForward('log-certify', { queryParams: { date: this.logDaily.logDate, logId: this.logDaily.logDailyId } });
   }
 
-  editLog() {
-    this.navCtrl.navigateForward('edit-duty-status', { queryParams: { url: this.router.url } });
+  editLog(logStatus: LogEvents) {
+    this.navCtrl.navigateForward('edit-duty-status', { queryParams: { logDailyId: this.logDaily.logDailyId, logEventId: logStatus.logEventId } });
   }
 
   goBack() {
