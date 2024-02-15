@@ -67,6 +67,8 @@ export class DateTimeComponent implements OnInit, OnDestroy {
 
   chosenTimeDifference: number = 0;
 
+  seconds: number = 0;
+
   validateSubscription: Subscription;
 
   constructor(private utilityService: UtilityService, private shareService: ShareService) {}
@@ -87,6 +89,7 @@ export class DateTimeComponent implements OnInit, OnDestroy {
     } else {
       this.formValue = formatDate(this.value, 'YYYY-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
     }
+    this.seconds = Math.floor((this.value % 60000) / 1000);
     this.selectDate(this.convertValueWithTimeZone(this.value));
     this.previousDisplayValue = this.displayValue;
     this.previousValue = this.formValue;
@@ -108,7 +111,7 @@ export class DateTimeComponent implements OnInit, OnDestroy {
         this.displayValue = formatDate(this.formValue, "LLL d'th', yyyy", 'en_US');
         break;
       case 'time':
-        this.displayValue = formatDate(this.formValue, 'hh:mm:ss a', 'en_US');
+        this.displayValue = formatDate(this.formValue, 'hh:mm a', 'en_US').slice(0, 5) + ':' + this.seconds.toString().padStart(2, '0') + formatDate(this.formValue, 'hh:mm a', 'en_US').slice(5);
         break;
     }
   }
@@ -138,7 +141,7 @@ export class DateTimeComponent implements OnInit, OnDestroy {
     this.chosenTimeDifference = new Date(this.formValue).getTime() - new Date(this.convertValueWithTimeZone(this.value)).getTime();
     // console.log(this.formValue);
     // console.log(this.value);
-    // console.log(this.chosenTimeDifference);
+    console.log(this.chosenTimeDifference);
     this.emitValue.emit(this.value + this.chosenTimeDifference); // always returns without timeZone
   }
 }

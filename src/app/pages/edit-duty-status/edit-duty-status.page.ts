@@ -323,14 +323,25 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
 
     if (!leftOrRight) {
-      if (date - this._statusesOnDay[index - 1].eventTime.timeStamp <= minPeriod) {
-        this.validation.startTime = false;
-        this.invalidate();
-        this.toastService.showToast('Previous log event must be at least 1 minute long', 'danger', 2500);
-      } else {
-        this.validation.startTime = true;
-        this.validate();
-      }
+      if(index - 1 === 0) {
+        // if (date - this.minValue <= minPeriod) {
+          this.validation.startTime = false;
+          this.invalidate();
+          this.toastService.showToast('Previous log event must be at least 1 minute long', 'danger', 2500);
+        } else {
+          this.validation.startTime = true;
+          this.validate();
+        }
+      // } else {
+        if (date - this._statusesOnDay[index - 1].eventTime.timeStamp <= minPeriod) {
+          this.validation.startTime = false;
+          this.invalidate();
+          this.toastService.showToast('Previous log event must be at least 1 minute long', 'danger', 2500);
+        } else {
+          this.validation.startTime = true;
+          this.validate();
+        }
+      // }
       this.logEvent.eventTime.timeStamp = date;
       this._statusesOnDay[index].eventTime.timeStamp = date;
       this._statusesOnDay[index - 1].eventTime.timeStampEnd = date;
@@ -411,13 +422,15 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   calculateMinAndMaxValues() {
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
     if (index - 1 === 0) {
-      this.minValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(0, 0, 0, 0));
+      this.minValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(0, 0, 0, 0) + 60000);
     } else {
       this.minValue = this.getHoursByTimezone(this._statusesOnDay[index - 1].eventTime.timeStamp + 60000);
     }
-    console.log(this.minValue);
-    console.log(this._statusesOnDay[index].eventTime.timeStamp - this._statusesOnDay[index - 1].eventTime.timeStamp);
-    this.maxValue = this.getHoursByTimezone(this._statusesOnDay[index].eventTime.timeStampEnd - 60000);
+    if (index === this._statusesOnDay.length - 1) {
+      this.maxValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(23, 59, 0, 0));
+    } else {
+      this.maxValue = this.getHoursByTimezone(this._statusesOnDay[index].eventTime.timeStampEnd - 60000);
+    }
   }
 
   selectButton(button: string) {
