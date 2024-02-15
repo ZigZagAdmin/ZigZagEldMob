@@ -51,3 +51,7 @@ ion-checkbox {
 ion-checkbox::part(container) {
   border-radius: 50%;
 }
+
+.disable-form {
+  pointer-events: none;
+}

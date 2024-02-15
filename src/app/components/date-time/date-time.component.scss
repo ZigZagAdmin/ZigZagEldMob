@@ -188,3 +188,7 @@ ion-datetime {
   height: 330px !important;
   padding: 10px 0 0 0 !important;
 }
+
+.disable-input-opacity {
+  pointer-events: none;
+}

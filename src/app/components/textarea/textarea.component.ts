@@ -56,8 +56,10 @@ export class TextareaComponent implements OnInit {
 
   ngOnInit() {
     this.validateSubscription = this.shareService.currentMessage.subscribe(data => {
-      if(data === 'reset') {
+      if (data === 'reset') {
         this.valid = true;
+      } else if (data === 'invalidate' && !this.noValidation) {
+        this.valid = false;
       } else {
         if (data && data.length !== 0) this.validateInput();
       }

@@ -11,7 +11,7 @@
       [placeholder]="placeholder"
       autocomplete="one-time-code"
       class="input-box"
-      [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left' }" />
+      [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left', 'disable-input-opacity': showDisabled }" />
     <ion-spinner *ngIf="loading" class="input-loading" name="circular" color="medium"></ion-spinner>
   </div>
 </div>

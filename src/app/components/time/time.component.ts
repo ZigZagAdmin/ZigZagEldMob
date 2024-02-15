@@ -7,11 +7,11 @@ import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
-  selector: 'app-date-time',
-  templateUrl: './date-time.component.html',
-  styleUrls: ['./date-time.component.scss'],
+  selector: 'app-time',
+  templateUrl: './time.component.html',
+  styleUrls: ['./time.component.scss'],
 })
-export class DateTimeComponent implements OnInit, OnDestroy {
+export class TimeComponent  implements OnInit, OnDestroy {
   @Input() label: string;
   @Input() fill: boolean = true;
   @Input() validators: { regex: RegExp; message: string }[] = [];
@@ -141,4 +141,5 @@ export class DateTimeComponent implements OnInit, OnDestroy {
     // console.log(this.chosenTimeDifference);
     this.emitValue.emit(this.value + this.chosenTimeDifference); // always returns without timeZone
   }
+
 }

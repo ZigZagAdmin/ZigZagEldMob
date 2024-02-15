@@ -29,6 +29,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   logDailyId: string;
 
   statusesOnDay: LogEvents[] = [];
+  _statusesOnDay: LogEvents[] = [];
+  oldStatusesOnDay: LogEvents[] = [];
   xBgn: number;
   yBgn: number;
   xEnd: number;
@@ -37,6 +39,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   yBgnV: number;
   logEvents: LogEvents[] = [];
   logEvent: LogEvents;
+  oldLogEvent: LogEvents;
 
   isConfirmButtonActive: boolean = false;
 
@@ -56,10 +59,28 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   duration: number = 0;
 
   validation = {
-    startTime: false,
-    endTime: false,
+    startTime: true,
+    location: false,
+    comments: false,
+  };
+
+  noValidation = false;
+
+  disableForm = {
+    timeInput: false,
+    status: false,
     location: false,
   };
+
+  onInitExec: boolean = true;
+
+  currentLogEventRect = {
+    x1: 0,
+    x2: 0,
+  };
+
+  minValue: string = '';
+  maxValue: string = '';
 
   constructor(
     private navCtrl: NavController,
@@ -270,6 +291,20 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         }
       }
     });
+    this._statusesOnDay = JSON.parse(JSON.stringify(this.statusesOnDay));
+    this.displayCurrentLogEventRect();
+    if (this.onInitExec) {
+      this.disableWhenDrivingFromELD();
+      this.calculateMinAndMaxValues();
+      this.onInitExec = false;
+    }
+    if (!this.validation.startTime) {
+      this._statusesOnDay = JSON.parse(JSON.stringify(this.oldStatusesOnDay));
+      this.logEvent = JSON.parse(JSON.stringify(this.oldLogEvent));
+    } else {
+      this.oldStatusesOnDay = JSON.parse(JSON.stringify(this._statusesOnDay));
+      this.oldLogEvent = JSON.parse(JSON.stringify(this.logEvent));
+    }
   }
 
   save() {}
@@ -280,51 +315,109 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     if (!this.logEvent.eventTime.timeStampEnd || (this.logEvent.eventTime.timeStampEnd && this.logEvent.eventTime.timeStampEnd === 0)) this.logEvent.eventTime.timeStampEnd = new Date().getTime();
 
     if (date > this.logEvent.eventTime.timeStampEnd + minPeriod) {
-      this.toastService.showToast('Log Start Time cannot be bigger than End Time');
+      this.toastService.showToast('Log Start Time cannot be bigger than End Time', 'danger', 3000);
     }
 
     const leftOrRight: boolean = this.logEvent.eventTime.timeStamp - date > 0 ? false : true; // left = false, right = true
 
-    let index = this.statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
+    let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
 
     if (!leftOrRight) {
-      if (date - this.statusesOnDay[index - 1].eventTime.timeStamp <= minPeriod) {
-        this.toastService.showToast('Previous log event must be at least 1 minute long');
+      if (date - this._statusesOnDay[index - 1].eventTime.timeStamp <= minPeriod) {
+        this.validation.startTime = false;
+        this.invalidate();
+        this.toastService.showToast('Previous log event must be at least 1 minute long', 'danger', 2500);
+      } else {
+        this.validation.startTime = true;
+        this.validate();
       }
       this.logEvent.eventTime.timeStamp = date;
-      this.statusesOnDay[index].eventTime.timeStamp = date;
-      this.statusesOnDay[index - 1].eventTime.timeStampEnd = date;
+      this._statusesOnDay[index].eventTime.timeStamp = date;
+      this._statusesOnDay[index - 1].eventTime.timeStampEnd = date;
       this.calculateDuration();
     } else {
-      if (this.statusesOnDay[index + 1]) {
-        if (this.statusesOnDay[index + 1].eventTime.timeStamp - date <= minPeriod) {
-          this.toastService.showToast('Current log event must be at least 1 minute long');
+      if (this._statusesOnDay[index + 1]) {
+        if (this._statusesOnDay[index + 1].eventTime.timeStamp - date <= minPeriod) {
+          this.validation.startTime = false;
+          this.invalidate();
+          this.toastService.showToast('Current log event must be at least 1 minute long', 'danger', 2500);
+        } else {
+          this.validation.startTime = true;
+          this.validate();
         }
         this.logEvent.eventTime.timeStamp = date;
-        this.statusesOnDay[index].eventTime.timeStamp = date;
-        this.statusesOnDay[index - 1].eventTime.timeStampEnd = date;
+        this._statusesOnDay[index].eventTime.timeStamp = date;
+        this._statusesOnDay[index - 1].eventTime.timeStampEnd = date;
         this.calculateDuration();
       } else {
         if (new Date().getTime() - date <= minPeriod) {
-          this.toastService.showToast('Current log event must be at least 1 minute long');
+          this.validation.startTime = false;
+          this.invalidate();
+          this.toastService.showToast('Current log event must be at least 1 minute long', 'danger', 2500);
+        } else {
+          this.validation.startTime = true;
+          this.validate();
         }
         this.logEvent.eventTime.timeStamp = date;
-        this.statusesOnDay[index].eventTime.timeStamp = date;
-        this.statusesOnDay[index - 1].eventTime.timeStampEnd = date;
+        this._statusesOnDay[index].eventTime.timeStamp = date;
+        this._statusesOnDay[index - 1].eventTime.timeStampEnd = date;
         this.calculateDuration();
       }
     }
-    this.logEvents.forEach(el => this.statusesOnDay.forEach(status => (el.logEventId === status.logEventId ? (el = status) : null)));
+    this.logEvents = this.logEvents.map(el => {
+      const index = this._statusesOnDay.findIndex(status => el.logEventId === status.logEventId);
+      return index === -1 ? el : JSON.parse(JSON.stringify(this._statusesOnDay[index]));
+    });
     this.drawGraph();
+  }
+
+  disableWhenDrivingFromELD() {
+    let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
+    if (this.logEvent.type.code === 'D' && this.logEvent.recordOrigin.code === 'AUTO') {
+      this.disableForm = {
+        timeInput: true,
+        status: true,
+        location: true,
+      };
+      this.toastService.showToast('Cannot change a Driving log event by ELD', 'warning', 3000);
+    }
+    if (this._statusesOnDay[index - 1].type.code === 'D' && this._statusesOnDay[index - 1].recordOrigin.code === 'AUTO') {
+      this.disableForm = {
+        timeInput: true,
+        status: false,
+        location: false,
+      };
+      this.toastService.showToast('Cannot change Start time of a log event next to a Driving event by ELD', 'warning', 3000);
+    }
+  }
+
+  invalidate() {
+    this.noValidation = true;
+    setTimeout(() => this.shareService.changeMessage('invalidate'), 0);
+  }
+
+  validate() {
+    this.shareService.changeMessage('reset');
   }
 
   calculateDuration() {
     if (!this.logEvent.eventTime.timeStampEnd || (this.logEvent.eventTime.timeStampEnd && this.logEvent.eventTime.timeStampEnd === 0)) {
       this.duration = new Date().getTime() - this.logEvent.eventTime.timeStamp;
-      console.log(this.duration);
     } else {
       this.duration = this.logEvent.eventTime.timeStampEnd - this.logEvent.eventTime.timeStamp;
     }
+  }
+
+  calculateMinAndMaxValues() {
+    let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
+    if (index - 1 === 0) {
+      this.minValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(0, 0, 0, 0));
+    } else {
+      this.minValue = this.getHoursByTimezone(this._statusesOnDay[index - 1].eventTime.timeStamp + 60000);
+    }
+    console.log(this.minValue);
+    console.log(this._statusesOnDay[index].eventTime.timeStamp - this._statusesOnDay[index - 1].eventTime.timeStamp);
+    this.maxValue = this.getHoursByTimezone(this._statusesOnDay[index].eventTime.timeStampEnd - 60000);
   }
 
   selectButton(button: string) {
@@ -334,7 +427,26 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     this.logEvents[index] = this.logEvent;
     this.drawGraph();
   }
+
   getCurrentDateFormat(value: string) {
     return '(' + formatDate(value, 'LLLL d', 'en_US') + ')';
+  }
+
+  getHours(value: number) {
+    return formatDate(value, 'hh:mm:ss a', 'en_US');
+  }
+
+  getHoursByTimezone(value: number) {
+    return formatDate(value, 'hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
+  }
+
+  displayCurrentLogEventRect() {
+    try {
+      let idx1 = this.eventGraphicLine.findIndex(el => el.historyId === this.logEvent.logEventId);
+      this.currentLogEventRect.x1 = this.eventGraphicLine[idx1].x1;
+      this.currentLogEventRect.x2 = this.eventGraphicLine[idx1].x2;
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

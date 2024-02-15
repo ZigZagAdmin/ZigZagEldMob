@@ -17,6 +17,7 @@ export class LocationInputComponent  implements OnInit {
   @Input() validators: { regex: RegExp; message: string }[] = [];
   @Input() noValidation: boolean = false;
   @Input() disabled: boolean = false;
+  @Input() showDisabled: boolean = false;
   @Input() required: boolean = false;
   @Input() labelPosition: 'top' | 'left' = 'top';
 
@@ -59,8 +60,10 @@ export class LocationInputComponent  implements OnInit {
 
   ngOnInit() {
     this.validateSubscription = this.shareService.currentMessage.subscribe(data => {
-      if(data === 'reset') {
+      if (data === 'reset') {
         this.valid = true;
+      } else if (data === 'invalidate' && !this.noValidation) {
+        this.valid = false;
       } else {
         if (data && data.length !== 0) this.validateInput();
       }

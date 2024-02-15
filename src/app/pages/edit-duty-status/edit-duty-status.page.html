@@ -92,13 +92,19 @@
             <line *ngIf="event.yV > 0" [attr.x1]="event.x1" [attr.x2]="event.x1" [attr.y1]="event.y1" [attr.y2]="event.yV" class="vertical"></line>
           </g>
         </g>
+        <g transform="translate(65, 40)">
+          <rect [attr.x]="currentLogEventRect.x1" [attr.width]="currentLogEventRect.x2 - currentLogEventRect.x1" class="error-status-viol" height="200"></rect>
+        </g>
       </svg>
+      <div class="range-container" *ngIf="!disableForm['timeInput']"><span>Min: {{ minValue }}</span><span>Max: {{ maxValue }}</span></div>
     </div>
     <div class="time-inputs">
       <app-date-time
         [label]="'Start Time (' + timeZone + ')'"
         [fill]="true"
         [labelPosition]="'top'"
+        [disabled]="disableForm['timeInput']"
+        [showDisabled]="disableForm['timeInput']"
         [type]="'time'"
         [timeZone]="timeZone"
         [value]="logEvent.eventTime.timeStamp"
@@ -108,17 +114,27 @@
         [label]="'Duration'"
         [fill]="true"
         [disabled]="true"
+        [showDisabled]="true"
         [labelPosition]="'top'"
         [type]="'text'"
         [value]="duration | convertMsToHoursAndMinutesAndSecondsHm"
-        [noValidation]="true"></app-input>
+        [validation]="validation['startTime']"></app-input>
     </div>
     <div class="status-change">
-      <app-duty-radio-button [currentValue]="selectedButton" (selectedValue)="selectButton($event)"></app-duty-radio-button>
+      <app-duty-radio-button [disable]="disableForm['status']" [showDisabled]="disableForm['status']" [currentValue]="selectedButton" (selectedValue)="selectButton($event)"></app-duty-radio-button>
     </div>
     <div class="location-comments">
-      <app-input [label]="'Location'" [fill]="true" [labelPosition]="'top'" [type]="'text'" [(value)]="logEvent.location.description" [noValidation]="true"></app-input>
-      <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [noValidation]="true"></app-comments>
+      <app-input
+        [label]="'Location'"
+        [disabled]="disableForm['location']"
+        [showDisabled]="disableForm['location']"
+        [fill]="true"
+        [labelPosition]="'top'"
+        [type]="'text'"
+        [(value)]="logEvent.location.description"
+        [validation]="validation['location']"
+        [noValidation]="noValidation"></app-input>
+      <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
     </div>
     <div class="confirm-buttons">
       <button class="custom-btn secondary-btn" (click)="goBack()">Back</button>

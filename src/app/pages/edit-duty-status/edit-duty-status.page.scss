@@ -121,3 +121,21 @@ line {
 .location-comments textarea {
   height: 100px;
 }
+
+.error-status-viol {
+  fill: var(--gray-400) !important;
+  stroke: var(--success-400);
+  opacity: 0.2;
+  stroke-width: 1px;
+}
+
+.range-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  color: var(--gray-500);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 5px;
+}

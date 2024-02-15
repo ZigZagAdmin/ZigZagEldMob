@@ -22,6 +22,8 @@ export class DutyRadioButtonComponent implements OnInit {
   ];
 
   @Input() currentValue: string = '';
+  @Input() disable: boolean = false;
+  @Input() showDisabled: boolean = false;
 
   @Output() selectedValue: EventEmitter<string> = new EventEmitter<string>();
 
