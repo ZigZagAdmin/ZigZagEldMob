@@ -1,12 +1,14 @@
 import { formatDate } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { EventGraphic } from 'src/app/models/event-graphic';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
+import { DashboardService } from 'src/app/services/dashboard.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -40,8 +42,6 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   logEvents: LogEvents[] = [];
   logEvent: LogEvents;
   oldLogEvent: LogEvents;
-
-  isConfirmButtonActive: boolean = false;
 
   graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
   eventGraphicLine: EventGraphic[] = [];
@@ -80,7 +80,13 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   };
 
   minValue: string = '';
+  minValueNumber: number = 0;
   maxValue: string = '';
+  maxValueNumber: number = 0;
+
+  timeZoneDifference: number = 0;
+
+  loading: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -89,7 +95,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     private storage: Storage,
     private databaseService: DatabaseService,
     private toastService: ToastService,
-    private shareService: ShareService
+    private shareService: ShareService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit() {
@@ -108,6 +115,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       this.logEvents = logEvents;
       this.logEvent = this.logEvents.find(logEvent => logEvent.logEventId === queryParams['logEventId']);
       this.calculateDuration();
+      this.calculateTimeZoneDifference();
       this.currentStatus = this.logEvent.type.code;
       this.selectButton(this.logEvent.type.code);
       this.drawGraph();
@@ -307,7 +315,76 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     }
   }
 
-  save() {}
+  async save() {
+    this.noValidation = false;
+    if (!this.validation.startTime) {
+      this.toastService.showToast('Start Time not valid!');
+      return;
+    }
+    if(this.logEvent.location.description && this.logEvent.location.description.length !== 0) this.validation.location = true;
+    if(this.logEvent.comment && this.logEvent.comment.length !== 0) this.validation.comments = true;
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    console.log(this.validation);
+    if (!this.utilityService.validateForm(this.validation)) return;
+
+    this.loading = true;
+
+    let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
+
+    if ((await Network.getStatus()).connected) {
+      await this.dashboardService
+        .updateLogEvent(this.logEvent)
+        .toPromise()
+        .then(async response => {
+          console.log('Last LogEvent is updated on server:', response);
+          await this.updateIndexLogEvents(this.logEvent, true);
+          this.loading = false;
+          this.goBack();
+        })
+        .catch(async error => {
+          console.log('Last LogEvent Pushed in offline logEvents array');
+          await this.updateIndexLogEvents(this.logEvent, false);
+          this.loading = false;
+          this.goBack();
+        });
+      await this.dashboardService
+        .updateLogEvent(this._statusesOnDay[index - 1])
+        .toPromise()
+        .then(async response => {
+          console.log('Last LogEvent is updated on server:', response);
+          await this.updateIndexLogEvents(this._statusesOnDay[index - 1], true);
+          this.loading = false;
+          this.goBack();
+        })
+        .catch(async error => {
+          console.log('Last LogEvent Pushed in offline logEvents array');
+          await this.updateIndexLogEvents(this._statusesOnDay[index - 1], false);
+          this.loading = false;
+          this.goBack();
+        });
+    } else {
+      console.log('Updated logEvents in offline array');
+      await this.updateIndexLogEvents(this.logEvent, false);
+      await this.updateIndexLogEvents(this._statusesOnDay[index - 1], false);
+      this.loading = false;
+      this.goBack();
+    }
+  }
+
+  async updateLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    this.logEvents.push(logEventData);
+    await this.storage.set('logEvents', this.logEvents);
+  }
+
+  async updateIndexLogEvents(logEventData: LogEvents, online: boolean) {
+    logEventData.sent = online;
+    const index = this.logEvents.findIndex(item => item.logEventId === logEventData.logEventId);
+    if (index !== -1) {
+      this.logEvents[index] = logEventData;
+    }
+    await this.storage.set('logEvents', this.logEvents);
+  }
 
   getNewStartDate(date: number) {
     const minPeriod = 60000;
@@ -323,16 +400,16 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
 
     if (!leftOrRight) {
-      if(index - 1 === 0) {
-        // if (date - this.minValue <= minPeriod) {
+      if (index - 1 === 0) {
+        if (date - this.minValueNumber <= minPeriod) {
           this.validation.startTime = false;
           this.invalidate();
-          this.toastService.showToast('Previous log event must be at least 1 minute long', 'danger', 2500);
+          this.toastService.showToast('First log event of the day must be at least 1 minute long', 'danger', 2500);
         } else {
           this.validation.startTime = true;
           this.validate();
         }
-      // } else {
+      } else {
         if (date - this._statusesOnDay[index - 1].eventTime.timeStamp <= minPeriod) {
           this.validation.startTime = false;
           this.invalidate();
@@ -341,17 +418,17 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
           this.validation.startTime = true;
           this.validate();
         }
-      // }
+      }
       this.logEvent.eventTime.timeStamp = date;
       this._statusesOnDay[index].eventTime.timeStamp = date;
       this._statusesOnDay[index - 1].eventTime.timeStampEnd = date;
       this.calculateDuration();
     } else {
-      if (this._statusesOnDay[index + 1]) {
-        if (this._statusesOnDay[index + 1].eventTime.timeStamp - date <= minPeriod) {
+      if (index === this._statusesOnDay.length - 1) {
+        if (this.maxValueNumber - date <= minPeriod) {
           this.validation.startTime = false;
           this.invalidate();
-          this.toastService.showToast('Current log event must be at least 1 minute long', 'danger', 2500);
+          this.toastService.showToast('Last log event must be at least 1 minute long', 'danger', 2500);
         } else {
           this.validation.startTime = true;
           this.validate();
@@ -423,11 +500,13 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
     if (index - 1 === 0) {
       this.minValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(0, 0, 0, 0) + 60000);
+      this.minValueNumber = new Date(this.logEvent.eventTime.logDate).setHours(0, 0, 0, 0) + this.timeZoneDifference;
     } else {
       this.minValue = this.getHoursByTimezone(this._statusesOnDay[index - 1].eventTime.timeStamp + 60000);
     }
     if (index === this._statusesOnDay.length - 1) {
       this.maxValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(23, 59, 0, 0));
+      this.maxValueNumber = new Date(this.logEvent.eventTime.logDate).setHours(23, 59, 0, 0) + this.timeZoneDifference;
     } else {
       this.maxValue = this.getHoursByTimezone(this._statusesOnDay[index].eventTime.timeStampEnd - 60000);
     }
@@ -449,8 +528,20 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     return formatDate(value, 'hh:mm:ss a', 'en_US');
   }
 
+  getDate(value: number) {
+    return formatDate(value, 'YYYY-MM-ddTHH:mm:ss', 'en_US');
+  }
+
+  getDateWithTimezone(value: number) {
+    return formatDate(value, 'YYYY-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
+  }
+
   getHoursByTimezone(value: number) {
     return formatDate(value, 'hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
+  }
+
+  calculateTimeZoneDifference() {
+    this.timeZoneDifference = new Date(this.logEvent.eventTime.logDate).getTime() - new Date(this.getDateWithTimezone(new Date(this.logEvent.eventTime.logDate).getTime())).getTime();
   }
 
   displayCurrentLogEventRect() {

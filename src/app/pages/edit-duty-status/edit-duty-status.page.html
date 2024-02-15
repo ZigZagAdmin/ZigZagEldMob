@@ -137,8 +137,10 @@
       <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
     </div>
     <div class="confirm-buttons">
-      <button class="custom-btn secondary-btn" (click)="goBack()">Back</button>
-      <button class="custom-btn primary-btn" [ngClass]="{'btn-disabled': !isConfirmButtonActive}" (click)="save()" [disabled]="!isConfirmButtonActive">Save</button>
+      <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">Back</button>
+      <button class="custom-btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
+        <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+      </button>
     </div>
   </div>
   <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>

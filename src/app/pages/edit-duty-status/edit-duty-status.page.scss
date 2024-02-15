@@ -93,10 +93,14 @@ line {
 
 .custom-btn {
   flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 15px;
   border-radius: 30px;
   font-size: 16px;
   font-weight: 600;
+  height: 50px;
 }
 
 .time-inputs {
@@ -138,4 +142,8 @@ line {
   font-size: 12px;
   font-weight: 500;
   margin-top: 5px;
+}
+
+.disable-click {
+  pointer-events: none;
 }

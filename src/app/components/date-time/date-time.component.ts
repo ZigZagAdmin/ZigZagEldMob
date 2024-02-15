@@ -141,7 +141,8 @@ export class DateTimeComponent implements OnInit, OnDestroy {
     this.chosenTimeDifference = new Date(this.formValue).getTime() - new Date(this.convertValueWithTimeZone(this.value)).getTime();
     // console.log(this.formValue);
     // console.log(this.value);
-    console.log(this.chosenTimeDifference);
-    this.emitValue.emit(this.value + this.chosenTimeDifference); // always returns without timeZone
+    // console.log(this.chosenTimeDifference);
+    // console.log(this.seconds);
+    this.emitValue.emit(this.value + this.chosenTimeDifference + this.seconds * 1000); // always returns without timeZone
   }
 }
