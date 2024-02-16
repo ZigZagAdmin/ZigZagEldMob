@@ -16,6 +16,7 @@
           [disabled]="locationDisable"
           [loading]="locationLoading"
           [(value)]="dvir.location.description"
+          (gpsCallback)="getLocalCurrentLocation()"
           [(validation)]="validation['locationDescription']"></app-location-input>
       </div>
       <p class="subtitle-lg">Vehicle Info</p>

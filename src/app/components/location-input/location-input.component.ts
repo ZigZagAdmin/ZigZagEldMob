@@ -8,7 +8,7 @@ import { ToastService } from 'src/app/services/toast.service';
   templateUrl: './location-input.component.html',
   styleUrls: ['./location-input.component.scss'],
 })
-export class LocationInputComponent  implements OnInit {
+export class LocationInputComponent implements OnInit {
   @Input() label: string;
   @Input() type: string = 'text';
   @Input() placeholder: string = '';
@@ -31,6 +31,9 @@ export class LocationInputComponent  implements OnInit {
   set value(newValue: string) {
     if (this._value !== newValue) {
       this._value = newValue;
+      if (this._value && this._value.length !== 0) {
+        this.validateInput();
+      }
       this.valueChange.emit(newValue);
     }
   }
@@ -51,6 +54,8 @@ export class LocationInputComponent  implements OnInit {
     }
   }
 
+  @Output() gpsCallback: EventEmitter<void> = new EventEmitter<void>();
+
   valid: boolean = true;
   private _value: string;
 
@@ -70,6 +75,10 @@ export class LocationInputComponent  implements OnInit {
     });
   }
 
+  triggerGps() {
+    this.gpsCallback.emit();
+  }
+
   ngOnDestroy(): void {
     this.validateSubscription.unsubscribe();
   }
@@ -81,7 +90,7 @@ export class LocationInputComponent  implements OnInit {
   }
 
   validateInput() {
-    if(!this.noValidation) {
+    if (!this.noValidation) {
       if (this.value.length === 0) {
         this.valid = false;
         this.toastService.showToast('Field required');

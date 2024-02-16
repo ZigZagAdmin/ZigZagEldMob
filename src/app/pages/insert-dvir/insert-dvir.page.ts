@@ -17,6 +17,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { LocationService } from 'src/app/services/location.service';
 import { Network } from '@capacitor/network';
 import { InterService } from 'src/app/services/inter.service';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -107,7 +108,6 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   async ngOnInit() {
-    this.locationLoading = true;
     this.dvir.status.name = 'Vehicle Condition Satisfactory';
     this.dvir.status.code = 'VCS';
     this.dvir.defectsVehicle = '';
@@ -128,6 +128,17 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       this.driverId = driverId;
     });
 
+    await this.getLocalCurrentLocation();
+  }
+
+  async getLocalCurrentLocation() {
+    this.locationLoading = true;
+    let locationStatus = await this.storage.get('locationStatus');
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!locationStatus) {
+        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+      }
+    }
     await this.locationService.getCurrentLocation().then(res => {
       this.dvir.location = res;
       this.locationLoading = false;
@@ -136,7 +147,6 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       } else {
         this.locationDisable = false;
       }
-      console.log(this.dvir.location);
     });
   }
 

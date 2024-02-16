@@ -79,9 +79,28 @@
   position: relative;
 }
 
-.input-loading {
+.input-fetch {
   position: absolute;
-  right: 20px;
-  top: 18px;
-  zoom: 0.7;
+  width: 24px;
+  height: 45px;
+  right: 12px;
+  top: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  ion-spinner {
+    zoom: 0.7;
+  }
+}
+
+
+.disable-fetch {
+  pointer-events: none;
 }

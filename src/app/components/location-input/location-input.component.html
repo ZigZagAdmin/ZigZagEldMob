@@ -12,6 +12,9 @@
       autocomplete="one-time-code"
       class="input-box"
       [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left', 'disable-input-opacity': showDisabled }" />
-    <ion-spinner *ngIf="loading" class="input-loading" name="circular" color="medium"></ion-spinner>
+    <div class="input-fetch" [ngClass]="{ 'disable-fetch': loading }" (click)="triggerGps()">
+      <img src="../../../assets/icon/gps.svg" *ngIf="!loading" />
+      <ion-spinner *ngIf="loading" class="input-loading" name="circular" color="medium"></ion-spinner>
+    </div>
   </div>
 </div>

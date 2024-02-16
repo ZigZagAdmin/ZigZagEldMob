@@ -19,6 +19,7 @@ import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-l
 import { HosPageModule } from '../hos/hos.module';
 import { DateTimeComponentModule } from 'src/app/components/date-time/date-time.module';
 import { CommentsComponentModule } from 'src/app/components/comments/comments.module';
+import { LocationInputComponentModule } from 'src/app/components/location-input/location-input.module';
 
 @NgModule({
   imports: [
@@ -34,6 +35,7 @@ import { CommentsComponentModule } from 'src/app/components/comments/comments.mo
     HosPageModule,
     DateTimeComponentModule,
     CommentsComponentModule,
+    LocationInputComponentModule,
   ],
   declarations: [EditDutyStatusPage],
 })

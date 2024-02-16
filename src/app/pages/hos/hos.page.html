@@ -36,6 +36,7 @@
               [(value)]="locationDescription"
               [loading]="locationLoading"
               [disabled]="locationDisable"
+              (gpsCallback)="getLocalCurrentLocation()"
               [(validation)]="validation['location']"></app-location-input>
             <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-comments>
             <div class="btns-flex">

@@ -318,9 +318,10 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async getLocationState() {
-    await this.locationService.isLocationAvailable().then((state: boolean) => {
+    await this.locationService.isLocationAvailable().then(async (state: boolean) => {
       if (state !== undefined && state !== null) {
         this.locationStatus = state;
+        await this.storage.set('locationStatus', this.locationStatus);
       }
       this.changeDetectorRef.detectChanges();
     });
@@ -724,14 +725,22 @@ export class HosPage implements OnInit, OnDestroy {
 
   async toggleModal() {
     this.isModalOpen = true;
-    this.locationLoading = true;
     this.locationDescription = '';
     this.comments = '';
 
     if (this.currentStatus) {
       this.selectButton(this.currentStatus.statusCode);
     }
+    await this.getLocalCurrentLocation();
+  }
 
+  async getLocalCurrentLocation() {
+    this.locationLoading = true;
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!this.locationStatus) {
+        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+      }
+    }
     await this.locationService.getCurrentLocation().then(res => {
       this.location = res;
       this.locationDescription = this.location.description;

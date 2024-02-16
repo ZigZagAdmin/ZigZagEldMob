@@ -9,13 +9,15 @@
           <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir?.createDate)" [noValidation]="true"></app-input>
           <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir?.createDate)" [noValidation]="true"></app-input>
         </div>
-        <app-input
+        <app-location-input
           [label]="'Location'"
           [fill]="true"
           [type]="'text'"
           [disabled]="locationDisable"
-          [(value)]="dvir?.location.description"
-          [(validation)]="validation['locationDescription']"></app-input>
+          [loading]="locationLoading"
+          [(value)]="dvir.location.description"
+          (gpsCallback)="getLocalCurrentLocation()"
+          [(validation)]="validation['locationDescription']"></app-location-input>
       </div>
       <div class="edit-dvir-block">
         <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="vehicleUnitDisable" [value]="dvir?.vehicle.vehicleUnit" [noValidation]="true"></app-input>

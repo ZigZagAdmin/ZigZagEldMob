@@ -1,6 +1,7 @@
 import { formatDate } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
@@ -10,6 +11,7 @@ import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { DatabaseService } from 'src/app/services/database.service';
+import { LocationService } from 'src/app/services/location.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
@@ -88,6 +90,9 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
 
   loading: boolean = false;
 
+  locationLoading: boolean = false;
+  locationDisable: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -96,7 +101,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     private databaseService: DatabaseService,
     private toastService: ToastService,
     private shareService: ShareService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private locationService: LocationService
   ) {}
 
   ngOnInit() {
@@ -127,6 +133,27 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
 
   goBack() {
     this.navCtrl.navigateBack(['log-item', this.logDailyId]);
+  }
+
+  async getLocalCurrentLocation() {
+    this.locationLoading = true;
+    let locationStatus = await this.storage.get('locationStatus');
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!locationStatus) {
+        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+      }
+    }
+    await this.locationService.getCurrentLocation().then(res => {
+      let oldLocation = this.logEvent.location;
+      this.logEvent.location = res;
+      this.locationLoading = false;
+      if (this.logEvent.location.locationType === 'AUTOMATIC') {
+        this.locationDisable = true;
+      } else {
+        this.locationDisable = false;
+        this.logEvent.location = oldLocation;
+      }
+    });
   }
 
   drawGraph() {
@@ -321,8 +348,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       this.toastService.showToast('Start Time not valid!');
       return;
     }
-    if(this.logEvent.location.description && this.logEvent.location.description.length !== 0) this.validation.location = true;
-    if(this.logEvent.comment && this.logEvent.comment.length !== 0) this.validation.comments = true;
+    if (this.logEvent.location.description && this.logEvent.location.description.length !== 0) this.validation.location = true;
+    if (this.logEvent.comment && this.logEvent.comment.length !== 0) this.validation.comments = true;
     this.shareService.changeMessage(this.utilityService.generateString(5));
     console.log(this.validation);
     if (!this.utilityService.validateForm(this.validation)) return;

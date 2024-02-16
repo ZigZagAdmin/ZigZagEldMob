@@ -124,16 +124,18 @@
       <app-duty-radio-button [disable]="disableForm['status']" [showDisabled]="disableForm['status']" [currentValue]="selectedButton" (selectedValue)="selectButton($event)"></app-duty-radio-button>
     </div>
     <div class="location-comments">
-      <app-input
+      <app-location-input
         [label]="'Location'"
         [disabled]="disableForm['location']"
         [showDisabled]="disableForm['location']"
         [fill]="true"
         [labelPosition]="'top'"
         [type]="'text'"
+        [loading]="locationLoading"
         [(value)]="logEvent.location.description"
+        (gpsCallback)="getLocalCurrentLocation()"
         [validation]="validation['location']"
-        [noValidation]="noValidation"></app-input>
+        [noValidation]="noValidation"></app-location-input>
       <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
     </div>
     <div class="confirm-buttons">

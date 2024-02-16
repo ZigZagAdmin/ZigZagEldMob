@@ -16,6 +16,8 @@ import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { InterService } from 'src/app/services/inter.service';
 import { Network } from '@capacitor/network';
+import { Capacitor } from '@capacitor/core';
+import { LocationService } from 'src/app/services/location.service';
 
 @Component({
   selector: 'app-edit-dvir',
@@ -84,6 +86,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
   today = new Date();
   timeZone: string = '';
 
+  locationLoading: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private storage: Storage,
@@ -95,7 +99,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
     private shareService: ShareService,
     private toastService: ToastService,
     private utilityService: UtilityService,
-    private interService: InterService
+    private interService: InterService,
+    private locationService: LocationService
   ) {}
 
   ngOnInit() {
@@ -135,6 +140,27 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {}
+
+  async getLocalCurrentLocation() {
+    this.locationLoading = true;
+    let locationStatus = await this.storage.get('locationStatus');
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!locationStatus) {
+        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+      }
+    }
+    await this.locationService.getCurrentLocation().then(res => {
+      let oldLocation = this.dvir.location;
+      this.dvir.location = res;
+      this.locationLoading = false;
+      if (this.dvir.location.locationType === 'AUTOMATIC') {
+        this.locationDisable = true;
+      } else {
+        this.locationDisable = false;
+        this.dvir.location = oldLocation;
+      }
+    });
+  }
 
   switchStatus(status: string) {
     if (status.length !== 0 && status !== this.lastStatus) {
