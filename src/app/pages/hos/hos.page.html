@@ -150,7 +150,7 @@
       <div class="rest-row">
         <div class="row-1">
           <p class="subtitle">Minimum Break Required</p>
-          <p class="subtitle">{{ restBreak }} / 00:30</p>
+          <p class="subtitle">{{ convertSecondToHours(restBreak) }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
           <div id="inner-1" class="progress-bar-inner" [style]="'width: ' + progressBreak * 100 + '%'"></div>
@@ -160,7 +160,7 @@
       <div class="rest-row">
         <div class="row-1">
           <p class="subtitle">Until shift reset</p>
-          <p class="subtitle">{{ restShift }} / 00:30</p>
+          <p class="subtitle">{{ convertSecondToHours(restShift) }} / 10:00</p>
         </div>
         <div class="progress-bar-outer">
           <div id="inner-2" class="progress-bar-inner" [style]="'width: ' + progressShift * 100 + '%'"></div>
@@ -170,7 +170,7 @@
       <div class="rest-row">
         <div class="row-1">
           <p class="subtitle">Until Cycle Reset</p>
-          <p class="subtitle">{{ restCycle }} / 00:30</p>
+          <p class="subtitle">{{ convertSecondToHours(restCycle) }} / 34:00</p>
         </div>
         <div class="progress-bar-outer">
           <div id="inner-3" class="progress-bar-inner" [style]="'width: ' + progressCycle * 100 + '%'"></div>
@@ -189,7 +189,7 @@
     </div>
     <div class="switch-sleep">
       <p class="subtitle">Split Sleeper Berth</p>
-      <app-toggle-switch></app-toggle-switch>
+      <app-toggle-switch [isChecked]="false" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
     </div>
     <button class="btn primary-btn" (click)="switchMode()">
       <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />

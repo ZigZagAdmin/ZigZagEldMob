@@ -63,9 +63,9 @@ export class HosPage implements OnInit, OnDestroy {
 
   redCircle = 0;
 
-  restBreak = '';
-  restShift = '';
-  restCycle = '';
+  restBreak: number = 0;
+  restShift: number = 0;
+  restCycle: number = 0;
 
   currentStatus = { statusCode: '', statusName: '' };
   currentStatusTime = '';
@@ -114,8 +114,6 @@ export class HosPage implements OnInit, OnDestroy {
   cycle8Time: any = 0;
   availableToday: number = 0;
   availableTomorrow: number = 0;
-  restartTime = 122400000; // 34 часа
-  cycleLimit = 252000000; // 70 часов
   restartFlag = false;
   recapLoading: boolean = false;
   bResetTimeLast7Day: boolean = false;
@@ -123,6 +121,17 @@ export class HosPage implements OnInit, OnDestroy {
 
   pageLoading: boolean = false;
 
+  newShift = 36000000; // 10 часов
+  driveLimit = 39540000 + 60000; // 11 часов
+  shiftLimit = 50400000; // 14 часов
+  cycleLimit = 252000000; // 70 часов
+  driveWithoutBreakLimit = 28800000; // 8 часов
+  restartTime = 122400000; // 34 часа
+  notDriveLimit = 30 * 60 * 1000; // 30min
+  inspectionTime = 691200000; // 8 дней
+  splitSleepData: { duration: number; drivingT: number; time: number };
+  splitSleeperBerth: boolean = false;
+  violations: any = {};
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -296,8 +305,8 @@ export class HosPage implements OnInit, OnDestroy {
             }
           }
 
+          this.calcViolations();
           await this.updateLogDailies();
-          await this.calculateCircles();
           this.pageLoading = false;
         });
       }
@@ -400,327 +409,236 @@ export class HosPage implements OnInit, OnDestroy {
     }
   }
 
-  async calculateCircles() {
-    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+  calcViolations() {
+    console.log('calc violations');
     this.bResetTimeLast7Day = false;
-    let iHoursOfServiceRulesHours = await this.storage.get('HoursOfServiceRuleHours');
-    let iHoursOfServiceRulesDay = await this.storage.get('HoursOfServiceRuleDays');
-    let iAvailableBreakFull = 8 * 60 * 60;
-    let iAvailableDriveFull = 11 * 60 * 60;
-    let iAvailableShiftFull = 14 * 60 * 60;
-    let iAvailableCycleFull = iHoursOfServiceRulesHours * 60 * 60;
-    let iAvailableBreak = 8 * 60 * 60;
-    let iAvailableDrive = 11 * 60 * 60;
-    let iAvailableShift = 14 * 60 * 60;
-    let iAvailableCycle = iHoursOfServiceRulesHours * 60 * 60;
-    let iProgressBreak = 0;
-    let iProgressDrive = 0;
-    let iProgressShift = 0;
-    let iProgressCycle = 0;
-    let iTime = 0;
-    let iTimeBreak = 0;
-    let iTimeNotDrive = 0;
-    let iTimeCycle = 0;
-    let iTimeON = 0;
-    let iTimeD = 0;
-    let iTimeOFF = 0;
-    let iTimeRecap = 0;
-    let iSplitSleeperBerth2or3 = 0;
-    let iSplitSleeperBerth8or7 = 0;
-    let iBreakReset = 0;
-    let iShiftReset = 0;
-    let iCycleReset = 0;
-    let iBreakResetFull = 30 * 60;
-    let iShiftResetFull = 10 * 60 * 60;
-    let iCycleResetFull = 34 * 60 * 60;
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+    this.violations = {};
+    let breakT = 0;
+    let driveT = 0;
+    let driveT2 = 0;
+    let shiftT = 0;
+    let cycleT = 0;
+    let firstEvent: LogEvents;
+    let secondEvent: LogEvents;
 
-    let sLocationDescription = '';
-    let sDateBgn = '';
-    let sDateEnd = '';
-    let sEventTypeCode = '';
-    let sEventTypeName = '';
+    let timeNotDrive = 0;
 
-    // let bResetTimeLast7Day = false;
-    let temp = new Date().setDate(new Date().getDate() - 8);
-    // let last7DaysLogEvents = this.logEvents.filter(el => el.eventTime.timeStamp >= temp);
-    let last7DaysLogEvents = this.logEvents.filter(
-      el => new Date(el.eventTime.logDate) >= new Date(formatDate(new Date(temp), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]))
-    );
+    this.splitSleepData = undefined;
 
-    last7DaysLogEvents.forEach(event => {
-      if (allSt.includes(event.type.code)) {
-        sDateBgn = formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
-        sEventTypeCode = event.type.code;
-        sEventTypeName = event.type.name;
-        if (event.eventTime.timeStampEnd) {
-          sDateEnd = formatDate(new Date(event.eventTime.timeStampEnd), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
-        } else {
-          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
+    let localLogEvents: LogEvents[] = JSON.parse(JSON.stringify(this.logEvents));
+    let time = 0;
+    localLogEvents.forEach((event, index) => {
+      if (event.recordStatus?.code === 'ACTIVE') {
+        if (allSt.includes(event.type?.code)) {
+          firstEvent = JSON.parse(JSON.stringify(event));
+          secondEvent = JSON.parse(JSON.stringify(event));
+          secondEvent.eventTime.timeStamp = !event.eventTime.timeStampEnd ? new Date().getTime() : JSON.parse(JSON.stringify(event.eventTime.timeStampEnd));
+          time = secondEvent.eventTime.timeStamp - firstEvent.eventTime.timeStamp;
+
+          if (this.logEvents.length === 0) this.currentStatus = { statusCode: 'OFF', statusName: 'Off Duty' };
+          else {
+            this.currentStatus.statusCode = event.type.code;
+            this.currentStatus.statusName = event.type.name;
+          }
+          this.currentStatusTime = this.convertSecondToHours(time / 1000);
+
+          switch (firstEvent.type.code) {
+            case 'OFF':
+            case 'SB':
+            case 'PC':
+              breakT += time;
+              shiftT += time;
+              timeNotDrive += time;
+
+              if (this.splitSleeperBerth) {
+                if ((firstEvent.type.code === 'SB' || firstEvent.type.code === 'OFF') && time >= 7200000 && time < this.newShift) {
+                  let dur = Math.trunc(time / 1000 / 60 / 60);
+                  let splitTime = 2;
+                  if (dur >= 2 && dur < 3) {
+                    splitTime = 2;
+                  } else if (dur >= 3 && dur < 7) {
+                    splitTime = 3;
+                  } else if (dur >= 3 && dur < 8 && firstEvent.type.code === 'SB') {
+                    splitTime = 7;
+                  } else if (firstEvent.type.code === 'SB') {
+                    splitTime = 8;
+                  }
+
+                  if ((splitTime >= 7 && firstEvent.type.code === 'SB') || (splitTime < 7 && dur < 7)) {
+                    shiftT = shiftT - time;
+                    let temp = {
+                      duration: splitTime,
+                      time: shiftT,
+                      drivingT: driveT,
+                    };
+
+                    if (!this.splitSleepData && shiftT) {
+                      this.splitSleepData = temp;
+                    } else if (this.splitSleepData && shiftT) {
+                      if (splitTime + this.splitSleepData.duration >= 10) {
+                        shiftT -= this.splitSleepData.time;
+                        driveT -= this.splitSleepData.drivingT;
+                        this.splitSleepData = {
+                          duration: splitTime,
+                          time: shiftT,
+                          drivingT: driveT,
+                        };
+                      }
+                    }
+                  }
+                }
+              }
+
+              if (breakT >= this.newShift) {
+                driveT = 0;
+                shiftT = 0;
+                this.splitSleepData = undefined;
+              }
+              if (breakT >= this.restartTime) {
+                shiftT = 0;
+                cycleT = 0;
+                driveT = 0;
+                this.splitSleepData = undefined;
+                let timeLast7Days = new Date(this.logDailies[7].logDate).getTime();
+                if (secondEvent.eventTime.timeStamp > timeLast7Days) {
+                  this.bResetTimeLast7Day = true;
+                }
+              }
+              break;
+            case 'ON':
+            case 'YM':
+              breakT = 0;
+              timeNotDrive += time;
+              shiftT += time;
+              cycleT += time;
+              if (shiftT > this.shiftLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  'Shift more than 14 hours',
+                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                );
+                shiftT = 0;
+              }
+              if (cycleT > this.cycleLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  'Cycle over 70 hours',
+                  secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)
+                );
+                cycleT = 0;
+              }
+              break;
+            case 'D':
+              breakT = 0;
+              driveT2 += time;
+              driveT += time;
+              shiftT += time;
+              cycleT += time;
+              if (driveT2 > this.driveWithoutBreakLimit && timeNotDrive < this.notDriveLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  'Break violation',
+                  secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)
+                );
+              }
+              if (time > this.driveWithoutBreakLimit) {
+                this.pushViolation(
+                  formatDate(new Date(firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  'Driving non-stop for more than 8 hours',
+                  firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit
+                );
+              }
+              if (driveT > this.driveLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (driveT - this.driveLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  'Driving Violation',
+                  secondEvent.eventTime.timeStamp - (driveT - this.driveLimit)
+                );
+                driveT = 0;
+              }
+              if (shiftT > this.shiftLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  'Shift more than 14 hours',
+                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                );
+                shiftT = 0;
+              }
+              if (cycleT > this.cycleLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  'Cycle over 70 hours',
+                  secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)
+                );
+                cycleT = 0;
+              }
+              timeNotDrive = 0;
+              break;
+          }
+          if (timeNotDrive >= this.notDriveLimit) {
+            timeNotDrive = 0;
+            driveT2 = 0;
+          }
         }
-        if (sDateEnd == '0001-01-01T00:00:00') {
-          sDateEnd = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
-        }
-
-        iTime = (new Date(sDateEnd).getTime() - new Date(sDateBgn).getTime()) / 1000;
-
-        switch (sEventTypeCode) {
-          case 'OFF':
-          case 'SB':
-            iTimeOFF = iTimeOFF + iTime;
-            iTimeNotDrive = iTimeNotDrive + iTime;
-
-            // Split Sleeper Berth
-            // 8 or 7 : Hours = Sleeper Berth
-            // 2 or 3 : Hours = Sleeper Berth or Off Duty
-            // Непрерывный отдых 10 часа - для сброса времени: вождения и работы
-            // Можно разделить на:
-            // 8/2 - 8 непрерывный отдых + (потом работа) + 2 отдыха
-            // 7/3 - 7 непрерывный отдых + (потом работа) + 3 отдыха
-            // 7 и 8 часов не учитываются в shift а 3 и 2 часа учитываются
-            if (iTime >= 2 * 60 * 60 && iTime < 4 * 60 * 60) {
-              // Не учитываем это время
-              iSplitSleeperBerth2or3 = iSplitSleeperBerth2or3 + iTime;
-            }
-
-            if (sEventTypeCode == 'SB' && iTime >= 7 * 60 * 60 && iTime < 9 * 60 * 60) {
-              // Не учитываем это время
-              iSplitSleeperBerth8or7 = iSplitSleeperBerth8or7 + iTime;
-            }
-
-            // Непрерывный отдых 34/24 часа - для сброса общего времени
-            if (iTime >= iCycleResetFull) {
-              iTimeCycle = 0;
-              iTimeRecap = 0;
-              this.bResetTimeLast7Day = true;
-            }
-
-            // Непрерывный отдых 10 часа - для сброса времени: вождения и работы
-            if (iTime >= iShiftResetFull) {
-              iTimeON = 0;
-              iTimeD = 0;
-              iTimeOFF = 0;
-              iSplitSleeperBerth2or3 = 0;
-              iSplitSleeperBerth8or7 = 0;
-            }
-
-            iShiftReset = iShiftResetFull - iTime;
-            iCycleReset = iCycleResetFull - iTime;
-            break;
-
-          case 'D':
-            iTimeD = iTimeD + iTime;
-            iTimeBreak = iTimeBreak + iTime;
-            iTimeCycle = iTimeCycle + iTime;
-
-            iTimeNotDrive = 0;
-            iShiftReset = iShiftResetFull;
-            iCycleReset = iCycleResetFull;
-            break;
-
-          case 'ON':
-          case 'PC':
-          case 'YM':
-            iTimeON = iTimeON + iTime;
-            iTimeCycle = iTimeCycle + iTime;
-            iTimeNotDrive = iTimeNotDrive + iTime;
-
-            iShiftReset = iShiftResetFull;
-            iCycleReset = iCycleResetFull;
-            break;
-        }
-
-        // Отдых 30 минут - для сброса времени неприрывного вождения максимум 8 часов
-        if (iTimeNotDrive >= iBreakResetFull) {
-          iTimeBreak = 0;
-        }
-
-        iBreakReset = iBreakResetFull - iTimeNotDrive;
       }
     });
 
-    if (this.logEvents.length === 0) this.currentStatus = { statusCode: 'OFF', statusName: 'Off Duty' };
-    else {
-      this.currentStatus.statusCode = sEventTypeCode;
-      this.currentStatus.statusName = sEventTypeName;
+    this.titleBreak = (this.driveWithoutBreakLimit - driveT2) / 1000 < 0 ? 0 : (this.driveWithoutBreakLimit - driveT2) / 1000;
+    this.titleCycle = (this.cycleLimit - cycleT) / 1000 < 0 ? 0 : (this.cycleLimit - cycleT) / 1000;
+    this.titleDriving = (this.driveLimit - driveT) / 1000 < 0 ? 0 : (this.driveLimit - driveT) / 1000;
+    this.titleShift = (this.shiftLimit - shiftT) / 1000 < 0 ? 0 : (this.shiftLimit - shiftT) / 1000;
+
+    this.percentBreak = (this.titleBreak * 100) / (this.driveWithoutBreakLimit / 1000);
+    this.percentCycle = (this.titleCycle * 100) / (this.cycleLimit / 1000);
+    this.percentDriving = (this.titleDriving * 100) / (this.driveLimit / 1000);
+    this.percentShift = (this.titleShift * 100) / (this.shiftLimit / 1000);
+
+    this.hoursRecap = this.bResetTimeLast7Day ? (this.cycleLimit - cycleT) / 1000 : (this.cycleLimit - cycleT) / 1000 + this.logDailies[7].timeWorked;
+
+    switch (this.currentStatus.statusCode) {
+      case 'D':
+        this.restBreak = 30 * 60;
+        this.restShift = 10 * 60 * 60;
+        this.restCycle = 34 * 60 * 60;
+        break;
+      case 'ON':
+      case 'YM':
+        this.restBreak = this.notDriveLimit - time < 0 ? 0 : (this.notDriveLimit - time) / 1000;
+        this.restShift = 10 * 60 * 60;
+        this.restCycle = 34 * 60 * 60;
+        break;
+      case 'OFF':
+      case 'PC':
+      case 'SB':
+        this.restBreak = this.notDriveLimit - time < 0 ? 0 : (this.notDriveLimit - time) / 1000;
+        this.restShift = this.newShift - time < 0 ? 0 : (this.newShift - time) / 1000;
+        this.restCycle = this.restartTime - time < 0 ? 0 : (this.restartTime - time) / 1000;
+        break;
     }
-    this.currentStatusTime = this.convertSecondToHours(iTime);
+    this.progressBreak = (100 * this.restBreak) / (30 * 60) / 100;
+    this.progressShift = (100 * this.restShift) / (10 * 60 * 60) / 100;
+    this.progressCycle = (100 * this.restCycle) / (34 * 60 * 60) / 100;
+    console.log(this.violations);
 
-    this.restBreak = this.convertSecondToHours(0);
-    this.restShift = this.convertSecondToHours(0);
-    this.restCycle = this.convertSecondToHours(0);
+    // this.logDailies.forEach(el => {
+    //   el.violations = this.violations[el.logDate] || [];
+    // });
+    // TODO: verify if violations changed before uploading to server
+  }
 
-    if (iBreakReset >= 0) {
-      this.restBreak = this.convertSecondToHours(iBreakReset);
-      this.progressBreak = (100 * iBreakReset) / (30 * 60) / 100;
-    }
-
-    if (iShiftReset >= 0) {
-      this.restShift = this.convertSecondToHours(iShiftReset);
-      this.progressShift = (100 * iShiftReset) / (10 * 60 * 60) / 100;
-    }
-
-    if (iCycleReset >= 0) {
-      this.restCycle = this.convertSecondToHours(iCycleReset);
-      this.progressCycle = (100 * iCycleReset) / (34 * 60 * 60) / 100;
-    }
-
-    // Нет данных в базе
-    if ((sEventTypeCode = '')) {
-      sEventTypeCode = 'OFF';
-      this.message = 'Off Duty';
-    }
-    /*
-    tvCurrentStatusHos.setText(localResources.getString(R.string.current_status) + " " + Utility.getEventTypeName(sEventTypeCode, localResources) + " (" + Utility.getHoursOfSeconds(iTime, false) + ")");
-
-    switch (sEventTypeCode)
-    {
-        case "OFF":
-            tvCurrentStatusHos.setBackgroundResource(R.color.cOffDuty);
-            ibCurrentStatusHos.setBackgroundResource(R.color.cOffDuty);
-            break;
-
-        case "PC":
-            tvCurrentStatusHos.setBackgroundResource(R.color.cPersonalConveyance);
-            ibCurrentStatusHos.setBackgroundResource(R.color.cPersonalConveyance);
-            break;
-
-        case "SB":
-            tvCurrentStatusHos.setBackgroundResource(R.color.cSleeper);
-            ibCurrentStatusHos.setBackgroundResource(R.color.cSleeper);
-            break;
-
-        case "D":
-            tvCurrentStatusHos.setBackgroundResource(R.color.cDriving);
-            ibCurrentStatusHos.setBackgroundResource(R.color.cDriving);
-            bRestMode = false;
-            break;
-
-        case "ON":
-            tvCurrentStatusHos.setBackgroundResource(R.color.cOnDuty);
-            ibCurrentStatusHos.setBackgroundResource(R.color.cOnDuty);
-            break;
-
-        case "YM":
-            tvCurrentStatusHos.setBackgroundResource(R.color.cYardMoves);
-            ibCurrentStatusHos.setBackgroundResource(R.color.cYardMoves);
-            break;
-    }
-*/
-
-    /*
-    // Привышен лимит по времени
-    if ((iAvailableBreak < iTimeBreak) ||
-            (iAvailableDrive < iTimeD) ||
-            (iAvailableShift < iTimeD - iTimeON) ||
-            (iAvailableCycle < iTimeCycle)
-    )
-    {
-        switch (sEventTypeCode)
-        {
-            case "D":
-                tvCurrentStatusHos.setBackgroundResource(R.color.cRed);
-                ibCurrentStatusHos.setBackgroundResource(R.color.cRed);
-                break;
-        }
-    }*/
-
-    if (iAvailableCycle < iTimeCycle) {
-      iAvailableBreak = 0;
-      iAvailableDrive = 0;
-      iAvailableShift = 0;
-    }
-
-    if (iAvailableDrive < iTimeD) {
-      iAvailableBreak = 0;
-    }
-
-    // iAvailableShift
-    // Drive + On Duty + (Off Duty + Sleeper Berth) < 0
-    // Нарушения время работы
-    if (iAvailableShift - iTimeD - iTimeON - iTimeOFF < 0) {
-      if (sEventTypeCode == 'OFF' || sEventTypeCode == 'SB') {
-        if (iAvailableShift - iTimeD - iTimeON < 0) {
-          iAvailableShift = -1;
-        } else {
-          if (iTimeD + iTimeON + iTimeOFF < iAvailableShift) {
-            iAvailableShift = iAvailableShift - iTimeD - iTimeON - iTimeOFF;
-          } else {
-            iAvailableShift = 0;
-          }
-        }
-      } else {
-        if (iAvailableShift + iSplitSleeperBerth8or7 + iSplitSleeperBerth2or3 - iTimeD - iTimeON - iTimeOFF < 0) {
-          iAvailableShift = iAvailableShift + iSplitSleeperBerth8or7 + iSplitSleeperBerth2or3 - iTimeD - iTimeON - iTimeOFF;
-        } else {
-          iAvailableShift = iAvailableShift + iSplitSleeperBerth8or7 + iSplitSleeperBerth2or3 - iTimeD - iTimeON - iTimeOFF;
-        }
-
-        iAvailableShift = iAvailableShift - iTimeD - iTimeON - iTimeOFF;
-      }
+  pushViolation(day: string, name: string, date: number) {
+    let local = {
+      startTime: date,
+      regulations: {
+        code: name,
+      },
+    };
+    if (this.violations[day]) {
+      this.violations[day].push(local);
     } else {
-      iAvailableShift = iAvailableShift - iTimeD - iTimeON - iTimeOFF;
+      this.violations[day] = [local];
     }
-
-    // Shift
-    if (iAvailableShift >= 0) {
-      iProgressShift = (100 * iAvailableShift) / iAvailableShiftFull;
-      this.percentShift = iProgressShift;
-      this.titleShift = iAvailableShift;
-      this.redCircle += 0;
-    } else {
-      iProgressShift = (100 * -iAvailableShift) / iAvailableShiftFull;
-      iAvailableShift = iAvailableShiftFull + iAvailableShift;
-      this.percentShift = iProgressShift;
-      this.titleShift = iAvailableShift;
-      this.redCircle += 1;
-    }
-
-    // Drive
-    iAvailableDrive = iAvailableDrive - iTimeD;
-    if (iAvailableDrive >= 0) {
-      iProgressDrive = (100 * iAvailableDrive) / iAvailableDriveFull;
-      this.percentDriving = iProgressDrive;
-      this.titleDriving = iAvailableDrive;
-      this.redCircle += 0;
-    } else {
-      iAvailableDrive = iAvailableDriveFull - iAvailableDrive;
-      iProgressDrive = (100 * -iAvailableDrive) / iAvailableDriveFull;
-      this.percentDriving = iProgressDrive;
-      this.titleDriving = -iAvailableDrive;
-      this.redCircle += 1;
-    }
-
-    // iAvailableBreak
-    iAvailableBreak = iAvailableBreak - iTimeBreak;
-    if (iAvailableBreak >= 0) {
-      iProgressBreak = (100 * iAvailableBreak) / iAvailableBreakFull;
-      this.percentBreak = iProgressBreak;
-      this.titleBreak = iAvailableBreak;
-      this.redCircle += 0;
-    } else {
-      iProgressBreak = (100 * -iAvailableBreak) / iAvailableBreakFull;
-      iAvailableBreak = iAvailableBreakFull - iAvailableBreak;
-      this.percentBreak = iProgressBreak;
-      this.titleBreak = -iAvailableBreak;
-      this.redCircle += 1;
-    }
-
-    // iAvailableCycle
-    iAvailableCycle = iAvailableCycle - iTimeCycle;
-    if (iAvailableCycle >= 0) {
-      iProgressCycle = (100 * iAvailableCycle) / iAvailableCycleFull;
-      this.percentCycle = iProgressCycle;
-      this.titleCycle = iAvailableCycle;
-      this.redCircle += 0;
-    } else {
-      iAvailableCycle = iAvailableCycleFull - iAvailableCycle;
-      iProgressCycle = (100 * iAvailableCycle) / iAvailableCycleFull;
-      this.percentCycle = iProgressCycle;
-      this.titleCycle = -iAvailableCycle;
-      this.redCircle += 1;
-    }
-
-    this.hoursRecap = this.bResetTimeLast7Day ? iAvailableCycle : iAvailableCycle + this.logDailies[7].timeWorked;
   }
 
   async toggleModal() {
@@ -897,7 +815,7 @@ export class HosPage implements OnInit, OnDestroy {
     }
 
     await this.updateLogDailies();
-    await this.calculateCircles();
+    this.calcViolations();
   }
 
   convertSecondToHours(secs: number): string {
@@ -934,9 +852,15 @@ export class HosPage implements OnInit, OnDestroy {
     return sSign + sHours + ':' + sMinutes;
   }
 
+  toggleSplitSleeperBerth(value: boolean) {
+    this.splitSleeperBerth = value;
+    this.calcViolations();
+  }
+
   async updateLogDailies() {
     let currentDate = new Date();
     this.countDays = [];
+    let index = 0;
     this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
@@ -1013,6 +937,8 @@ export class HosPage implements OnInit, OnDestroy {
       durationsBaseON = this.logDailies[i].timeOnDuty;
 
       this.logEvents.forEach(event => {
+        index++;
+        console.log(index);
         if (allSt.includes(event.type.code)) {
           dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
           dateEnd = new Date(
@@ -1170,8 +1096,8 @@ export class HosPage implements OnInit, OnDestroy {
     setInterval(async () => {
       console.log('Every Minute Update');
       await this.updateLogDailies();
-      await this.calculateCircles();
       await this.uploadDriverStatus();
+      this.calcViolations();
     }, 60000);
   }
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-toggle-switch',
@@ -6,10 +6,11 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
   styleUrls: ['./toggle-switch.component.scss'],
 })
 export class ToggleSwitchComponent implements OnInit {
+  @Input() isChecked: boolean = false;
+
   @Output() checkedCallback: EventEmitter<void> = new EventEmitter<void>();
   @Output() uncheckedCallback: EventEmitter<void> = new EventEmitter<void>();
-
-  isChecked: boolean = false;
+  @Output() valueCalback: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   constructor() {}
 
@@ -18,5 +19,6 @@ export class ToggleSwitchComponent implements OnInit {
   onCheckboxChange() {
     if (this.isChecked) this.checkedCallback.emit();
     else this.uncheckedCallback.emit();
+    this.valueCalback.emit(this.isChecked);
   }
 }
