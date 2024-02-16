@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BleClient } from '@capacitor-community/bluetooth-le';
+import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
 import { Platform } from '@ionic/angular';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { BehaviorSubject } from 'rxjs';
@@ -11,6 +11,10 @@ declare let cordova: any;
 })
 export class BluetoothService {
   private bluetoothStatusSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
+
+  service = numberToUUID(0x1800);
+  read = '00002A00-0000-1000-8000-00805F9B34FB';
+
   constructor(private platform: Platform) {}
 
   async initialize() {
@@ -147,5 +151,59 @@ export class BluetoothService {
 
   getBluetoothStatusObservable() {
     return this.bluetoothStatusSubject.asObservable();
+  }
+
+  async connectToDevice(macAddress: string) {
+    try {
+      await BleClient.connect(macAddress);
+      console.log('Connected macAdrress:', macAddress);
+    } catch (error) {
+      console.error('Bluetooth error:', error);
+    }
+  }
+
+  async readDeviceDate(macAddress: string) {
+    const res = await BleClient.read(macAddress, this.service, this.read);
+    this.decodeJ1708(res);
+  }
+
+  async subscribeToDeviceData() {
+    const macAddress: string = 'FC:29:99:B8:78:0E';
+    await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => { // put services here
+      console.log('current heart rate', this.parseData(res));
+      this.decodeJ1708(res);
+    });
+  }
+
+  async getServices(){
+    const macAddress: string = 'FC:29:99:B8:78:0E';
+    await BleClient.getServices(macAddress)
+      .then(res=>{
+        console.log(res)
+        res.forEach(el=>{
+          console.log(el.uuid)
+          console.log(JSON.stringify(el.characteristics))
+        })
+        // console.log( 'Payload:decoder',new TextDecoder().decode(res))
+      })
+  }
+
+  decodeJ1708(dataView: DataView) {
+    const payload = new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength); // Читаем все данные
+
+    console.log('JSON:', JSON.stringify(payload));
+    console.log('Payload:decoder', new TextDecoder().decode(payload));
+  }
+
+  parseData(value: DataView): number {
+    const flags = value.getUint8(0);
+    const rate16Bits = flags & 0x1;
+    let heartRate: number;
+    if (rate16Bits > 0) {
+      heartRate = value.getUint16(1, true);
+    } else {
+      heartRate = value.getUint8(1);
+    }
+    return heartRate;
   }
 }
