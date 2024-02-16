@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -55,7 +55,7 @@ export class InputComponent implements OnInit, OnDestroy {
 
   validateSubscription: Subscription;
 
-  constructor(private toastService: ToastService, private shareService: ShareService) {}
+  constructor(private toastService: ToastService, private shareService: ShareService, private elementRef: ElementRef) {}
 
   ngOnInit() {
     this.validateSubscription = this.shareService.currentMessage.subscribe(data => {
@@ -80,7 +80,7 @@ export class InputComponent implements OnInit, OnDestroy {
   }
 
   validateInput() {
-    if (!this.noValidation) {
+    if (!this.noValidation && this.elementRef.nativeElement.offsetParent !== null) {
       if (this.value.length === 0) {
         this.valid = false;
         this.toastService.showToast('Field required');
