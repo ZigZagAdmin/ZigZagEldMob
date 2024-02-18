@@ -34,6 +34,8 @@ export class HosPage implements OnInit, OnDestroy {
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
   countDays: LogDailies[] = [];
+  localLogDailies: { [key: string]: { timeOff: number; timeSleeper: number; timeDriving: number; timeOnDuty: number } } = {};
+
 
   selectedButton: string = '';
   progressBreak = 0;
@@ -305,8 +307,9 @@ export class HosPage implements OnInit, OnDestroy {
             }
           }
 
+          await this.createLogDailies();
           this.calcViolations();
-          await this.updateLogDailies();
+          await this.calcRecap();
           this.pageLoading = false;
         });
       }
@@ -427,6 +430,10 @@ export class HosPage implements OnInit, OnDestroy {
     this.splitSleepData = undefined;
 
     let localLogEvents: LogEvents[] = JSON.parse(JSON.stringify(this.logEvents));
+    // this.logDailies.forEach(
+    //   logDaily => (localLogDailies[logDaily.logDate] = { timeOff: logDaily.timeOffDuty, timeSleeper: logDaily.timeSleeper, timeDriving: logDaily.timeDriving, timeOnDuty: logDaily.timeOnDuty })
+    // );
+    console.log(this.localLogDailies);
     let time = 0;
     localLogEvents.forEach((event, index) => {
       if (event.recordStatus?.code === 'ACTIVE') {
@@ -580,9 +587,57 @@ export class HosPage implements OnInit, OnDestroy {
             timeNotDrive = 0;
             driveT2 = 0;
           }
+          // let durationResult = this.calculateEventDuration(firstEvent);
+          // switch (event.type.code.toUpperCase()) {
+          //   case 'OFF':
+          //   case 'PC':
+          //     console.log(localLogDailies[firstEvent.eventTime.logDate]);
+          //     console.log(firstEvent.eventTime.logDate);
+          //     if (typeof durationResult === 'number') {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeOff += durationResult;
+          //     } else {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeOff += durationResult[firstEvent.eventTime.logDate];
+          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
+          //       localLogDailies[nextDate].timeOff += durationResult[nextDate];
+          //     }
+          //     break;
+
+          //   case 'SB':
+          //     if (typeof durationResult === 'number') {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeSleeper += durationResult;
+          //     } else {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeSleeper += durationResult[firstEvent.eventTime.logDate];
+          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
+          //       localLogDailies[nextDate].timeSleeper += durationResult[nextDate];
+          //     }
+          //     break;
+
+          //   case 'D':
+          //     if (typeof durationResult === 'number') {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeDriving += durationResult;
+          //     } else {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeDriving += durationResult[firstEvent.eventTime.logDate];
+          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
+          //       localLogDailies[nextDate].timeDriving += durationResult[nextDate];
+          //     }
+          //     break;
+
+          //   case 'ON':
+          //   case 'YM':
+          //     if (typeof durationResult === 'number') {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeOnDuty += durationResult;
+          //     } else {
+          //       localLogDailies[firstEvent.eventTime.logDate].timeOnDuty += durationResult[firstEvent.eventTime.logDate];
+          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
+          //       localLogDailies[nextDate].timeOnDuty += durationResult[nextDate];
+          //     }
+          //     break;
+          // }
         }
       }
     });
+
+    console.log('localLogDailies: ', this.localLogDailies);
 
     this.titleBreak = (this.driveWithoutBreakLimit - driveT2) / 1000 < 0 ? 0 : (this.driveWithoutBreakLimit - driveT2) / 1000;
     this.titleCycle = (this.cycleLimit - cycleT) / 1000 < 0 ? 0 : (this.cycleLimit - cycleT) / 1000;
@@ -625,6 +680,15 @@ export class HosPage implements OnInit, OnDestroy {
     //   el.violations = this.violations[el.logDate] || [];
     // });
     // TODO: verify if violations changed before uploading to server
+  }
+
+  calculateEventDuration(event: LogEvents) {
+    let start = new Date(formatDate(event.eventTime.timeStamp, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]));
+    let end = new Date(formatDate(!event.eventTime.timeStampEnd ? new Date().getTime() : event.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]));
+    for(let currentDate = start; currentDate <= end; currentDate.setDate(currentDate.getDate() + 1)) {
+      
+    }
+    
   }
 
   pushViolation(day: string, name: string, date: number) {
@@ -814,8 +878,9 @@ export class HosPage implements OnInit, OnDestroy {
       await this.updateLogEvents(newLogEvent, false);
     }
 
-    await this.updateLogDailies();
+    await this.createLogDailies();
     this.calcViolations();
+    await this.calcRecap();
   }
 
   convertSecondToHours(secs: number): string {
@@ -852,15 +917,15 @@ export class HosPage implements OnInit, OnDestroy {
     return sSign + sHours + ':' + sMinutes;
   }
 
-  toggleSplitSleeperBerth(value: boolean) {
+  async toggleSplitSleeperBerth(value: boolean) {
     this.splitSleeperBerth = value;
     this.calcViolations();
+    await this.calcRecap();
   }
 
-  async updateLogDailies() {
+  async createLogDailies() {
     let currentDate = new Date();
     this.countDays = [];
-    let index = 0;
     this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
     for (let i = 0; i < 14; i++) {
       const dateString = currentDate.toISOString().split('T')[0].replace(/-/g, '/');
@@ -901,7 +966,28 @@ export class HosPage implements OnInit, OnDestroy {
     this.logDailies = this.countDays.slice();
 
     await this.storage.set('logDailies', this.logDailies);
+  }
 
+  async updateLogDailies(logDaily: LogDailies) {
+    if (this.networkStatus) {
+      this.dashboardService.updateLogDaily(logDaily).subscribe(
+        async response => {
+          console.log('LogDaily (durationStatuses) is updated on server:', response);
+          await this.updateIndexLogDaily(logDaily, true);
+        },
+        async error => {
+          console.log('Internet Status: ' + this.networkStatus);
+          await this.updateIndexLogDaily(logDaily, false);
+          console.log('Pushed in logDailies');
+        }
+      );
+    } else {
+      console.log('Updated logEvents in offline array');
+      await this.updateIndexLogDaily(logDaily, false);
+    }
+  }
+
+  async calcRecap() {
     ///////////////////////////////////////////////////////
 
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
@@ -937,8 +1023,6 @@ export class HosPage implements OnInit, OnDestroy {
       durationsBaseON = this.logDailies[i].timeOnDuty;
 
       this.logEvents.forEach(event => {
-        index++;
-        console.log(index);
         if (allSt.includes(event.type.code)) {
           dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
           dateEnd = new Date(
@@ -994,23 +1078,7 @@ export class HosPage implements OnInit, OnDestroy {
         this.logDailies[i].timeDriving = durationsD;
         this.logDailies[i].timeOnDuty = durationsON;
         this.logDailies[i].timeWorked = durationsD + durationsON;
-
-        if (this.networkStatus) {
-          this.dashboardService.updateLogDaily(this.logDailies[i]).subscribe(
-            async response => {
-              console.log('LogDaily (durationStatuses) is updated on server:', response);
-              await this.updateIndexLogDaily(this.logDailies[i], true);
-            },
-            async error => {
-              console.log('Internet Status: ' + this.networkStatus);
-              await this.updateIndexLogDaily(this.logDailies[i], false);
-              console.log('Pushed in logDailies');
-            }
-          );
-        } else {
-          console.log('Updated logEvents in offline array');
-          await this.updateIndexLogDaily(this.logDailies[i], false);
-        }
+        await this.updateLogDailies(this.logDailies[i]);
       }
     }
   }
@@ -1095,9 +1163,10 @@ export class HosPage implements OnInit, OnDestroy {
   updateEveryMinute() {
     setInterval(async () => {
       console.log('Every Minute Update');
-      await this.updateLogDailies();
+      await this.createLogDailies();
       await this.uploadDriverStatus();
       this.calcViolations();
+      await this.calcRecap();
     }, 60000);
   }
 
