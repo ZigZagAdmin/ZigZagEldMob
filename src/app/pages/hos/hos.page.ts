@@ -34,7 +34,7 @@ export class HosPage implements OnInit, OnDestroy {
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
   countDays: LogDailies[] = [];
-  localLogDailies: { [key: string]: { timeOff: number; timeSleeper: number; timeDriving: number; timeOnDuty: number } } = {};
+  eventLogDailies: { [key: string]: { timeOff: number; timeSleeper: number; timeDriving: number; timeOnDuty: number } } = {};
 
 
   selectedButton: string = '';
@@ -433,7 +433,7 @@ export class HosPage implements OnInit, OnDestroy {
     // this.logDailies.forEach(
     //   logDaily => (localLogDailies[logDaily.logDate] = { timeOff: logDaily.timeOffDuty, timeSleeper: logDaily.timeSleeper, timeDriving: logDaily.timeDriving, timeOnDuty: logDaily.timeOnDuty })
     // );
-    console.log(this.localLogDailies);
+    console.log(this.eventLogDailies);
     let time = 0;
     localLogEvents.forEach((event, index) => {
       if (event.recordStatus?.code === 'ACTIVE') {
@@ -637,7 +637,7 @@ export class HosPage implements OnInit, OnDestroy {
       }
     });
 
-    console.log('localLogDailies: ', this.localLogDailies);
+    console.log('localLogDailies: ', this.eventLogDailies);
 
     this.titleBreak = (this.driveWithoutBreakLimit - driveT2) / 1000 < 0 ? 0 : (this.driveWithoutBreakLimit - driveT2) / 1000;
     this.titleCycle = (this.cycleLimit - cycleT) / 1000 < 0 ? 0 : (this.cycleLimit - cycleT) / 1000;
@@ -686,7 +686,7 @@ export class HosPage implements OnInit, OnDestroy {
     let start = new Date(formatDate(event.eventTime.timeStamp, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]));
     let end = new Date(formatDate(!event.eventTime.timeStampEnd ? new Date().getTime() : event.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]));
     for(let currentDate = start; currentDate <= end; currentDate.setDate(currentDate.getDate() + 1)) {
-      
+      this.eventLogDailies[formatDate(event.eventTime.timeStamp, 'yyyy/MM/dd', 'en_US' )]
     }
     
   }
