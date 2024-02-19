@@ -139,6 +139,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       this.logDailies = logDailies;
       this.logDailyId = queryParams['logDailyId'];
       this.logDaily = this.logDailies.find(logDaily => logDaily.logDailyId === queryParams['logDailyId']);
+      this.violations[this.logDaily.logDate] = JSON.parse(JSON.stringify(this.logDaily.violations));
       this.logEvents = logEvents;
       this.logEvent = this.logEvents.find(logEvent => logEvent.logEventId === queryParams['logEventId']);
       this.calculateDuration();
@@ -364,10 +365,11 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   }
 
   async save() {
-    if(this.violations[this.logDaily.logDate] && this.violations[this.logDaily.logDate].length !== 0) {
-      this.toastService.showToast('Please resolve the violations before saving!');
-      return;
-    }
+    // if(this.violations[this.logDaily.logDate] && this.violations[this.logDaily.logDate].length !== 0) {
+    //   this.toastService.showToast('Please resolve the violations before saving!');
+    //   return;
+    // }
+    this.logDaily.violations = this.violations[this.logDaily.logDate] ? JSON.parse(JSON.stringify(this.violations[this.logDaily.logDate])) : [];
     this.noValidation = false;
     if (!this.validation.startTime) {
       this.toastService.showToast('Start Time not valid!');
@@ -383,6 +385,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
 
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
 
+    await this.updateLogDailies(this.logDaily);
+
     if ((await Network.getStatus()).connected) {
       await this.dashboardService
         .updateLogEvent(this.logEvent)
@@ -390,14 +394,14 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         .then(async response => {
           console.log('Last LogEvent is updated on server:', response);
           await this.updateIndexLogEvents(this.logEvent, true);
-          this.loading = false;
-          this.goBack();
+          // this.loading = false;
+          // this.goBack();
         })
         .catch(async error => {
           console.log('Last LogEvent Pushed in offline logEvents array');
           await this.updateIndexLogEvents(this.logEvent, false);
-          this.loading = false;
-          this.goBack();
+          // this.loading = false;
+          // this.goBack();
         });
       await this.dashboardService
         .updateLogEvent(this._statusesOnDay[index - 1])
@@ -835,5 +839,29 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     } catch (e) {
       console.log(e);
     }
+  }
+  async updateLogDailies(logDaily: LogDailies) {
+    if ((await Network.getStatus()).connected) {
+      await firstValueFrom(this.dashboardService.updateLogDaily(logDaily))
+        .then(async response => {
+          console.log('LogDaily (durationStatuses) is updated on server:', response);
+          await this.updateIndexLogDaily(logDaily, true);
+        })
+        .catch(async error => {
+          await this.updateIndexLogDaily(logDaily, false);
+          console.log('Pushed in logDailies');
+        });
+    } else {
+      console.log('Updated logEvents in offline array');
+      await this.updateIndexLogDaily(logDaily, false);
+    }
+  }
+  async updateIndexLogDaily(logDailyData: LogDailies, online: boolean) {
+    logDailyData.sent = online;
+    const index = this.logDailies.findIndex(item => item.logDailyId === logDailyData.logDailyId);
+    if (index !== -1) {
+      this.logDailies[index] = logDailyData;
+    }
+    await this.storage.set('logDailies', this.logDailies);
   }
 }

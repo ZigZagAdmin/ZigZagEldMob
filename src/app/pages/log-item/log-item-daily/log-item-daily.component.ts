@@ -156,6 +156,7 @@ export class LogItemDailyComponent implements OnInit {
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           if (this.logDaily) {
             this.currentDay = this.logDaily.logDate;
+            console.log(this.logDaily);
             this.fillFormWithLogDailyData();
           }
           this.drawGraph();
