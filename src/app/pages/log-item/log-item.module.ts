@@ -13,6 +13,7 @@ import { ScrollToolbarComponentModule } from 'src/app/components/scroll-toolbar/
 import { InputComponentModule } from 'src/app/components/input/input.module';
 import { LogItemDailyComponent } from './log-item-daily/log-item-daily.component';
 import { HosPageModule } from '../hos/hos.module';
+import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 @NgModule({
   imports: [
     CommonModule,
@@ -23,7 +24,8 @@ import { HosPageModule } from '../hos/hos.module';
     HeaderComponentModule,
     ScrollToolbarComponentModule,
     InputComponentModule,
-    HosPageModule
+    HosPageModule,
+    PageLoaderComponentModule
   ],
   declarations: [LogItemPage, ConverStringDateToMilisecondsPipe, ConvertMilisecondsToHoursAndMinutesPipe, LogItemDailyComponent],
 })

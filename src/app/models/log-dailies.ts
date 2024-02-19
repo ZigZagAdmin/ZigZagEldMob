@@ -1,4 +1,4 @@
-import { Driver } from "./driver";
+import { Driver } from './driver';
 
 export interface LogDailies {
   logDailyId: string;
@@ -11,7 +11,14 @@ export interface LogDailies {
   timeDriving: number;
   timeOnDuty: number;
   timeWorked: number;
-  violations: string[];
+  violations: {
+    startTime: number;
+    timeZone: string;
+    regulations: {
+      code: string;
+      name: string;
+    };
+  }[];
   formManner: boolean;
   certified: boolean;
   form: IForm;

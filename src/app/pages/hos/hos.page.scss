@@ -179,6 +179,14 @@
             color: var(--gray-500);
           }
         }
+        div.subtitle {
+          font-size: 16px;
+          font-weight: 500;
+          color: var(--gray-700);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
       }
       .log-right {
         background-color: var(--success-500);
@@ -265,4 +273,18 @@ ion-progress-bar #progress-cycle {
 
 .service-off {
   background-color: var(--error-500);
+}
+
+.violation-number {
+  color: var(--error-600);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  img {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+  }
 }

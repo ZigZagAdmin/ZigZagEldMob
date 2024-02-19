@@ -189,7 +189,7 @@
     </div>
     <div class="switch-sleep">
       <p class="subtitle">Split Sleeper Berth</p>
-      <app-toggle-switch [isChecked]="false" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
+      <app-toggle-switch [isChecked]="splitSleeperBerth" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
     </div>
     <button class="btn primary-btn" (click)="switchMode()">
       <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />
@@ -200,7 +200,10 @@
     <div class="log-dailies">
       <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
         <div class="log-left">
-          <p class="subtitle">{{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date: 'MMMM dd' }}</p>
+          <div class="subtitle">
+            {{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date: 'MMMM dd' }}
+            <div *ngIf="logDaily.violations.length !== 0" class="violation-number"><img src="../../../assets/icon/violation.svg" />{{logDaily.violations.length}}</div>
+          </div>
           <div class="sub-info">
             <div class="status-dot" [ngClass]="{'status-dot-error': !logDaily.formManner, 'status-dot-success': logDaily.formManner }"></div>
             <p>Form</p>

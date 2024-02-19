@@ -18,6 +18,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { ManageService } from 'src/app/services/manage.service';
 import { timeZoneSummer, timeZoneWinter, seasonChanges } from 'src/app/models/timeZone';
 import { Network } from '@capacitor/network';
+import { hosErrors } from 'src/app/utilities/hos-errors';
 
 @Component({
   selector: 'app-log-item-daily',
@@ -90,6 +91,13 @@ export class LogItemDailyComponent implements OnInit {
   durationsD = 0;
   durationsON = 0;
 
+  violationRect = {
+    x1: 0,
+    x2: 0,
+  };
+
+  pageLoading: boolean = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -119,8 +127,10 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   async ionViewWillEnter() {
+    this.pageLoading = true;
     this.shareService.destroyMessage();
     this.shareService.changeMessage('reset');
+    this.clearRect();
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
     this.vehicleUnit = await this.storage.get('vehicleUnit');
@@ -150,6 +160,7 @@ export class LogItemDailyComponent implements OnInit {
           }
           this.drawGraph();
           this.fillFormWithLogDailyData();
+          this.pageLoading = false;
         });
       }
     });
@@ -252,26 +263,26 @@ export class LogItemDailyComponent implements OnInit {
             case 'PC':
               this.yBgn = 25;
               this.yEnd = 25;
-              this.durationsOFF += (this.xEnd - this.xBgn)
+              this.durationsOFF += this.xEnd - this.xBgn;
               break;
 
             case 'SB':
               this.yBgn = 75;
               this.yEnd = 75;
-              this.durationsSB += (this.xEnd - this.xBgn)
+              this.durationsSB += this.xEnd - this.xBgn;
               break;
 
             case 'D':
               this.yBgn = 125;
               this.yEnd = 125;
-              this.durationsD += (this.xEnd - this.xBgn)
+              this.durationsD += this.xEnd - this.xBgn;
               break;
 
             case 'ON':
             case 'YM':
               this.yBgn = 175;
               this.yEnd = 175;
-              this.durationsON += (this.xEnd - this.xBgn)
+              this.durationsON += this.xEnd - this.xBgn;
               break;
           }
 
@@ -375,11 +386,8 @@ export class LogItemDailyComponent implements OnInit {
     });
   }
 
-  navigateToInsertDutyStatus() {}
-
-  navigateToEditDutyStatus() {}
-
   goToNextLog() {
+    this.clearRect();
     const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const nextIndex = currentIndex + 1;
 
@@ -392,6 +400,7 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   goToPreviousLog() {
+    this.clearRect();
     const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const previousIndex = currentIndex - 1;
 
@@ -578,5 +587,48 @@ export class LogItemDailyComponent implements OnInit {
     limitDate.setHours(0, 0, 0, 0);
     limitDate.setDate(new Date().getDate() - 7);
     return limitDate.getTime() <= new Date(this.logDaily?.logDate).getTime();
+  }
+
+  clearRect() {
+    this.violationRect.x1 = 0;
+    this.violationRect.x2 = 0;
+  }
+
+  toggleViolationRect(violation: {
+    startTime: number;
+    regulations: {
+      code: string;
+      name: string;
+    };
+  }) {
+    try {
+      const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+      let index = this.logEvents.findIndex(el => el.eventTime.timeStamp > violation.startTime && allSt.includes(el.type.code));
+      let start = new Date(formatDate(new Date(violation.startTime), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      let end;
+      let sEnd;
+      let begin;
+      let finish;
+      // console.log(this.logEvents[index]);
+      if (this.logEvents[index]?.eventTime?.timeStamp) end = new Date(this.logEvents[index].eventTime.timeStamp);
+      else end = new Date();
+      sEnd = new Date(formatDate(new Date(end), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      if (formatDate(start, 'yyyy/MM/dd', 'en_US') === formatDate(this.currentDay, 'yyyy/MM/dd', 'en_US')) {
+        begin = start.getHours() * 60 + start.getMinutes();
+      } else {
+        begin = 0;
+      }
+      if (formatDate(sEnd, 'yyyy/MM/dd', 'en_US') === formatDate(this.currentDay, 'yyyy/MM/dd', 'en_US')) {
+        finish = sEnd.getHours() * 60 + sEnd.getMinutes();
+        // console.log(sEnd);
+      } else {
+        finish = 1440;
+      }
+
+      this.violationRect.x1 = begin;
+      this.violationRect.x2 = finish;
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

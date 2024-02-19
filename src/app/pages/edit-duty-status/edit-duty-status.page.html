@@ -93,10 +93,18 @@
           </g>
         </g>
         <g transform="translate(65, 40)">
-          <rect [attr.x]="currentLogEventRect.x1" [attr.width]="currentLogEventRect.x2 - currentLogEventRect.x1" class="error-status-viol" height="200"></rect>
+          <rect [attr.x]="currentLogEventRect.x1" [attr.width]="currentLogEventRect.x2 - currentLogEventRect.x1" class="current-status" height="200"></rect>
+        </g>
+        <g transform="translate(65, 40)">
+          <rect [attr.x]="violationRect.x1" [attr.width]="violationRect.x2 - violationRect.x1" class="error-status-viol" height="200"></rect>
         </g>
       </svg>
       <div class="range-container" *ngIf="!disableForm['timeInput']"><span>Min: {{ minValue }}</span><span>Max: {{ maxValue }}</span></div>
+      <div class="violation-list" *ngIf="violations[logDaily.logDate] && violations[logDaily.logDate].length !== 0">
+        <div class="violation-item" *ngFor="let violation of violations[logDaily.logDate]" (click)="toggleViolationRect(violation)">
+          {{ violation?.regulations?.name + ' ' }}{{ violation?.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
+        </div>
+      </div>
     </div>
     <div class="time-inputs">
       <app-date-time

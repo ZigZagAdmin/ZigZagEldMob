@@ -15,6 +15,7 @@ import { LocationService } from 'src/app/services/location.service';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
+import { hosErrors } from 'src/app/utilities/hos-errors';
 
 @Component({
   selector: 'app-edit-duty-status',
@@ -93,6 +94,24 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   locationLoading: boolean = false;
   locationDisable: boolean = false;
 
+  splitSleeperBerth: boolean;
+  violations: any = {};
+  splitSleepData: { duration: number; drivingT: number; time: number };
+  bResetTimeLast7Day: boolean;
+  newShift = 36000000; // 10 часов
+  driveLimit = 39540000 + 60000; // 11 часов
+  shiftLimit = 50400000; // 14 часов
+  cycleLimit = 252000000; // 70 часов
+  driveWithoutBreakLimit = 28800000; // 8 часов
+  restartTime = 122400000; // 34 часа
+  notDriveLimit = 30 * 60 * 1000; // 30min
+  inspectionTime = 691200000; // 8 дней
+
+  violationRect = {
+    x1: 0,
+    x2: 0,
+  };
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -105,16 +124,18 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     private locationService: LocationService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
     let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
     let queryParams$ = firstValueFrom(this.route.queryParams);
     let timeZone$ = this.storage.get('timeZone');
+    let splitSleeperBerth$ = this.storage.get('splitSleeperBerth');
 
-    forkJoin([queryParams$, timeZone$, logDailies$, logEvents$]).subscribe(([queryParams, timeZone, logDailies, logEvents]) => {
+    forkJoin([queryParams$, timeZone$, logDailies$, logEvents$, splitSleeperBerth$]).subscribe(([queryParams, timeZone, logDailies, logEvents, splitSleeperBerth]) => {
       this.timeZone = timeZone;
+      this.splitSleeperBerth = splitSleeperBerth;
       this.logDailies = logDailies;
       this.logDailyId = queryParams['logDailyId'];
       this.logDaily = this.logDailies.find(logDaily => logDaily.logDailyId === queryParams['logDailyId']);
@@ -343,6 +364,10 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   }
 
   async save() {
+    if(this.violations[this.logDaily.logDate] && this.violations[this.logDaily.logDate].length !== 0) {
+      this.toastService.showToast('Please resolve the violations before saving!');
+      return;
+    }
     this.noValidation = false;
     if (!this.validation.startTime) {
       this.toastService.showToast('Start Time not valid!');
@@ -413,7 +438,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     await this.storage.set('logEvents', this.logEvents);
   }
 
-  getNewStartDate(date: number) {
+  async getNewStartDate(date: number) {
+    this.clearRect();
     const minPeriod = 60000;
 
     if (!this.logEvent.eventTime.timeStampEnd || (this.logEvent.eventTime.timeStampEnd && this.logEvent.eventTime.timeStampEnd === 0)) this.logEvent.eventTime.timeStampEnd = new Date().getTime();
@@ -484,6 +510,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       return index === -1 ? el : JSON.parse(JSON.stringify(this._statusesOnDay[index]));
     });
     this.drawGraph();
+    await this.calcViolations();
   }
 
   disableWhenDrivingFromELD() {
@@ -576,6 +603,235 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       let idx1 = this.eventGraphicLine.findIndex(el => el.historyId === this.logEvent.logEventId);
       this.currentLogEventRect.x1 = this.eventGraphicLine[idx1].x1;
       this.currentLogEventRect.x2 = this.eventGraphicLine[idx1].x2;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async calcViolations() {
+    this.bResetTimeLast7Day = false;
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+    this.violations = {};
+    let breakT = 0;
+    let driveT = 0;
+    let driveT2 = 0;
+    let shiftT = 0;
+    let cycleT = 0;
+    let firstEvent: LogEvents;
+    let secondEvent: LogEvents;
+
+    let timeNotDrive = 0;
+
+    this.splitSleepData = undefined;
+
+    let localLogEvents: LogEvents[] = JSON.parse(JSON.stringify(this.logEvents));
+
+    let time = 0;
+    localLogEvents.forEach((event, index) => {
+      if (event.recordStatus?.code === 'ACTIVE') {
+        if (allSt.includes(event.type?.code)) {
+          firstEvent = JSON.parse(JSON.stringify(event));
+          secondEvent = JSON.parse(JSON.stringify(event));
+          secondEvent.eventTime.timeStamp = !event.eventTime.timeStampEnd ? new Date().getTime() : JSON.parse(JSON.stringify(event.eventTime.timeStampEnd));
+          time = secondEvent.eventTime.timeStamp - firstEvent.eventTime.timeStamp;
+
+          switch (firstEvent.type.code) {
+            case 'OFF':
+            case 'SB':
+            case 'PC':
+              breakT += time;
+              shiftT += time;
+              timeNotDrive += time;
+
+              if (this.splitSleeperBerth) {
+                if ((firstEvent.type.code === 'SB' || firstEvent.type.code === 'OFF') && time >= 7200000 && time < this.newShift) {
+                  let dur = Math.trunc(time / 1000 / 60 / 60);
+                  let splitTime = 2;
+                  if (dur >= 2 && dur < 3) {
+                    splitTime = 2;
+                  } else if (dur >= 3 && dur < 7) {
+                    splitTime = 3;
+                  } else if (dur >= 3 && dur < 8 && firstEvent.type.code === 'SB') {
+                    splitTime = 7;
+                  } else if (firstEvent.type.code === 'SB') {
+                    splitTime = 8;
+                  }
+
+                  if ((splitTime >= 7 && firstEvent.type.code === 'SB') || (splitTime < 7 && dur < 7)) {
+                    shiftT = shiftT - time;
+                    let temp = {
+                      duration: splitTime,
+                      time: shiftT,
+                      drivingT: driveT,
+                    };
+
+                    if (!this.splitSleepData && shiftT) {
+                      this.splitSleepData = temp;
+                    } else if (this.splitSleepData && shiftT) {
+                      if (splitTime + this.splitSleepData.duration >= 10) {
+                        shiftT -= this.splitSleepData.time;
+                        driveT -= this.splitSleepData.drivingT;
+                        this.splitSleepData = {
+                          duration: splitTime,
+                          time: shiftT,
+                          drivingT: driveT,
+                        };
+                      }
+                    }
+                  }
+                }
+              }
+
+              if (breakT >= this.newShift) {
+                driveT = 0;
+                shiftT = 0;
+                this.splitSleepData = undefined;
+              }
+              if (breakT >= this.restartTime) {
+                shiftT = 0;
+                cycleT = 0;
+                driveT = 0;
+                this.splitSleepData = undefined;
+                let timeLast7Days = new Date(this.logDailies[7].logDate).getTime();
+                if (secondEvent.eventTime.timeStamp > timeLast7Days) {
+                  this.bResetTimeLast7Day = true;
+                }
+              }
+              break;
+            case 'ON':
+            case 'YM':
+              breakT = 0;
+              timeNotDrive += time;
+              shiftT += time;
+              cycleT += time;
+              if (shiftT > this.shiftLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  hosErrors.DUTY_LIMIT,
+                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                );
+                shiftT = 0;
+              }
+              if (cycleT > this.cycleLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  hosErrors.US_70_8,
+                  secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)
+                );
+                cycleT = 0;
+              }
+              break;
+            case 'D':
+              breakT = 0;
+              driveT2 += time;
+              driveT += time;
+              shiftT += time;
+              cycleT += time;
+              if (driveT2 > this.driveWithoutBreakLimit && timeNotDrive < this.notDriveLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  hosErrors.REST_BREAK,
+                  secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)
+                );
+              }
+              // if (time > this.driveWithoutBreakLimit) {
+              //   this.pushViolation(
+              //     formatDate(new Date(firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+              //     'Driving non-stop for more than 8 hours',
+              //     firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit
+              //   );
+              // }
+              if (driveT > this.driveLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (driveT - this.driveLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  hosErrors.DRIVING,
+                  secondEvent.eventTime.timeStamp - (driveT - this.driveLimit)
+                );
+                driveT = 0;
+              }
+              if (shiftT > this.shiftLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  hosErrors.DUTY_LIMIT,
+                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                );
+                shiftT = 0;
+              }
+              if (cycleT > this.cycleLimit) {
+                this.pushViolation(
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  hosErrors.US_70_8,
+                  secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)
+                );
+                cycleT = 0;
+              }
+              timeNotDrive = 0;
+              break;
+          }
+          if (timeNotDrive >= this.notDriveLimit) {
+            timeNotDrive = 0;
+            driveT2 = 0;
+          }
+        }
+      }
+    });
+    console.log(this.violations);
+  }
+
+  pushViolation(day: string, error: { code: string; name: string }, date: number) {
+    let local = {
+      startTime: date,
+      timeZone: '',
+      regulations: {
+        code: error.code,
+        name: error.name,
+      },
+    };
+    if (this.violations[day]) {
+      this.violations[day].push(local);
+    } else {
+      this.violations[day] = [local];
+    }
+  }
+
+  clearRect() {
+    this.violationRect.x1 = 0;
+    this.violationRect.x2 = 0;
+  }
+
+  toggleViolationRect(violation: {
+    startTime: number;
+    regulations: {
+      code: string;
+      name: string;
+    };
+  }) {
+    try {
+      const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+      let index = this.logEvents.findIndex(el => el.eventTime.timeStamp > violation.startTime && allSt.includes(el.type.code));
+      let start = new Date(formatDate(new Date(violation.startTime), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      let end;
+      let sEnd;
+      let begin;
+      let finish;
+      // console.log(this.logEvents[index]);
+      if (this.logEvents[index]?.eventTime?.timeStamp) end = new Date(this.logEvents[index].eventTime.timeStamp);
+      else end = new Date();
+      sEnd = new Date(formatDate(new Date(end), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      if (formatDate(start, 'yyyy/MM/dd', 'en_US') === formatDate(this.currentDay, 'yyyy/MM/dd', 'en_US')) {
+        begin = start.getHours() * 60 + start.getMinutes();
+      } else {
+        begin = 0;
+      }
+      if (formatDate(sEnd, 'yyyy/MM/dd', 'en_US') === formatDate(this.currentDay, 'yyyy/MM/dd', 'en_US')) {
+        finish = sEnd.getHours() * 60 + sEnd.getMinutes();
+        // console.log(sEnd);
+      } else {
+        finish = 1440;
+      }
+
+      this.violationRect.x1 = begin;
+      this.violationRect.x2 = finish;
     } catch (e) {
       console.log(e);
     }

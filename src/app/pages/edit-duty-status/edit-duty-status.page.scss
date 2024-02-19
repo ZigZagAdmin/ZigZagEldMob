@@ -126,9 +126,9 @@ line {
   height: 100px;
 }
 
-.error-status-viol {
+.current-status {
   fill: var(--gray-400) !important;
-  stroke: var(--success-400);
+  stroke: var(--gray-400);
   opacity: 0.2;
   stroke-width: 1px;
 }
@@ -146,4 +146,29 @@ line {
 
 .disable-click {
   pointer-events: none;
+}
+
+.violation-list {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .violation-item {
+    font-size: 11px;
+    color: var(--error-600);
+    border: 1px solid var(--error-600);
+    background-color: var(--error-50);
+    padding: 5px 10px;
+    border-radius: 50px;
+  }
+}
+
+.error-status-viol {
+  fill: var(--error-600) !important;
+  stroke: var(--error-600);
+  opacity: 0.2;
+  stroke-width: 1px;
 }

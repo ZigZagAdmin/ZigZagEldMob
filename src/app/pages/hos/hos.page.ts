@@ -20,6 +20,7 @@ import { ShareService } from 'src/app/services/share.service';
 import { Capacitor } from '@capacitor/core';
 import { Location } from 'src/app/models/dvirs';
 import { Network } from '@capacitor/network';
+import { hosErrors } from 'src/app/utilities/hos-errors';
 
 @Component({
   selector: 'app-hos',
@@ -133,6 +134,8 @@ export class HosPage implements OnInit, OnDestroy {
   splitSleepData: { duration: number; drivingT: number; time: number };
   splitSleeperBerth: boolean = false;
   violations: any = {};
+  ionViewTrigger: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -193,6 +196,22 @@ export class HosPage implements OnInit, OnDestroy {
       }
     });
 
+    this.paramsSubscription = this.route.params.subscribe(async params => {
+      if (this.bReady) {
+        await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
+          if (!this.ionViewTrigger) {
+            this.pageLoading = true;
+            if (logDailies.length !== 0) this.logDailies = logDailies;
+            await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
+            await this.createLogDailies();
+            await this.calcViolations();
+            this.pageLoading = false;
+            console.log('Updated form params');
+          }
+        });
+      }
+    });
+
     this.updateEveryMinute();
 
     setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
@@ -203,6 +222,7 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async ionViewWillEnter() {
+    this.ionViewTrigger = true;
     this.getVehicle();
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
@@ -211,6 +231,8 @@ export class HosPage implements OnInit, OnDestroy {
     this.bAuthorized = await this.storage.get('bAuthorized');
     this.driverName = await this.storage.get('name');
     this.pickedVehicle = await this.storage.get('vehicleUnit');
+    let localSplitSleep = await this.storage.get('splitSleeperBerth');
+    await this.handleSplitSleep(localSplitSleep);
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
         this.bReady = ready;
@@ -306,18 +328,21 @@ export class HosPage implements OnInit, OnDestroy {
           }
 
           await this.createLogDailies();
-          this.calcViolations();
+          await this.calcViolations();
+          this.ionViewTrigger = false;
           this.pageLoading = false;
         });
       }
     });
-    this.paramsSubscription = this.route.params.subscribe(params => {
-      if (this.bReady) {
-        this.databaseSubscription = this.databaseService.getLogDailies().subscribe(logDailies => {
-          if (logDailies.length !== 0) this.logDailies = logDailies;
-        });
-      }
-    });
+  }
+
+  async handleSplitSleep(value: boolean | undefined | null) {
+    if (value === null || value === undefined) {
+      this.splitSleeperBerth = false;
+    } else {
+      this.splitSleeperBerth = value;
+    }
+    await this.storage.set('splitSleeperBerth', this.splitSleeperBerth);
   }
 
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
@@ -516,7 +541,7 @@ export class HosPage implements OnInit, OnDestroy {
               if (shiftT > this.shiftLimit) {
                 this.pushViolation(
                   formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
-                  'Shift more than 14 hours',
+                  hosErrors.DUTY_LIMIT,
                   secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
                 );
                 shiftT = 0;
@@ -524,7 +549,7 @@ export class HosPage implements OnInit, OnDestroy {
               if (cycleT > this.cycleLimit) {
                 this.pushViolation(
                   formatDate(new Date(secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
-                  'Cycle over 70 hours',
+                  hosErrors.US_70_8,
                   secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)
                 );
                 cycleT = 0;
@@ -539,21 +564,21 @@ export class HosPage implements OnInit, OnDestroy {
               if (driveT2 > this.driveWithoutBreakLimit && timeNotDrive < this.notDriveLimit) {
                 this.pushViolation(
                   formatDate(new Date(secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
-                  'Break violation',
+                  hosErrors.REST_BREAK,
                   secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)
                 );
               }
-              if (time > this.driveWithoutBreakLimit) {
-                this.pushViolation(
-                  formatDate(new Date(firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
-                  'Driving non-stop for more than 8 hours',
-                  firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit
-                );
-              }
+              // if (time > this.driveWithoutBreakLimit) {
+              //   this.pushViolation(
+              //     formatDate(new Date(firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+              //     'Driving non-stop for more than 8 hours',
+              //     firstEvent.eventTime.timeStamp + this.driveWithoutBreakLimit
+              //   );
+              // }
               if (driveT > this.driveLimit) {
                 this.pushViolation(
                   formatDate(new Date(secondEvent.eventTime.timeStamp - (driveT - this.driveLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
-                  'Driving Violation',
+                  hosErrors.DRIVING,
                   secondEvent.eventTime.timeStamp - (driveT - this.driveLimit)
                 );
                 driveT = 0;
@@ -561,7 +586,7 @@ export class HosPage implements OnInit, OnDestroy {
               if (shiftT > this.shiftLimit) {
                 this.pushViolation(
                   formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
-                  'Shift more than 14 hours',
+                  hosErrors.DUTY_LIMIT,
                   secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
                 );
                 shiftT = 0;
@@ -569,7 +594,7 @@ export class HosPage implements OnInit, OnDestroy {
               if (cycleT > this.cycleLimit) {
                 this.pushViolation(
                   formatDate(new Date(secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
-                  'Cycle over 70 hours',
+                  hosErrors.US_70_8,
                   secondEvent.eventTime.timeStamp - (cycleT - this.cycleLimit)
                 );
                 cycleT = 0;
@@ -656,24 +681,6 @@ export class HosPage implements OnInit, OnDestroy {
       }
     });
 
-    for (const logDaily of this.logDailies) {
-      if (this.eventLogDailies[logDaily.logDate]) {
-        let check =
-          logDaily.timeDriving !== Math.floor(this.eventLogDailies[logDaily.logDate].timeDriving) ||
-          logDaily.timeOffDuty !== Math.floor(this.eventLogDailies[logDaily.logDate].timeOff) ||
-          logDaily.timeOnDuty !== Math.floor(this.eventLogDailies[logDaily.logDate].timeOnDuty) ||
-          logDaily.timeSleeper !== Math.floor(this.eventLogDailies[logDaily.logDate].timeSleeper);
-        logDaily.timeDriving = Math.floor(this.eventLogDailies[logDaily.logDate].timeDriving);
-        logDaily.timeOffDuty = Math.floor(this.eventLogDailies[logDaily.logDate].timeOff);
-        logDaily.timeOnDuty = Math.floor(this.eventLogDailies[logDaily.logDate].timeOnDuty);
-        logDaily.timeSleeper = Math.floor(this.eventLogDailies[logDaily.logDate].timeSleeper);
-        logDaily.timeWorked = Math.floor(this.eventLogDailies[logDaily.logDate].timeWorked);
-        if (check) {
-          await this.updateLogDailies(logDaily);
-        }
-      }
-    }
-
     this.titleBreak = (this.driveWithoutBreakLimit - driveT2) / 1000 < 0 ? 0 : (this.driveWithoutBreakLimit - driveT2) / 1000;
     this.titleCycle = (this.cycleLimit - cycleT) / 1000 < 0 ? 0 : (this.cycleLimit - cycleT) / 1000;
     this.titleDriving = (this.driveLimit - driveT) / 1000 < 0 ? 0 : (this.driveLimit - driveT) / 1000;
@@ -709,14 +716,38 @@ export class HosPage implements OnInit, OnDestroy {
     this.progressBreak = (100 * this.restBreak) / (30 * 60) / 100;
     this.progressShift = (100 * this.restShift) / (10 * 60 * 60) / 100;
     this.progressCycle = (100 * this.restCycle) / (34 * 60 * 60) / 100;
+
+    for (const logDaily of this.logDailies) {
+      if (this.eventLogDailies[logDaily.logDate]) {
+        let check =
+          logDaily.timeDriving !== Math.floor(this.eventLogDailies[logDaily.logDate].timeDriving) ||
+          logDaily.timeOffDuty !== Math.floor(this.eventLogDailies[logDaily.logDate].timeOff) ||
+          logDaily.timeOnDuty !== Math.floor(this.eventLogDailies[logDaily.logDate].timeOnDuty) ||
+          logDaily.timeSleeper !== Math.floor(this.eventLogDailies[logDaily.logDate].timeSleeper);
+        let check2 =
+          !!this.violations[logDaily.logDate] && this.violations[logDaily.logDate].length !== 0 ? JSON.stringify(this.violations[logDaily.logDate]) !== JSON.stringify(logDaily.violations) : false;
+        logDaily.violations = this.violations[logDaily.logDate] ? JSON.parse(JSON.stringify(this.violations[logDaily.logDate])) : [];
+        logDaily.timeDriving = Math.floor(this.eventLogDailies[logDaily.logDate].timeDriving);
+        logDaily.timeOffDuty = Math.floor(this.eventLogDailies[logDaily.logDate].timeOff);
+        logDaily.timeOnDuty = Math.floor(this.eventLogDailies[logDaily.logDate].timeOnDuty);
+        logDaily.timeSleeper = Math.floor(this.eventLogDailies[logDaily.logDate].timeSleeper);
+        logDaily.timeWorked = Math.floor(this.eventLogDailies[logDaily.logDate].timeWorked);
+        if (check || check2) {
+          await this.updateLogDailies(logDaily);
+          this.changeDetectorRef.detectChanges();
+        }
+      }
+    }
     console.log(this.violations);
   }
 
-  pushViolation(day: string, name: string, date: number) {
+  pushViolation(day: string, error: { code: string; name: string }, date: number) {
     let local = {
       startTime: date,
+      timeZone: '',
       regulations: {
-        code: name,
+        code: error.code,
+        name: error.name,
       },
     };
     if (this.violations[day]) {
@@ -938,7 +969,7 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async toggleSplitSleeperBerth(value: boolean) {
-    this.splitSleeperBerth = value;
+    this.handleSplitSleep(value);
     await this.calcViolations();
   }
 

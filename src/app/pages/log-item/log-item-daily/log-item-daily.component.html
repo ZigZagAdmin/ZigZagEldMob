@@ -3,8 +3,8 @@
     <div class="preview-container" (click)="nevigateToInspection()" *ngIf="canBeInspected()"><img src="../../../assets/imgs/eye.png" /></div>
   </app-header>
 
-  <app-scroll-toolbar [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
-  <div class="padding-g">
+  <app-scroll-toolbar *ngIf="!pageLoading" [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
+  <div class="padding-g" *ngIf="!pageLoading">
     <div class="card-info">
       <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
         <g class="grid" transform="translate(65, 40)">
@@ -95,7 +95,16 @@
             <line *ngIf="event.yV > 0" [attr.x1]="event.x1" [attr.x2]="event.x1" [attr.y1]="event.y1" [attr.y2]="event.yV" class="vertical"></line>
           </g>
         </g>
+
+        <g transform="translate(65, 40)">
+          <rect [attr.x]="violationRect.x1" [attr.width]="violationRect.x2 - violationRect.x1" class="error-status-viol" height="200"></rect>
+        </g>
       </svg>
+      <div class="violation-list" *ngIf="logDaily?.violations.length !== 0">
+        <div class="violation-item" *ngFor="let violation of logDaily?.violations" (click)="toggleViolationRect(violation)">
+          {{ violation?.regulations.name + ' ' }}{{ violation.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
+        </div>
+      </div>
     </div>
     <div class="edit-form">
       <div class="form-title">
@@ -181,4 +190,5 @@
       </div>
     </div>
   </div>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>
