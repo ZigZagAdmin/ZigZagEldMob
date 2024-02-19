@@ -410,6 +410,7 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async calcViolations() {
+    this.eventLogDailies = {};
     this.bResetTimeLast7Day = false;
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.violations = {};
