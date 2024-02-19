@@ -34,8 +34,7 @@ export class HosPage implements OnInit, OnDestroy {
   logDailies: LogDailies[] = [];
   logEvents: LogEvents[] = [];
   countDays: LogDailies[] = [];
-  eventLogDailies: { [key: string]: { timeOff: number; timeSleeper: number; timeDriving: number; timeOnDuty: number } } = {};
-
+  eventLogDailies: { [key: string]: { timeOff: number; timeSleeper: number; timeDriving: number; timeOnDuty: number; timeWorked: number } } = {};
 
   selectedButton: string = '';
   progressBreak = 0;
@@ -176,7 +175,6 @@ export class HosPage implements OnInit, OnDestroy {
 
     this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
-      console.log('HoS network: ', state);
       if (!state) {
         this.bannerInfo = {
           show: true,
@@ -309,7 +307,6 @@ export class HosPage implements OnInit, OnDestroy {
 
           await this.createLogDailies();
           this.calcViolations();
-          await this.calcRecap();
           this.pageLoading = false;
         });
       }
@@ -412,8 +409,7 @@ export class HosPage implements OnInit, OnDestroy {
     }
   }
 
-  calcViolations() {
-    console.log('calc violations');
+  async calcViolations() {
     this.bResetTimeLast7Day = false;
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.violations = {};
@@ -430,10 +426,7 @@ export class HosPage implements OnInit, OnDestroy {
     this.splitSleepData = undefined;
 
     let localLogEvents: LogEvents[] = JSON.parse(JSON.stringify(this.logEvents));
-    // this.logDailies.forEach(
-    //   logDaily => (localLogDailies[logDaily.logDate] = { timeOff: logDaily.timeOffDuty, timeSleeper: logDaily.timeSleeper, timeDriving: logDaily.timeDriving, timeOnDuty: logDaily.timeOnDuty })
-    // );
-    console.log(this.eventLogDailies);
+
     let time = 0;
     localLogEvents.forEach((event, index) => {
       if (event.recordStatus?.code === 'ACTIVE') {
@@ -587,57 +580,98 @@ export class HosPage implements OnInit, OnDestroy {
             timeNotDrive = 0;
             driveT2 = 0;
           }
-          // let durationResult = this.calculateEventDuration(firstEvent);
-          // switch (event.type.code.toUpperCase()) {
-          //   case 'OFF':
-          //   case 'PC':
-          //     console.log(localLogDailies[firstEvent.eventTime.logDate]);
-          //     console.log(firstEvent.eventTime.logDate);
-          //     if (typeof durationResult === 'number') {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeOff += durationResult;
-          //     } else {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeOff += durationResult[firstEvent.eventTime.logDate];
-          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
-          //       localLogDailies[nextDate].timeOff += durationResult[nextDate];
-          //     }
-          //     break;
 
-          //   case 'SB':
-          //     if (typeof durationResult === 'number') {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeSleeper += durationResult;
-          //     } else {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeSleeper += durationResult[firstEvent.eventTime.logDate];
-          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
-          //       localLogDailies[nextDate].timeSleeper += durationResult[nextDate];
-          //     }
-          //     break;
+          /** CALCULATE RECAP */
 
-          //   case 'D':
-          //     if (typeof durationResult === 'number') {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeDriving += durationResult;
-          //     } else {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeDriving += durationResult[firstEvent.eventTime.logDate];
-          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
-          //       localLogDailies[nextDate].timeDriving += durationResult[nextDate];
-          //     }
-          //     break;
+          if (firstEvent.eventTime.logDate === formatDate(new Date(secondEvent.eventTime.timeStamp), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone])) {
+            let timeRecap = (secondEvent.eventTime.timeStamp - firstEvent.eventTime.timeStamp) / 1000;
+            switch (event.type.code.toUpperCase()) {
+              case 'OFF':
+              case 'PC':
+                this.eventLogDailies[firstEvent.eventTime.logDate].timeOff += timeRecap;
+                break;
 
-          //   case 'ON':
-          //   case 'YM':
-          //     if (typeof durationResult === 'number') {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeOnDuty += durationResult;
-          //     } else {
-          //       localLogDailies[firstEvent.eventTime.logDate].timeOnDuty += durationResult[firstEvent.eventTime.logDate];
-          //       let nextDate = formatDate(!firstEvent.eventTime.timeStampEnd ? new Date().getTime() : firstEvent.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]);
-          //       localLogDailies[nextDate].timeOnDuty += durationResult[nextDate];
-          //     }
-          //     break;
-          // }
+              case 'SB':
+                this.eventLogDailies[firstEvent.eventTime.logDate].timeSleeper += timeRecap;
+                break;
+
+              case 'D':
+                this.eventLogDailies[firstEvent.eventTime.logDate].timeDriving += timeRecap;
+                break;
+
+              case 'ON':
+              case 'YM':
+                this.eventLogDailies[firstEvent.eventTime.logDate].timeOnDuty += timeRecap;
+                break;
+            }
+          } else {
+            let endTime = new Date(formatDate(new Date(secondEvent.eventTime.timeStamp), 'MMM dd hh:mm:ss a', 'en-US', this.timeZones[this.timeZone]));
+            let day = formatDate(new Date(secondEvent.eventTime.timeStamp), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]);
+            let endDayTime = endTime.getHours() * 60 * 60 * 1000 + endTime.getMinutes() * 60 * 1000 + endTime.getSeconds() * 1000;
+            const addTime = (day: string, time: number) => {
+              let timeRecap2 = time / 1000;
+              try {
+                if (!this.eventLogDailies[day]) this.eventLogDailies[day] = { timeOff: 0, timeOnDuty: 0, timeDriving: 0, timeSleeper: 0, timeWorked: 0 };
+
+                switch (event.type.code.toUpperCase()) {
+                  case 'OFF':
+                  case 'PC':
+                    this.eventLogDailies[day].timeOff += timeRecap2;
+                    break;
+
+                  case 'SB':
+                    this.eventLogDailies[day].timeSleeper += timeRecap2;
+                    break;
+
+                  case 'D':
+                    this.eventLogDailies[day].timeDriving += timeRecap2;
+                    break;
+
+                  case 'ON':
+                  case 'YM':
+                    this.eventLogDailies[day].timeOnDuty += timeRecap2;
+                    break;
+                }
+              } catch (e) {
+                console.log(day);
+              }
+            };
+
+            addTime(day, endDayTime);
+            day = formatDate(new Date(day).setDate(new Date(day).getDate() - 1), 'yyyy/MM/dd', 'en-US');
+            while (day != firstEvent.eventTime.logDate) {
+              addTime(day, 24 * 60 * 60 * 1000);
+              let temp = new Date(day);
+              temp.setDate(temp.getDate() - 1);
+              day = formatDate(temp, 'yyyy/MM/dd', 'en-US');
+            }
+            let starTime = new Date(formatDate(new Date(firstEvent.eventTime.timeStamp), 'MMM dd hh:mm:ss a', 'en-US', this.timeZones[this.timeZone]));
+            let startDayTime = 24 * 60 * 60 * 1000 - (starTime.getHours() * 60 * 60 * 1000 + starTime.getMinutes() * 60 * 1000 + starTime.getSeconds() * 1000);
+            addTime(day, startDayTime);
+          }
+          this.eventLogDailies[firstEvent.eventTime.logDate].timeWorked =
+            this.eventLogDailies[firstEvent.eventTime.logDate].timeOnDuty + this.eventLogDailies[firstEvent.eventTime.logDate].timeDriving;
         }
       }
     });
 
-    console.log('localLogDailies: ', this.eventLogDailies);
+    for (const logDaily of this.logDailies) {
+      if (this.eventLogDailies[logDaily.logDate]) {
+        let check =
+          logDaily.timeDriving !== Math.floor(this.eventLogDailies[logDaily.logDate].timeDriving) ||
+          logDaily.timeOffDuty !== Math.floor(this.eventLogDailies[logDaily.logDate].timeOff) ||
+          logDaily.timeOnDuty !== Math.floor(this.eventLogDailies[logDaily.logDate].timeOnDuty) ||
+          logDaily.timeSleeper !== Math.floor(this.eventLogDailies[logDaily.logDate].timeSleeper);
+        logDaily.timeDriving = Math.floor(this.eventLogDailies[logDaily.logDate].timeDriving);
+        logDaily.timeOffDuty = Math.floor(this.eventLogDailies[logDaily.logDate].timeOff);
+        logDaily.timeOnDuty = Math.floor(this.eventLogDailies[logDaily.logDate].timeOnDuty);
+        logDaily.timeSleeper = Math.floor(this.eventLogDailies[logDaily.logDate].timeSleeper);
+        logDaily.timeWorked = Math.floor(this.eventLogDailies[logDaily.logDate].timeWorked);
+        if (check) {
+          await this.updateLogDailies(logDaily);
+        }
+      }
+    }
 
     this.titleBreak = (this.driveWithoutBreakLimit - driveT2) / 1000 < 0 ? 0 : (this.driveWithoutBreakLimit - driveT2) / 1000;
     this.titleCycle = (this.cycleLimit - cycleT) / 1000 < 0 ? 0 : (this.cycleLimit - cycleT) / 1000;
@@ -675,20 +709,6 @@ export class HosPage implements OnInit, OnDestroy {
     this.progressShift = (100 * this.restShift) / (10 * 60 * 60) / 100;
     this.progressCycle = (100 * this.restCycle) / (34 * 60 * 60) / 100;
     console.log(this.violations);
-
-    // this.logDailies.forEach(el => {
-    //   el.violations = this.violations[el.logDate] || [];
-    // });
-    // TODO: verify if violations changed before uploading to server
-  }
-
-  calculateEventDuration(event: LogEvents) {
-    let start = new Date(formatDate(event.eventTime.timeStamp, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]));
-    let end = new Date(formatDate(!event.eventTime.timeStampEnd ? new Date().getTime() : event.eventTime.timeStampEnd, 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone]));
-    for(let currentDate = start; currentDate <= end; currentDate.setDate(currentDate.getDate() + 1)) {
-      this.eventLogDailies[formatDate(event.eventTime.timeStamp, 'yyyy/MM/dd', 'en_US' )]
-    }
-    
   }
 
   pushViolation(day: string, name: string, date: number) {
@@ -879,8 +899,7 @@ export class HosPage implements OnInit, OnDestroy {
     }
 
     await this.createLogDailies();
-    this.calcViolations();
-    await this.calcRecap();
+    await this.calcViolations();
   }
 
   convertSecondToHours(secs: number): string {
@@ -919,8 +938,7 @@ export class HosPage implements OnInit, OnDestroy {
 
   async toggleSplitSleeperBerth(value: boolean) {
     this.splitSleeperBerth = value;
-    this.calcViolations();
-    await this.calcRecap();
+    await this.calcViolations();
   }
 
   async createLogDailies() {
@@ -984,102 +1002,6 @@ export class HosPage implements OnInit, OnDestroy {
     } else {
       console.log('Updated logEvents in offline array');
       await this.updateIndexLogDaily(logDaily, false);
-    }
-  }
-
-  async calcRecap() {
-    ///////////////////////////////////////////////////////
-
-    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
-
-    let dateBgn = null;
-    let dateEnd = null;
-    let xBgn = 0;
-    let xEnd = 0;
-
-    let durationsOFF = 0;
-    let durationsSB = 0;
-    let durationsD = 0;
-    let durationsON = 0;
-
-    let durationsBaseOFF = 0;
-    let durationsBaseSB = 0;
-    let durationsBaseD = 0;
-    let durationsBaseON = 0;
-    let hoursWorked = 0;
-    let LogEventsForCurrencDay = [];
-
-    for (let i = 0; i < this.logDailies.length; i++) {
-      let currentDay = this.logDailies[i].logDate;
-
-      durationsOFF = 0;
-      durationsSB = 0;
-      durationsD = 0;
-      durationsON = 0;
-
-      durationsBaseOFF = this.logDailies[i].timeOffDuty;
-      durationsBaseSB = this.logDailies[i].timeSleeper;
-      durationsBaseD = this.logDailies[i].timeDriving;
-      durationsBaseON = this.logDailies[i].timeOnDuty;
-
-      this.logEvents.forEach(event => {
-        if (allSt.includes(event.type.code)) {
-          dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
-          dateEnd = new Date(
-            formatDate(
-              new Date(event.eventTime?.timeStampEnd ? event.eventTime.timeStampEnd : new Date()),
-              'yyyy-MM-ddTHH:mm:ss',
-              'en_US',
-              this.timeZones[this.timeZone as keyof typeof this.timeZones]
-            )
-          );
-
-          if (
-            formatDate(dateBgn, 'yyyy-MM-dd', 'en_US') <= formatDate(currentDay, 'yyyy-MM-dd', 'en_US') &&
-            formatDate(currentDay, 'yyyy-MM-dd', 'en_US') <= formatDate(dateEnd, 'yyyy-MM-dd', 'en_US')
-          ) {
-            if (dateBgn.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
-              xBgn = dateBgn.getHours() * 60 * 60 + dateBgn.getMinutes() * 60 + dateBgn.getSeconds();
-            } else {
-              xBgn = 0;
-            }
-
-            if (dateEnd.toLocaleDateString() === new Date(currentDay).toLocaleDateString()) {
-              xEnd = dateEnd.getHours() * 60 * 60 + dateEnd.getMinutes() * 60 + dateEnd.getSeconds();
-            } else {
-              xEnd = 1440 * 60;
-            }
-            switch (event.type.code.toUpperCase()) {
-              case 'OFF':
-              case 'PC':
-                durationsOFF = durationsOFF + (xEnd - xBgn);
-                break;
-
-              case 'SB':
-                durationsSB = durationsSB + (xEnd - xBgn);
-                break;
-
-              case 'D':
-                durationsD = durationsD + (xEnd - xBgn);
-                break;
-
-              case 'ON':
-              case 'YM':
-                durationsON = durationsON + (xEnd - xBgn);
-                break;
-            }
-          }
-        }
-      });
-
-      if (durationsBaseOFF != durationsOFF || durationsBaseSB != durationsSB || durationsBaseD != durationsD || durationsBaseON != durationsON) {
-        this.logDailies[i].timeOffDuty = durationsOFF;
-        this.logDailies[i].timeSleeper = durationsSB;
-        this.logDailies[i].timeDriving = durationsD;
-        this.logDailies[i].timeOnDuty = durationsON;
-        this.logDailies[i].timeWorked = durationsD + durationsON;
-        await this.updateLogDailies(this.logDailies[i]);
-      }
     }
   }
 
@@ -1164,9 +1086,8 @@ export class HosPage implements OnInit, OnDestroy {
     setInterval(async () => {
       console.log('Every Minute Update');
       await this.createLogDailies();
+      await this.calcViolations();
       await this.uploadDriverStatus();
-      this.calcViolations();
-      await this.calcRecap();
     }, 60000);
   }
 
