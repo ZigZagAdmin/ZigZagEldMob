@@ -167,16 +167,16 @@ export class BluetoothService {
     this.decodeJ1708(res);
   }
 
-  async subscribeToDeviceData() {
-    const macAddress: string = 'FC:29:99:B8:78:0E';
+  async subscribeToDeviceData(macAddress: string) {
+    // const macAddress: string = 'FC:29:99:B8:78:0E';
     await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => { // put services here
       console.log('current heart rate', this.parseData(res));
       this.decodeJ1708(res);
     });
   }
 
-  async getServices(){
-    const macAddress: string = 'FC:29:99:B8:78:0E';
+  async getServices(macAddress: string){
+    // const macAddress: string = 'FC:29:99:B8:78:0E';
     await BleClient.getServices(macAddress)
       .then(res=>{
         console.log(res)

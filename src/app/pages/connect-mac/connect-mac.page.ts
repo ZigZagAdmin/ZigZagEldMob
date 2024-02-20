@@ -29,6 +29,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     macAddress: false,
   };
 
+  loading: boolean = false;
+
   constructor(
     private storage: Storage,
     private navCtrl: NavController,
@@ -76,28 +78,28 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   async connect() {
-    if (!(await this.bluetoothService.getBluetoothState())) {
-      let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
-      if (confirmation) {
-        if (Capacitor.getPlatform() === 'android') {
-          await this.bluetoothService.goToBluetoothServiceSettings();
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
+        if (confirmation) {
+          if (Capacitor.getPlatform() === 'android') {
+            await this.bluetoothService.goToBluetoothServiceSettings();
+          } else {
+            alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+          }
         } else {
-          alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+          alert('In order to connect to a device, you to turn on the bluetooth service');
+          return;
         }
-      } else {
-        alert('In order to connect to a device, you to turn on the bluetooth service');
-        return;
       }
+      await this.bluetoothService.requestBluetoothPermission();
     }
-    await this.bluetoothService.requestBluetoothPermission();
+    this.shareService.changeMessage(this.utilityService.generateString(5));
+    if (!this.utilityService.validateForm(this.validation)) return;
+    if (Capacitor.getPlatform() !== 'web') {
+      this.bluetoothService.connectToDevice(this.macAddress);
+    }
   }
 
-  connectToELD() {}
-
-  handleRefresh(event: any) {
-    setTimeout(() => {
-      // Any calls to load data go here
-      event.target.complete();
-    }, 1000);
-  }
+  async connectToELD() {}
 }

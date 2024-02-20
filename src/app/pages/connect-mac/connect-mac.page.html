@@ -6,7 +6,10 @@
       <div class="input-block custom-block">
         <app-input [label]="'MAC Address'" [fill]="false" [type]="'text'" [(value)]="macAddress" [(validation)]="validation['macAddress']"></app-input>
       </div>
-      <button class="btn primary-btn custom-button" (click)="connect()">Connect</button>
+      <button class="btn primary-btn custom-button" (click)="connect()">
+        <span *ngIf="!loading">Connect</span>
+        <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      </button>
     </div>
     <div class="card-connect-container" *ngIf="elds.length !== 0">
       <div class="card-connect" *ngFor="let eld of elds" (click)="connectToELD()">
