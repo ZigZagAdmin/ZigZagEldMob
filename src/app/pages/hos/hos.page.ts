@@ -416,6 +416,9 @@ export class HosPage implements OnInit, OnDestroy {
       }
     }
     await this.bluetoothService.requestBluetoothPermission();
+    if (this.bluetoothStatus) {
+      this.goToConnectPage();
+    }
   }
 
   toggleMode() {
@@ -1127,6 +1130,10 @@ export class HosPage implements OnInit, OnDestroy {
     return this.logDailies.slice(1, 8).reduce((accumulator, currentValue) => {
       return accumulator + (currentValue.timeWorked === undefined || currentValue.timeWorked === null ? 0 : currentValue.timeWorked);
     }, 0);
+  }
+
+  goToConnectPage() {
+    this.navCtrl.navigateForward('/connect-mac', { queryParams: { backUrl: '/hos' } });
   }
 
   async ionViewWillLeave() {

@@ -11,6 +11,8 @@ import { Capacitor } from '@capacitor/core';
 import { defectsVehicle } from 'src/app/utilities/defects';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { ELD } from 'src/app/models/eld';
+import { ToastService } from 'src/app/services/toast.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-connect-mac',
@@ -30,14 +32,17 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   };
 
   loading: boolean = false;
+  backUrl: string = '';
 
   constructor(
-    private storage: Storage,
     private navCtrl: NavController,
     private databaseService: DatabaseService,
     private utilityService: UtilityService,
     private shareService: ShareService,
-    private bluetoothService: BluetoothService
+    private bluetoothService: BluetoothService,
+    private toastService: ToastService,
+    private storage: Storage,
+    private route: ActivatedRoute
   ) {}
 
   async ngOnInit() {
@@ -48,12 +53,21 @@ export class ConnectMacPage implements OnInit, OnDestroy {
 
   async ionViewWillEnter() {
     let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
-    // let elds$ = firstValueFrom(this.databaseService.getELDs());
+    let elds$ = firstValueFrom(this.databaseService.getELDs());
+    let lastConnectedELD$ = this.storage.get('lastConnectedELD');
+    let queryParams$ = firstValueFrom(this.route.queryParams);
 
-    forkJoin([vehicles$]).subscribe(([vehicles]) => {
+    forkJoin([vehicles$, elds$, lastConnectedELD$, queryParams$]).subscribe(async ([vehicles, elds, lastConnectedELD, queryParams]) => {
       this.vehicle = vehicles[0];
       this.pickedVehicle = this.vehicle.vehicleUnit;
-      // this.elds = elds;
+      this.elds = elds;
+      console.log('query params: ', queryParams);
+      if (queryParams['backUrl']) {
+        this.backUrl = queryParams['backUrl'];
+      }
+      if (lastConnectedELD !== null && lastConnectedELD !== undefined && lastConnectedELD.length !== 0) {
+        await this.connect(lastConnectedELD);
+      }
     });
   }
 
@@ -69,15 +83,19 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     const location = await Geolocation.getCurrentPosition();
   }
 
-  continueDisconected() {
+  navigateToHos() {
     this.navCtrl.navigateRoot('/unitab', { animated: true, animationDirection: 'forward' });
   }
 
   redirectToVehicle() {
-    this.navCtrl.navigateBack('/select-vehicle', { replaceUrl: true });
+    if (this.backUrl.length === 0) {
+      this.navCtrl.navigateBack('/select-vehicle', { replaceUrl: true });
+    } else {
+      this.navigateToHos();
+    }
   }
 
-  async connect() {
+  async connect(macAddress: string, checkForForm: boolean = true) {
     if (Capacitor.getPlatform() !== 'web') {
       if (!(await this.bluetoothService.getBluetoothState())) {
         let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
@@ -94,12 +112,26 @@ export class ConnectMacPage implements OnInit, OnDestroy {
       }
       await this.bluetoothService.requestBluetoothPermission();
     }
-    this.shareService.changeMessage(this.utilityService.generateString(5));
-    if (!this.utilityService.validateForm(this.validation)) return;
+    if (checkForForm) {
+      this.shareService.changeMessage(this.utilityService.generateString(5));
+      if (!this.utilityService.validateForm(this.validation)) return;
+    }
     if (Capacitor.getPlatform() !== 'web') {
-      this.bluetoothService.connectToDevice(this.macAddress);
+      await this.bluetoothService.initialize();
+      this.loading = true;
+      await this.bluetoothService.connectToDevice(macAddress).then(async res => {
+        console.log('connection result: ', res);
+        if (res) {
+          this.loading = false;
+          this.toastService.showToast('Device successfully connected');
+          await this.bluetoothService.subscribeToDeviceData(macAddress);
+          await this.storage.set('lastConnectedELD', macAddress);
+          this.navigateToHos();
+        } else {
+          this.loading = false;
+          this.toastService.showToast('Could not connect to ' + macAddress);
+        }
+      });
     }
   }
-
-  async connectToELD() {}
 }
