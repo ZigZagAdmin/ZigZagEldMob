@@ -1,13 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { EventGraphic } from 'src/app/models/event-graphic';
-import { LogDailies } from 'src/app/models/log-dailies';
-import { LogHistories } from 'src/app/models/log-histories';
+import { ICoDriver, LogDailies } from 'src/app/models/log-dailies';
+import { LogEvents } from 'src/app/models/log-histories';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { formatDate } from '@angular/common';
-import { ToastController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
+import { Vehicle } from 'src/app/models/vehicle';
+import { Driver, IAssignedVehicle } from 'src/app/models/driver';
+import { DVIRs } from 'src/app/models/dvirs';
+import { ELD } from 'src/app/models/eld';
+import { Company } from 'src/app/models/company';
+import { UtilityService } from 'src/app/services/utility.service';
+import { LocationService } from 'src/app/services/location.service';
+import { timeZones } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -15,19 +23,18 @@ import { ToastController } from '@ionic/angular';
   styleUrls: ['./inspection-preview.page.scss'],
 })
 export class InspectionPreviewPage implements OnInit {
-  LogDailiesId!: string | null;
+  LogDailiesId: string = '';
   bReady: boolean = false;
-  TimeZoneCity: string = '';
-  PickedVehicle: string = '';
+  timeZone: string = '';
+  vehicle: Vehicle;
+  driver: Driver;
+  eld: ELD;
   logDailies: LogDailies[] = [];
-  logHistories: LogHistories[] = [];
-  logDaily: any;
+  logEvents: LogEvents[] = [];
+  logDaily: LogDailies;
   currentDay: string = '';
-  graphicsHour = [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23,
-  ];
-  statusesOnDay: LogHistories[] = [];
+  graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+  statusesOnDay: LogEvents[] = [];
   xBgn!: number;
   yBgn!: number;
   xEnd!: number;
@@ -36,61 +43,57 @@ export class InspectionPreviewPage implements OnInit {
   yBgnV!: number;
   eventGraphicLine: EventGraphic[] = [];
   databaseSubscription: Subscription | undefined;
-  driverId: string = '';
-  vehicleId: string = '';
   previousPage!: string | null;
   today = new Date();
+  backUrl = '';
+  company: Company;
+  timeZones: { [key: string]: string } = {};
+  currentLogEvents: LogEvents[] = [];
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private databaseService: DatabaseService,
-    private storage: Storage,
-    private toastController: ToastController
-  ) {}
+  durationsOFF = 0;
+  durationsSB = 0;
+  durationsD = 0;
+  durationsON = 0;
+
+  unindentifiedDrivingRecords: string = '';
+  dataDaigIndicators: string = '';
+  deviceMalfIndicators: string = '';
+
+  logEventsVehicles: { vehicle: Partial<Vehicle>; odomoter: string; distance: number; engineHours: string }[] = [];
+
+  constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
 
   async ngOnInit() {
-    this.vehicleId = await this.storage.get('vehicleId');
-    this.driverId = await this.storage.get('driverId');
-    this.PickedVehicle = await this.storage.get('pickedVehicle');
-    this.TimeZoneCity = await this.storage.get('TimeZoneCity');
-    this.activatedRoute.paramMap.subscribe((params) => {
-      this.LogDailiesId = params.get('logId');
-      this.previousPage = params.get('page');
-      console.log(this.LogDailiesId);
+    this.timeZones = this.utilityService.checkSeason();
+    let queryParams$ = firstValueFrom(this.route.queryParams);
+    let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
+    let drivers$ = firstValueFrom(this.databaseService.getDrivers());
+    let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
+    let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
+    let elds$ = firstValueFrom(this.databaseService.getELDs());
+    let company$ = firstValueFrom(this.databaseService.getCompany());
+    let timeZone$ = this.storage.get('timeZone');
+
+    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$, company$]).subscribe(([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone, company]) => {
+      this.backUrl = queryParams['url'];
+      this.LogDailiesId = queryParams['logId'];
+      this.previousPage = queryParams['page'];
+      this.vehicle = vehicles[0];
+      this.driver = drivers[0];
+      this.timeZone = timeZone;
+      this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
+      this.logDailies = logDailies.slice(0, 8);
+      this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+      this.logEvents = logEvents;
+      this.company = company;
+      this.drawGraph();
     });
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getLogDailies().subscribe((logDailies) => {
-            this.logDailies = logDailies;
-            if (this.previousPage === 'inspection') {
-              this.logDailies = logDailies.slice(0, 7);
-            }
-            this.logDaily = this.logDailies.find(
-              (item) => item.LogDailiesId === this.LogDailiesId
-            );
-            if (this.logDaily) {
-            }
-          });
-          this.databaseService.getLogHistories().subscribe((logHistories) => {
-            this.logHistories = logHistories;
-            this.logHistories.forEach((log) => {
-              if (log.DateEnd === '0001-01-01T00:00:00') {
-                log.DateEnd = formatDate(
-                  new Date().toLocaleString('en-US', {
-                    timeZone: this.TimeZoneCity,
-                  }),
-                  'yyyy-MM-ddTHH:mm:ss',
-                  'en_US'
-                );
-              }
-            });
-            console.log(this.logHistories);
-            this.drawGraph();
-          });
-        }
-      });
+  }
+
+  getDateSub(date: string) {
+    let _date = formatDate(date, 'EEEE, MMM d', 'en_US');
+    let _today = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
+    return _date === _today ? _date + ' (Today)' : _date;
   }
 
   drawGraph() {
@@ -99,86 +102,83 @@ export class InspectionPreviewPage implements OnInit {
     this.statusesOnDay = [];
     let dateBgn = null;
     let dateEnd = null;
-    let sDateEnd = '';
+    let sDateEnd: any = '';
     this.xBgn = 0;
     this.xEnd = 0;
     this.xBgnV = 0;
     this.yBgnV = 0;
 
-    this.currentDay = this.logDaily.Day;
+    this.durationsOFF = 0;
+    this.durationsSB = 0;
+    this.durationsD = 0;
+    this.durationsON = 0;
 
-    this.logHistories.forEach((event) => {
-      if (allSt.includes(event.EventTypeCode)) {
-        sDateEnd = event.DateEnd;
-        if (sDateEnd == '0001-01-01T00:00:00') {
-          sDateEnd = formatDate(
-            new Date().toLocaleString('en-US', {
-              timeZone: this.TimeZoneCity,
-            }),
-            'yyyy-MM-ddTHH:mm:ss',
-            'en_US'
-          );
-        }
+    this.currentDay = this.logDaily?.logDate;
+
+    let logDateIndex = this.logDailies.findIndex(el => el.logDailyId === this.logDaily.logDailyId);
+    this.currentLogEvents = [];
+    this.logEvents.forEach((logEvent: LogEvents) => {
+      if (
+        new Date(this.logDaily.logDate).getTime() === new Date(formatDate(logEvent.eventTime.timeStamp, 'yyyy/LL/d', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime()
+      ) {
+        this.currentLogEvents.push(logEvent);
+      }
+    });
+
+    this.logEvents.forEach(event => {
+      if (allSt.includes(event.type.code)) {
+        if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd);
+        else sDateEnd = new Date().getTime();
+
+        dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+        dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
 
         if (
-          formatDate(new Date(event.DateBgn), 'yyyy-MM-dd', 'en_US') <=
+          formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]) <=
             formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') &&
-          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <=
-            formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US')
+          formatDate(new Date(this.currentDay), 'yyyy-MM-dd', 'en_US') <= formatDate(new Date(sDateEnd), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])
         ) {
-          console.log('event', event);
-
-          dateBgn = new Date(event.DateBgn);
-          console.log(dateBgn.toLocaleDateString());
-          console.log(new Date(this.currentDay).toLocaleDateString());
-          if (
-            dateBgn.toLocaleDateString() ===
-            new Date(this.currentDay).toLocaleDateString()
-          ) {
+          if (dateBgn.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xBgn = dateBgn.getHours() * 60 + dateBgn.getMinutes();
           } else {
             this.xBgn = 0;
           }
 
-          console.log('X BEGIN =', this.xBgn);
-
-          dateEnd = new Date(sDateEnd);
-
-          if (
-            dateEnd.toLocaleDateString() ===
-            new Date(this.currentDay).toLocaleDateString()
-          ) {
+          if (dateEnd.toLocaleDateString() === new Date(this.currentDay as string).toLocaleDateString()) {
             this.xEnd = dateEnd.getHours() * 60 + dateEnd.getMinutes();
           } else {
             this.xEnd = 1440;
           }
-          console.log('X END =', this.xEnd);
 
-          switch (event.EventTypeCode) {
+          switch (event.type.code) {
             case 'OFF':
             case 'PC':
               this.yBgn = 25;
               this.yEnd = 25;
+              this.durationsOFF += this.xEnd - this.xBgn;
               break;
 
             case 'SB':
               this.yBgn = 75;
               this.yEnd = 75;
+              this.durationsSB += this.xEnd - this.xBgn;
               break;
 
             case 'D':
               this.yBgn = 125;
               this.yEnd = 125;
+              this.durationsD += this.xEnd - this.xBgn;
               break;
 
             case 'ON':
             case 'YM':
               this.yBgn = 175;
               this.yEnd = 175;
+              this.durationsON += this.xEnd - this.xBgn;
               break;
           }
 
-          switch (event.EventTypeCode) {
+          switch (event.type.code) {
             case 'OFF':
               this.eventGraphicLine.push({
                 x1: this.xBgn,
@@ -188,7 +188,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusOFF',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -203,7 +203,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusSB',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -218,7 +218,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusD',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -233,7 +233,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusON',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -248,7 +248,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusPC',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -263,7 +263,7 @@ export class InspectionPreviewPage implements OnInit {
                 yV: this.yBgnV,
                 class: 'eventStatusYM',
                 name: '',
-                historyId: event.LogHistoriesId,
+                historyId: event.logEventId,
                 status: 0,
                 statusClick: 0,
               });
@@ -276,12 +276,14 @@ export class InspectionPreviewPage implements OnInit {
         }
       }
     });
+
+    this.currentLogEvents.unshift(this.statusesOnDay[0]);
+    this.getVehiclesFromLogEvents();
+    this.findUDRandDDIandDMI();
   }
 
   goToNextLog() {
-    const currentIndex = this.logDailies.findIndex(
-      (item) => item.LogDailiesId === this.logDaily.LogDailiesId
-    );
+    const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const nextIndex = currentIndex + 1;
 
     if (nextIndex < this.logDailies.length) {
@@ -291,9 +293,7 @@ export class InspectionPreviewPage implements OnInit {
   }
 
   goToPreviousLog() {
-    const currentIndex = this.logDailies.findIndex(
-      (item) => item.LogDailiesId === this.logDaily.LogDailiesId
-    );
+    const currentIndex = this.logDailies.findIndex(item => item.logDailyId === this.logDaily?.logDailyId);
     const previousIndex = currentIndex - 1;
 
     if (previousIndex >= 0) {
@@ -302,18 +302,74 @@ export class InspectionPreviewPage implements OnInit {
     }
   }
 
-  private async presentToast(message: string, color: string = 'success') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 1500,
-      color: color,
-    });
-    toast.present();
+  isCoDriverPresent() {
+    return !!this.logDaily?.form?.coDriver && Object.keys(this.logDaily?.form?.coDriver).length !== 0 && this.logDaily?.form?.coDriver.driverId !== '00000000-0000-0000-0000-000000000000';
+  }
+
+  dateWithTimeZone(date: number, format: string) {
+    return formatDate(new Date(date), format, 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
   }
 
   ionViewWillLeave() {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+
+  getVehiclesFromLogEvents() {
+    this.logEventsVehicles = [];
+    this.currentLogEvents.forEach(logEvent => {
+      if (!this.logEventsVehicles.some(item => item.vehicle.vehicleId === logEvent.vehicle.vehicleId)) {
+        this.logEventsVehicles.push({ vehicle: logEvent.vehicle, odomoter: '', distance: 0, engineHours: '' });
+      }
+    });
+    this.logEventsVehicles.forEach(vehicle => {
+      let odometer: number[] = [];
+      let engineHours: number[] = [];
+      this.currentLogEvents.forEach(logEvent => {
+        if (logEvent.vehicle.vehicleId === vehicle.vehicle.vehicleId) {
+          if (logEvent.odometer && logEvent.odometer !== 0) odometer.push(logEvent.odometer);
+          if (logEvent.engineHours && logEvent.engineHours !== 0) engineHours.push(logEvent.engineHours);
+        }
+      });
+      if (odometer.length !== 0) {
+        vehicle.odomoter = Math.min(...odometer) + ' - ' + Math.max(...odometer);
+        vehicle.distance = Math.max(...odometer) - Math.min(...odometer);
+      } else {
+        vehicle.odomoter = '0 - 0';
+        vehicle.distance = 0;
+      }
+      if (engineHours.length !== 0) {
+        vehicle.engineHours = Math.min(...engineHours) + ' - ' + Math.max(...engineHours);
+      } else {
+        vehicle.engineHours = '0 - 0';
+      }
+    });
+  }
+
+  findUDRandDDIandDMI() {
+    this.unindentifiedDrivingRecords = 'No';
+    this.dataDaigIndicators = 'No';
+    this.deviceMalfIndicators = 'No';
+    this.currentLogEvents.forEach(logEvent => {
+      switch (logEvent.type.code) {
+        case 'UNIDENTIFIED_DRIVER':
+          this.unindentifiedDrivingRecords = 'Yes';
+          break;
+        case 'EVT_LOGGED':
+        case 'EVT_CLEARED':
+          this.dataDaigIndicators = 'Yes';
+          break;
+        case 'ERR_LOGGED':
+        case 'ERR_CLEARED':
+          this.deviceMalfIndicators = 'Yes';
+          break;
+      }
+    });
+  }
+
+  goBack() {
+    if (this.backUrl === 'log-item') this.navCtrl.navigateBack(['log-item', this.logDaily.logDailyId]);
+    else this.navCtrl.navigateBack('unitab/inspection');
   }
 }

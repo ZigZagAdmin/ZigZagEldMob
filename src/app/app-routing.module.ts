@@ -14,22 +14,12 @@ const routes: Routes = [
       import('./pages/login/login.module').then((m) => m.LoginPageModule),
   },
   {
-    path: 'tabs',
-    loadChildren: () =>
-      import('./tabs/tabs.module').then((m) => m.TabsPageModule),
-  },
-  {
-    path: 'loader',
-    loadChildren: () =>
-      import('./pages/loader/loader.module').then((m) => m.LoaderPageModule),
-  },
-  {
     path: 'select-vehicle',
     loadChildren: () =>
       import('./pages/select-vehicle/select-vehicle.module').then(
         (m) => m.SelectVehiclePageModule
       ),
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'connect-mac',
@@ -37,7 +27,7 @@ const routes: Routes = [
       import('./pages/connect-mac/connect-mac.module').then(
         (m) => m.ConnectMacPageModule
       ),
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
   },
   {
     path: 'hos',
@@ -140,13 +130,14 @@ const routes: Routes = [
       ),
   },
   {
-    path: 'insert-duty-status',
-    loadChildren: () => import('./pages/insert-duty-status/insert-duty-status.module').then( m => m.InsertDutyStatusPageModule)
-  },
-  {
     path: 'edit-duty-status',
     loadChildren: () => import('./pages/edit-duty-status/edit-duty-status.module').then( m => m.EditDutyStatusPageModule)
   },
+  {
+    path: 'log-certify',
+    loadChildren: () => import('./pages/log-certify/log-certify.module').then( m => m.LogCertifyPageModule)
+  },
+
 ];
 @NgModule({
   imports: [

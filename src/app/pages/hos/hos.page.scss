@@ -1,125 +1,9 @@
-// ion-grid {
-//   margin: 0;
-// }
-
-// ion-col {
-//   font-size: 15px;
-//   text-align: center;
-// }
-
-// .custom-col {
-//   margin: 0 15%;
-// }
-
-// .custom-button {
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-// }
-
-// .custom-toggle {
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   width: 100%;
-// }
-
-// .logsRecap {
-//   background: #3880ff;
-//   height: 3em;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   color: white;
-// }
-
-// .logsSubtitle {
-//   background: #3880ff;
-//   height: 1.5em;
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   color: white;
-// }
-
-// .logsInfo {
-//   height: 1.5em;
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   margin-bottom: 5px;
-// }
-// .left {
-//   flex: 1;
-//   text-align: left;
-// }
-
-// .center {
-//   flex: 1;
-//   text-align: center;
-// }
-
-// .right {
-//   flex: 1;
-//   text-align: right;
-// }
-// .statusBtn {
-//   height: 100px;
-// }
-
-// ion-button.statusBtn {
-//   --background: #f4f5f8;
-//   --color: black;
-// }
-
-// .rest_mode_item {
-//   height: 3rem;
-// }
-
-// ion-button.selected.off {
-//   --background: #bdc3bf;
-//   --background-hover: #bdc3bf;
-//   --background-activated: #bdc3bf;
-//   --background-focused: #bdc3bf;
-// }
-
-// ion-button.selected.on {
-//   --background: #fae057;
-//   --background-hover: #fae057;
-//   --background-activated: #fae057;
-//   --background-focused: #fae057;
-// }
-
-// ion-button.selected.ym {
-//   --background: #fae057;
-//   --background-hover: #fae057;
-//   --background-activated: #fae057;
-//   --background-focused: #fae057;
-// }
-// ion-button.selected.sb {
-//   --background: #7e7e7e;
-//   --background-hover: #7e7e7e;
-//   --background-activated: #7e7e7e;
-//   --background-focused: #7e7e7e;
-// }
-// ion-button.selected.pc {
-//   --background: #bdc3bf;
-//   --background-hover: #bdc3bf;
-//   --background-activated: #bdc3bf;
-//   --background-focused: #bdc3bf;
-// }
-// ion-button.selected.d {
-//   --background: #8bc34a;
-//   --background-hover: #8bc34a;
-//   --background-activated: #8bc34a;
-//   --background-focused: #8bc34a;
-// }
-
 .hos-wrapper {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
+  padding: 20px;
   .hos-header {
     width: 100%;
     display: flex;
@@ -163,7 +47,7 @@
       align-items: center;
       text-align: center;
       gap: 10px;
-      background-color: var(--success-500);
+      // background-color: var(--success-500);
       color: var(--gray-25);
       font-size: 16px;
       border-radius: 30px;
@@ -171,14 +55,14 @@
     }
   }
   .circles-block {
-    display: flex; 
-    justify-content: space-around; 
-    flex-wrap: wrap; 
-    max-width: 80%; 
-    min-width: 60%; 
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    max-width: 80%;
+    min-width: 60%;
     margin: 0 auto;
     .circle-block {
-      width: 45%; 
+      width: 45%;
       max-width: 140px;
     }
   }
@@ -206,26 +90,35 @@
           height: 10px;
           border-radius: 20px;
         }
-        #inner-1 {background-color: #FEC84B}
-        #inner-2 {background-color: #9B8AFB}
-        #inner-3 {background-color: #FB6514}
+        #inner-1 {
+          background-color: #fec84b;
+        }
+        #inner-2 {
+          background-color: #9b8afb;
+        }
+        #inner-3 {
+          background-color: #fb6514;
+        }
       }
     }
   }
+
   .time {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 15px;
+
     .time-block {
-      flex-grow: 1;
+      flex: 1;
       border-radius: 30px;
       background-color: var(--gray-100);
       text-align: center;
       padding: 20px;
     }
   }
+
   .switch-sleep {
     width: 100%;
     display: flex;
@@ -234,6 +127,7 @@
     background-color: var(--gray-100);
     border-radius: 30px;
     padding: 15px;
+
     ion-toggle {
       --handle-background: var(--gray-300);
       --handle-background-checked: var(--success-500);
@@ -243,6 +137,7 @@
       --handle-height: 23px;
     }
   }
+
   .btn {
     width: 217px;
     height: 50px;
@@ -254,10 +149,12 @@
     padding: 15px;
     margin: 0 auto;
   }
+
   .log-dailies {
     display: flex;
     flex-direction: column;
     gap: 10px;
+
     .log-daily {
       display: flex;
       justify-content: space-between;
@@ -265,22 +162,39 @@
       background-color: var(--gray-100);
       border-radius: 10px;
       padding: 15px;
+
       .log-left {
         display: flex;
         flex-direction: column;
         gap: 10px;
+
         .sub-info {
           display: flex;
           align-items: center;
           gap: 10px;
+
+          p {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-500);
+          }
+        }
+        div.subtitle {
+          font-size: 16px;
+          font-weight: 500;
+          color: var(--gray-700);
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
       }
       .log-right {
         background-color: var(--success-500);
         border-radius: 30px;
         padding: 5px 10px;
+
         .hours-worked {
-          color: #FFF;
+          color: #fff;
           font-size: 14px;
           font-weight: 500;
         }
@@ -293,9 +207,12 @@
   display: flex;
   flex-direction: column;
   gap: 30px;
+  padding: 30px;
+
   .textarea {
     height: 100px;
   }
+
   .btn {
     width: 100%;
     height: 50px;
@@ -306,8 +223,68 @@
 
 ion-progress-bar {
   --background: var(--gray-200);
-  --progress-background: #9B8AFB;
+  --progress-background: #9b8afb;
 }
-ion-progress-bar #progress-break {--progress-background: #FEC84B}
-ion-progress-bar #progress-shift {--progress-background: #9B8AFB}
-ion-progress-bar #progress-cycle {--progress-background: #FB6514}
+
+ion-progress-bar #progress-break {
+  --progress-background: #fec84b;
+}
+
+ion-progress-bar #progress-shift {
+  --progress-background: #9b8afb;
+}
+
+ion-progress-bar #progress-cycle {
+  --progress-background: #fb6514;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.btn-custom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.status-dot-error {
+  background-color: var(--error-600);
+}
+
+.status-dot-success {
+  background-color: var(--success-600);
+}
+
+.service {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.service-on {
+  background-color: var(--success-500);
+}
+
+.service-off {
+  background-color: var(--error-500);
+}
+
+.violation-number {
+  color: var(--error-600);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  img {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+  }
+}

@@ -1,27 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, getPlatform } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
 import { forkJoin, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
-import { ToastController, LoadingController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { InternetService } from './services/internet.service';
 
 import { ManageService } from './services/manage.service';
 import { DatabaseService } from './services/database.service';
+import { ToastService } from './services/toast.service';
+import { Network } from '@capacitor/network';
+import { LocationService } from './services/location.service';
+import { BluetoothService } from './services/bluetooth.service';
+import { Capacitor } from '@capacitor/core';
+// import { Driver } from './models/driver';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   pickedVehicle!: string;
   databaseSubscription: Subscription | undefined;
-  networkStatus = false;
+  lastNetworkStatus: boolean = null;
   networkSub!: Subscription;
   constructor(
     private navCtrl: NavController,
@@ -30,140 +36,136 @@ export class AppComponent implements OnInit {
     private authService: AuthService,
     private manageService: ManageService,
     private internetService: InternetService,
-    private toastController: ToastController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private toastService: ToastService,
+    private locationService: LocationService,
+    private bluetoothService: BluetoothService
   ) {}
 
   async ngOnInit() {
-    this.networkSub = this.internetService.internetStatus$.subscribe(
-      (status) => {
-        this.networkStatus = status;
+    this.networkSub = this.internetService.interetStatusObs.subscribe(async status => {
+      let currentStatus = await Network.getStatus();
+      if (currentStatus.connected === true) {
+        if (this.lastNetworkStatus === false) {
+          this.toastService.showToast('You are back online!', 'success');
+          await this.internetService
+            .postOfflineData()
+            .then(async () => {
+              this.toastService.showToast('All offline data uploaded successfully!', 'success');
+            })
+            .catch(e => {
+              this.toastService.showToast("There's been an error uploading the offline data!", 'error');
+              console.error(e);
+            });
+        }
+      } else {
+        this.toastService.showToast('You are now in Offline Mode!', 'warning');
       }
-    );
-    this.loading = true; // Показать прогрузочное окно
-    console.log(this.loading);
-    this.databaseSubscription = this.databaseService
-      .isDatabaseReady()
-      .subscribe(async (ready: boolean) => {
-        if (ready) {
-          const accessToken = await this.storage.get('accessToken');
-          const pickedVehicle = await this.storage.get('pickedVehicle');
-          this.pickedVehicle = pickedVehicle;
-          const user = await this.storage.get('user');
-          const driverId = user?.DriverId;
-          if (accessToken) {
-            if (this.authService.isAuthenticated()) {
-              const loading = await this.presentLoading();
-              const fetchRequests = [
-                this.manageService.getDrivers(),
-                this.manageService.getCompany(),
-                this.manageService.getVehicles(),
-                this.manageService.getTerminals(),
-                this.manageService.getELDs(),
-                this.manageService.getDVIRs(),
-                this.manageService.getLogDailies(
-                  driverId,
-                  formatDate(new Date(), 'yyyy-MM-dd', 'en_US'),
-                  14
-                ),
-                this.manageService.getLogHistories14Days(driverId),
-              ];
-              forkJoin(fetchRequests)
-                .pipe(
-                  catchError((error) => {
-                    const errorMessage = 'Error fetching data';
-                    this.presentToast(errorMessage); // Отобразить toast с ошибкой
-                    this.loading = false;
-                    loading.dismiss();
-                    return throwError(errorMessage);
-                  }),
-                  switchMap(
-                    ([
-                      drivers,
-                      company,
-                      vehicles,
-                      terminals,
-                      elds,
-                      dvirs,
-                      logDailies,
-                      logHistories,
-                    ]) => {
-                      // Сохранение данных в storage
-                      const saveRequests = [
-                        this.storage.set('drivers', drivers),
-                        this.storage.set('company', company),
-                        this.storage.set('dvirs', dvirs),
-                        this.storage.set('vehicles', vehicles),
-                        this.storage.set('terminals', terminals),
-                        this.storage.set('elds', elds),
-                        this.storage.set('logDailies', logDailies),
-                        this.storage.set('logHistories', logHistories),
-                      ];
-                      return forkJoin(saveRequests).pipe(
-                        catchError((error) => {
-                          const errorMessage = 'Error saving data to storage';
-                          this.presentToast(errorMessage); // Отобразить toast с ошибкой
-                          return throwError(errorMessage);
-                        }),
-                        tap(() => {
-                          loading.dismiss();
-                          this.loading = false;
-                          console.log(this.loading); // Скрыть прогрузочное окно
-                          if (pickedVehicle) {
-                            this.navCtrl.navigateForward('/connect-mac');
-                          } else {
-                            this.navCtrl.navigateForward('/select-vehicle');
-                          }
-                        })
-                      );
-                    }
-                  )
-                )
-                .subscribe(
-                  () => {
-                    this.presentToast('Welcome Back!', 'success');
-                  },
-                  (error) => {
-                    console.log(error);
-                  }
-                );
-            } else {
-              await this.storage.remove('accessToken');
-              this.loading = false;
-              console.log(this.loading);
-              this.navCtrl.navigateForward('/login');
-              this.presentToast(
-                'Access token has expired. Please log in again.',
-                'danger'
+      this.lastNetworkStatus = currentStatus.connected;
+    });
+    if(Capacitor.getPlatform() !== 'web') {
+      this.locationService.watchLocationStatus();
+      this.bluetoothService.watchBluetoothStatus();
+    }
+    this.loading = true;
+    this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
+      if (ready) {
+        const accessToken = await this.storage.get('accessToken');
+        const pickedVehicle = await this.storage.get('vehicleUnit');
+        this.pickedVehicle = pickedVehicle;
+        const user = await this.storage.get('user');
+        const driverId = user?.DriverId;
+        if (accessToken) {
+          if (this.authService.isAuthenticated()) {
+            const loading = await this.presentLoading();
+            const fetchRequests = [
+              this.manageService.getDrivers(driverId),
+              this.manageService.getDrivers('ALL'),
+              this.manageService.getCompany(),
+              // this.manageService.getVehicles(),
+              this.manageService.getTerminals(),
+              this.manageService.getELDs(),
+              this.manageService.getDVIRs(),
+              this.manageService.getLogDailies(driverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), 14),
+              this.manageService.getLogEvents(driverId, formatDate(new Date(), 'yyyy-MM-dd', 'en_US'), formatDate(new Date(), 'yyyy-MM-dd', 'en_US')),
+            ];
+            forkJoin(fetchRequests)
+              .pipe(
+                catchError(error => {
+                  const errorMessage = 'Error fetching data';
+                  console.warn(errorMessage);
+                  this.loading = false;
+                  loading.dismiss();
+                  return throwError(errorMessage);
+                }),
+                switchMap(([drivers, coDrivers, company, terminals, elds, dvirs, logDailies, logEvents]) => {
+                  const saveRequests = [
+                    this.storage.set('drivers', drivers),
+                    this.storage.set('coDrivers', coDrivers),
+                    this.storage.set('company', company),
+                    this.storage.set('dvirs', dvirs),
+                    // this.storage.set('vehicles', (drivers as Driver[])[0]?.driverInfo?.assignedVehicles[0]),
+                    this.storage.set('terminals', terminals),
+                    this.storage.set('elds', elds),
+                    this.storage.set('logDailies', logDailies),
+                    this.storage.set('logEvents', logEvents),
+                  ];
+                  return forkJoin(saveRequests).pipe(
+                    catchError(error => {
+                      const errorMessage = 'Error saving data to storage';
+                      console.warn(errorMessage);
+                      return throwError(errorMessage);
+                    }),
+                    tap(() => {
+                      loading.dismiss();
+                      this.loading = false;
+                      if (pickedVehicle) {
+                        this.navCtrl.navigateForward('/connect-mac');
+                      } else {
+                        this.navCtrl.navigateForward('/select-vehicle');
+                      }
+                    })
+                  );
+                })
+              )
+              .subscribe(
+                () => {
+                  this.toastService.showToast('Welcome Back!', 'success');
+                },
+                error => {
+                  console.log(error);
+                }
               );
-            }
           } else {
             await this.storage.remove('accessToken');
             this.loading = false;
-            console.log(this.loading);
-            this.navCtrl.navigateForward('/login');
+            this.navCtrl.navigateForward('/login', { replaceUrl: true });
+            this.toastService.showToast('Access token has expired. Please log in again.', 'danger');
           }
+        } else {
+          await this.storage.remove('accessToken');
+          this.loading = false;
+          this.navCtrl.navigateForward('/login', { replaceUrl: true });
         }
-      });
+      }
+    });
     this.loading = true;
-    console.log(this.loading);
     if (this.pickedVehicle) {
       this.navCtrl.navigateForward('/connect-mac');
     } else {
       this.navCtrl.navigateForward('/select-vehicle');
     }
     this.loading = false;
-    console.log(this.loading);
   }
 
-  private async presentToast(message: string, color: string = 'danger') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2000,
-      color: color,
-    });
-    toast.present();
+  ngOnDestroy(): void {
+    console.log('App Component Destroy');
+    if (this.databaseSubscription) {
+      this.databaseSubscription.unsubscribe();
+    }
+    this.networkSub.unsubscribe();
   }
+
   private async presentLoading() {
     const loading = await this.loadingController.create({
       message: 'Loading data...',
@@ -171,12 +173,5 @@ export class AppComponent implements OnInit {
     });
     await loading.present();
     return loading;
-  }
-
-  ionViewWillLeave() {
-    if (this.databaseSubscription) {
-      this.databaseSubscription.unsubscribe();
-    }
-    this.networkSub.unsubscribe();
   }
 }

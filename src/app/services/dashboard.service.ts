@@ -4,32 +4,34 @@ import { AUTH_API_URL } from '../app-injection-tokens';
 import { Observable } from 'rxjs';
 import { DVIRs } from '../models/dvirs';
 import { LogDailies } from '../models/log-dailies';
-import { LogHistories } from '../models/log-histories';
+import { LogEvents } from '../models/log-histories';
+import { ELD } from '../models/eld';
+import { DriverStatus } from '../models/driver-statuses';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService {
-  constructor(
-    private http: HttpClient,
-    @Inject(AUTH_API_URL) private apiUrl: string
-  ) {}
+  constructor(private http: HttpClient, @Inject(AUTH_API_URL) private apiUrl: string) {}
 
   updateDVIR(dvir: DVIRs): Observable<object> {
     return this.http.post(this.apiUrl + 'api/EldDashboard/uploadDVIR', dvir);
   }
 
   updateLogDaily(logDaily: LogDailies): Observable<object> {
-    return this.http.post(
-      this.apiUrl + 'api/eldDashboard/UploadLogDailies',
-      logDaily
-    );
+    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadLogDailies', logDaily);
   }
 
-  updateLogHistory(logHistory: LogHistories): Observable<object> {
-    return this.http.post(
-      this.apiUrl + 'api/eldDashboard/UploadLogHistories',
-      logHistory
-    );
+  updateLogEvent(logEvent: LogEvents): Observable<object> {
+    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadLogEvent', logEvent);
   }
+
+  updateELD(eld: ELD) {
+    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadLogEvent', eld);
+  }
+
+  updateDriverStatuses(driverStatus: DriverStatus) {
+    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadDriverStatuses', driverStatus);
+  }
+
 }

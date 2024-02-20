@@ -1,0 +1,36 @@
+.toolbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 0 20px;
+}
+
+.arrow {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.arrow:first-child {
+  margin-left: 25px;
+}
+
+.arrow:last-child {
+  margin-right: 25px;
+}
+
+.tool-content {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.rotate {
+  transform: rotate(180deg);
+}

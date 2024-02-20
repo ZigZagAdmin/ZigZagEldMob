@@ -3,12 +3,14 @@
 // }
 
 .edit-dvir-block {
-  height: 100%;
-  position: relative;
+  // position: relative;
+  flex: 1;
 }
 .reminder {
-  position: absolute;
-  bottom: 0;
+  // position: absolute;
+  // bottom: 0;
+  flex: 1;
+  margin: 0 20px 20px 20px;
 }
 .btn {
   border-radius: 30px;

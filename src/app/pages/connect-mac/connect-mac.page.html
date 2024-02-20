@@ -1,74 +1,32 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Connect to ELD</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-header>
-  <ion-toolbar>
-    <ion-button
-      (click)="redirectToVehicle()"
-      fill="clear"
-      size="small"
-      color="dark"
-      ><ion-icon name="swap-horizontal-outline"></ion-icon
-    ></ion-button>
-    <ion-title> Vehicle unit: {{ pickedVehicle }} </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [forceOverscroll]="false" [fullscreen]="true">
+  <app-header [title]="'Connect to ELD'" [subtitle]="'Vehicle Unit: ' + vehicle?.vehicleUnit" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
-<ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-  <div class="macText">
-    <ion-text> Enter ELD MAC address listed on the device.</ion-text>
-  </div>
-  <div class="content">
-    <ion-item lines="full">
-      <ion-input
-        label="MAC address"
-        labelPlacement="floating"
-        [clearInput]="true"
-        type="text"
-        [(ngModel)]="macAddress"
-      ></ion-input>
-    </ion-item>
-    <div class="ion-activatable ripple-parent buttons">
-      <ion-button (click)="getLocation()" expand="block" shape="round">
-        Connect
-        <ion-ripple-effect></ion-ripple-effect>
-      </ion-button>
-      <ion-button
-        expand="block"
-        color="dark"
-        shape="round"
-        (click)="continueDisconected()"
-      >
-        Continue Disconnected
-        <ion-ripple-effect></ion-ripple-effect>
-      </ion-button>
+  <div class="connect-wrapper padding-g">
+    <div class="input-container">
+      <div class="input-block custom-block">
+        <app-input [label]="'MAC Address'" [fill]="false" [type]="'text'" [(value)]="macAddress" [(validation)]="validation['macAddress']"></app-input>
+      </div>
+      <button class="btn primary-btn custom-button" (click)="connect()">
+        <span *ngIf="!loading">Connect</span>
+        <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      </button>
     </div>
-  </div>
-</ion-content> -->
-
-
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/select-vehicle"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Connect to ELD</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding" *ngIf="vehicle">
-  <div class="connect-wrapper">
-    <p class="subtitle">Vehicle Unit: {{ vehicle.VehicleUnit }}</p>
-    <div class="input-block">
-      <label class="label">MAC Address</label>
-      <input class="input" [(ngModel)]="macAddress" type="text" name="macAddress" />
+    <div class="card-connect-container" *ngIf="elds.length !== 0">
+      <div class="card-connect" *ngFor="let eld of elds" (click)="connectToELD()">
+        <div class="card-connect-content">
+          <div class="card-connect-title">{{ eld?.name || 'Generic ELD' }}</div>
+          <div class="card-connect-mac">{{ 'MAC Address: ' + eld.macAddress.toUpperCase() }}</div>
+        </div>
+        <div class="card-connect-icon">
+          <img src="../../../assets/icon/smart-car.svg" />
+        </div>
+      </div>
     </div>
-    <button class="btn primary-btn">Connect</button>
+    <div class="or-container">
+      <div class="line"></div>
+      <div class="word">or</div>
+      <div class="line"></div>
+    </div>
     <button class="btn secondary-btn" (click)="continueDisconected()">Continue disconnected</button>
   </div>
 </ion-content>

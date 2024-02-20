@@ -1,0 +1,370 @@
+h2 {
+  margin: 0;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+svg {
+  display: block;
+  width: 100%;
+}
+
+.SVGline {
+  stroke: #141;
+  stroke-width: 3;
+}
+
+rect {
+  fill: transparent;
+}
+
+rect.eventBorder {
+  fill: transparent;
+  stroke-opacity: 0;
+  transition: fill 300ms ease;
+  cursor: pointer;
+}
+
+line {
+  stroke: #94a4d7;
+  stroke-width: 0.5;
+}
+
+.eventStatusOFF {
+  stroke: rgb(198, 198, 198);
+  stroke-width: 5;
+}
+
+.eventStatusSB {
+  stroke: rgb(31, 49, 64);
+  stroke-width: 5;
+}
+
+.eventStatusD {
+  stroke: rgb(60, 118, 61);
+  stroke-width: 5;
+}
+
+.eventStatusON {
+  stroke: rgb(213, 133, 18);
+  stroke-width: 5;
+}
+
+.eventStatusPC {
+  stroke: rgb(198, 198, 198);
+  stroke-width: 5;
+  stroke-dasharray: 7;
+}
+
+.eventStatusYM {
+  stroke: rgb(213, 133, 18);
+  stroke-width: 5;
+  stroke-dasharray: 7;
+}
+
+.eventStatusNP {
+  stroke-width: 3;
+  stroke: rgb(60, 118, 61);
+}
+
+.eventStatusLogin {
+  stroke-width: 3;
+  stroke: rgb(3, 33, 252);
+  stroke-dasharray: 6;
+}
+
+.eventStatusLogout {
+  stroke-width: 3;
+  stroke: rgb(255, 0, 0);
+  stroke-dasharray: 6;
+}
+
+.vertical {
+  stroke: #002ed0;
+}
+
+.horizontalRed {
+  stroke: #db2828;
+  stroke-width: 7;
+}
+
+.card-info {
+  // min-width: 397px;
+  z-index: 5;
+  margin-bottom: 20px;
+}
+
+ion-grid {
+  margin: 0;
+}
+
+ion-col {
+  text-align: center;
+}
+
+.FormStatus {
+  background: #3880ff;
+  height: 3em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.custom-card {
+  position: relative;
+}
+
+.custom-card-on::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
+  height: 100%;
+  background-color: #fae057; /* Любой цвет, который вам нужен */
+  /* Другие стили по вашему выбору */
+}
+
+.custom-card-off::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
+  height: 100%;
+  background-color: #bdc3bf; /* Любой цвет, который вам нужен */
+  /* Другие стили по вашему выбору */
+}
+.custom-card-d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
+  height: 100%;
+  background-color: #8bc34a; /* Любой цвет, который вам нужен */
+  /* Другие стили по вашему выбору */
+}
+.custom-card-sb::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
+  height: 100%;
+  background-color: #7e7e7e; /* Любой цвет, который вам нужен */
+  /* Другие стили по вашему выбору */
+}
+.custom-card-pc::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
+  height: 100%;
+  background-color: #bdc3bf; /* Любой цвет, который вам нужен */
+  /* Другие стили по вашему выбору */
+}
+.custom-card-ym::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
+  height: 100%;
+  background-color: #fae057; /* Любой цвет, который вам нужен */
+  /* Другие стили по вашему выбору */
+}
+
+.underline-text {
+  text-decoration: underline;
+  color: #0000ff;
+}
+
+.form-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  .custom-subtitle {
+    flex-grow: 1;
+  }
+  .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    padding: 10px 15px;
+    height: 38px;
+  }
+}
+
+.logs-certified {
+  display: flex;
+  align-items: center;
+  .subtitle {
+    flex: 1;
+  }
+  .logs-buttons {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    .btn {
+      border-radius: 30px;
+      padding: 10px 15px;
+      min-height: 37px;
+    }
+  }
+}
+.form-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  .form-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .input {
+      width: 50%;
+      background-color: var(--gray-100);
+    }
+  }
+}
+.form-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .form-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: var(--gray-100);
+    border-radius: 10px;
+    padding: 15px;
+
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+
+      .row-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .text-2 {
+        flex-grow: 1;
+      }
+    }
+  }
+}
+.subtitle {
+  flex: 1 calc(100% - 25px);
+  font-size: 14px;
+}
+
+.card-time {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.status-circle {
+  flex: 1 15px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50px;
+}
+
+.custom-status-circle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50px;
+}
+
+.status-circle-error {
+  background-color: var(--error-500);
+}
+
+.status-circle-success {
+  background-color: var(--success-500);
+}
+
+.btn-disabled {
+  background-color: var(--gray-500) !important;
+}
+
+.signature-visualization {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  background-color: var(--gray-100);
+  border-radius: 10px;
+  padding: 15px;
+  min-width: 330px;
+  min-height: 320px;
+
+  img {
+    border-radius: 10px;
+  }
+}
+
+.no-image {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.no-signature {
+  background-color: var(--gray-100);
+  font-size: 14px;
+  color: var(--gray-700);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.violation-list {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .violation-item {
+    font-size: 11px;
+    color: var(--error-600);
+    border: 1px solid var(--error-600);
+    background-color: var(--error-50);
+    padding: 5px 10px;
+    border-radius: 50px;
+  }
+}
+
+.error-status-viol {
+  fill: var(--error-600) !important;
+  stroke: var(--error-600);
+  opacity: 0.2;
+  stroke-width: 1px;
+}

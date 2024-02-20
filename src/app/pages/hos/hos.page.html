@@ -1,534 +1,56 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>{{name}} - {{pickedVehicle}}</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-header *ngIf="someErrors">
-  <ion-toolbar color="danger">
-    <ion-title size="small">Some Errors</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <ion-button
-          id="open-modal"
-          expand="block"
-          (click)="toggleModal()"
-          [color]="redCircle > 0 ? 'danger' : getStatusColor(currentStatus.statusName)"
-        >
-          <div
-            style="
-              width: 100%;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            Current Status: {{currentStatus.statusName}} ({{currentStatusTime}})
-            <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-          </div>
-        </ion-button>
-        <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
-          <ng-template>
-            <ion-header>
-              <ion-toolbar>
-                <ion-title color="dark">Switch Status</ion-title>
-                <ion-buttons slot="start">
-                  <ion-button (click)="cancel()">Cancel</ion-button>
-                </ion-buttons>
-                <ion-buttons slot="end">
-                  <ion-button
-                    (click)="confirm()"
-                    [strong]="true"
-                    [disabled]="!isConfirmButtonActive"
-                    >Confirm</ion-button
-                  >
-                </ion-buttons>
-              </ion-toolbar>
-            </ion-header>
-            <ion-content>
-              <ion-grid>
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-button
-                      class="statusBtn off"
-                      fill="solid"
-                      expand="block"
-                      [ngClass]="{ 'selected': selectedButton === 'OFF' }"
-                      (click)="selectButton('OFF')"
-                    >
-                      <div class="button-content">
-                        <div class="button-code">OFF</div>
-                        <div class="button-status">Off Duty</div>
-                      </div>
-                    </ion-button>
-                  </ion-col>
-                  <ion-col size="6">
-                    <ion-button
-                      class="statusBtn sb"
-                      fill="solid"
-                      expand="block"
-                      [class.selected]="selectedButton === 'SB'"
-                      (click)="selectButton('SB')"
-                    >
-                      <div class="button-content">
-                        <div class="button-code">SB</div>
-                        <div class="button-status">Sleeper Berth</div>
-                      </div>
-                    </ion-button>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-button
-                      class="statusBtn on"
-                      fill="solid"
-                      expand="block"
-                      [class.selected]="selectedButton === 'ON'"
-                      (click)="selectButton('ON')"
-                    >
-                      <div class="button-content">
-                        <div class="button-code">ON</div>
-                        <div class="button-status">On Duty</div>
-                      </div>
-                    </ion-button>
-                  </ion-col>
-                  <ion-col size="6">
-                    <ion-button
-                      class="statusBtn d"
-                      fill="solid"
-                      expand="block"
-                      [class.selected]="selectedButton === 'D'"
-                      (click)="selectButton('D')"
-                    >
-                      <div class="button-content">
-                        <div class="button-code">D</div>
-                        <div class="button-status">Driving</div>
-                      </div>
-                    </ion-button>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="6">
-                    <ion-button
-                      class="statusBtn pc"
-                      fill="solid"
-                      expand="block"
-                      [class.selected]="selectedButton === 'PC'"
-                      (click)="selectButton('PC')"
-                    >
-                      <div class="button-content">
-                        <div class="button-code">PC</div>
-                        <div class="button-status">Personal Conveyance</div>
-                      </div>
-                    </ion-button>
-                  </ion-col>
-                  <ion-col size="6">
-                    <ion-button
-                      class="statusBtn ym"
-                      fill="solid"
-                      expand="block"
-                      [class.selected]="selectedButton === 'YM'"
-                      (click)="selectButton('YM')"
-                    >
-                      <div class="button-content">
-                        <div class="button-code">YM</div>
-                        <div class="button-status">Yard Moves</div>
-                      </div>
-                    </ion-button>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <ion-item>
-                      <ion-icon name="location-outline" slot="start"></ion-icon>
-                      <ion-input placeholder="Location"></ion-input>
-                    </ion-item>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <ion-item>
-                      <ion-icon
-                        name="chatbox-ellipses-outline"
-                        slot="start"
-                      ></ion-icon>
-                      <ion-input placeholder="Notes"></ion-input>
-                    </ion-item>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-content>
-          </ng-template>
-        </ion-modal>
-      </ion-col>
-    </ion-row>
-    <div class="drive_mode" id="driveModeContainer">
-      <div event="event-circles">
-        <ion-row>
-          <ion-col
-            ><ion-text
-              ><span style="font-size: 15px">Hours Remaining</span></ion-text
-            ></ion-col
-          >
-        </ion-row>
-        <ion-row>
-          <ion-col>
-            <circle-progress
-              [percent]="percentBreak"
-              [radius]="60"
-              [space]="-10"
-              [outerStrokeWidth]="10"
-              [outerStrokeColor]="percentBreak <= 100 ? (percentBreak <= 6.25 ? '#FFEE59' : '#22b8fd') : 'red'"
-              [innerStrokeColor]="'#e7e8ea'"
-              [innerStrokeWidth]="10"
-              [title]="convertSecondToHours(titleBreak)"
-              [subtitle]="'Break'"
-              [subtitleColor]="percentBreak <= 100 ? (percentBreak <= 6.25 ? '#FFEE59' : '#A9A9A9') : 'red'"
-              [showUnits]="false"
-              [subtitleFontSize]="'15'"
-              [clockwise]="false"
-              [animateTitle]="false"
-              [animationDuration]="500"
-              [showBackground]="false"
-              [outerStrokeLinecap]="'butt'"
-            ></circle-progress>
-          </ion-col>
-
-          <ion-col>
-            <circle-progress
-              [percent]="percentDriving"
-              [radius]="60"
-              [space]="-10"
-              [outerStrokeWidth]="10"
-              [outerStrokeColor]="percentDriving <= 100 ? (percentDriving <= 4.55 ? '#FFEE59' : '#22b8fd') : 'red'"
-              [innerStrokeColor]="'#e7e8ea'"
-              [innerStrokeWidth]="10"
-              [title]="convertSecondToHours(titleDriving)"
-              [subtitle]="'Drive'"
-              [subtitleColor]="percentDriving <= 100 ? (percentDriving <= 4.55 ? '#FFEE59' : '#A9A9A9') : 'red'"
-              [showUnits]="false"
-              [subtitleFontSize]="'15'"
-              [clockwise]="false"
-              [animateTitle]="false"
-              [animationDuration]="500"
-              [showBackground]="false"
-              [outerStrokeLinecap]="'butt'"
-            ></circle-progress>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col>
-            <circle-progress
-              [percent]="percentShift"
-              [radius]="60"
-              [space]="-10"
-              [outerStrokeWidth]="10"
-              [outerStrokeColor]="percentShift <= 100 ? (percentShift <= 3.57 ? '#FFEE59' : '#22b8fd') : 'red'"
-              [innerStrokeColor]="'#e7e8ea'"
-              [innerStrokeWidth]="10"
-              [title]="convertSecondToHours(titleShift)"
-              [subtitle]="'Shift'"
-              [subtitleColor]="percentShift <= 100 ? (percentShift <= 3.57 ? '#FFEE59' : '#A9A9A9') : 'red'"
-              [showUnits]="false"
-              [subtitleFontSize]="'15'"
-              [clockwise]="false"
-              [animateTitle]="false"
-              [animationDuration]="500"
-              [showBackground]="false"
-              [outerStrokeLinecap]="'butt'"
-            ></circle-progress>
-          </ion-col>
-          <ion-col>
-            <circle-progress
-              [percent]="percentCycle"
-              [radius]="60"
-              [space]="-10"
-              [outerStrokeWidth]="10"
-              [outerStrokeColor]="percentCycle <= 100 ? (percentCycle <= 0.71 ? '#FFEE59' : '#22b8fd') : 'red'"
-              [innerStrokeColor]="'#e7e8ea'"
-              [innerStrokeWidth]="10"
-              [title]="convertSecondToHours(titleCycle)"
-              [subtitle]="'Cycle'"
-              [subtitleColor]="percentCycle <= 100 ? (percentCycle <= 0.71 ? '#FFEE59' : '#A9A9A9') : 'red'"
-              [showUnits]="false"
-              [subtitleFontSize]="'15'"
-              [clockwise]="false"
-              [animateTitle]="false"
-              [animationDuration]="500"
-              [showBackground]="false"
-              [outerStrokeLinecap]="'butt'"
-            ></circle-progress>
-          </ion-col>
-        </ion-row>
-      </div>
-      <ion-row>
-        <ion-col>
-          <ion-button expand="block" color="secondary" (click)="toggleMode()">
-            Rest Mode
-            <ion-icon slot="end" name="moon-outline"></ion-icon>
-          </ion-button>
-        </ion-col>
-      </ion-row>
-    </div>
-    <div class="rest_mode" id="restModeContainer" style="display: none">
-      <ion-grid>
-        <ion-row>
-          <ion-col style="padding-top: 0px"
-            ><ion-text
-              ><span style="font-size: 15px">Hours Remaining</span></ion-text
-            ></ion-col
-          >
-        </ion-row>
-        <div class="rest_mode_item">
-          <ion-row>
-            <ion-col>Minimum Break Required</ion-col>
-            <ion-col>{{restBreak}} / 00:30</ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-progress-bar
-              reversed="true"
-              [value]="progressBreak"
-            ></ion-progress-bar>
-          </ion-row>
-        </div>
-
-        <div class="rest_mode_item">
-          <ion-row>
-            <ion-col>Until shift reset</ion-col>
-            <ion-col>{{restShift}} / 10:00</ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-progress-bar
-              reversed="true"
-              [value]="progressShift"
-            ></ion-progress-bar>
-          </ion-row>
-        </div>
-
-        <div class="rest_mode_item">
-          <ion-row>
-            <ion-col>Until cycle reset</ion-col>
-            <ion-col>{{restCycle}} / 34:00</ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-progress-bar
-              reversed="true"
-              [value]="progressCycle"
-            ></ion-progress-bar>
-          </ion-row>
-        </div>
-        <ion-row>
-          <ion-col>
-            <ion-button expand="block" color="secondary" (click)="toggleMode()">
-              Drive Mode
-              <ion-icon slot="end" name="rocket-outline"></ion-icon>
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-    <ion-row>
-      <ion-col>
-        <div class="timeWorkedRecap">
-          <div>Last 7 Days (hours worked): 08h 33m</div>
-          <div>Hours Recap: + 00h 00m</div>
-        </div>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col style="margin-top: 7px">
-        <ion-toggle class="custom-toggle">
-          <ion-label>Split Sleeper Berth</ion-label>
-        </ion-toggle>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <ion-grid>
-    <ion-row>
-      <ion-col style="padding: 0; padding-bottom: 3px"
-        ><div class="logsRecap">
-          <span>Logs and Recap Hours</span>
-        </div>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col style="padding: 0">
-        <div class="logsSubtitle">
-          <span style="padding-left: 5px">Day</span>
-          <span>Date</span>
-          <span style="padding-right: 5px">Hours Worked</span>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <ion-card
-    class="ion-activatable ripple-parent"
-    style="margin: 5px 0"
-    *ngFor="let logDaily of logDailies"
-    (click)="selectLog(logDaily)"
-  >
-    <ion-ripple-effect></ion-ripple-effect>
-    <ion-grid>
-      <ion-row>
-        <ion-col style="padding: 0">
-          <div class="logsInfo">
-            <span class="left" style="padding-left: 5px"
-              >{{ logDaily.Day | date:'EEEE' }}</span
-            >
-            <span class="center">{{ logDaily.Day | date:'mediumDate' }}</span>
-            <span class="right" style="padding-right: 5px"
-              >{{ logDaily.HoursWorked | convertSecotdsToHoursAndMinutes
-              }}</span
-            >
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <span>
-            Form
-            <ion-icon
-              *ngIf="logDaily.FormManner"
-              name="checkmark-circle-outline"
-              color="success"
-            ></ion-icon>
-            <ion-icon
-              *ngIf="!logDaily.FormManner"
-              name="checkmark-circle-outline"
-              color="danger"
-            ></ion-icon>
-          </span>
-        </ion-col>
-        <ion-col>
-          <span>
-            Certify
-            <ion-icon
-              *ngIf="logDaily.Certified"
-              name="checkmark-circle-outline"
-              color="success"
-            ></ion-icon>
-            <ion-icon
-              *ngIf="!logDaily.Certified"
-              name="checkmark-circle-outline"
-              color="danger"
-            ></ion-icon>
-          </span>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </ion-card>
-</ion-content> -->
-
-
-<ion-header>
-  <ion-toolbar>
-    <ion-title>{{name}} - {{pickedVehicle}}</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-header *ngIf="someErrors">
-  <ion-toolbar color="danger">
-    <ion-title size="small">Some Errors</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
-  <div class="hos-wrapper" *ngIf="vehicle">
+<ion-content [forceOverscroll]="false">
+  <div class="hos-wrapper" *ngIf="!pageLoading">
     <div class="hos-header">
-      <img src="assets/icon/point-green.svg" alt="point">
+      <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}" (click)="checkLocation()">
+        <img src="assets/icon/location_icon.svg" />
+      </div>
       <div class="hos-name">
-        <p class="subtitle">{{ name }}</p>
-        <p class="text-1">Vehicle Unit: {{ vehicle.VehicleUnit }}</p>
+        <p class="subtitle">{{ driverName }}</p>
+        <p class="text-1">Vehicle Unit: {{ vehicle?.vehicleUnit }}</p>
       </div>
-      <img src="assets/icon/bluetooth-red.svg" alt="bluetooth">
-    </div>
-    <div class="warning">
-      <img src="assets/icon/warning.svg" alt="warning">
-      <div class="warning-text">
-        <p class="subtitle">Warning</p>
-        <p class="text-1">Make sure that ELD hardware is properly installed and Vehicle power is ON</p>
+      <div class="service" [ngClass]="{'service-on': bluetoothStatus, 'service-off': !bluetoothStatus}" (click)="checkBluetooth()">
+        <img src="assets/icon/bluetooth_icon.svg" />
       </div>
     </div>
+
+    <app-message-banner *ngIf="bannerInfo.show" [title]="bannerInfo.title" [subtitle]="bannerInfo.subtitle" [type]="bannerInfo.type"></app-message-banner>
+
     <div class="status-bar">
       <p class="subtitle">Current Status</p>
-      <div class="green" (click)="toggleModal()">
-        {{currentStatus.statusName}}
-        <img src="assets/icon/arrow-bottom.svg" alt="arrow">
+      <div class="green" id="trigger-status" [ngStyle]="{'background-color': getStatusColor(selectedButton)}" style="max-width: 39%" (click)="toggleModal()">
+        <span class="text-elipsis">{{currentStatus.statusName}}</span>
+        <img src="assets/icon/arrow-bottom.svg" alt="arrow" />
       </div>
-      <div class="green">{{currentStatusTime}}</div>
+      <div class="green" [ngStyle]="{'background-color': getStatusColor(selectedButton)}">{{currentStatusTime}}</div>
     </div>
-    <ion-modal [isOpen]="isModalOpen" (willDismiss)="onWillDismiss($event)">
+    <ion-modal [isOpen]="isModalOpen" trigger="trigger-status">
       <ng-template>
-        <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-button (click)="cancel()">Cancel</ion-button>
-            </ion-buttons>
-            <ion-title color="dark">Select Duty Status</ion-title>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
+        <ion-content [forceOverscroll]="false">
+          <app-header [title]="'Select Duty Status'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
           <div class="modal-content">
-            <div class="select-statuses">
-              <div class="select-status" (click)="selectButton('OFF')">
-                <img src="assets/icon/circle-gray.svg" alt="circle">
-                <p class="subtitle">Off Duty</p>
-                <img *ngIf="selectedButton !== 'OFF'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'OFF'" src="assets/icon/check-mark.svg" alt="circle">
-              </div>
-              <div class="select-status" (click)="selectButton('SB')">
-                <img src="assets/icon/circle-blue.svg" alt="circle">
-                <p class="subtitle">Sleeper Berth</p>
-                <img *ngIf="selectedButton !== 'SB'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'SB'" src="assets/icon/check-mark.svg" alt="circle">
-              </div>
-              <div class="select-status" (click)="selectButton('ON')">
-                <img src="assets/icon/circle-green.svg" alt="circle">
-                <p class="subtitle">On Duty</p>
-                <img *ngIf="selectedButton !== 'ON'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'ON'" src="assets/icon/check-mark.svg" alt="circle">
-              </div>
-              <div class="select-status" (click)="selectButton('D')">
-                <img src="assets/icon/circle-orange.svg" alt="circle">
-                <p class="subtitle">Driving</p>
-                <img *ngIf="selectedButton !== 'D'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'D'" src="assets/icon/check-mark.svg" alt="circle">
-              </div>
-              <div class="select-status" (click)="selectButton('PC')">
-                <img src="assets/icon/circle-purple.svg" alt="circle">
-                <p class="subtitle">Personal Conveyance</p>
-                <img *ngIf="selectedButton !== 'PC'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'PC'" src="assets/icon/check-mark.svg" alt="circle">
-              </div>
-              <div class="select-status" (click)="selectButton('YM')">
-                <img src="assets/icon/circle-red.svg" alt="circle">
-                <p class="subtitle">Yard Moves</p>
-                <img *ngIf="selectedButton !== 'YM'" src="assets/icon/circle-white.svg" alt="circle">
-                <img *ngIf="selectedButton === 'YM'" src="assets/icon/check-mark.svg" alt="circle">
-              </div>
-            </div>
-            <div class="input-block">
-              <label class="label">Location</label>
-              <input class="input" [(ngModel)]="location" type="text" name="location" />
-            </div>
-            <div class="input-block">
-              <label class="label">Comments</label>
-              <textarea class="input textarea" [(ngModel)]="comments" type="text" name="location" ></textarea>
-            </div>
+            <app-duty-radio-button (selectedValue)="selectButton($event)" [currentValue]="selectedButton"></app-duty-radio-button>
+            <app-location-input
+              [label]="'Location'"
+              [fill]="true"
+              [type]="'text'"
+              [(value)]="locationDescription"
+              [loading]="locationLoading"
+              [disabled]="locationDisable"
+              (gpsCallback)="getLocalCurrentLocation()"
+              [(validation)]="validation['location']"></app-location-input>
+            <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-comments>
             <div class="btns-flex">
-              <button class="btn secondary-btn" (click)="cancel()">Back</button>
-              <button class="btn primary-btn" (click)="confirm()" [disabled]="!isConfirmButtonActive">Save</button>
+              <button class="btn secondary-btn btn-custom" (click)="cancel()">Back</button>
+              <button class="btn primary-btn btn-custom" (click)="confirm()">
+                <span *ngIf="!modalLoading">Save</span> <ion-spinner *ngIf="modalLoading" name="circular" color="light"></ion-spinner>
+              </button>
             </div>
           </div>
         </ion-content>
       </ng-template>
     </ion-modal>
     <div class="circles">
-      <p class="text-2">Hours Remaining</p>
+      <p class="text-2" style="margin-bottom: 5px">Hours Remaining</p>
       <div class="circles-block" *ngIf="!restMode">
         <div class="circle-block">
           <circle-progress
@@ -548,9 +70,9 @@
             subtitleColor="rgba(152, 162, 179, 1)"
             subtitleFontSize="22"
             [showUnits]="false"
+            [animation]="animateCircles"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
         <div class="circle-block">
@@ -570,10 +92,10 @@
             subtitleFontWeight="500"
             subtitleColor="rgba(152, 162, 179, 1)"
             subtitleFontSize="22"
+            [animation]="animateCircles"
             [showUnits]="false"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
         <div class="circle-block">
@@ -594,9 +116,9 @@
             subtitleColor="rgba(152, 162, 179, 1)"
             subtitleFontSize="22"
             [showUnits]="false"
+            [animation]="animateCircles"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
         <div class="circle-block">
@@ -605,21 +127,21 @@
             [responsive]="true"
             [space]="-15"
             [outerStrokeWidth]="15"
-            outerStrokeColor="rgba(250, 26, 26, 1)"
+            outerStrokeColor="rgba(251, 101, 20, 1)"
             innerStrokeColor="rgba(228, 231, 236, 1)"
             [innerStrokeWidth]="15"
             titleFontSize="22"
             [title]="convertSecondToHours(titleCycle)"
-            titleColor="rgba(250, 26, 26, 1)"
+            titleColor="rgba(251, 101, 20, 1)"
             titleFontWeight="600"
             subtitle="Cycle"
             subtitleFontWeight="500"
             subtitleColor="rgba(152, 162, 179, 1)"
             subtitleFontSize="22"
             [showUnits]="false"
+            [animation]="animateCircles"
             [animationDuration]="500"
-            outerStrokeLinecap="round"
-          >
+            outerStrokeLinecap="round">
           </circle-progress>
         </div>
       </div>
@@ -628,7 +150,7 @@
       <div class="rest-row">
         <div class="row-1">
           <p class="subtitle">Minimum Break Required</p>
-          <p class="subtitle">{{ restBreak }} / 00:30</p>
+          <p class="subtitle">{{ convertSecondToHours(restBreak) }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
           <div id="inner-1" class="progress-bar-inner" [style]="'width: ' + progressBreak * 100 + '%'"></div>
@@ -638,7 +160,7 @@
       <div class="rest-row">
         <div class="row-1">
           <p class="subtitle">Until shift reset</p>
-          <p class="subtitle">{{ restShift }} / 00:30</p>
+          <p class="subtitle">{{ convertSecondToHours(restShift) }} / 10:00</p>
         </div>
         <div class="progress-bar-outer">
           <div id="inner-2" class="progress-bar-inner" [style]="'width: ' + progressShift * 100 + '%'"></div>
@@ -648,50 +170,52 @@
       <div class="rest-row">
         <div class="row-1">
           <p class="subtitle">Until Cycle Reset</p>
-          <p class="subtitle">{{ restCycle }} / 00:30</p>
+          <p class="subtitle">{{ convertSecondToHours(restCycle) }} / 34:00</p>
         </div>
         <div class="progress-bar-outer">
           <div id="inner-3" class="progress-bar-inner" [style]="'width: ' + progressCycle * 100 + '%'"></div>
         </div>
       </div>
-
-
     </div>
     <div class="time">
       <div class="time-block">
-        <p class="subtitle">8 h 33 m</p>
-        <p class="text-1">WH Last 7 Days</p>
+        <p class="subtitle">{{ getTotalWorkedHours() | convertSecondsToHoursAndMinutesHm }}</p>
+        <p class="text-1">Last 7 Days</p>
       </div>
       <div class="time-block">
-        <p class="subtitle">+ 00h 00h</p>
-        <p class="text-1">Hours Recap</p>
+        <p class="subtitle">{{ hoursRecap | convertSecondsToHoursAndMinutesHm }}</p>
+        <p class="text-1">Hours Tomorrow</p>
       </div>
     </div>
     <div class="switch-sleep">
       <p class="subtitle">Split Sleeper Berth</p>
-      <ion-toggle></ion-toggle>
+      <app-toggle-switch [isChecked]="splitSleeperBerth" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
     </div>
     <button class="btn primary-btn" (click)="switchMode()">
-      <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon">
-      <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon">
+      <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />
+      <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon" />
       {{ restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode' }}
     </button>
     <p class="subtitle">Logs and Recap Hours</p>
     <div class="log-dailies">
       <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
         <div class="log-left">
-          <p class="subtitle">{{ logDaily.Day | date:'EEEE' }}, {{ logDaily.Day | date: 'MMMM dd' }}</p>
+          <div class="subtitle">
+            {{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date: 'MMMM dd' }}
+            <div *ngIf="logDaily.violations.length !== 0" class="violation-number"><img src="../../../assets/icon/violation.svg" />{{logDaily.violations.length}}</div>
+          </div>
           <div class="sub-info">
-            <img src="assets/icon/red-point.svg" alt="point">
+            <div class="status-dot" [ngClass]="{'status-dot-error': !logDaily.formManner, 'status-dot-success': logDaily.formManner }"></div>
             <p>Form</p>
-            <img src="assets/icon/red-point.svg" alt="point">
+            <div class="status-dot" [ngClass]="{'status-dot-error': !logDaily.certified, 'status-dot-success': logDaily.certified }"></div>
             <p>Certify</p>
           </div>
         </div>
         <div class="log-right">
-          <p class="hours-worked">{{ logDaily.HoursWorked | convertSecotdsToHoursAndMinutes }}</p>
+          <p class="hours-worked">{{ logDaily.timeWorked | convertSecotdsToHoursAndMinutes }}</p>
         </div>
       </div>
     </div>
   </div>
+  <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>
 </ion-content>

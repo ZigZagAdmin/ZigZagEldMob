@@ -1,0 +1,11 @@
+<div class="list-container">
+  <div class="list-item" [ngClass]="{ 'disable-form': disable, 'disable-input-opacity': showDisabled }" *ngFor="let item of data" (click)="select(item)">
+    <div class="item-data">
+      <div class="status-color" [ngStyle]="{ 'background-color': item.color }"></div>
+      <div class="status-label">{{ item.label }}</div>
+    </div>
+    <div class="item-checkbox">
+      <ion-checkbox [checked]="item.checked"></ion-checkbox>
+    </div>
+  </div>
+</div>

@@ -1,39 +1,44 @@
+import { ISettings } from "./company";
+import { ICodeName, ILicensePlate } from "./vehicle";
+
 export class Driver {
-  DriverId!: string;
-  CompanyId!: string;
-  Name!: string;
-  FirstName!: string;
-  LastName!: string;
-  Email!: string;
-  EmailConfirmed!: string;
-  UserName!: string;
-  DriverIdentifier!: string;
-  PhoneNumber!: string;
-  CountryCode!: string;
-  StateProvinceCode!: string;
-  LicenseNumber!: string;
-  Password!: string;
-  HomeTerminalId!: string;
-  AssignedVehiclesId!: string;
-  VehicleUnit!: string;
+  driverId!: string;
+  companyId!: string;
+  name!: string;
+  firstName!: string;
+  lastName!: string;
+  email!: string;
+  emailConfirmed!: string;
+  userName!: string;
+  driverIdentifier!: string;
+  phoneNumber!: string;
+  driverInfo: IDriverInfo;
+  simCard!: string;
+  deviceModel!: string;
+  operatingSystem!: string;
+  appVersion!: string;
+  status!: boolean;
+}
 
-  VehicleMotionThresholdCode!: string;
-  HoursOfServiceRuleCode!: string;
-  HoursOfServiceRuleName!: string;
-  HoursOfServiceRuleDays!: number;
-  HoursOfServiceRuleHours!: number;
-  CargoTypeCode!: string;
-  RestartHoursCode!: string;
-  RestBreakCode!: string;
-  ExemptDriver!: boolean;
-  WaitingTimeException!: boolean;
-  ShortHaulException!: boolean;
-  AllowYardMoves!: boolean;
-  AllowPersonalUse!: boolean;
+export interface IDriverInfo {
+  companyDriverId: string;
+  licenseNumber: string;
+  licenseState: string;
+  licenseCountry: string;
+  homeTerminalId: string;
+  assignedVehicles: IAssignedVehicle[];
+  settings: ISettings;
+}
 
-  SimCard!: string;
-  DeviceModel!: string;
-  OperatingSystem!: string;
-  AppVersion!: string;
-  Status!: boolean;
+export interface IAssignedVehicle {
+  vehicleId: string;
+  companyId: string;
+  vehicleUnit: string;
+  vin: string;
+  make?: string;
+  model?: string;
+  year?: string;
+  fuel?: ICodeName;
+  licensePlate?: ILicensePlate;
+  status?: boolean;
 }

@@ -1,5 +1,144 @@
 .dvirs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+}
+
+.dvir-add {
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--gray-25);
+  background-color: var(--primary-600);
+  border-radius: 10px;
+}
+
+.no-data {
+  width: 100%;
+  height: calc(100% - 52px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dvir-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid var(--gray-100);
+  background-color: var(--gray-50);
+  border-radius: 10px;
+
+  .dvir-card-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .card-header-date {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .status-circle {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .status-error {
+        background-color: var(--error-600);
+      }
+
+      .status-success {
+        background-color: var(--success-600);
+      }
+
+      .header-date {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--gray-700);
+      }
+    }
+
+    .card-header-time {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-600);
+    }
+  }
+
+  .card-vehicle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    .card-vehicle-name {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      span {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--gray-500);
+      }
+
+      img {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+  }
+
+  .card-defects {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 2px;
+
+    .defects-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      img {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      span {
+        font-size: 12px;
+        font-weight: 400;
+      }
+
+      .defect-error {
+        color: var(--error-600);
+      }
+
+      .defect-success {
+        color: var(--success-600);
+      }
+
+      .defect-default {
+        color: var(--gray-600);
+      }
+    }
+
+    .defects-list {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--gray-700);
+      word-break: break-word;
+    }
+  }
 }

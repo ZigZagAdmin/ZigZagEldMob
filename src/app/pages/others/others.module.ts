@@ -8,13 +8,10 @@ import { OthersPageRoutingModule } from './others-routing.module';
 
 import { OthersPage } from './others.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    OthersPageRoutingModule
-  ],
-  declarations: [OthersPage]
+  imports: [CommonModule, FormsModule, IonicModule, OthersPageRoutingModule, HeaderComponentModule],
+  declarations: [OthersPage],
 })
 export class OthersPageModule {}

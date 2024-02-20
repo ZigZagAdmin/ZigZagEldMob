@@ -37,7 +37,7 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "localforage"
+              "localforage", "crypto-js", "pdfjs-dist/build/pdf", "pdfjs-dist/web/pdf_viewer"
             ]
           },
           "configurations": {
@@ -50,8 +50,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
                 }
               ],
               "fileReplacements": [

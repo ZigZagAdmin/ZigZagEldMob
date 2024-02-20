@@ -1,0 +1,9 @@
+{
+	"appId": "com.example.app",
+	"appName": "eld_mob",
+	"webDir": "www",
+	"bundledWebRuntime": false,
+	"ios": {
+		"contentInset": "always"
+	}
+}

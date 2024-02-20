@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Vehicle } from 'src/app/models/vehicle';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
-import { NavController } from '@ionic/angular';
-import { Subscription } from 'rxjs';
-import { Driver } from 'src/app/models/driver';
+import { AnimationBuilder, NavController } from '@ionic/angular';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
+import { Driver, IAssignedVehicle } from 'src/app/models/driver';
 import { Company } from 'src/app/models/company';
 
 @Component({
@@ -18,50 +18,51 @@ export class SelectVehiclePage implements OnInit {
   showBackButton: boolean = false;
   pickedVehicle = '';
   vehicles: Vehicle[] = [];
-  driver!: Driver;
-  company!: Company;
-  constructor(
-    private navCtrl: NavController,
-    private databaseService: DatabaseService,
-    private storage: Storage
-  ) {}
+  driver: Driver;
+  company: Company;
 
-  ngOnInit() {
-    this.databaseSubscription = this.databaseService
-      .isDatabaseReady()
-      .subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getVehicles().subscribe((vehicles) => {
-            this.vehicles = vehicles;
-            console.log(this.vehicles);
-          });
-          this.databaseService.getDrivers().subscribe((driver) => {
-            this.driver = driver;
-            this.storage.set(
-              'HoursOfServiceRuleDays',
-              this.driver.HoursOfServiceRuleDays
-            );
-            this.storage.set(
-              'HoursOfServiceRuleHours',
-              this.driver.HoursOfServiceRuleHours
-            );
-          });
-          this.databaseService.getCompany().subscribe((company) => {
-            this.company = company;
-            this.storage.set('TimeZoneCity', this.company.TimeZoneCity);
-          });
-        }
-      });
+  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private storage: Storage) {}
+
+  async ngOnInit() {
+    this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+
+        let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
+        let drivers$ = firstValueFrom(this.databaseService.getDrivers());
+        let company$ = firstValueFrom(this.databaseService.getCompany());
+
+        forkJoin([vehicles$, drivers$, company$]).subscribe(([vehicles, drivers, company]) => {
+          this.vehicles = vehicles;
+          if (drivers && drivers.length !== 0) this.driver = drivers[0];
+          this.company = company;
+          this.storage.set('HoursOfServiceRuleDays', this.driver?.driverInfo?.settings.hoursOfService.days);
+          this.storage.set('HoursOfServiceRuleHours', this.driver?.driverInfo?.settings.hoursOfService.hours);
+          this.storage.set('timeZone', this.company?.mainOffice.timeZoneCode);
+        });
+
+        // await firstValueFrom(this.databaseService.getVehicles()).then(vehicles => {
+        //   this.vehicles = vehicles;
+        // });
+        // await firstValueFrom(this.databaseService.getDrivers()).then(driver => {
+        //   if (driver) this.driver = driver[0];
+        //   this.storage.set('HoursOfServiceRuleDays', this.driver?.driverInfo?.settings.hoursOfService.days);
+        //   this.storage.set('HoursOfServiceRuleHours', this.driver?.driverInfo?.settings.hoursOfService.hours);
+        // });
+        // await firstValueFrom(this.databaseService.getCompany()).then(company => {
+        //   this.company = company;
+        //   this.storage.set('timeZone', this.company?.mainOffice.timeZoneCode);
+        // });
+      }
+    });
   }
 
   ionViewWillEnter() {
     const storedValue = localStorage.getItem('showBackButton');
-    this.showBackButton =
-      storedValue !== null ? JSON.parse(storedValue) : false;
+    this.showBackButton = storedValue !== null ? JSON.parse(storedValue) : false;
     if (this.bReady) {
-      this.databaseService.getVehicles().subscribe((vehicles) => {
-        this.vehicles = vehicles;
+      this.databaseService.getDrivers().subscribe(driver => {
+        if (driver) this.driver = driver[0];
       });
     }
   }
@@ -72,21 +73,14 @@ export class SelectVehiclePage implements OnInit {
     }, 1000);
   }
 
-  selectVehicle(vehicle: Vehicle) {
+  selectVehicle(vehicle: IAssignedVehicle) {
+    this.storage.set('vehicleId', vehicle.vehicleId);
+    this.storage.set('vehicleUnit', vehicle.vehicleUnit);
+    this.storage.set('vehicles', [vehicle]);
     if (!this.showBackButton) {
-      console.log('Selected vehicle:', vehicle);
-      this.pickedVehicle = vehicle.VehicleUnit;
-      this.storage.set('pickedVehicle', this.pickedVehicle);
-      this.storage.set('vehicleId', vehicle.VehicleId);
-      localStorage.setItem('pickedVehicle', this.pickedVehicle);
       this.navCtrl.navigateForward('/connect-mac');
     } else {
-      console.log('Selected vehicle:', vehicle);
-      this.pickedVehicle = vehicle.VehicleUnit;
-      this.storage.set('vehicleId', vehicle.VehicleId);
-      this.storage.set('pickedVehicle', this.pickedVehicle);
-      localStorage.setItem('pickedVehicle', this.pickedVehicle);
-      this.navCtrl.navigateBack('/unitab/others');
+      this.navCtrl.navigateBack('/unitab/others', { replaceUrl: true });
     }
   }
 
@@ -95,5 +89,9 @@ export class SelectVehiclePage implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('unitab/others');
   }
 }

@@ -1,52 +1,11 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>Send Logs</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<!-- <ion-content [fullscreen]="true">
-  <ion-text class="ion-text-center">
-    <p>7 days + today</p>
-  </ion-text>
-  <ion-item lines="full">
-    <ion-input label="Comment" labelPlacement="floating"></ion-input>
-  </ion-item>
-  <ion-item lines="full">
-    <ion-input label="Data Transfer Type" labelPlacement="floating"></ion-input>
-  </ion-item>
-  <ion-button class="custom-button" expand="block">Send</ion-button>
-</ion-content> -->
-
-
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>Send Logs</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
-  <div class="edit-form">
-    <div class="flex-b">
-      <p class="title">Send Logs</p>
-      <button class="btn secondary-btn">7 Days + Today</button>
-    </div>
-    <div class="input-block-2">
-      <p class="text-2">Comment</p>
-      <input class="input-2" type="text" />
-    </div>
-    <div class="input-block-2">
-      <p class="text-2">Data Transfer Type</p>
-      <input class="input-2" type="text" />
-    </div>
+<ion-content>
+  <app-header [title]="'Send Logs'" [backButton]="true" (backButtonCallback)="goBack()"><button class="btn secondary-btn">7 Days + Today</button></app-header>
+  <div class="edit-form padding-g">
+    <app-input [label]="'Data Transfer Type'" [fill]="false" [type]="'text'" [(value)]="dataTransferType" [disabled]="loading" [(validation)]="validation['dataTransferType']"></app-input>
+    <app-textarea [label]="'Comment'" [fill]="false" [type]="'text'" [(value)]="comments" [disabled]="loading" [(validation)]="validation['comments']"></app-textarea>
     <div class="btns-flex">
-      <button class="btn secondary-btn">Back</button>
-      <button class="btn primary-btn">Send</button>
+      <button class="btn secondary-btn" (click)="goBack()">Back</button>
+      <button class="btn primary-btn" (click)="submit()">Send</button>
     </div>
   </div>
 </ion-content>

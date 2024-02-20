@@ -3,6 +3,7 @@ import { NavController } from '@ionic/angular';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inspection',
@@ -16,34 +17,26 @@ export class InspectionPage implements OnInit {
   databaseSubscription: Subscription | undefined;
 
   bReady: boolean = false;
-  constructor(
-    private navCtrl: NavController,
-    private databaseService: DatabaseService
-  ) {}
+  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private router: Router) {}
 
   ngOnInit() {
-    this.databaseSubscription =
-      this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-        if (ready) {
-          this.bReady = ready;
-          this.databaseService.getLogDailies().subscribe((logDailies) => {
-            this.logDailies = logDailies;
-            this.LogDailiesId = this.logDailies[0].LogDailiesId;
-            console.log(this.LogDailiesId);
-          });
-        }
-      });
+    this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
+      if (ready) {
+        this.bReady = ready;
+        this.databaseService.getLogDailies().subscribe(logDailies => {
+          this.logDailies = logDailies;
+          this.LogDailiesId = this.logDailies[0].logDailyId;
+        });
+      }
+    });
   }
 
   onStartInspectionClick() {
-    this.navCtrl.navigateForward([
-      '/inspection-preview',
-      {
-        logId: this.LogDailiesId,
-        page: 'inspection',
-      },
-    ]);
+    this.navCtrl.navigateForward('/inspection-preview', {
+      queryParams: { logId: this.LogDailiesId, page: 'inspection', url: this.router.url },
+    });
   }
+
   onSendLogsClick() {
     this.navCtrl.navigateForward('/send-logs');
   }

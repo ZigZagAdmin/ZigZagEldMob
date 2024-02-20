@@ -1,4 +1,4 @@
-@import "./theme/fonts.scss";
+@import './theme/fonts.scss';
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -11,23 +11,23 @@
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import "@ionic/angular/css/core.css";
+@import '@ionic/angular/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
-@import "@ionic/angular/css/normalize.css";
-@import "@ionic/angular/css/structure.css";
-@import "@ionic/angular/css/typography.css";
-@import "@ionic/angular/css/display.css";
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
 
 /* Optional CSS utils that can be commented out */
-@import "@ionic/angular/css/padding.css";
-@import "@ionic/angular/css/float-elements.css";
-@import "@ionic/angular/css/text-alignment.css";
-@import "@ionic/angular/css/text-transformation.css";
-@import "@ionic/angular/css/flex-utils.css";
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
 
 * {
-  font-family: "Gilroy", sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 // .flex-center {
 //     display: flex;
@@ -45,7 +45,9 @@ hr {
   visibility: visible !important;
 }
 
-p {margin: 0}
+p {
+  margin: 0;
+}
 
 .custom-card {
   margin-inline: 1px;
@@ -76,6 +78,12 @@ p {margin: 0}
   font-style: normal;
   font-weight: 600;
   line-height: normal;
+
+  span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 .secondary-btn {
   background-color: var(--gray-100);
@@ -86,13 +94,13 @@ p {margin: 0}
 .success-btn {
   background-color: var(--success-500);
   color: var(--success-25);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 .error-btn {
   background-color: var(--error-500);
   color: var(--error-25);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 .input-block {
@@ -101,8 +109,8 @@ p {margin: 0}
 }
 .label {
   color: var(--gray-700);
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 600;
   margin: 0 0 5px 0;
 }
 .input {
@@ -117,7 +125,7 @@ p {margin: 0}
 .edit-form {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
 }
 
 .edit-dvir-block {
@@ -160,8 +168,12 @@ p {margin: 0}
   }
 }
 
-.readonly {outline-width: 0}
-.width-50 {width: 50%}
+.readonly {
+  outline-width: 0;
+}
+.width-50 {
+  width: 50%;
+}
 .select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -174,7 +186,7 @@ p {margin: 0}
 .subtitle {
   color: var(--gray-700);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
 }
 .subtitle-lg {
   color: var(--gray-700);
@@ -234,10 +246,46 @@ p {margin: 0}
   border-radius: 10px;
   padding: 10px;
   .reminder-text {
-    color: #FFF;
+    color: #fff;
     font-size: 14px;
     font-weight: 400;
     letter-spacing: 1px;
     line-height: 20px;
   }
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.padding-g {
+  padding: 20px;
+}
+
+.weight-500 {
+  font-weight: 500;
+}
+
+.no-data {
+  width: 100%;
+  height: calc(100% - 47px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-elipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.disable-click {
+  pointer-events: none;
+}
+
+.disable-input-opacity {
+  opacity: 0.65;
 }

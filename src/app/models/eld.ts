@@ -1,10 +1,14 @@
-export class ELD {
-  ELDId!: string;
-  MACAddress!: string;
-  Type!: string;
-  VehicleId!: string;
-  VehicleUnit!: string;
-  Malfunctions!: string;
-  FWVersion!: string;
-  Status!: boolean;
+export interface ELD {
+  eldId: string;
+  companyId: string;
+  name: string;
+  macAddress: string;
+  type: string;
+  vehicleId: string;
+  vehicleUnit: string;
+  malfunctions: string;
+  fwVersion: string;
+  status: boolean;
+
+  sent?: boolean;
 }

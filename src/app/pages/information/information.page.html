@@ -1,70 +1,26 @@
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/others"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Information</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<!-- <ion-content [fullscreen]="true">
-  <ion-text class="ion-text-center"
-    ><p style="font-weight: bold">User Manual</p>
-    <p style="color: #a5a5a5">
-      The user's manual, instruction sheet, and malfunction instruction sheet
-      can be in electronic form. This is in accordance with the federal register
-      titled "Regulatory Guidance Concerning Electronic Signatures and
-      Documents" (76 FR 411).
-    </p>
-  </ion-text>
-  <ion-button (click)="onUserManualClick()" class="custom-button" expand="block"
-    >View User Manual</ion-button
-  >
-  <hr />
-  <ion-text class="ion-text-center"
-    ><p style="font-weight: bold">Instructions</p>
-    <p style="color: #a5a5a5">
-      In addition to the above, a supply of blank driver's records of duty
-      status (RODS) graph-grids sufficient to record the driver's duty status
-      and other related information for a minimum of 8 days must be onboard the
-      commercial motor vehicle (CMV).
-    </p>
-  </ion-text>
-  <ion-button
-    (click)="onInstructionsClick()"
-    class="custom-button"
-    expand="block"
-    >View Instructions</ion-button
-  >
-  <hr />
-</ion-content> -->
-
-
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/others"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Information</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
-  <div class="edit-form">
+<ion-content [forceOverscroll]="false">
+  <app-header [title]="'Information'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <div class="edit-form padding-g">
     <p class="title">Information</p>
     <div class="edit-dvir-block">
       <div class="flex-b">
         <p class="subtitle-lg">User Manual</p>
         <button class="btn primary-btn" (click)="onUserManualClick()">View</button>
       </div>
-      <p class="text-2">The user's manual, instruction sheet, and malfunction instruction sheet can be in electronic form. This is in accordance with the federal register titled "Regulatory Guidance Concerning Electronic Signatures and Documents" (76 FR 411).</p>
+      <p class="text-2">
+        The user's manual, instruction sheet, and malfunction instruction sheet can be in electronic form. This is in accordance with the federal register titled "Regulatory Guidance Concerning
+        Electronic Signatures and Documents" (76 FR 411).
+      </p>
     </div>
     <div class="edit-dvir-block">
       <div class="flex-b">
         <p class="subtitle-lg">Instructions</p>
         <button class="btn primary-btn" (click)="onInstructionsClick()">View</button>
       </div>
-      <p class="text-2">In addition to the above, a supply of blank driver's records of duty status (RODS) graph-grids sufficient to record the driver's duty status and other related information for a minimum of 8 days must be on board the commercial motor vehicle (CMV).</p>
+      <p class="text-2">
+        In addition to the above, a supply of blank driver's records of duty status (RODS) graph-grids sufficient to record the driver's duty status and other related information for a minimum of 8
+        days must be on board the commercial motor vehicle (CMV).
+      </p>
     </div>
   </div>
 </ion-content>

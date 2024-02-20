@@ -1,10 +1,157 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>Edit Duty Status</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" [forceOverscroll]="false">
+  <app-header *ngIf="!pageLoading" [title]="'Edit Duty Status'" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
-<ion-content [fullscreen]="true"> </ion-content>
+  <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">
+    <div class="card-info">
+      <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
+        <g class="grid" transform="translate(65, 40)">
+          <rect class="border" x="0" y="0" width="1440" height="200" rx="8" ry="8"></rect>
+
+          <g class="" *ngFor="let hours of graphicsHour">
+            <g class="column" [style.transform]="'translateX(' + hours * 60 + 'px)'">
+              <line x1="0" x2="0" y1="0" y2="200"></line>
+              <g class="cell top" transform="translate(0, 0)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell top" transform="translate(0, 50)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 100)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 150)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+            </g>
+          </g>
+          <g class="column" transform="translate(1440, 0)">
+            <line x1="0" x2="0" y1="0" y2="200"></line>
+          </g>
+
+          <line class="row" x1="0" x2="1440" y1="0" y2="0"></line>
+          <line class="row" x1="0" x2="1440" y1="50" y2="50"></line>
+          <line class="row" x1="0" x2="1440" y1="100" y2="100"></line>
+          <line class="row" x1="0" x2="1440" y1="150" y2="150"></line>
+          <line class="row" x1="0" x2="1440" y1="200" y2="200"></line>
+        </g>
+
+        <g class="duty-status-labels" transform="translate(35, 40)">
+          <text class="label" transform="translate(15, 25)" text-anchor="end" dy="0.35em">OFF</text>
+          <text class="label" transform="translate(15, 75)" text-anchor="end" dy="0.35em">SB</text>
+          <text class="label" transform="translate(15, 125)" text-anchor="end" dy="0.35em">D</text>
+          <text class="label" transform="translate(15, 175)" text-anchor="end" dy="0.35em">ON</text>
+        </g>
+
+        <g class="hour-labels" transform="translate(65, 40)">
+          <text class="label" transform="translate(0, 10)" text-anchor="middle" dy="-1em">M</text>
+          <text class="label" transform="translate(60, 10)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(120, 10)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(180, 10)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(240, 10)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(300, 10)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(360, 10)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(420, 10)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(480, 10)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(540, 10)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(600, 10)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(660, 10)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(720, 10)" text-anchor="middle" dy="-1em">N</text>
+          <text class="label" transform="translate(780, 10)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(840, 10)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(900, 10)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(960, 10)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(1020, 10)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(1080, 10)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(1140, 10)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(1200, 10)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(1260, 10)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(1320, 10)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(1380, 10)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(1440, 10)" text-anchor="middle" dy="-1em">M</text>
+        </g>
+
+        <g class="durations" transform="translate(1520, 40)">
+          <text class="label" transform="translate(0, 25)" dy="0.35em">{{ durationsOFF * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 75)" dy="0.35em">{{ durationsSB * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 125)" dy="0.35em">{{ durationsD * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 175)" dy="0.35em">{{ durationsON * 60 | convertSecotdsToHoursAndMinutes }}</text>
+        </g>
+
+        <g class="eventLine" transform="translate(65, 40)">
+          <g class="eventRecord" *ngFor="let event of eventGraphicLine">
+            <line [attr.x1]="event.x1" [attr.x2]="event.x2" [attr.y1]="event.y1" [attr.y2]="event.y2" [class]="event.class"></line>
+
+            <line *ngIf="event.yV > 0" [attr.x1]="event.x1" [attr.x2]="event.x1" [attr.y1]="event.y1" [attr.y2]="event.yV" class="vertical"></line>
+          </g>
+        </g>
+        <g transform="translate(65, 40)">
+          <rect [attr.x]="currentLogEventRect.x1" [attr.width]="currentLogEventRect.x2 - currentLogEventRect.x1" class="current-status" height="200"></rect>
+        </g>
+        <g transform="translate(65, 40)">
+          <rect [attr.x]="violationRect.x1" [attr.width]="violationRect.x2 - violationRect.x1" class="error-status-viol" height="200"></rect>
+        </g>
+      </svg>
+      <div class="range-container" *ngIf="!disableForm['timeInput']"><span>Min: {{ minValue }}</span><span>Max: {{ maxValue }}</span></div>
+      <div class="violation-list" *ngIf="violations[logDaily.logDate] && violations[logDaily.logDate].length !== 0">
+        <div class="violation-item" *ngFor="let violation of violations[logDaily.logDate]" (click)="toggleViolationRect(violation)">
+          {{ violation?.regulations?.name + ' ' }}{{ violation?.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
+        </div>
+      </div>
+    </div>
+    <div class="time-inputs">
+      <app-date-time
+        [label]="'Start Time (' + timeZone + ')'"
+        [fill]="true"
+        [labelPosition]="'top'"
+        [disabled]="disableForm['timeInput']"
+        [showDisabled]="disableForm['timeInput']"
+        [type]="'time'"
+        [timeZone]="timeZone"
+        [value]="logEvent.eventTime.timeStamp"
+        (emitValue)="getNewStartDate($event)"
+        [validation]="validation['startTime']"></app-date-time>
+      <app-input
+        [label]="'Duration'"
+        [fill]="true"
+        [disabled]="true"
+        [showDisabled]="true"
+        [labelPosition]="'top'"
+        [type]="'text'"
+        [value]="duration | convertMsToHoursAndMinutesAndSecondsHm"
+        [validation]="validation['startTime']"></app-input>
+    </div>
+    <div class="status-change">
+      <app-duty-radio-button [disable]="disableForm['status']" [showDisabled]="disableForm['status']" [currentValue]="selectedButton" (selectedValue)="selectButton($event)"></app-duty-radio-button>
+    </div>
+    <div class="location-comments">
+      <app-location-input
+        [label]="'Location'"
+        [disabled]="disableForm['location']"
+        [showDisabled]="disableForm['location']"
+        [fill]="true"
+        [labelPosition]="'top'"
+        [type]="'text'"
+        [loading]="locationLoading"
+        [(value)]="logEvent.location.description"
+        (gpsCallback)="getLocalCurrentLocation()"
+        [validation]="validation['location']"
+        [noValidation]="noValidation"></app-location-input>
+      <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
+    </div>
+    <div class="confirm-buttons">
+      <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">Back</button>
+      <button class="custom-btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
+        <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+      </button>
+    </div>
+  </div>
+  <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>
+</ion-content>

@@ -16,4 +16,7 @@ export class InformationPage implements OnInit {
   onInstructionsClick() {
     this.navCtrl.navigateForward('/instructions');
   }
+  goBack() {
+    this.navCtrl.navigateBack('unitab/others');
+  }
 }

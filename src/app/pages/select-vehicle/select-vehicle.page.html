@@ -1,74 +1,14 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons *ngIf="showBackButton" slot="start">
-      <ion-back-button></ion-back-button>
-    </ion-buttons>
-    <ion-title>Vehicles</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [forceOverscroll]="false" [fullscreen]="true">
+  <app-header [title]="'Select Vehicle'" [backButton]="showBackButton" (backButtonCallback)="goBack()"></app-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ng-container *ngFor="let vehicle of vehicles">
-    <app-card [vehicle]="vehicle" (click)="selectVehicle(vehicle)"></app-card>
-  </ng-container>
-
-  <!-- <ion-card
-    *ngFor="let vehicle of vehicles"
-    (click)="selectVehicle(vehicle)"
-    class="ion-activatable ripple-parent"
-  >
-    <ion-ripple-effect></ion-ripple-effect>
-    <ion-card-header>
-      <ion-card-subtitle
-        >Vehicle unit: {{ vehicle.VehicleUnit }}</ion-card-subtitle
-      >
-    </ion-card-header>
-    <ion-card-content>
-      Year: {{ vehicle.Year }}, Model: {{ vehicle.Model }}
-    </ion-card-content>
-  </ion-card> -->
+  <div class="vehicle-container">
+    <div class="vehicle-card" *ngFor="let vehicle of driver?.driverInfo?.assignedVehicles" (click)="selectVehicle(vehicle)">
+      <div class="vehicle-card-title">{{ vehicle?.make + ' ' + vehicle?.model }}</div>
+      <div class="vehicle-card-subtitle">{{ vehicle?.year + ', Vehicle Unit: ' + vehicle?.vehicleUnit }}</div>
+    </div>
+  </div>
 </ion-content>
-
-<!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title> Vehicles </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
-  <ion-card (click)="selectVehicle()">
-    <ion-card-header>
-      <ion-card-subtitle>Vehicle unit: 1111</ion-card-subtitle>
-    </ion-card-header>
-
-    <ion-card-content> Year: 2009, Model: Honda Civic </ion-card-content>
-  </ion-card>
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-subtitle>Vehicle: unit: 1111</ion-card-subtitle>
-    </ion-card-header>
-
-    <ion-card-content> Year: 2009, Model: Honda Civic </ion-card-content>
-  </ion-card>
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-subtitle>Vehicle: unit: 1111</ion-card-subtitle>
-    </ion-card-header>
-
-    <ion-card-content> Year: 2009, Model: Honda Civic </ion-card-content>
-  </ion-card>
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-subtitle>Vehicle: unit: 1111</ion-card-subtitle>
-    </ion-card-header>
-
-    <ion-card-content> Year: 2009, Model: Honda Civic </ion-card-content>
-  </ion-card>
-</ion-content> -->

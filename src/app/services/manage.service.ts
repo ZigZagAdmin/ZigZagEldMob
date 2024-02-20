@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { Company } from '../models/company';
 import { Terminal } from '../models/terminal';
 import { ELD } from '../models/eld';
-import { LogHistories } from '../models/log-histories';
+import { LogEvents } from '../models/log-histories';
 import { Driver } from '../models/driver';
 import { LogDailies } from '../models/log-dailies';
 import { Vehicle } from '../models/vehicle';
@@ -16,14 +16,11 @@ import { PlacesCity } from '../models/places-city';
   providedIn: 'root',
 })
 export class ManageService {
-  constructor(
-    private http: HttpClient,
-    @Inject(AUTH_API_URL) private apiUrl: string
-  ) {}
+  constructor(private http: HttpClient, @Inject(AUTH_API_URL) private apiUrl: string) {}
 
-  getDrivers(): Observable<Driver> {
-    const httpParams = new HttpParams();
-    return this.http.get<Driver>(this.apiUrl + 'api/EldManage/driver', {
+  getDrivers(driverId: string): Observable<Driver[]> {
+    const httpParams = new HttpParams().set('driverId', driverId);
+    return this.http.get<Driver[]>(this.apiUrl + 'api/EldManage/drivers', {
       params: httpParams,
     });
   }
@@ -35,12 +32,12 @@ export class ManageService {
     });
   }
 
-  getVehicles(): Observable<Vehicle[]> {
-    const httpParams = new HttpParams();
-    return this.http.get<Vehicle[]>(this.apiUrl + 'api/EldManage/vehicles', {
-      params: httpParams,
-    });
-  }
+  // getVehicles(): Observable<Vehicle[]> {
+  //   const httpParams = new HttpParams();
+  //   return this.http.get<Vehicle[]>(this.apiUrl + 'api/EldManage/vehicles', {
+  //     params: httpParams,
+  //   });
+  // }
 
   getTerminals(): Observable<Terminal[]> {
     const httpParams = new HttpParams();
@@ -65,34 +62,18 @@ export class ManageService {
 
   getPlacesCity(): Observable<PlacesCity[]> {
     const httpParams = new HttpParams();
-    return this.http.get<PlacesCity[]>(
-      this.apiUrl + 'api/EldDirectory/PlacesCity',
-      {
-        params: httpParams,
-      }
-    );
+    return this.http.get<PlacesCity[]>(this.apiUrl + 'api/EldDirectory/PlacesCity', {
+      params: httpParams,
+    });
   }
 
-  getLogDailies(
-    GeneralId: string,
-    DateLog: string,
-    CountDay: number
-  ): Observable<LogDailies[]> {
-    const httpParams = new HttpParams()
-      .set('GeneralId', GeneralId)
-      .set('LogDate', DateLog)
-      .set('CountDay', CountDay.toString());
-    return this.http.get<LogDailies[]>(
-      this.apiUrl + 'api/EldDashboard/LogDailies',
-      { params: httpParams }
-    );
+  getLogDailies(GeneralId: string, DateLog: string, CountDay: number): Observable<LogDailies[]> {
+    const httpParams = new HttpParams().set('GeneralId', GeneralId).set('LogDate', DateLog).set('CountDay', CountDay.toString());
+    return this.http.get<LogDailies[]>(this.apiUrl + 'api/EldDashboard/LogDailies', { params: httpParams });
   }
 
-  getLogHistories14Days(DriverId: string): Observable<LogHistories[]> {
-    const httpParams = new HttpParams().set('DriverId', DriverId);
-    return this.http.get<LogHistories[]>(
-      this.apiUrl + 'api/EldDashboard/LogHistories14days',
-      { params: httpParams }
-    );
+  getLogEvents(DriverId?: string, LogDateBgn?: string, LogDateEnd?: string): Observable<LogEvents[]> {
+    // const httpParams = new HttpParams().set('DriverId', DriverId).set('LogDateBgn', LogDateBgn).set('LogDateEnd', LogDateEnd);
+    return this.http.get<LogEvents[]>(this.apiUrl + 'api/EldDashboard/LogEvents');
   }
 }

@@ -8,12 +8,17 @@ import { AccountPageRoutingModule } from './account-routing.module';
 
 import { AccountPage } from './account.page';
 
+import { HeaderComponentModule } from 'src/app/components/header/header.module';
+import { InputComponentModule } from 'src/app/components/input/input.module';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    AccountPageRoutingModule
+    AccountPageRoutingModule,
+    HeaderComponentModule,
+    InputComponentModule
   ],
   declarations: [AccountPage]
 })
