@@ -403,15 +403,15 @@ export class HosPage implements OnInit, OnDestroy {
 
   async checkBluetooth() {
     if (!(await this.bluetoothService.getBluetoothState())) {
-      let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
-      if (confirmation) {
-        if (Capacitor.getPlatform() === 'android') {
+      if (Capacitor.getPlatform() === 'android') {
+        let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
+        if (confirmation) {
           await this.bluetoothService.goToBluetoothServiceSettings();
         } else {
           alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
         }
       } else {
-        alert('In order to connect to a device, you have to turn on the bluetooth service');
+        alert('In order to connect to a device, you have to turn on the Bluetooth Service.');
         return;
       }
     }
