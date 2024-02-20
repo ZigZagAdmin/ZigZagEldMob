@@ -147,6 +147,7 @@ export class HosPage implements OnInit, OnDestroy {
   eldDataSub: Subscription;
   lastEld: ELD;
   elds: ELD[] = [];
+  isDrivingAuto: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -844,6 +845,7 @@ export class HosPage implements OnInit, OnDestroy {
   async confirm() {
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
+    console.log('ekjfsdfkjgd');
     if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
       this.lastSelectedButton = this.selectedButton;
       this.shareService.destroyMessage();
@@ -1166,6 +1168,33 @@ export class HosPage implements OnInit, OnDestroy {
 
   goToConnectPage() {
     this.navCtrl.navigateForward('/connect-mac', { queryParams: { backUrl: '/hos' } });
+  }
+
+  toggleModal2() {
+    this.isDrivingAuto = true;
+  }
+
+  async changeDrivingAutomatically(eldDate: { [key: string]: string }) {
+    if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
+      await this.changeStatusLocally('D');
+    } else if (parseInt(this.eldData['V']) < 5 && this.currentStatus.statusCode === 'D') {
+      setTimeout(() => {
+        this.isDrivingAuto = true;
+      }, 60000);
+    }
+  }
+
+  async changeStatusLocally(code: string) {
+    this.selectButton(code);
+    await this.getLocalCurrentLocation();
+    console.log(this.locationDescription);
+    this.locationDescription = 's';
+    await this.confirm();
+    this.closeAutoDrivingModal();
+  }
+
+  closeAutoDrivingModal() {
+    this.isDrivingAuto = false;
   }
 
   async ionViewWillLeave() {

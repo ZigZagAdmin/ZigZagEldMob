@@ -1,6 +1,6 @@
 <ion-content [forceOverscroll]="false">
   <div class="hos-wrapper" *ngIf="!pageLoading">
-    <div class="hos-header">
+    <div class="hos-header" (click)="toggleModal2()">
       <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}" (click)="checkLocation()">
         <img src="assets/icon/location_icon.svg" />
       </div>
@@ -47,6 +47,19 @@
             </div>
           </div>
         </ion-content>
+      </ng-template>
+    </ion-modal>
+    <ion-modal id="custom-modal" [isOpen]="isDrivingAuto" [backdropDismiss]="false">
+      <ng-template>
+        <div class="modal-box">
+          <div class="modal-title">Looks like you didn't move for more than a minute!</div>
+          <div class="modal-status">Would you like to change your status to On Duty or Off Duty?</div>
+        </div>
+        <div class="submit-buttons">
+          <div class="action-button default" (click)="closeAutoDrivingModal()">Cancel</div>
+          <div class="action-button defaultd" (click)="changeStatusLocally('OFF')">Off Duty</div>
+          <div class="action-button warningb" (click)="changeStatusLocally('ON')">On Duty</div>
+        </div>
       </ng-template>
     </ion-modal>
     <div class="circles">
