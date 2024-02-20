@@ -570,12 +570,13 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     }
   }
 
-  selectButton(button: string) {
+  async selectButton(button: string) {
     this.selectedButton = button;
     this.logEvent.type.code = button;
     let index = this.logEvents.findIndex(el => el.logEventId === this.logEvent.logEventId);
     this.logEvents[index] = this.logEvent;
     this.drawGraph();
+    await this.calcViolations();
   }
 
   getCurrentDateFormat(value: string) {
