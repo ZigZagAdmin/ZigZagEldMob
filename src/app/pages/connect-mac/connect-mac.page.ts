@@ -61,7 +61,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
       this.vehicle = vehicles[0];
       this.pickedVehicle = this.vehicle.vehicleUnit;
       this.elds = elds;
-      console.log('query params: ', queryParams);
+      console.log('query params: ', queryParams['backUrl']);
       if (queryParams['backUrl']) {
         this.backUrl = queryParams['backUrl'];
       }
@@ -76,7 +76,11 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.navCtrl.navigateBack('/select-vehicle');
+    if (this.backUrl.length === 0) {
+      this.navCtrl.navigateBack('/select-vehicle');
+    } else {
+      this.navigateToHos();
+    }
   }
 
   async getLocation() {
@@ -88,11 +92,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   redirectToVehicle() {
-    if (this.backUrl.length === 0) {
-      this.navCtrl.navigateBack('/select-vehicle', { replaceUrl: true });
-    } else {
-      this.navigateToHos();
-    }
+    this.navCtrl.navigateBack('/select-vehicle', { replaceUrl: true });
   }
 
   async connect(macAddress: string, checkForForm: boolean = true) {

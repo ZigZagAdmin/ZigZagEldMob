@@ -21,6 +21,7 @@ import { Capacitor } from '@capacitor/core';
 import { Location } from 'src/app/models/dvirs';
 import { Network } from '@capacitor/network';
 import { hosErrors } from 'src/app/utilities/hos-errors';
+import { ELD } from 'src/app/models/eld';
 
 @Component({
   selector: 'app-hos',
@@ -136,6 +137,17 @@ export class HosPage implements OnInit, OnDestroy {
   violations: any = {};
   ionViewTrigger: boolean = false;
 
+  locationSub: Subscription;
+  bluetoothSub: Subscription;
+  connectionSub: Subscription;
+  platformSub: Subscription;
+
+  deviceConStatus: boolean = false;
+  eldData: { [key: string]: string } = {};
+  eldDataSub: Subscription;
+  lastEld: ELD;
+  elds: ELD[] = [];
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -155,24 +167,35 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    console.log('HOS ON INIT');
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
       await this.getBluetoothState();
-      this.platform.resume.subscribe(() => {
+      this.platformSub = this.platform.resume.subscribe(() => {
         this.ngZone.run(async () => {
           await this.getLocationState();
           await this.getBluetoothState();
         });
       });
-      this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
+      this.locationSub = this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
         this.locationServiceState = status;
         await this.getLocationState();
       });
-      this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
+      this.bluetoothSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
         await this.getBluetoothState();
         await this.bluetoothService.getBluetoothAuthorizationStatus();
+      });
+      this.connectionSub = this.bluetoothService.getDeviceConnectionStatusObservable().subscribe(async (status: boolean) => {
+        this.deviceConStatus = status;
+        console.log('Device connection status:', status);
+      });
+      this.eldDataSub = this.bluetoothService.getBluetoothDataObservable().subscribe(async (data: { [key: string]: string }) => {
+        console.log(data);
+        if (data) {
+          this.eldData = data;
+        }
       });
     }
 
@@ -219,6 +242,9 @@ export class HosPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
+    if (this.internetSub) this.internetSub.unsubscribe();
+    if (this.locationSub) this.locationSub.unsubscribe();
+    if (this.bluetoothSub) this.bluetoothSub.unsubscribe();
   }
 
   async ionViewWillEnter() {
@@ -232,6 +258,7 @@ export class HosPage implements OnInit, OnDestroy {
     this.driverName = await this.storage.get('name');
     this.pickedVehicle = await this.storage.get('vehicleUnit');
     let localSplitSleep = await this.storage.get('splitSleeperBerth');
+    let chosenEldMac = await this.storage.get('lastConnectedELD');
     await this.handleSplitSleep(localSplitSleep);
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
@@ -239,13 +266,16 @@ export class HosPage implements OnInit, OnDestroy {
 
         const logDailies$ = this.databaseService.getLogDailies();
         const logEvents$ = this.databaseService.getLogEvents();
+        const elds$ = this.databaseService.getELDs();
 
-        forkJoin([logDailies$, logEvents$]).subscribe(async ([logDailies, logEvents]) => {
+        forkJoin([logDailies$, logEvents$, elds$]).subscribe(async ([logDailies, logEvents, elds]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
           const filteredLogEvents = this.logEvents.filter(item => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(item.type.code));
           this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
           this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+          this.elds = elds;
+          this.lastEld = chosenEldMac !== null && chosenEldMac !== undefined && chosenEldMac.length !== 0 ? this.elds.find(el => el.macAddress === chosenEldMac) : undefined;
 
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
@@ -266,13 +296,13 @@ export class HosPage implements OnInit, OnDestroy {
                 vehicleId: this.vehicleId,
               },
               eld: {
-                eldId: '00000000-0000-0000-0000-000000000000',
-                macAddress: '',
-                serialNumber: '',
+                eldId: this.lastEld ? this.lastEld.eldId : '00000000-0000-0000-0000-000000000000',
+                macAddress: this.lastEld ? this.lastEld.macAddress : '',
+                serialNumber: this.lastEld ? this.lastEld.fwVersion : '',
               },
               location: {
-                locationType: 'AUTOMATIC',
-                description: '2mi from Chisinau, Chisinau',
+                locationType: '',
+                description: '',
                 latitude: 0,
                 longitude: 0,
               },
@@ -402,21 +432,23 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async checkBluetooth() {
-    if (!(await this.bluetoothService.getBluetoothState())) {
-      if (Capacitor.getPlatform() === 'android') {
-        let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
-        if (confirmation) {
-          await this.bluetoothService.goToBluetoothServiceSettings();
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        if (Capacitor.getPlatform() === 'android') {
+          let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
+          if (confirmation) {
+            await this.bluetoothService.goToBluetoothServiceSettings();
+          } else {
+            alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+          }
         } else {
-          alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+          alert('In order to connect to a device, you have to turn on the Bluetooth Service.');
+          return;
         }
-      } else {
-        alert('In order to connect to a device, you have to turn on the Bluetooth Service.');
-        return;
       }
+      await this.bluetoothService.requestBluetoothPermission();
     }
-    await this.bluetoothService.requestBluetoothPermission();
-    if (this.bluetoothStatus) {
+    if (!this.deviceConStatus) {
       this.goToConnectPage();
     }
   }
@@ -876,9 +908,9 @@ export class HosPage implements OnInit, OnDestroy {
         vehicleId: this.vehicleId,
       },
       eld: {
-        eldId: '00000000-0000-0000-0000-000000000000',
-        macAddress: '',
-        serialNumber: '',
+        eldId: this.lastEld ? this.lastEld.eldId : '00000000-0000-0000-0000-000000000000',
+        macAddress: this.lastEld ? this.lastEld.macAddress : '',
+        serialNumber: this.lastEld ? this.lastEld.fwVersion : '',
       },
       location: {
         locationType: this.location.locationType,
