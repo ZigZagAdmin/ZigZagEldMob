@@ -13,6 +13,8 @@ import { firstValueFrom, forkJoin } from 'rxjs';
 import { ELD } from 'src/app/models/eld';
 import { ToastService } from 'src/app/services/toast.service';
 import { ActivatedRoute } from '@angular/router';
+import { DashboardService } from 'src/app/services/dashboard.service';
+import { Company } from 'src/app/models/company';
 
 @Component({
   selector: 'app-connect-mac',
@@ -24,6 +26,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   macAddress: string = '';
   vehicle: Vehicle;
   elds: ELD[] = [];
+  company: Company;
 
   defects = defectsVehicle;
 
@@ -42,7 +45,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     private bluetoothService: BluetoothService,
     private toastService: ToastService,
     private storage: Storage,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dashboardService: DashboardService
   ) {}
 
   async ngOnInit() {
@@ -53,13 +57,15 @@ export class ConnectMacPage implements OnInit, OnDestroy {
 
   async ionViewWillEnter() {
     let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
+    let company$ = firstValueFrom(this.databaseService.getCompany());
     let elds$ = firstValueFrom(this.databaseService.getELDs());
     let lastConnectedELD$ = this.storage.get('lastConnectedELD');
     let queryParams$ = firstValueFrom(this.route.queryParams);
 
-    forkJoin([vehicles$, elds$, lastConnectedELD$, queryParams$]).subscribe(async ([vehicles, elds, lastConnectedELD, queryParams]) => {
+    forkJoin([vehicles$, elds$, lastConnectedELD$, queryParams$, company$]).subscribe(async ([vehicles, elds, lastConnectedELD, queryParams, company]) => {
       this.vehicle = vehicles[0];
       this.pickedVehicle = this.vehicle.vehicleUnit;
+      this.company = company;
       this.elds = elds;
       console.log('query params: ', queryParams['backUrl']);
       if (queryParams['backUrl']) {
@@ -126,12 +132,39 @@ export class ConnectMacPage implements OnInit, OnDestroy {
           this.toastService.showToast('Device successfully connected');
           await this.bluetoothService.subscribeToDeviceData(macAddress);
           await this.storage.set('lastConnectedELD', macAddress);
+          await this.uploadEld(macAddress);
           this.navigateToHos();
         } else {
           this.loading = false;
           this.toastService.showToast('Could not connect to ' + macAddress);
         }
       });
+    }
+  }
+
+  async uploadEld(macAddress: string) {
+    let index = this.elds.findIndex(el => el.macAddress === macAddress);
+    if (this.macAddress === macAddress && index !== -1) {
+      let eld: ELD = {
+        eldId: this.utilityService.uuidv4(),
+        companyId: this.company.companyId,
+        name: 'Generic ELD',
+        macAddress: macAddress,
+        type: '',
+        vehicleId: this.vehicle.vehicleId,
+        vehicleUnit: this.vehicle.vehicleUnit,
+        malfunctions: '',
+        fwVersion: '',
+        status: false,
+      };
+      this.elds.push(eld);
+      await firstValueFrom(this.dashboardService.updateELD(eld))
+        .then(async () => {
+          await this.storage.set('elds', this.elds);
+        })
+        .catch(async e => {
+          await this.storage.set('elds', this.elds);
+        });
     }
   }
 }
