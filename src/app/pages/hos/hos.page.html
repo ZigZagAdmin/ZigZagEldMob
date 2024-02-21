@@ -204,10 +204,10 @@
       <p class="subtitle">Split Sleeper Berth</p>
       <app-toggle-switch [isChecked]="splitSleeperBerth" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
     </div>
-    <button class="btn primary-btn" (click)="switchMode()">
+    <button class="btn primary-btn custom-sleep-btn" (click)="switchMode()">
       <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />
       <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon" />
-      {{ restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode' }}
+      <span>{{ restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode' }}</span>
     </button>
     <p class="subtitle">Logs and Recap Hours</p>
     <div class="log-dailies">

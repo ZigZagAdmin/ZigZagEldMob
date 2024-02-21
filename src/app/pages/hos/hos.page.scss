@@ -366,3 +366,10 @@ ion-modal#custom-modal {
   color: var(--gray-25);
   background-color: var(--warning-500);
 }
+
+.custom-sleep-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 230px !important;
+}
