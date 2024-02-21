@@ -73,6 +73,7 @@ export class HosPage implements OnInit, OnDestroy {
 
   currentStatus = { statusCode: '', statusName: '' };
   currentStatusTime = '';
+  currentStatusColor: string = '';
 
   vehicle!: Vehicle;
   locationDescription = '';
@@ -175,7 +176,6 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    console.log('HOS ON INIT');
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
@@ -511,6 +511,7 @@ export class HosPage implements OnInit, OnDestroy {
           else {
             this.currentStatus.statusCode = event.type.code;
             this.currentStatus.statusName = event.type.name;
+            this.currentStatusColor = this.getStatusColor(this.currentStatus.statusCode);
           }
           this.currentStatusTime = this.convertSecondToHours(time / 1000);
 
@@ -873,6 +874,7 @@ export class HosPage implements OnInit, OnDestroy {
       this.shareService.destroyMessage();
       await this.storage.set('lastStatusCode', this.selectedButton);
       await this.onWillDismiss().then(() => {
+        this.currentStatusColor = this.getStatusColor(this.selectedButton);
         this.isModalOpen = false;
         this.modalLoading = false;
       });
@@ -1192,7 +1194,7 @@ export class HosPage implements OnInit, OnDestroy {
     this.navCtrl.navigateForward('/connect-mac', { queryParams: { backUrl: '/hos' } });
   }
 
-  async changeDrivingAutomatically() {  
+  async changeDrivingAutomatically() {
     if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
       await this.changeStatusLocally('D');
       this.closeAutoDrivingModal();

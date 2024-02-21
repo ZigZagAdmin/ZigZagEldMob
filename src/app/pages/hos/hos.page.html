@@ -17,11 +17,11 @@
 
     <div class="status-bar">
       <p class="subtitle">Current Status</p>
-      <div class="green" id="trigger-status" [ngStyle]="{'background-color': getStatusColor(selectedButton)}" style="max-width: 39%" (click)="toggleModal()">
+      <div class="green" id="trigger-status" [ngStyle]="{'background-color': currentStatusColor}" style="max-width: 39%" (click)="toggleModal()">
         <span class="text-elipsis">{{currentStatus.statusName}}</span>
         <img src="assets/icon/arrow-bottom.svg" alt="arrow" />
       </div>
-      <div class="green" [ngStyle]="{'background-color': getStatusColor(selectedButton)}">{{currentStatusTime}}</div>
+      <div class="green" [ngStyle]="{'background-color': currentStatusColor}">{{currentStatusTime}}</div>
     </div>
     <ion-modal [isOpen]="isModalOpen" trigger="trigger-status">
       <ng-template>
