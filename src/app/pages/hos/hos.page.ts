@@ -153,6 +153,7 @@ export class HosPage implements OnInit, OnDestroy {
   autoChangeLoading: boolean = false;
   lastSpeedValue: number = 0;
   slowDownTimeout: any;
+  lastRPM: number = 0;
 
   constructor(
     private navCtrl: NavController,
@@ -203,6 +204,7 @@ export class HosPage implements OnInit, OnDestroy {
         if (data) {
           this.eldData = data;
           await this.changeDrivingAutomatically();
+          await this.powerUpAndDown();
         }
       });
     }
@@ -318,8 +320,8 @@ export class HosPage implements OnInit, OnDestroy {
               type: { name: 'Login', code: 'LOGIN' },
               recordStatus: { name: 'Active', code: 'ACTIVE' },
               recordOrigin: { name: 'Driver', code: 'DRIVER' },
-              odometer: 0,
-              engineHours: 0,
+              odometer: this.eldData['O'] ? parseInt(this.eldData['O']) : 1,
+              engineHours: this.eldData['H'] ? parseInt(this.eldData['H']) : 1,
               malfunction: false,
               dataDiagnosticEvent: false,
               certificationDate: lastLogEvent.certificationDate,
@@ -944,8 +946,8 @@ export class HosPage implements OnInit, OnDestroy {
       type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
       recordStatus: { name: 'Active', code: 'ACTIVE' },
       recordOrigin: { name: 'Driver', code: 'DRIVER' },
-      odometer: 0,
-      engineHours: 0,
+      odometer: this.eldData['O'] ? parseInt(this.eldData['O']) : 1,
+      engineHours: this.eldData['H'] ? parseInt(this.eldData['H']) : 1,
       malfunction: false,
       dataDiagnosticEvent: false,
       certificationDate: lastLogEvent.certificationDate,
@@ -1190,9 +1192,10 @@ export class HosPage implements OnInit, OnDestroy {
     this.navCtrl.navigateForward('/connect-mac', { queryParams: { backUrl: '/hos' } });
   }
 
-  async changeDrivingAutomatically() {
+  async changeDrivingAutomatically() {  
     if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
       await this.changeStatusLocally('D');
+      this.closeAutoDrivingModal();
       if (this.slowDownTimeout) {
         clearTimeout(this.slowDownTimeout);
         this.slowDownTimeout = null;
@@ -1207,6 +1210,7 @@ export class HosPage implements OnInit, OnDestroy {
         }, 60000);
       }
     } else {
+      this.closeAutoDrivingModal();
       if (this.slowDownTimeout) {
         clearTimeout(this.slowDownTimeout);
         this.slowDownTimeout = null;
@@ -1215,9 +1219,28 @@ export class HosPage implements OnInit, OnDestroy {
     this.lastSpeedValue = parseInt(this.eldData['V']);
   }
 
-  async changeStatusLocally(code: string) {
+  async powerUpAndDown() {
+    if (this.eldData['R']) {
+      if (parseInt(this.eldData['R']) > 0 && this.lastRPM === 0) {
+        if (this.eldData['O'] && this.eldData['H'] && this.location.locationType === 'AUTOMATIC') {
+          await this.changeStatusLocally('UP_NORMAL', false);
+        } else {
+          await this.changeStatusLocally('UP_REDUCED', false);
+        }
+      } else if (parseInt(this.eldData['R']) === 0 && this.lastRPM > 0) {
+        if (this.eldData['O'] && this.eldData['H'] && this.location.locationType === 'AUTOMATIC') {
+          await this.changeStatusLocally('DOWN_NORMAL', false);
+        } else {
+          await this.changeStatusLocally('DOWN_REDUCED', false);
+        }
+      }
+    }
+    this.lastRPM = this.eldData['R'] ? parseInt(this.eldData['R']) : 0;
+  }
+
+  async changeStatusLocally(code: string, loading: boolean = true) {
     this.closeAutoDrivingModal();
-    this.autoChangeLoading = true;
+    if (loading) this.autoChangeLoading = true;
     this.selectButton(code);
     await this.getLocalCurrentLocation(false);
     this.validation['location'] = true;
