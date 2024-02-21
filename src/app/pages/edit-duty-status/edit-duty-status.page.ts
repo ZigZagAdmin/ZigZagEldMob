@@ -384,6 +384,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     this.loading = true;
 
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
+    if(index === this._statusesOnDay.length - 1) this.logEvent.eventTime.timeStampEnd = undefined;
 
     await this.updateLogDailies(this.logDaily);
 
@@ -563,8 +564,15 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       this.minValue = this.getHoursByTimezone(this._statusesOnDay[index - 1].eventTime.timeStamp + 60000);
     }
     if (index === this._statusesOnDay.length - 1) {
-      this.maxValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(23, 59, 0, 0));
-      this.maxValueNumber = new Date(this.logEvent.eventTime.logDate).setHours(23, 59, 0, 0) + this.timeZoneDifference;
+      if (!this.logEvent.eventTime.timeStampEnd) {
+        this.maxValue = this.getHoursByTimezone(new Date().getTime());
+        this.maxValueNumber = new Date().getTime();
+        console.log(this.maxValue);
+        console.log(this.maxValueNumber);
+      } else {
+        this.maxValue = this.getHours(new Date(this.logEvent.eventTime.logDate).setHours(23, 59, 0, 0));
+        this.maxValueNumber = new Date(this.logEvent.eventTime.logDate).setHours(23, 59, 0, 0) + this.timeZoneDifference;
+      }
     } else {
       this.maxValue = this.getHoursByTimezone(this._statusesOnDay[index].eventTime.timeStampEnd - 60000);
     }

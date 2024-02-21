@@ -180,11 +180,8 @@
               <img src="assets/icon/location.svg" alt="location" />
               <p class="text-2" style="font-weight: 500; font-size: 13px">{{ logStatus.location.description }}</p>
             </div>
-            <img
-              src="assets/icon/edit.svg"
-              *ngIf="i !== 0 && !(i === statusesOnDay.length - 1 && !(statusesOnDay[i].eventTime.timeStampEnd && statusesOnDay[i].eventTime.timeStampEnd !== 0))"
-              (click)="editLog(logStatus)"
-              alt="edit" />
+            <img src="assets/icon/edit.svg" *ngIf="i !== 0" (click)="editLog(logStatus)" alt="edit" />
+            <!--&& !(i === statusesOnDay.length - 1 && !(statusesOnDay[i].eventTime.timeStampEnd && statusesOnDay[i].eventTime.timeStampEnd !== 0))-->
           </div>
         </div>
       </div>
