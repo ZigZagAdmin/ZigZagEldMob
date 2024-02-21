@@ -713,11 +713,14 @@ export class HosPage implements OnInit, OnDestroy {
 
             addTime(day, endDayTime);
             day = formatDate(new Date(day).setDate(new Date(day).getDate() - 1), 'yyyy/MM/dd', 'en-US');
-            while (day != firstEvent.eventTime.logDate) {
+           let iterationLimit = 100;
+            while (day != firstEvent.eventTime.logDate && iterationLimit > 0) {
+              console.log(firstEvent.eventTime.logDate);
               addTime(day, 24 * 60 * 60 * 1000);
               let temp = new Date(day);
               temp.setDate(temp.getDate() - 1);
               day = formatDate(temp, 'yyyy/MM/dd', 'en-US');
+              iterationLimit--;
             }
             let starTime = new Date(formatDate(new Date(firstEvent.eventTime.timeStamp), 'MMM dd hh:mm:ss a', 'en-US', this.timeZones[this.timeZone]));
             let startDayTime = 24 * 60 * 60 * 1000 - (starTime.getHours() * 60 * 60 * 1000 + starTime.getMinutes() * 60 * 1000 + starTime.getSeconds() * 1000);
