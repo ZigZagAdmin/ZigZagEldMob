@@ -58,4 +58,8 @@ export class UtilityService {
       return timeZoneWinter;
     }
   }
+
+  getEldLocation(value: string) {
+    return value.split(',').map(el => parseFloat(el));
+  }
 }

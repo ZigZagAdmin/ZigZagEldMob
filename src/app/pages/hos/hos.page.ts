@@ -22,6 +22,7 @@ import { Location } from 'src/app/models/dvirs';
 import { Network } from '@capacitor/network';
 import { hosErrors } from 'src/app/utilities/hos-errors';
 import { ELD } from 'src/app/models/eld';
+import { GeolocationService } from 'src/app/services/geolocation.service';
 
 @Component({
   selector: 'app-hos',
@@ -149,6 +150,10 @@ export class HosPage implements OnInit, OnDestroy {
   elds: ELD[] = [];
   isDrivingAuto: boolean = false;
 
+  autoChangeLoading: boolean = false;
+  lastSpeedValue: number = 0;
+  slowDownTimeout: any;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -158,6 +163,7 @@ export class HosPage implements OnInit, OnDestroy {
     private storage: Storage,
     private storageService: DatabaseService,
     private locationService: LocationService,
+    private geolocationService: GeolocationService,
     private bluetoothService: BluetoothService,
     private toastService: ToastService,
     private utilityService: UtilityService,
@@ -196,6 +202,7 @@ export class HosPage implements OnInit, OnDestroy {
         console.log(data);
         if (data) {
           this.eldData = data;
+          await this.changeDrivingAutomatically();
         }
       });
     }
@@ -645,6 +652,8 @@ export class HosPage implements OnInit, OnDestroy {
 
           /** CALCULATE RECAP */
 
+          if (!this.eventLogDailies[firstEvent.eventTime.logDate]) this.eventLogDailies[firstEvent.eventTime.logDate] = { timeOff: 0, timeDriving: 0, timeOnDuty: 0, timeSleeper: 0, timeWorked: 0 };
+
           if (firstEvent.eventTime.logDate === formatDate(new Date(secondEvent.eventTime.timeStamp), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone])) {
             let timeRecap = (secondEvent.eventTime.timeStamp - firstEvent.eventTime.timeStamp) / 1000;
             switch (event.type.code.toUpperCase()) {
@@ -804,22 +813,34 @@ export class HosPage implements OnInit, OnDestroy {
     await this.getLocalCurrentLocation();
   }
 
-  async getLocalCurrentLocation() {
+  async getLocalCurrentLocation(check: boolean = true) {
     this.locationLoading = true;
     if (Capacitor.getPlatform() !== 'web') {
-      if (!this.locationStatus) {
+      if (!this.locationStatus && check) {
         this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
       }
     }
-    await this.locationService.getCurrentLocation().then(res => {
+    await this.locationService.getCurrentLocation().then(async res => {
       this.location = res;
       this.locationDescription = this.location.description;
-      this.locationLoading = false;
       if (this.location.locationType === 'AUTOMATIC') {
-        this.locationDisable = true;
+        if (this.eldData['G']) {
+          let data = this.utilityService.getEldLocation(this.eldData['G']);
+          let description = await this.geolocationService.getCurrentLocation(data[2], data[3]);
+          this.location = {
+            locationType: 'AUTOMATIC',
+            latitude: data[2],
+            longitude: data[3],
+            description: description,
+          };
+          this.locationDescription = this.location.description;
+        } else {
+          this.locationDisable = true;
+        }
       } else {
         this.locationDisable = false;
       }
+      this.locationLoading = false;
     });
   }
 
@@ -845,7 +866,6 @@ export class HosPage implements OnInit, OnDestroy {
   async confirm() {
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
-    console.log('ekjfsdfkjgd');
     if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
       this.lastSelectedButton = this.selectedButton;
       this.shareService.destroyMessage();
@@ -1170,27 +1190,42 @@ export class HosPage implements OnInit, OnDestroy {
     this.navCtrl.navigateForward('/connect-mac', { queryParams: { backUrl: '/hos' } });
   }
 
-  toggleModal2() {
-    this.isDrivingAuto = true;
-  }
-
-  async changeDrivingAutomatically(eldDate: { [key: string]: string }) {
+  async changeDrivingAutomatically() {
     if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
       await this.changeStatusLocally('D');
-    } else if (parseInt(this.eldData['V']) < 5 && this.currentStatus.statusCode === 'D') {
-      setTimeout(() => {
-        this.isDrivingAuto = true;
-      }, 60000);
+      if (this.slowDownTimeout) {
+        clearTimeout(this.slowDownTimeout);
+        this.slowDownTimeout = null;
+      }
+    } else if (parseInt(this.eldData['V']) < 5 && this.lastSpeedValue >= 5 && this.currentStatus.statusCode === 'D') {
+      if (!this.slowDownTimeout) {
+        this.slowDownTimeout = setTimeout(async () => {
+          if (this.currentStatus.statusCode === 'D') {
+            this.isDrivingAuto = true;
+          }
+          this.slowDownTimeout = null;
+        }, 60000);
+      }
+    } else {
+      if (this.slowDownTimeout) {
+        clearTimeout(this.slowDownTimeout);
+        this.slowDownTimeout = null;
+      }
     }
+    this.lastSpeedValue = parseInt(this.eldData['V']);
   }
 
   async changeStatusLocally(code: string) {
-    this.selectButton(code);
-    await this.getLocalCurrentLocation();
-    console.log(this.locationDescription);
-    this.locationDescription = 's';
-    await this.confirm();
     this.closeAutoDrivingModal();
+    this.autoChangeLoading = true;
+    this.selectButton(code);
+    await this.getLocalCurrentLocation(false);
+    this.validation['location'] = true;
+    await this.confirm()
+      .then(() => {
+        this.autoChangeLoading = false;
+      })
+      .catch(e => (this.autoChangeLoading = false));
   }
 
   closeAutoDrivingModal() {

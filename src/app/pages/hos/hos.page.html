@@ -1,6 +1,6 @@
 <ion-content [forceOverscroll]="false">
   <div class="hos-wrapper" *ngIf="!pageLoading">
-    <div class="hos-header" (click)="toggleModal2()">
+    <div class="hos-header">
       <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}" (click)="checkLocation()">
         <img src="assets/icon/location_icon.svg" />
       </div>
@@ -231,4 +231,5 @@
     </div>
   </div>
   <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>
+  <ion-loading [isOpen]="autoChangeLoading" message="Changing status..." spinner="circles" [backdropDismiss]="false"></ion-loading>
 </ion-content>
