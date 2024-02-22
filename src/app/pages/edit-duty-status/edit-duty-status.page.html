@@ -149,7 +149,7 @@
     <div class="confirm-buttons">
       <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">Back</button>
       <button class="custom-btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
-        <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+        <span *ngIf="!loading" style="color: #fcfcfc">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
       </button>
     </div>
   </div>

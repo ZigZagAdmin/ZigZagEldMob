@@ -121,11 +121,13 @@ ion-checkbox::part(container) {
 .modal-title {
   font-size: 16px;
   font-weight: 600;
+  color: var(--gray-700);
 }
 
 .modal-subtitle {
   font-size: 14px;
   font-weight: 400;
+  color: var(--gray-500);
 }
 
 .modal-status {

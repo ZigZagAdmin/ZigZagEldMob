@@ -178,10 +178,12 @@ ion-checkbox::part(container) {
 
 ion-datetime {
   padding: 10px 20px;
-  --background: #ffffff;
-  --background-rgb: var(--gray-25);
+  color: var(--gray-700);
+  --background: var(--all-background);
+  --background-rgb: var(--all-background);
 
   --ion-color-primary: var(--primary-600);
+  --ion-color-step-150: var(--gray-150);
 }
 
 .calendar-height {

@@ -3,11 +3,8 @@
   <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">
     <app-select [label]="'Select Co-Driver'" (changeDetection)="showSelection()" [(value)]="chosenDriver" [options]="coDriverNames"></app-select>
     <button class="btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
-      <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      <span *ngIf="!loading" style="color: #fcfcfc">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
     </button>
   </div>
-  <div class="spinner-container" *ngIf="pageLoading">
-    <ion-spinner color="dark"></ion-spinner>
-    <div>LOADING</div>
-  </div>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

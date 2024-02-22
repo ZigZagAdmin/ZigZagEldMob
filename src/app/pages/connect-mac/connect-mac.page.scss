@@ -133,10 +133,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-
-      img {
-        filter: invert(0.7);
-      }
     }
   }
 }
@@ -145,4 +141,10 @@
   border: 1px solid var(--gray-200);
   background-color: var(--gray-50);
   color: var(--gray-600);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card-connect-icon img {
+    filter: invert(0.7);
+  }
 }

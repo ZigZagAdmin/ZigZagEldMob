@@ -190,6 +190,7 @@ ion-col {
   gap: 15px;
   .custom-subtitle {
     flex-grow: 1;
+    color: var(--gray-700);
   }
   .btn {
     display: flex;
@@ -367,4 +368,10 @@ ion-col {
   stroke: var(--error-600);
   opacity: 0.2;
   stroke-width: 1px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .preview-container img {
+    filter: invert(1);
+  }
 }

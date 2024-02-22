@@ -67,10 +67,12 @@ ion-modal#custom-modal {
 .modal-title {
   font-size: 18px;
   font-weight: 600;
+  color: var(--gray-700);
 }
 
 .modal-status {
   font-size: 15px;
+  color: var(--gray-700);
 }
 
 .default {
@@ -137,5 +139,11 @@ ion-checkbox::part(container) {
 
   ion-spinner {
     scale: 0.7;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .other-item img {
+    filter: invert(0.7);
   }
 }

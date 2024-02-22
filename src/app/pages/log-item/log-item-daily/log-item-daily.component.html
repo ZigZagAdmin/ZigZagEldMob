@@ -111,7 +111,7 @@
         <div class="custom-status-circle" [ngClass]="{ 'status-circle-error': !logDaily?.formManner, 'status-circle-success': logDaily?.formManner }"></div>
         <p class="custom-subtitle">Form</p>
         <button class="btn primary-btn" style="width: 63px" (click)="onSubmit()">
-          <span *ngIf="!saveFormLoading">Save</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
+          <span *ngIf="!saveFormLoading" style="color: #fcfcfc">Save</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
         </button>
       </div>
       <div class="form-list">
