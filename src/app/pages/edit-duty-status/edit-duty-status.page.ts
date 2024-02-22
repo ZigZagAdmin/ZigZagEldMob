@@ -384,7 +384,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     this.loading = true;
 
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
-    if(index === this._statusesOnDay.length - 1) this.logEvent.eventTime.timeStampEnd = undefined;
+    if (index === this._statusesOnDay.length - 1) this.logEvent.eventTime.timeStampEnd = undefined;
 
     await this.updateLogDailies(this.logDaily);
 
@@ -622,6 +622,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   }
 
   async calcViolations() {
+    this.clearRect();
     this.bResetTimeLast7Day = false;
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.violations = {};
