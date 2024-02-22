@@ -52,6 +52,10 @@
       font-size: 16px;
       border-radius: 30px;
       padding: 5px 10px;
+
+      img {
+        filter: invert(1);
+      }
     }
   }
   .circles-block {
@@ -91,13 +95,13 @@
           border-radius: 20px;
         }
         #inner-1 {
-          background-color: #fec84b;
+          background-color: var(--warning-300);
         }
         #inner-2 {
-          background-color: #9b8afb;
+          background-color: var(--purple-500);
         }
         #inner-3 {
-          background-color: #fb6514;
+          background-color: var(--orange-400);
         }
       }
     }
@@ -372,4 +376,18 @@ ion-modal#custom-modal {
   align-items: center;
   gap: 10px;
   width: 230px !important;
+  color: var(--gray-25);
+}
+
+@media (prefers-color-scheme: dark) {
+  .service img {
+    filter: invert(1);
+  }
+  .custom-sleep-btn img {
+    filter: invert(1);
+  }
+
+  .green img {
+    filter: invert(1);
+  }
 }

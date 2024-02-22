@@ -104,3 +104,9 @@
 .disable-fetch {
   pointer-events: none;
 }
+
+@media (prefers-color-scheme: dark) {
+  .input-fetch img {
+    filter: invert(1);
+  }
+}

@@ -34,3 +34,9 @@
 .rotate {
   transform: rotate(180deg);
 }
+
+@media (prefers-color-scheme: dark) {
+  .arrow img {
+    filter: invert(1);
+  }
+}

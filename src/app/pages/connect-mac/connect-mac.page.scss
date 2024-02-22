@@ -49,14 +49,6 @@
   }
 }
 
-// @media (prefers-color-scheme: dark) {
-//   .title-back {
-//     img {
-//       filter: invert(1);
-//     }
-//   }
-// }
-
 .custom-subtitle {
   margin-left: 35px;
 }
@@ -78,6 +70,7 @@
   justify-content: center;
   border-radius: 8px !important;
   padding: 15px 10px;
+  color: #fcfcfd; //should be static
 }
 
 .custom-block {
@@ -140,6 +133,16 @@
       display: flex;
       justify-content: center;
       align-items: center;
+
+      img {
+        filter: invert(0.7);
+      }
     }
   }
+}
+
+.custom-button2 {
+  border: 1px solid var(--gray-200);
+  background-color: var(--gray-50);
+  color: var(--gray-600);
 }
