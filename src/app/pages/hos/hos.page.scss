@@ -387,3 +387,9 @@ ion-modal#custom-modal {
     filter: invert(1);
   }
 }
+
+ion-loading {
+  color: var(--gray-700);
+  --background: var(--gray-25);
+  --spinner-color: var(--gray-700);
+}

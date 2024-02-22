@@ -148,3 +148,9 @@
     filter: invert(0.7);
   }
 }
+
+ion-loading {
+  color: var(--gray-700);
+  --background: var(--gray-25);
+  --spinner-color: var(--gray-700);
+}

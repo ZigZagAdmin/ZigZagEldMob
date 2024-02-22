@@ -63,7 +63,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       this.lastNetworkStatus = currentStatus.connected;
     });
-    if(Capacitor.getPlatform() !== 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
       this.locationService.watchLocationStatus();
       this.bluetoothService.watchBluetoothStatus();
     }
@@ -170,6 +170,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const loading = await this.loadingController.create({
       message: 'Loading data...',
       spinner: 'bubbles',
+      cssClass: 'loading-app-component',
     });
     await loading.present();
     return loading;

@@ -289,3 +289,9 @@ p {
 .disable-input-opacity {
   opacity: 0.65;
 }
+
+.loading-app-component {
+  color: var(--gray-700);
+  --background: var(--gray-25);
+  --spinner-color: var(--gray-700);
+}
