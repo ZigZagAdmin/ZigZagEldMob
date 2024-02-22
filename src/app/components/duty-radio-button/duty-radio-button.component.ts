@@ -13,11 +13,11 @@ interface DutyStatusItem {
 })
 export class DutyRadioButtonComponent implements OnInit {
   data: DutyStatusItem[] = [
-    { color: 'var(--gray-300)', label: 'Off Duty', value: 'OFF', checked: false },
-    { color: 'var(--gray-500)', label: 'Sleeper Berth', value: 'SB', checked: false },
+    { color: 'var(--off-duty)', label: 'Off Duty', value: 'OFF', checked: false },
+    { color: 'var(--split-spleeper-berth)', label: 'Sleeper Berth', value: 'SB', checked: false },
     { color: 'var(--warning-400)', label: 'On Duty', value: 'ON', checked: false },
     { color: 'var(--success-500)', label: 'Driving', value: 'D', checked: false },
-    { color: 'var(--gray-300)', label: 'Personal Conveyance', value: 'PC', checked: false },
+    { color: 'var(--off-duty)', label: 'Personal Conveyance', value: 'PC', checked: false },
     { color: 'var(--warning-400)', label: 'Yard Moves', value: 'YM', checked: false },
   ];
 

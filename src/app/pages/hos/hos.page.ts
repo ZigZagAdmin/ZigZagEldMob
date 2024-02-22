@@ -713,7 +713,7 @@ export class HosPage implements OnInit, OnDestroy {
 
             addTime(day, endDayTime);
             day = formatDate(new Date(day).setDate(new Date(day).getDate() - 1), 'yyyy/MM/dd', 'en-US');
-           let iterationLimit = 100;
+            let iterationLimit = 100;
             while (day != firstEvent.eventTime.logDate && iterationLimit > 0) {
               console.log(firstEvent.eventTime.logDate);
               addTime(day, 24 * 60 * 60 * 1000);
@@ -1119,11 +1119,11 @@ export class HosPage implements OnInit, OnDestroy {
   getStatusColor(status: string) {
     if (status) {
       let colorObj = {
-        OFF: 'var(--gray-300)',
-        SB: 'var(--gray-500)',
+        OFF: 'var(--off-duty)',
+        SB: 'var(--split-spleeper-berth)',
         ON: 'var(--warning-400)',
         D: 'var(--success-500)',
-        PC: 'var(--gray-300)',
+        PC: 'var(--off-duty)',
         YM: 'var(--warning-400)',
       };
       return colorObj[status as keyof typeof colorObj];

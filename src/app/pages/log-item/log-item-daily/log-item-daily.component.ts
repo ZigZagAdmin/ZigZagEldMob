@@ -183,11 +183,11 @@ export class LogItemDailyComponent implements OnInit {
   getStatusColor(status: string) {
     if (status) {
       let colorObj = {
-        OFF: 'var(--gray-300)',
-        SB: 'var(--gray-500)',
+        OFF: 'var(--off-duty)',
+        SB: 'var(--split-spleeper-berth)',
         ON: 'var(--warning-400)',
         D: 'var(--success-500)',
-        PC: 'var(--gray-300)',
+        PC: 'var(--off-duty)',
         YM: 'var(--warning-400)',
       };
       return colorObj[status as keyof typeof colorObj];
