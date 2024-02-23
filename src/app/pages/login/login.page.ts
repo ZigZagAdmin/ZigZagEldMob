@@ -422,5 +422,9 @@ export class LoginPage implements OnInit, OnDestroy {
     await firstValueFrom(this.saveLogDailies(countDays));
   }
 
+  getYearCopyright() {
+    return new Date().getFullYear();
+  }
+
   forgotPassword() {}
 }
