@@ -143,12 +143,6 @@
   color: var(--gray-600);
 }
 
-@media (prefers-color-scheme: dark) {
-  .card-connect-icon img {
-    filter: invert(0.7);
-  }
-}
-
 ion-loading {
   color: var(--gray-700);
   --background: var(--gray-25);

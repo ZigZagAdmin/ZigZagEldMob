@@ -378,19 +378,6 @@ ion-modal#custom-modal {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .service img {
-    filter: invert(1);
-  }
-  .custom-sleep-btn img {
-    filter: invert(1);
-  }
-
-  .green img {
-    filter: invert(1);
-  }
-}
-
 ion-loading {
   color: var(--gray-700);
   --background: var(--gray-25);

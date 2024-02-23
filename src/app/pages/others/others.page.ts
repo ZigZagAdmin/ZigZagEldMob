@@ -50,6 +50,8 @@ export class OthersPage implements OnInit {
 
   syncLoading: boolean = false;
 
+  darkMode: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private databaseService: DatabaseService,
@@ -72,9 +74,10 @@ export class OthersPage implements OnInit {
     let lastStatusCode$ = this.storage.get('lastStatusCode');
     let autoLogin$ = this.storage.get('autoLogin');
     let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
+    let darkMode$ = this.storage.get('darkMode');
 
-    forkJoin([vehicleId$, driverId$, companyId$, timeZone$, bAuthorized$, lastStatusCode$, autoLogin$, logEvents$]).subscribe(
-      ([vehicleId, driverId, companyId, timeZone, bAuthorized, lastStatusCode, autoLogin, logEvents]) => {
+    forkJoin([vehicleId$, driverId$, companyId$, timeZone$, bAuthorized$, lastStatusCode$, autoLogin$, logEvents$, darkMode$]).subscribe(
+      ([vehicleId, driverId, companyId, timeZone, bAuthorized, lastStatusCode, autoLogin, logEvents, darkMode]) => {
         this.vehicleId = vehicleId;
         this.driverId = driverId;
         this.companyId = companyId;
@@ -85,6 +88,7 @@ export class OthersPage implements OnInit {
           this.autoLogin = autoLogin;
         }
         this.logEvents = logEvents;
+        this.darkMode = darkMode;
       }
     );
   }
@@ -274,6 +278,13 @@ export class OthersPage implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  async toggleDarkMode() {
+    if (this.darkMode) this.darkMode = false;
+    else this.darkMode = true;
+    document.body.classList.toggle('dark', this.darkMode);
+    await this.storage.set('darkMode', this.darkMode);
   }
 
   ionViewWillLeave() {

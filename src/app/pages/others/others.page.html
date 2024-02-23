@@ -1,8 +1,14 @@
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Others'">
-    <div class="sync-button" (click)="syncData()">
-      <span *ngIf="!syncLoading">sync</span>
-      <ion-spinner *ngIf="syncLoading" name="circular" color="medium"></ion-spinner>
+    <div class="buttons-header-container">
+      <div class="dark-mode-button" (click)="toggleDarkMode()">
+        <img *ngIf="darkMode" src="../../../assets/icon/sun-light.svg" />
+        <img *ngIf="!darkMode" src="../../../assets/icon/moon-dark.svg" />
+      </div>
+      <div class="sync-button" (click)="syncData()">
+        <span *ngIf="!syncLoading">sync</span>
+        <ion-spinner *ngIf="syncLoading" name="circular" color="medium"></ion-spinner>
+      </div>
     </div>
   </app-header>
   <div class="edit-form padding-g">

@@ -125,6 +125,12 @@ ion-checkbox::part(container) {
   border-radius: 50%;
 }
 
+.buttons-header-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .sync-button {
   font-size: 14px;
   font-weight: 600;
@@ -142,8 +148,17 @@ ion-checkbox::part(container) {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .other-item img {
-    filter: invert(0.7);
+.dark-mode-button {
+  height: 32px;
+  width: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--gray-100);
+  border-radius: 10px;
+
+  img {
+    width: 18px;
+    height: 18px;
   }
 }

@@ -383,9 +383,3 @@ ion-col {
 .durations .label {
   fill: var(--gray-700) !important;
 }
-
-@media (prefers-color-scheme: dark) {
-  .preview-container img {
-    filter: invert(1);
-  }
-}
