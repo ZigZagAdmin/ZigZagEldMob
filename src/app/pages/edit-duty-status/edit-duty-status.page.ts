@@ -112,6 +112,15 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     x2: 0,
   };
 
+  dutyStatuses: { label: string; value: string }[] = [
+    { label: 'Off Duty', value: 'OFF' },
+    { label: 'Sleeper Berth', value: 'SB' },
+    { label: 'On Duty', value: 'ON' },
+    { label: 'Driving', value: 'D' },
+    { label: 'Personal Conveyance', value: 'PC' },
+    { label: 'Yard Moves', value: 'YM' },
+  ];
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -384,7 +393,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     this.loading = true;
 
     let index = this._statusesOnDay.findIndex(el => el.logEventId === this.logEvent.logEventId);
-    if (index === this._statusesOnDay.length - 1) this.logEvent.eventTime.timeStampEnd = undefined;
+    let index2 = this.logDailies.findIndex(el => el.logDailyId === this.logDaily.logDailyId);
+    if (index === this._statusesOnDay.length - 1 && index2 === this.logDailies.length - 1) this.logEvent.eventTime.timeStampEnd = undefined;
 
     await this.updateLogDailies(this.logDaily);
 
@@ -580,8 +590,11 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
 
   async selectButton(button: string) {
     this.selectedButton = button;
-    this.logEvent.type.code = button;
+    let localStatus = this.dutyStatuses.find(el => el.value === button);
+    this.logEvent.type.code = localStatus.value;
+    this.logEvent.type.name = localStatus.label;
     let index = this.logEvents.findIndex(el => el.logEventId === this.logEvent.logEventId);
+    console.log(this.logEvent);
     this.logEvents[index] = this.logEvent;
     this.drawGraph();
     await this.calcViolations();

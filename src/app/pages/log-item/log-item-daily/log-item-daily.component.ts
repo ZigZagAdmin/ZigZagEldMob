@@ -385,6 +385,7 @@ export class LogItemDailyComponent implements OnInit {
         }
       }
     });
+    console.log(this.statusesOnDay);
   }
 
   goToNextLog() {
