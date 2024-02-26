@@ -95,7 +95,7 @@ export class LoginPage implements OnInit, OnDestroy {
     }
     let networkStatus = await Network.getStatus();
     if (!networkStatus.connected) {
-      this.toastService.showToast("You cannot login while you're offline!");
+      this.toastService.showToast(this.translate.instant("You cannot login while you're offline!"));
       return;
     }
     this.shareService.changeMessage(this.utilityService.generateString(5));
@@ -164,7 +164,7 @@ export class LoginPage implements OnInit, OnDestroy {
           return forkJoin(fetchRequests).pipe(
             catchError(error => {
               const errorMessage = 'Error fetching data';
-              this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
+              this.toastService.showToast(this.translate.instant(errorMessage)); // Отобразить toast с ошибкой
               return throwError(errorMessage);
             })
           );
@@ -190,7 +190,7 @@ export class LoginPage implements OnInit, OnDestroy {
           return forkJoin(saveRequests).pipe(
             catchError(error => {
               const errorMessage = 'Error saving data to database';
-              this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
+              this.toastService.showToast(this.translate.instant(errorMessage)); // Отобразить toast с ошибкой
               return throwError(errorMessage);
             })
           );
@@ -203,13 +203,13 @@ export class LoginPage implements OnInit, OnDestroy {
         () => {
           // Все запросы и сохранения выполнены успешно
           this.storage.set('bAuthorized', false);
-          this.toastService.showToast('Login successful', 'success'); // Отобразить toast с сообщением об успешном входе
+          this.toastService.showToast(this.translate.instant('Login successful'), 'success'); // Отобразить toast с сообщением об успешном входе
           this.navCtrl.navigateRoot('/select-vehicle', { animated: true, animationDirection: 'forward' });
         },
         error => {
           console.log(error);
           const errorMessage = 'An error occurred during login';
-          this.toastService.showToast(errorMessage, 'danger'); // Отобразить toast с ошибкой
+          this.toastService.showToast(this.translate.instant(errorMessage), 'danger'); // Отобразить toast с ошибкой
           console.log(errorMessage);
         }
       );
@@ -217,15 +217,15 @@ export class LoginPage implements OnInit, OnDestroy {
 
   async checkLocation() {
     if (!(await this.locationService.isLocationServiceAvailable())) {
-      let state = confirm('Looks like the location service is turned off.\nProceed to settings?');
+      let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
       if (state) {
         if (Capacitor.getPlatform() === 'android') {
           await this.locationService.goToLocationServiceSettings();
         } else {
-          alert('Go to Settings -> Location Services to enable the location service.');
+          alert(this.translate.instant('Go to Settings -> Location Services to enable the location service.'));
         }
       } else {
-        alert('You have to turn on the location service in order to continue.');
+        alert(this.translate.instant('You have to turn on the location service in order to continue.'));
         return false;
       }
     }

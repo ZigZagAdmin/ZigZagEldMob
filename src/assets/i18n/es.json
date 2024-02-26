@@ -223,5 +223,12 @@
   "Lunch": "Combustible",
   "Shop": "Tienda",
   "Delivery": "Entrega",
-  "Sleeper": "Dormitorio"
+  "Sleeper": "Dormitorio",
+  "You cannot login while you're offline!": "No puedes iniciar sesión mientras estás desconectado!",
+  "Error fetching data": "Error en la obtención de datos",
+  "Error saving data to database": "Error al guardar datos en la base de datos",
+  "Login successful": "Inicio de sesión correcto",
+  "An error occurred during login": "Se ha producido un error durante el inicio de sesión",
+  "Looks like the location service is turned off.\nProceed to settings?": "Parece que el servicio de localización está desactivado.\n¿Proceder a la configuración?",
+  "Go to Settings -> Location Services to enable the location service.": "Ve a Ajustes -> Servicios de localización para activar el servicio de localización."
 }

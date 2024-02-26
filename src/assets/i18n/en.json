@@ -223,5 +223,13 @@
   "Lunch": "Lunch",
   "Shop": "Shop",
   "Delivery": "Delivery",
-  "Sleeper": "Sleeper"
+  "Sleeper": "Sleeper",
+  "You cannot login while you're offline!": "You cannot login while you're offline!",
+  "Error fetching data": "Error fetching data",
+  "Error saving data to database": "Error saving data to database",
+  "Login successful": "Login successful",
+  "An error occurred during login": "An error occurred during login",
+  "Looks like the location service is turned off.\nProceed to settings?": "Looks like the location service is turned off.\nProceed to settings?",
+  "Go to Settings -> Location Services to enable the location service.": "Go to Settings -> Location Services to enable the location service.",
+  "You have to turn on the location service in order to continue.": "Tienes que activar el servicio de localización para poder continuar."
 }
