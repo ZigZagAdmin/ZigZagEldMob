@@ -79,14 +79,16 @@ export class AppComponent implements OnInit, OnDestroy {
         if (darkMode === null || darkMode === undefined) await this.storage.set('darkMode', false);
         this.pickedVehicle = pickedVehicle;
         const user = await this.storage.get('user');
-        await this.storage.set('language', user.Language);
-        let selectedLanguage = await this.storage.get('selectedLanguage');
-        if (selectedLanguage === null || selectedLanguage === undefined) {
-          selectedLanguage = user.language;
-          await this.storage.set('selectedLanguage', user.language);
+        if (user) {
+          await this.storage.set('language', user?.Language);
+          let selectedLanguage = await this.storage.get('selectedLanguage');
+          if (selectedLanguage === null || selectedLanguage === undefined) {
+            selectedLanguage = user?.Language;
+            await this.storage.set('selectedLanguage', user?.Language);
+          }
+          this.translate.setDefaultLang(selectedLanguage || 'en');
+          this.translate.use(selectedLanguage || 'en');
         }
-        this.translate.setDefaultLang(selectedLanguage);
-        this.translate.use(selectedLanguage);
         const driverId = user?.DriverId;
         if (accessToken) {
           if (this.authService.isAuthenticated()) {

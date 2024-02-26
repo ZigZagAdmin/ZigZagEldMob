@@ -27,6 +27,7 @@ import { Capacitor } from '@capacitor/core';
 import { EncryptionService } from 'src/app/services/encryption.service';
 import { Keyboard } from '@capacitor/keyboard';
 import { Network } from '@capacitor/network';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
@@ -58,7 +59,8 @@ export class LoginPage implements OnInit, OnDestroy {
     private utilityService: UtilityService,
     private shareService: ShareService,
     private locationService: LocationService,
-    private encryptionService: EncryptionService
+    private encryptionService: EncryptionService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
@@ -111,7 +113,7 @@ export class LoginPage implements OnInit, OnDestroy {
     this.authService
       .login(username, password)
       .pipe(
-        switchMap(res => {
+        switchMap(async res => {
           this.authUser = res;
           this.driverId = res.DriverId;
           this.companyId = res.CompanyId;
@@ -121,6 +123,14 @@ export class LoginPage implements OnInit, OnDestroy {
           this.storage.set('name', res.Name);
           this.storage.set('username', this.encryptionService.encrypt(username));
           this.storage.set('password', this.encryptionService.encrypt(password));
+          this.storage.set('language', res.Language);
+          let selectedLanguage = await this.storage.get('selectedLanguage');
+          if (selectedLanguage === null || selectedLanguage === undefined) {
+            selectedLanguage = res.Language;
+            await this.storage.set('selectedLanguage', res.Language);
+          }
+          this.translate.setDefaultLang(selectedLanguage);
+          this.translate.use(selectedLanguage);
           return this.saveAuthUser(res);
         }),
         switchMap(() => {
@@ -209,10 +219,10 @@ export class LoginPage implements OnInit, OnDestroy {
     if (!(await this.locationService.isLocationServiceAvailable())) {
       let state = confirm('Looks like the location service is turned off.\nProceed to settings?');
       if (state) {
-        if(Capacitor.getPlatform() === 'android') {
+        if (Capacitor.getPlatform() === 'android') {
           await this.locationService.goToLocationServiceSettings();
         } else {
-          alert('Go to Settings -> Location Services to enable the location service.')
+          alert('Go to Settings -> Location Services to enable the location service.');
         }
       } else {
         alert('You have to turn on the location service in order to continue.');
