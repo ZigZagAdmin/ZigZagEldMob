@@ -7,9 +7,17 @@ import { LoginPage } from './login.page';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { InputComponentModule } from 'src/app/components/input/input.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, LoginPageRoutingModule, InputComponentModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    LoginPageRoutingModule,
+    InputComponentModule,
+    TranslateModule
+  ],
   declarations: [LoginPage],
   providers: [DatabaseService, Storage],
 })

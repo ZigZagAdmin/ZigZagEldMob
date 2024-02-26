@@ -1,6 +1,6 @@
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Account'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)">
+  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">
       <app-input [label]="'Name'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.name" [noValidation]="true"></app-input>
       <app-input [label]="'Email'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.email" [noValidation]="true"></app-input>
@@ -31,7 +31,7 @@
         [disabled]="true"
         [value]="company?.terminals[0].street + ', ' + company?.terminals[0].city + ', ' + company?.terminals[0].stateProvinceCode + ' ' + company?.terminals[0].zipCode + ', ' + company?.terminals[0].countryCode"
         [noValidation]="true"></app-input>
-      <app-input [label]="'Language'" [fill]="true" [type]="'text'" [disabled]="true" [value]="language" [noValidation]="true"></app-input>
+      <app-select [label]="'Language'" (changeDetection)="showSelection($event)" [(value)]="inputLanguage" [options]="languageOptions"></app-select>
     </div>
     <div style="flex: 1; display: flex; align-items: flex-end">
       <div class="reminder">
@@ -40,4 +40,5 @@
       </div>
     </div>
   </div>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

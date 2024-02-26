@@ -119,7 +119,6 @@ export class LoginPage implements OnInit, OnDestroy {
           this.storage.set('driverId', res.DriverId);
           this.storage.set('companyId', res.CompanyId);
           this.storage.set('name', res.Name);
-          this.storage.set('language', res.Language);
           this.storage.set('username', this.encryptionService.encrypt(username));
           this.storage.set('password', this.encryptionService.encrypt(password));
           return this.saveAuthUser(res);

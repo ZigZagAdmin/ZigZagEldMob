@@ -16,6 +16,7 @@ import { Network } from '@capacitor/network';
 import { LocationService } from './services/location.service';
 import { BluetoothService } from './services/bluetooth.service';
 import { Capacitor } from '@capacitor/core';
+import { TranslateService } from '@ngx-translate/core';
 // import { Driver } from './models/driver';
 
 @Component({
@@ -39,7 +40,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private toastService: ToastService,
     private locationService: LocationService,
-    private bluetoothService: BluetoothService
+    private bluetoothService: BluetoothService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
@@ -74,9 +76,17 @@ export class AppComponent implements OnInit, OnDestroy {
         const pickedVehicle = await this.storage.get('vehicleUnit');
         const darkMode = await this.storage.get('darkMode');
         document.body.classList.toggle('dark', darkMode);
-        if (darkMode === null || darkMode === null) await this.storage.set('darkMode', false);
+        if (darkMode === null || darkMode === undefined) await this.storage.set('darkMode', false);
         this.pickedVehicle = pickedVehicle;
         const user = await this.storage.get('user');
+        await this.storage.set('language', user.Language);
+        let selectedLanguage = await this.storage.get('selectedLanguage');
+        if (selectedLanguage === null || selectedLanguage === undefined) {
+          selectedLanguage = user.language;
+          await this.storage.set('selectedLanguage', user.language);
+        }
+        this.translate.setDefaultLang(selectedLanguage);
+        this.translate.use(selectedLanguage);
         const driverId = user?.DriverId;
         if (accessToken) {
           if (this.authService.isAuthenticated()) {
