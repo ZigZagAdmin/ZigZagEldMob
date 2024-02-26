@@ -198,8 +198,8 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   getDateSub(date: string) {
-    let date_ = formatDate(date, 'EEEE, MMM d', 'en_US');
-    let today_ = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
+    let date_ = this.translate.instant(formatDate(date, 'EEEE', 'en_US')) + ', ' + this.translate.instant(formatDate(date, 'MMM', 'en_US')) + ' ' + this.translate.instant(formatDate(date, 'd', 'en_US'));
+    let today_ = this.translate.instant(formatDate(new Date(), 'EEEE', 'en_US')) + ', ' + this.translate.instant(formatDate(new Date(), 'MMM', 'en_US')) + ' ' + this.translate.instant(formatDate(new Date(), 'd', 'en_US'));
     return date_ === today_ ? date_ + ' (' + this.translate.instant('Today') + ')' : date_;
   }
 

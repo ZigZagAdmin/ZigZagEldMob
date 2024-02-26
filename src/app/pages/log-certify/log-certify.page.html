@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
   <app-header [title]="'Certify' | translate" [backButton]="true" (backButtonCallback)="goBack()">
-    <div class="date-label">{{logDate | date: 'EEEE, MMM d'}}</div>
+    <div class="date-label">{{logDate | date: 'EEEE' | translate}}, {{logDate | date: 'MMM' | translate}} {{logDate | date: 'd'}}</div>
   </app-header>
   <div class="main-container padding-g">
     <div>

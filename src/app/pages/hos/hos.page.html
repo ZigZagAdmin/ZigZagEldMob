@@ -214,7 +214,7 @@
       <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
         <div class="log-left">
           <div class="subtitle">
-            {{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date: 'MMMM dd' }}
+            {{ logDaily.logDate | date:'EEEE' | translate }}, {{ logDaily.logDate | date: 'MMMM' | translate }} {{logDaily.logDate | date: 'dd'}}
             <div *ngIf="logDaily.violations.length !== 0" class="violation-number"><img src="../../../assets/icon/violation.svg" />{{logDaily.violations.length}}</div>
           </div>
           <div class="sub-info">

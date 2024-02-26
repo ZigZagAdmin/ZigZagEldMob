@@ -603,7 +603,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   }
 
   getCurrentDateFormat(value: string) {
-    return '(' + formatDate(value, 'LLLL d', 'en_US') + ')';
+    return '(' + this.translate.instant(formatDate(value, 'LLLL', 'en_US')) + ' ' + formatDate(value, 'd', 'en_US') + ')';
   }
 
   getHours(value: number) {
