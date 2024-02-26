@@ -152,7 +152,7 @@
       <ion-modal [isOpen]="isModalOpen">
         <ng-template>
           <ion-content [forceOverscroll]="false">
-            <app-header [title]="'Signature'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
+            <app-header [title]="'Signature' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
             <div style="display: flex; justify-content: center; align-items: center">
               <div class="signature-visualization">
                 <img [ngClass]="{ 'no-image': imageLoading }" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
