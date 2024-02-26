@@ -241,7 +241,6 @@ export class HosPage implements OnInit, OnDestroy {
             await this.createLogDailies();
             await this.calcViolations();
             this.pageLoading = false;
-            console.log('Updated form params');
           }
         });
       }
@@ -717,7 +716,6 @@ export class HosPage implements OnInit, OnDestroy {
             day = formatDate(new Date(day).setDate(new Date(day).getDate() - 1), 'yyyy/MM/dd', 'en-US');
             let iterationLimit = 100;
             while (day != firstEvent.eventTime.logDate && iterationLimit > 0) {
-              console.log(firstEvent.eventTime.logDate);
               addTime(day, 24 * 60 * 60 * 1000);
               let temp = new Date(day);
               temp.setDate(temp.getDate() - 1);
@@ -791,7 +789,7 @@ export class HosPage implements OnInit, OnDestroy {
         }
       }
     }
-    console.log(this.violations);
+    // console.log(this.violations);
   }
 
   pushViolation(day: string, error: { code: string; name: string }, date: number) {

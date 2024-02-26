@@ -69,7 +69,6 @@ export class ConnectMacPage implements OnInit, OnDestroy {
       this.pickedVehicle = this.vehicle.vehicleUnit;
       this.company = company;
       this.elds = elds;
-      console.log('query params: ', queryParams['backUrl']);
       if (queryParams['backUrl']) {
         this.backUrl = queryParams['backUrl'];
       }
