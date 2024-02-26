@@ -230,5 +230,10 @@
   "Login successful": "Inicio de sesión correcto",
   "An error occurred during login": "Se ha producido un error durante el inicio de sesión",
   "Looks like the location service is turned off.\nProceed to settings?": "Parece que el servicio de localización está desactivado.\n¿Proceder a la configuración?",
-  "Go to Settings -> Location Services to enable the location service.": "Ve a Ajustes -> Servicios de localización para activar el servicio de localización."
+  "Go to Settings -> Location Services to enable the location service.": "Ve a Ajustes -> Servicios de localización para activar el servicio de localización.",
+  "Bluetooth service is turned off.\nProceed to settings?": "El servicio Bluetooth está desactivado.\n¿Proceder a la configuración?",
+  "Go to Settings -> Bluetooth in order to enable the bluetooth service.": "Vaya a Ajustes -> Bluetooth para activar el servicio bluetooth.",
+  "In order to connect to a device, you to turn on the bluetooth service": "Para conectarte a un dispositivo, tienes que activar el servicio bluetooth",
+  "Device successfully connected": "Dispositivo conectado correctamente",
+  "Could not connect to": "No se ha podido conectar con"
 }

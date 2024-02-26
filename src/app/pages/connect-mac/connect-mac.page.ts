@@ -15,6 +15,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { ActivatedRoute } from '@angular/router';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { Company } from 'src/app/models/company';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-connect-mac',
@@ -46,7 +47,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     private toastService: ToastService,
     private storage: Storage,
     private route: ActivatedRoute,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
@@ -104,15 +106,15 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   async connect(macAddress: string, checkForForm: boolean = true) {
     if (Capacitor.getPlatform() !== 'web') {
       if (!(await this.bluetoothService.getBluetoothState())) {
-        let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
+        let confirmation = confirm(this.translate.instant('Bluetooth service is turned off.\nProceed to settings?'));
         if (confirmation) {
           if (Capacitor.getPlatform() === 'android') {
             await this.bluetoothService.goToBluetoothServiceSettings();
           } else {
-            alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+            alert(this.translate.instant('Go to Settings -> Bluetooth in order to enable the bluetooth service.'));
           }
         } else {
-          alert('In order to connect to a device, you to turn on the bluetooth service');
+          alert(this.translate.instant('In order to connect to a device, you to turn on the bluetooth service'));
           return;
         }
       }
@@ -129,14 +131,14 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         console.log('connection result: ', res);
         if (res) {
           this.loading = false;
-          this.toastService.showToast('Device successfully connected');
+          this.toastService.showToast(this.translate.instant('Device successfully connected'));
           await this.bluetoothService.subscribeToDeviceData(macAddress);
           await this.storage.set('lastConnectedELD', macAddress);
           await this.uploadEld(macAddress);
           this.navigateToHos();
         } else {
           this.loading = false;
-          this.toastService.showToast('Could not connect to ' + macAddress);
+          this.toastService.showToast(this.translate.instant('Could not connect to') + ' ' + macAddress);
         }
       });
     }

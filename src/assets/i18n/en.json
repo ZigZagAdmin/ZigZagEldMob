@@ -231,5 +231,10 @@
   "An error occurred during login": "An error occurred during login",
   "Looks like the location service is turned off.\nProceed to settings?": "Looks like the location service is turned off.\nProceed to settings?",
   "Go to Settings -> Location Services to enable the location service.": "Go to Settings -> Location Services to enable the location service.",
-  "You have to turn on the location service in order to continue.": "Tienes que activar el servicio de localización para poder continuar."
+  "You have to turn on the location service in order to continue.": "Tienes que activar el servicio de localización para poder continuar.",
+  "Bluetooth service is turned off.\nProceed to settings?": "Bluetooth service is turned off.\nProceed to settings?",
+  "Go to Settings -> Bluetooth in order to enable the bluetooth service.": "Go to Settings -> Bluetooth in order to enable the bluetooth service.",
+  "In order to connect to a device, you to turn on the bluetooth service": "In order to connect to a device, you to turn on the bluetooth service",
+  "Device successfully connected": "Device successfully connected",
+  "Could not connect to": "Could not connect to"
 }
