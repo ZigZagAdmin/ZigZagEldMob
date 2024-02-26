@@ -126,6 +126,20 @@ export class OthersPage implements OnInit {
         await this.storage.set('companyId', company?.companyId);
         await this.storage.set('driverId', driver[0]?.driverId);
         await this.storage.set('name', driver[0]?.name);
+        let todayLogDate = logDailies.find(el => el.logDate === new Date().toISOString().split('T')[0].replace(/-/g, '/'));
+
+        if (todayLogDate.form.coDriver.driverId === '00000000-0000-0000-0000-000000000000') {
+          await this.storage.set('coDriver', {
+            driverId: '00000000-0000-0000-0000-000000000000',
+            driverIdentifier: null,
+            driverInfo: null,
+            email: null,
+            firstName: null,
+            lastName: null,
+          });
+        } else {
+          await this.storage.set('coDriver', todayLogDate.form.coDriver);
+        }
         // await this.storage.set('vehicles', driver[0]?.driverInfo?.assignedVehicles[0]);
         // await this.storage.set('vehicleId', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleId);
         // await this.storage.set('vehicleUnit', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleUnit);
