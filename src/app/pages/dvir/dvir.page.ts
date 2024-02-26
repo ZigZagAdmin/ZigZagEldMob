@@ -58,6 +58,24 @@ export class DvirPage implements OnInit, OnDestroy {
       .join(', ');
   }
 
+  getOrdinalSuffix(sday: string): string {
+    let day = parseInt(sday);
+    if (day >= 11 && day <= 13) {
+      return this.translate.instant('th');
+    }
+
+    switch (day % 10) {
+      case 1:
+        return this.translate.instant('st');
+      case 2:
+        return this.translate.instant('nd');
+      case 3:
+        return this.translate.instant('rd');
+      default:
+        return this.translate.instant('th');
+    }
+  }
+
   ngOnDestroy(): void {
     this.interSub.unsubscribe();
   }

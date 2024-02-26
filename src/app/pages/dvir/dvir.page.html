@@ -9,7 +9,10 @@
           <div
             class="status-circle"
             [ngClass]="{'status-error': dvir.status.code === 'D' || dvir.status.code === 'DNNBC', 'status-success': dvir.status.code === 'VCS' || dvir.status.code === 'DC' }"></div>
-          <div class="header-date">{{ dvir.createDate | date: "ccc, LLL d'th' yyyy" }}</div>
+          <div class="header-date">
+            {{ dvir.createDate | date: "ccc" | translate }}, {{ dvir.createDate | date: "LLL" | translate }} {{ dvir.createDate | date: "d" }}{{getOrdinalSuffix(dvir.createDate | date: "d")}} {{
+            dvir.createDate | date: "yyyy" }}
+          </div>
         </div>
         <div class="card-header-time">{{ dvir.createDate | date: "hh:mm a" }}</div>
       </div>

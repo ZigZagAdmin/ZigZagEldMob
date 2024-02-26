@@ -342,5 +342,9 @@
   "Sep": "Sep",
   "Oct": "Oct",
   "Nov": "Nov",
-  "Dec": "Dic"
+  "Dec": "Dic",
+  "th": "º",
+  "st": "º",
+  "nd": "º",
+  "rd": "º"
 }

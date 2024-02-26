@@ -134,8 +134,8 @@
           <div class="inspection-item-label">{{'Driver Certified' | translate}}</div>
         </div>
         <div class="inspection-row-item">
-          <div class="inspection-item-value">{{ (logDaily?.logDate | date: "LLLL d, yyyy") || "-" }}</div>
-          <div class="inspection-item-value">{{ (today | date: "LLLL d, yyyy") || "-" }}</div>
+          <div class="inspection-item-value">{{ ((logDaily?.logDate | date: "LLLL" | translate) + ' ' +(logDaily?.logDate | date: "d") + ', ' + (logDaily?.logDate | date: "yyyy")) || "-" }}</div>
+          <div class="inspection-item-value">{{ ((today | date: "LLLL" | translate) + ' ' +(today | date: "d") + ', ' + (today | date: "yyyy")) || "-" }}</div>
           <div class="inspection-item-value">{{ statusesOnDay[statusesOnDay.length - 1]?.location?.description || "-" }}</div>
           <div class="inspection-item-value">{{ logDaily?.certified ? "Yes" : "No" }}</div>
         </div>
@@ -210,7 +210,7 @@
         <div class="logs-row-item">{{ 'Notes' | translate }}</div>
       </div>
       <div class="inspection-logs-row" *ngFor="let logEvent of currentLogEvents">
-        <div class="logs-row-item">{{ dateWithTimeZone(logEvent?.eventTime?.timeStamp, "LLL d, hh:mm:ss a") }}</div>
+        <div class="logs-row-item">{{ (dateWithTimeZone(logEvent?.eventTime?.timeStamp, "LLL") | translate) + ' ' + dateWithTimeZone(logEvent?.eventTime?.timeStamp, "d, hh:mm:ss a") }}</div>
         <div class="logs-row-item">{{ logEvent?.type?.name | translate}}{{ !(logEvent.type.code === 'CERTIFICATION_1') ? "" : " " + logEvent?.certificationDate | date: "L/d/yyyy" }}</div>
         <div class="logs-row-item">{{ logEvent?.location?.description }}</div>
         <div class="logs-row-item">{{ logEvent.odometer }}</div>
