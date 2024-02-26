@@ -12,6 +12,7 @@ import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
     InstructionsPageRoutingModule,
     HeaderComponentModule,
     PdfViewerModule,
-    PinchZoomModule
+    PinchZoomModule,
+    TranslateModule
   ],
   declarations: [InstructionsPage]
 })

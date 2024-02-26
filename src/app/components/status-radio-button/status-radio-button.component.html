@@ -1,4 +1,4 @@
-<div class="status-title">Status</div>
+<div class="status-title">{{ 'Status' | translate }}</div>
 <div class="list-container">
   <div
     class="list-item"
@@ -7,7 +7,7 @@
     (click)="select(item)">
     <div class="item-data">
       <div class="status-icon"><img [src]="item.icon === 'success' ? 'assets/icon/shield-tick.svg' : 'assets/icon/shield-cross.svg'" /></div>
-      <div class="status-label" [ngClass]="item.icon">{{ item.label }}</div>
+      <div class="status-label" [ngClass]="item.icon">{{ item.label | translate }}</div>
     </div>
     <div class="item-checkbox">
       <ion-checkbox [checked]="item.checked"></ion-checkbox>

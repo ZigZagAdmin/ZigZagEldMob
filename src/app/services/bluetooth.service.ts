@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
 import { Platform } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { BehaviorSubject } from 'rxjs';
 
@@ -17,7 +18,7 @@ export class BluetoothService {
   service = numberToUUID(0x1800);
   read = '00002A00-0000-1000-8000-00805F9B34FB';
 
-  constructor(private platform: Platform) {}
+  constructor(private platform: Platform, private translate: TranslateService) {}
 
   async initialize() {
     await BleClient.initialize({ androidNeverForLocation: true });
@@ -114,14 +115,14 @@ export class BluetoothService {
                 status = false;
                 this.bluetoothStatusSubject.next(false);
                 if (!noPop) {
-                  alert('You need to give bluetooth permissions in order to connect');
+                  alert(this.translate.instant('You need to give bluetooth permissions in order to connect'));
                 }
                 break;
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
                 status = false;
                 this.bluetoothStatusSubject.next(false);
                 if (!noPop) {
-                  let state = confirm('You need to give access to your bluetooth.\nProceed to settings?');
+                  let state = confirm(this.translate.instant('You need to give access to your bluetooth.\nProceed to settings?'));
                   if (state) {
                     await NativeSettings.open({
                       optionAndroid: AndroidSettings.ApplicationDetails,

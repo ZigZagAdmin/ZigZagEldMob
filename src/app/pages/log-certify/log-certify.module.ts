@@ -9,10 +9,11 @@ import { LogCertifyPageRoutingModule } from './log-certify-routing.module';
 import { LogCertifyPage } from './log-certify.page';
 
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, LogCertifyPageRoutingModule, HeaderComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, LogCertifyPageRoutingModule, HeaderComponentModule, TranslateModule],
   declarations: [LogCertifyPage],
 })
 export class LogCertifyPageModule {}

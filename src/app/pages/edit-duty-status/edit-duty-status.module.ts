@@ -20,6 +20,7 @@ import { HosPageModule } from '../hos/hos.module';
 import { DateTimeComponentModule } from 'src/app/components/date-time/date-time.module';
 import { CommentsComponentModule } from 'src/app/components/comments/comments.module';
 import { LocationInputComponentModule } from 'src/app/components/location-input/location-input.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -36,6 +37,7 @@ import { LocationInputComponentModule } from 'src/app/components/location-input/
     DateTimeComponentModule,
     CommentsComponentModule,
     LocationInputComponentModule,
+    TranslateModule
   ],
   declarations: [EditDutyStatusPage],
 })

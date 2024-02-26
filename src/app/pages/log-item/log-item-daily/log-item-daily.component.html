@@ -1,5 +1,5 @@
 <ion-content [forceOverscroll]="false">
-  <app-header [title]="'Log'" [backButton]="true" (backButtonCallback)="goBack()">
+  <app-header [title]="'Log' | translate" [backButton]="true" (backButtonCallback)="goBack()">
     <div class="preview-container" (click)="nevigateToInspection()" *ngIf="canBeInspected()"><img src="../../../assets/imgs/eye.png" /></div>
   </app-header>
 
@@ -102,23 +102,23 @@
       </svg>
       <div class="violation-list" *ngIf="logDaily?.violations.length !== 0">
         <div class="violation-item" *ngFor="let violation of logDaily?.violations" (click)="toggleViolationRect(violation)">
-          {{ violation?.regulations.name + ' ' }}{{ violation.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
+          {{ (violation?.regulations.name | translate) + ' ' }}{{ violation.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
         </div>
       </div>
     </div>
     <div class="edit-form">
       <div class="form-title">
         <div class="custom-status-circle" [ngClass]="{ 'status-circle-error': !logDaily?.formManner, 'status-circle-success': logDaily?.formManner }"></div>
-        <p class="custom-subtitle">Form</p>
+        <p class="custom-subtitle">{{'Form' | translate}}</p>
         <button class="btn primary-btn" style="width: 63px" (click)="onSubmit()">
-          <span *ngIf="!saveFormLoading" style="color: #fcfcfc">Save</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
+          <span *ngIf="!saveFormLoading" style="color: #fcfcfc">{{'Save' | translate}}</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
         </button>
       </div>
       <div class="form-list">
-        <app-input [label]="'Vehicle'" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>
-        <app-input [label]="'Trailers'" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers" [noValidation]="true"></app-input>
+        <app-input [label]="'Vehicle' | translate" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Trailers' | translate" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers" [noValidation]="true"></app-input>
         <app-input
-          [label]="'Shipping Document'"
+          [label]="'Shipping Document' | translate"
           [required]="true"
           [fill]="true"
           [labelPosition]="'left'"
@@ -126,7 +126,7 @@
           [(value)]="localForm.form.shippingDoc"
           [(validation)]="validation['shippingDoc']"></app-input>
         <app-input
-          [label]="'From Address'"
+          [label]="'From Address' | translate"
           [required]="true"
           [fill]="true"
           [labelPosition]="'left'"
@@ -134,7 +134,7 @@
           [(value)]="localForm.form.fromAddress"
           [(validation)]="validation['fromAddress']"></app-input>
         <app-input
-          [label]="'To Address'"
+          [label]="'To Address' | translate"
           [required]="true"
           [fill]="true"
           [labelPosition]="'left'"
@@ -143,10 +143,10 @@
           [(validation)]="validation['toAddress']"></app-input>
       </div>
       <div class="logs-certified">
-        <p class="subtitle" style="font-size: 15px">Logs</p>
+        <p class="subtitle" style="font-size: 15px">{{'Logs' | translate}}</p>
         <div class="logs-buttons">
-          <button class="btn primary-btn" [ngClass]="{ 'btn-disabled ': currentDay === today }" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">Certify</button>
-          <button class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">Certified</button>
+          <button class="btn primary-btn" [ngClass]="{ 'btn-disabled ': currentDay === today }" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">{{'Certify' | translate}}</button>
+          <button class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">{{'Certified' | translate}}</button>
         </div>
       </div>
       <ion-modal [isOpen]="isModalOpen">
@@ -157,7 +157,7 @@
               <div class="signature-visualization">
                 <img [ngClass]="{ 'no-image': imageLoading }" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
                 <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
-                <div class="no-signature" *ngIf="!finishedLoading && !imageLoading">Signature could not be loaded.</div>
+                <div class="no-signature" *ngIf="!finishedLoading && !imageLoading">{{'Signature could not be loaded.' | translate}}</div>
               </div>
             </div>
           </ion-content>
@@ -169,7 +169,7 @@
             <div class="row-status">
               <div class="status-circle" [ngStyle]="{ 'background-color': getStatusColor(logStatus.type.code) }"></div>
               <div style="display: flex; flex-direction: column">
-                <p class="subtitle">{{ formatLocalDate(logStatus.eventTime.timeStamp) }} - {{ logStatus.type.name }}</p>
+                <p class="subtitle">{{ formatLocalDate(logStatus.eventTime.timeStamp) }} - {{ logStatus.type.name | translate }}</p>
                 <div style="font-size: 12px; color: var(--gray-700)">{{ i === 0 ? '(' + (logStatus.eventTime.logDate | date : 'mediumDate') + ')' : '' }}</div>
               </div>
             </div>

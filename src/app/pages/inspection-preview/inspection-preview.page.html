@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
-  <app-header [title]="'Inspection Preview'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <app-header [title]="'Inspection Preview' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <app-scroll-toolbar [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
   <div class="padding-g">
     <div class="card-info" style="margin-bottom: 20px">
@@ -98,10 +98,10 @@
     <div class="inspection-table">
       <div class="inspection-row">
         <div class="inspection-row-item">
-          <div class="inspection-item-label">Driver Name</div>
-          <div class="inspection-item-label">Driver ID</div>
-          <div class="inspection-item-label">Driver License</div>
-          <div class="inspection-item-label">Driver License State</div>
+          <div class="inspection-item-label">{{'Driver Name' | translate}}</div>
+          <div class="inspection-item-label">{{'Driver ID' | translate}}</div>
+          <div class="inspection-item-label">{{'Driver License' | translate}}</div>
+          <div class="inspection-item-label">{{'Driver License State' | translate}}</div>
         </div>
         <div class="inspection-row-item">
           <div class="inspection-item-value">{{ driver?.name || "-" }}</div>
@@ -112,10 +112,10 @@
       </div>
       <div class="inspection-row">
         <div class="inspection-row-item">
-          <div class="inspection-item-label">Exempt Driver Status</div>
-          <div class="inspection-item-label">Unidentified Driving Records</div>
-          <div class="inspection-item-label">Co-driver</div>
-          <div class="inspection-item-label">Co-driver ID</div>
+          <div class="inspection-item-label">{{'Exempt Driver Status' | translate}}</div>
+          <div class="inspection-item-label">{{'Unidentified Driving Records' | translate}}</div>
+          <div class="inspection-item-label">{{'Co-driver' | translate}}</div>
+          <div class="inspection-item-label">{{'Co-driver ID' | translate}}</div>
         </div>
         <div class="inspection-row-item">
           <div class="inspection-item-value">{{ driver?.driverInfo?.settings?.shortHaulException ? 'Yes' : 'No' }}</div>
@@ -128,10 +128,10 @@
       </div>
       <div class="inspection-row">
         <div class="inspection-row-item">
-          <div class="inspection-item-label">Log Date</div>
-          <div class="inspection-item-label">Display Date</div>
-          <div class="inspection-item-label">Display Location</div>
-          <div class="inspection-item-label">Driver Certified</div>
+          <div class="inspection-item-label">{{'Log Date' | translate}}</div>
+          <div class="inspection-item-label">{{'Display Date' | translate}}</div>
+          <div class="inspection-item-label">{{'Display Location' | translate}}</div>
+          <div class="inspection-item-label">{{'Driver Certified' | translate}}</div>
         </div>
         <div class="inspection-row-item">
           <div class="inspection-item-value">{{ (logDaily?.logDate | date: "LLLL d, yyyy") || "-" }}</div>
@@ -142,9 +142,9 @@
       </div>
       <div class="inspection-row">
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
-          <div class="inspection-item-label">24 Period Starting Time</div>
-          <div class="inspection-item-label">Data Diag. Indicators</div>
-          <div class="inspection-item-label">Device Malfunction Indicators</div>
+          <div class="inspection-item-label">{{'24 Period Starting Time' | translate}}</div>
+          <div class="inspection-item-label">{{'Data Diag. Indicators' | translate}}</div>
+          <div class="inspection-item-label">{{'Device Malfunction Indicators' | translate}}</div>
         </div>
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-value">{{ "00:00" }}</div>
@@ -154,11 +154,11 @@
       </div>
       <div class="inspection-row">
         <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr)">
-          <div class="inspection-item-label">Vehicle</div>
-          <div class="inspection-item-label">VIN</div>
-          <div class="inspection-item-label">Odometer</div>
-          <div class="inspection-item-label">Distance</div>
-          <div class="inspection-item-label">Engine Hours</div>
+          <div class="inspection-item-label">{{'Vehicle' | translate}}</div>
+          <div class="inspection-item-label">{{'VIN' | translate}}</div>
+          <div class="inspection-item-label">{{'Odometer' | translate}}</div>
+          <div class="inspection-item-label">{{'Distance' | translate}}</div>
+          <div class="inspection-item-label">{{'Engine Hours' | translate}}</div>
         </div>
         <div class="inspection-row-item" style="grid-template-columns: repeat(5, 1fr)" *ngFor="let logEventsVehicle of logEventsVehicles">
           <div class="inspection-item-value">{{ logEventsVehicle?.vehicle.vehicleUnit }}</div>
@@ -170,9 +170,9 @@
       </div>
       <div class="inspection-row">
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
-          <div class="inspection-item-label">Trailers</div>
-          <div class="inspection-item-label">Shipping Docs</div>
-          <div class="inspection-item-label">Carrier</div>
+          <div class="inspection-item-label">{{'Trailers' | translate}}</div>
+          <div class="inspection-item-label">{{'Shipping Docs' | translate}}</div>
+          <div class="inspection-item-label">{{'Carrier' | translate}}</div>
         </div>
         <div class="inspection-row-item" style="grid-template-columns: repeat(3, 1fr)">
           <div class="inspection-item-value">{{ logDaily?.form?.trailers || "-" }}</div>
@@ -182,8 +182,8 @@
       </div>
       <div class="inspection-row">
         <div class="inspection-row-item" style="grid-template-columns: repeat(2, 1fr)">
-          <div class="inspection-item-label">Main Office</div>
-          <div class="inspection-item-label">Home Terminal</div>
+          <div class="inspection-item-label">{{'Main Office' | translate}}</div>
+          <div class="inspection-item-label">{{'Home Terminal' | translate}}</div>
         </div>
         <div class="inspection-row-item" style="grid-template-columns: repeat(2, 1fr)">
           <div class="inspection-item-value">
@@ -201,17 +201,17 @@
     <div class="inspection-logs-title">Logs</div>
     <div class="inspection-logs-container">
       <div class="inspection-logs-row inspection-logs-header">
-        <div class="logs-row-item">{{ 'Time (' + timeZone + ')' }}</div>
-        <div class="logs-row-item">{{ 'Code' }}</div>
-        <div class="logs-row-item">{{ 'Location' }}</div>
-        <div class="logs-row-item">{{ 'Odometer' }}</div>
-        <div class="logs-row-item">{{ 'Engine Hours' }}</div>
-        <div class="logs-row-item">{{ 'Origin' }}</div>
-        <div class="logs-row-item">{{ 'Notes' }}</div>
+        <div class="logs-row-item">{{ ('Time' | translate) + '(' + timeZone + ')' }}</div>
+        <div class="logs-row-item">{{ 'Code' | translate }}</div>
+        <div class="logs-row-item">{{ 'Location' | translate }}</div>
+        <div class="logs-row-item">{{ 'Odometer' | translate }}</div>
+        <div class="logs-row-item">{{ 'Engine Hours' | translate }}</div>
+        <div class="logs-row-item">{{ 'Origin' | translate }}</div>
+        <div class="logs-row-item">{{ 'Notes' | translate }}</div>
       </div>
       <div class="inspection-logs-row" *ngFor="let logEvent of currentLogEvents">
         <div class="logs-row-item">{{ dateWithTimeZone(logEvent?.eventTime?.timeStamp, "LLL d, hh:mm:ss a") }}</div>
-        <div class="logs-row-item">{{ logEvent?.type?.name}}{{ !(logEvent.type.code === 'CERTIFICATION_1') ? "" : " " + logEvent?.certificationDate | date: "L/d/yyyy" }}</div>
+        <div class="logs-row-item">{{ logEvent?.type?.name | translate}}{{ !(logEvent.type.code === 'CERTIFICATION_1') ? "" : " " + logEvent?.certificationDate | date: "L/d/yyyy" }}</div>
         <div class="logs-row-item">{{ logEvent?.location?.description }}</div>
         <div class="logs-row-item">{{ logEvent.odometer }}</div>
         <div class="logs-row-item">{{ logEvent.engineHours }}</div>

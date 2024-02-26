@@ -12,6 +12,7 @@ import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
 import { InputComponentModule } from 'src/app/components/input/input.module';
 import { TextareaComponentModule } from 'src/app/components/textarea/textarea.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { TextareaComponentModule } from 'src/app/components/textarea/textarea.mo
     SendLogsPageRoutingModule,
     HeaderComponentModule,
     InputComponentModule,
-    TextareaComponentModule
+    TextareaComponentModule,
+    TranslateModule
   ],
   declarations: [SendLogsPage]
 })

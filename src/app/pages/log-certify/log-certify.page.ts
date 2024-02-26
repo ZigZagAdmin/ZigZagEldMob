@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import SignaturePad from 'signature_pad';
 import { LogDailies } from 'src/app/models/log-dailies';
@@ -70,7 +71,8 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     private toastService: ToastService,
     private dashboardService: DashboardService,
     private storage: Storage,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -125,7 +127,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       this.activateSave();
     } else {
       this.signatureFound = false;
-      this.toastService.showToast('No signature found on other daily logs.');
+      this.toastService.showToast(this.translate.instant('No signature found on other daily logs.'));
     }
   }
 
@@ -221,7 +223,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
       await firstValueFrom(this.dashboardService.updateLogDaily(this.logDaily as LogDailies)).then(
         async (response: any) => {
-          this.toastService.showToast('Successfully signed the log certification.', 'success');
+          this.toastService.showToast(this.translate.instant('Successfully signed the log certification.'), 'success');
           if (response.signatureLink) this.logDaily.form.signatureLink = response.signatureLink;
           await this.updateIndexLogDaily(this.logDaily as LogDailies, true).then(() => {
             console.log('logDaily got updated on the server: ', response);
@@ -233,7 +235,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
           });
         },
         async error => {
-          this.toastService.showToast('Could not update the signture. Uploading offline only.');
+          this.toastService.showToast(this.translate.instant('Could not update the signture. Uploading offline only.'));
           // console.log(this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId);
           await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
           if (nocheck.length === 0 || (nocheck.length !== 0 && this.logDailies[this.certifyLogDailies[this.certifyLogDailies.length - 1]].logDailyId === this.logDaily.logDailyId)) {

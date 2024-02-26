@@ -5,6 +5,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { InterService } from 'src/app/services/inter.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dvir',
@@ -20,7 +21,7 @@ export class DvirPage implements OnInit, OnDestroy {
 
   pageLoading: boolean = false;
 
-  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private interSerivce: InterService) {}
+  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private interSerivce: InterService, private translate: TranslateService) {}
 
   ngOnInit() {
     this.interSub = this.interSerivce.currentMessage.subscribe(async message => {
@@ -48,6 +49,13 @@ export class DvirPage implements OnInit, OnDestroy {
 
   insertDvir() {
     this.navCtrl.navigateForward('/insert-dvir');
+  }
+
+  displayDefect(defects: string) {
+    return defects
+      .split(', ')
+      .map(el => (el = this.translate.instant(el)))
+      .join(', ');
   }
 
   ngOnDestroy(): void {

@@ -12,6 +12,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { Network } from '@capacitor/network';
 import { ManageService } from 'src/app/services/manage.service';
 import { ToastService } from 'src/app/services/toast.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-others',
@@ -60,7 +61,8 @@ export class OthersPage implements OnInit {
     private storage: Storage,
     private utilityService: UtilityService,
     private manageService: ManageService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {}
@@ -95,11 +97,11 @@ export class OthersPage implements OnInit {
 
   async syncData() {
     if (!(await Network.getStatus()).connected) {
-      this.toastService.showToast('Cannot sync data while offline!', 'warning');
+      this.toastService.showToast(this.translate.instant('Cannot sync data while offline!'), 'warning');
       return;
     }
     this.syncLoading = true;
-    this.toastService.showToast('Syncing data... Please wait.', 'medium');
+    this.toastService.showToast(this.translate.instant('Syncing data... Please wait.'), 'medium');
     let driver$ = firstValueFrom(this.manageService.getDrivers(this.driverId));
     let drivers$ = firstValueFrom(this.manageService.getDrivers('ALL'));
     let company$ = firstValueFrom(this.manageService.getCompany());
@@ -127,11 +129,11 @@ export class OthersPage implements OnInit {
         // await this.storage.set('vehicles', driver[0]?.driverInfo?.assignedVehicles[0]);
         // await this.storage.set('vehicleId', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleId);
         // await this.storage.set('vehicleUnit', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleUnit);
-        this.toastService.showToast('Data successfully synced', 'success');
+        this.toastService.showToast(this.translate.instant('Data successfully synced'), 'success');
         this.syncLoading = false;
       },
       async error => {
-        this.toastService.showToast('There was a problem syncing data.', 'error');
+        this.toastService.showToast(this.translate.instant('There was a problem syncing data.'), 'error');
         this.syncLoading = false;
       }
     );

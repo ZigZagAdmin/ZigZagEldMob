@@ -19,6 +19,7 @@ import { ManageService } from 'src/app/services/manage.service';
 import { timeZoneSummer, timeZoneWinter, seasonChanges } from 'src/app/models/timeZone';
 import { Network } from '@capacitor/network';
 import { hosErrors } from 'src/app/utilities/hos-errors';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-log-item-daily',
@@ -109,7 +110,8 @@ export class LogItemDailyComponent implements OnInit {
     private navCtrl: NavController,
     private utilityService: UtilityService,
     private shareService: ShareService,
-    private manageService: ManageService
+    private manageService: ManageService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -198,7 +200,7 @@ export class LogItemDailyComponent implements OnInit {
   getDateSub(date: string) {
     let date_ = formatDate(date, 'EEEE, MMM d', 'en_US');
     let today_ = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
-    return date_ === today_ ? date_ + ' (Today)' : date_;
+    return date_ === today_ ? date_ + ' (' + this.translate.instant('Today') + ')' : date_;
   }
 
   fillFormWithLogDailyData() {
@@ -436,19 +438,19 @@ export class LogItemDailyComponent implements OnInit {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
           await this.updateIndexLogDaily(this.logDaily as LogDailies, true);
           this.saveFormLoading = false;
-          this.toastService.showToast('Saved successfully!', 'success');
+          this.toastService.showToast(this.translate.instant('Saved successfully!'), 'success');
         },
         async error => {
           await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
           this.saveFormLoading = false;
-          this.toastService.showToast('Offline save!', 'warning');
+          this.toastService.showToast(this.translate.instant('Offline save!'), 'warning');
         }
       );
     } else {
       console.log('Updated logEvents in offline array');
       this.saveFormLoading = false;
       await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
-      this.toastService.showToast('Offline save!', 'warning');
+      this.toastService.showToast(this.translate.instant('Offline save!'), 'warning');
     }
   }
 
@@ -545,7 +547,7 @@ export class LogItemDailyComponent implements OnInit {
 
   certifyLog() {
     if (!this.logDaily.formManner && this.statusesOnDay.length >= 2) {
-      this.toastService.showToast('You must complete the form first!');
+      this.toastService.showToast(this.translate.instant('You must complete the form first!'));
       this.validation = {
         shippingDoc: false,
         toAddress: false,

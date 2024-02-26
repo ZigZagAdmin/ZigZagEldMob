@@ -5,6 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { EventGraphic } from 'src/app/models/event-graphic';
 import { LogDailies } from 'src/app/models/log-dailies';
@@ -130,7 +131,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     private toastService: ToastService,
     private shareService: ShareService,
     private dashboardService: DashboardService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
@@ -171,7 +173,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     let locationStatus = await this.storage.get('locationStatus');
     if (Capacitor.getPlatform() !== 'web') {
       if (!locationStatus) {
-        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+        this.toastService.showToast(this.translate.instant('Problems fetching location! Check the location service!'), 'danger', 2500);
       }
     }
     await this.locationService.getCurrentLocation().then(res => {
@@ -381,7 +383,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     this.logDaily.violations = this.violations[this.logDaily.logDate] ? JSON.parse(JSON.stringify(this.violations[this.logDaily.logDate])) : [];
     this.noValidation = false;
     if (!this.validation.startTime) {
-      this.toastService.showToast('Start Time not valid!');
+      this.toastService.showToast(this.translate.instant('Start Time not valid!'));
       return;
     }
     if (this.logEvent.location.description && this.logEvent.location.description.length !== 0) this.validation.location = true;
@@ -460,7 +462,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     if (!this.logEvent.eventTime.timeStampEnd || (this.logEvent.eventTime.timeStampEnd && this.logEvent.eventTime.timeStampEnd === 0)) this.logEvent.eventTime.timeStampEnd = new Date().getTime();
 
     if (date > this.logEvent.eventTime.timeStampEnd + minPeriod) {
-      this.toastService.showToast('Log Start Time cannot be bigger than End Time', 'danger', 3000);
+      this.toastService.showToast(this.translate.instant('Log Start Time cannot be bigger than End Time'), 'danger', 3000);
     }
 
     const leftOrRight: boolean = this.logEvent.eventTime.timeStamp - date > 0 ? false : true; // left = false, right = true
@@ -472,7 +474,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         if (date - this.minValueNumber <= minPeriod) {
           this.validation.startTime = false;
           this.invalidate();
-          this.toastService.showToast('First log event of the day must be at least 1 minute long', 'danger', 2500);
+          this.toastService.showToast(this.translate.instant('First log event of the day must be at least 1 minute long'), 'danger', 2500);
         } else {
           this.validation.startTime = true;
           this.validate();
@@ -481,7 +483,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         if (date - this._statusesOnDay[index - 1].eventTime.timeStamp <= minPeriod) {
           this.validation.startTime = false;
           this.invalidate();
-          this.toastService.showToast('Previous log event must be at least 1 minute long', 'danger', 2500);
+          this.toastService.showToast(this.translate.instant('Previous log event must be at least 1 minute long'), 'danger', 2500);
         } else {
           this.validation.startTime = true;
           this.validate();
@@ -496,7 +498,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         if (this.maxValueNumber - date <= minPeriod) {
           this.validation.startTime = false;
           this.invalidate();
-          this.toastService.showToast('Last log event must be at least 1 minute long', 'danger', 2500);
+          this.toastService.showToast(this.translate.instant('Last log event must be at least 1 minute long'), 'danger', 2500);
         } else {
           this.validation.startTime = true;
           this.validate();
@@ -509,7 +511,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         if (new Date().getTime() - date <= minPeriod) {
           this.validation.startTime = false;
           this.invalidate();
-          this.toastService.showToast('Current log event must be at least 1 minute long', 'danger', 2500);
+          this.toastService.showToast(this.translate.instant('Current log event must be at least 1 minute long'), 'danger', 2500);
         } else {
           this.validation.startTime = true;
           this.validate();
@@ -536,7 +538,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         status: true,
         location: true,
       };
-      this.toastService.showToast('Cannot change a Driving log event by ELD', 'warning', 3000);
+      this.toastService.showToast(this.translate.instant('Cannot change a Driving log event by ELD'), 'warning', 3000);
     }
     if (this._statusesOnDay[index - 1].type.code === 'D' && this._statusesOnDay[index - 1].recordOrigin.code === 'AUTO') {
       this.disableForm = {
@@ -544,7 +546,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         status: false,
         location: false,
       };
-      this.toastService.showToast('Cannot change Start time of a log event next to a Driving event by ELD', 'warning', 3000);
+      this.toastService.showToast(this.translate.instant('Cannot change Start time of a log event next to a Driving event by ELD'), 'warning', 3000);
     }
   }
 

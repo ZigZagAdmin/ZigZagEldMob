@@ -1,5 +1,5 @@
 <ion-content [forceOverscroll]="false">
-  <app-header [title]="'Select Duty Status'">
+  <app-header [title]="'DVIRs'">
     <div class="dvir-add" (click)="insertDvir()">+</div>
   </app-header>
   <div class="dvirs-list" *ngIf="dvirs.length !== 0 && !pageLoading">
@@ -20,28 +20,28 @@
         </div>
         <div class="card-vehicle-name">
           <img src="../../../assets/icon/slider-vertical.svg" />
-          <span>{{ dvir.trailers || "No Trailers" }}</span>
+          <span>{{ dvir.trailers || ("No Trailers" | translate) }}</span>
         </div>
       </div>
       <div class="card-defects" *ngIf="dvir.status.code === 'VCS' || dvir.status.code === 'DC'">
         <div class="defects-header">
           <img src="../../../assets/icon/tick-circle.svg" />
-          <span class="defect-success">{{ dvir.status.code === 'VCS' ? "Vehicle Condition Satisfactory" : "All Defects Corrected" }}</span>
+          <span class="defect-success">{{ (dvir.status.code === 'VCS' ? "Vehicle Condition Satisfactory" : "All Defects Corrected") | translate }}</span>
         </div>
       </div>
       <div class="card-defects" *ngIf="dvir.defectsVehicle.length !== 0">
         <div class="defects-header">
           <img *ngIf="dvir.status.code !== 'DC'" src="../../../assets/icon/warning-2.svg" />
-          <span class="defect-error" [ngClass]="{'defect-default': dvir.status.code === 'DC'}">Vehicle Defects</span>
+          <span class="defect-error" [ngClass]="{'defect-default': dvir.status.code === 'DC'}">{{'Vehicle Defects' | translate}}</span>
         </div>
-        <div class="defects-list">{{ dvir.defectsVehicle || "No defects listed." }}</div>
+        <div class="defects-list">{{ displayDefect(dvir.defectsVehicle) || ("No defects listed." | translate) }}</div>
       </div>
       <div class="card-defects" *ngIf="dvir.defectsTrailers.length !== 0">
         <div class="defects-header">
           <img *ngIf="dvir.status.code !== 'DC'" src="../../../assets/icon/warning-2.svg" />
-          <span class="defect-error" [ngClass]="{'defect-default': dvir.status.code === 'DC'}">Trailer Defects</span>
+          <span class="defect-error" [ngClass]="{'defect-default': dvir.status.code === 'DC'}">{{'Trailer Defects' | translate}}</span>
         </div>
-        <div class="defects-list">{{ dvir.defectsTrailers || "No defects listed." }}</div>
+        <div class="defects-list">{{ displayDefect(dvir.defectsTrailers) || ("No defects listed." | translate) }}</div>
       </div>
     </div>
   </div>

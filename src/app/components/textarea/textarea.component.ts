@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -52,7 +53,7 @@ export class TextareaComponent implements OnInit {
 
   validateSubscription: Subscription;
 
-  constructor(private toastService: ToastService, private shareService: ShareService) {}
+  constructor(private toastService: ToastService, private shareService: ShareService, private translate: TranslateService) {}
 
   ngOnInit() {
     this.validateSubscription = this.shareService.currentMessage.subscribe(data => {
@@ -80,7 +81,7 @@ export class TextareaComponent implements OnInit {
     if (!this.noValidation) {
       if (this.value.length === 0) {
         this.valid = false;
-        this.toastService.showToast('Field required');
+        this.toastService.showToast(this.translate.instant('Field required'));
         // return;
       } else if (this.value.length > 0) {
         this.valid = true;

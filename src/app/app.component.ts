@@ -49,19 +49,19 @@ export class AppComponent implements OnInit, OnDestroy {
       let currentStatus = await Network.getStatus();
       if (currentStatus.connected === true) {
         if (this.lastNetworkStatus === false) {
-          this.toastService.showToast('You are back online!', 'success');
+          this.toastService.showToast(this.translate.instant('You are back online!'), 'success');
           await this.internetService
             .postOfflineData()
             .then(async () => {
-              this.toastService.showToast('All offline data uploaded successfully!', 'success');
+              this.toastService.showToast(this.translate.instant('All offline data uploaded successfully!'), 'success');
             })
             .catch(e => {
-              this.toastService.showToast("There's been an error uploading the offline data!", 'error');
+              this.toastService.showToast(this.translate.instant("There's been an error uploading the offline data!"), 'error');
               console.error(e);
             });
         }
       } else {
-        this.toastService.showToast('You are now in Offline Mode!', 'warning');
+        this.toastService.showToast(this.translate.instant('You are now in Offline Mode!'), 'warning');
       }
       this.lastNetworkStatus = currentStatus.connected;
     });
@@ -145,7 +145,7 @@ export class AppComponent implements OnInit, OnDestroy {
               )
               .subscribe(
                 () => {
-                  this.toastService.showToast('Welcome Back!', 'success');
+                  this.toastService.showToast(this.translate.instant('Welcome Back!'), 'success');
                 },
                 error => {
                   console.log(error);
@@ -155,7 +155,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.storage.remove('accessToken');
             this.loading = false;
             this.navCtrl.navigateForward('/login', { replaceUrl: true });
-            this.toastService.showToast('Access token has expired. Please log in again.', 'danger');
+            this.toastService.showToast(this.translate.instant('Access token has expired. Please log in again.'), 'danger');
           }
         } else {
           await this.storage.remove('accessToken');
@@ -183,7 +183,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private async presentLoading() {
     const loading = await this.loadingController.create({
-      message: 'Loading data...',
+      message: this.translate.instant('Loading data') + '...',
       spinner: 'bubbles',
       cssClass: 'loading-app-component',
     });

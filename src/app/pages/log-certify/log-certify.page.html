@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
-  <app-header [title]="'Certify'" [backButton]="true" (backButtonCallback)="goBack()">
+  <app-header [title]="'Certify' | translate" [backButton]="true" (backButtonCallback)="goBack()">
     <div class="date-label">{{logDate | date: 'EEEE, MMM d'}}</div>
   </app-header>
   <div class="main-container padding-g">
@@ -13,23 +13,23 @@
         </div>
       </div>
       <div class="signature-buttons">
-        <div class="signature-button" (click)="clearSignature()">Clear signature</div>
-        <div class="signature-button" (click)="restoreSignature()">Restore signature</div>
+        <div class="signature-button" (click)="clearSignature()">{{'Clear signature' | translate}}</div>
+        <div class="signature-button" (click)="restoreSignature()">{{'Restore signature' | translate}}</div>
       </div>
     </div>
     <div style="display: flex; flex-direction: column; gap: 20px">
       <div class="confirm-checkbox">
-        <div class="checkbox-text">I hereby certify that my data entries and my record of duty status for this 24-hour period are true and correct.</div>
+        <div class="checkbox-text">{{'I hereby certify that my data entries and my record of duty status for this 24-hour period are true and correct.' | translate}}</div>
       </div>
       <div class="confirm-buttons">
-        <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">Back</button>
+        <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">{{'Back' | translate}}</button>
         <button
           id="certify-modal-trigger"
           class="custom-btn primary-btn"
           [ngClass]="{'btn-disabled': !isConfirmButtonActive, 'disable-click': loading}"
           [disabled]="!isConfirmButtonActive"
           (click)="openModal()">
-          <span *ngIf="!loading" style="color: #fcfcfc">Save</span>
+          <span *ngIf="!loading" style="color: #fcfcfc">{{'Save' | translate}}</span>
           <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
         </button>
       </div>
@@ -38,12 +38,12 @@
   <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="enableModalTrigger ? 'certify-modal-trigger' : undefined">
     <ng-template>
       <div class="modal-box">
-        <div class="modal-title">Whould you like to sign the other days?</div>
-        <div class="modal-subtitle">Rememeber that only the days that do not have logs will be signed!</div>
+        <div class="modal-title">{{'Would you like to sign the other days?' | translate}}</div>
+        <div class="modal-subtitle">{{'Rememeber that only the days that do not have logs will be signed!' | translate}}</div>
       </div>
       <div class="submit-buttons">
-        <div class="action-button default" (click)="closeModal()">Cancel</div>
-        <div class="action-button primary" style="color: #fcfcfc" (click)="confirmModal()">Confirm</div>
+        <div class="action-button default" (click)="closeModal()">{{'Cancel' | translate}}</div>
+        <div class="action-button primary" style="color: #fcfcfc" (click)="confirmModal()">{{'Confirm' | translate}}</div>
       </div>
     </ng-template>
   </ion-modal>

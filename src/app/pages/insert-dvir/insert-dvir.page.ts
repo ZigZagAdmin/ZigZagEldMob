@@ -18,6 +18,7 @@ import { LocationService } from 'src/app/services/location.service';
 import { Network } from '@capacitor/network';
 import { InterService } from 'src/app/services/inter.service';
 import { Capacitor } from '@capacitor/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -104,7 +105,8 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     private shareService: ShareService,
     private toastService: ToastService,
     private locationService: LocationService,
-    private interService: InterService
+    private interService: InterService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
@@ -136,7 +138,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     let locationStatus = await this.storage.get('locationStatus');
     if (Capacitor.getPlatform() !== 'web') {
       if (!locationStatus) {
-        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+        this.toastService.showToast(this.translate.instant('Problems fetching location! Check the location service!'), 'danger', 2500);
       }
     }
     await this.locationService.getCurrentLocation().then(res => {
@@ -203,7 +205,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       this.signatureFound = true;
     } else {
       this.signatureFound = false;
-      this.toastService.showToast('No signature found on other daily logs.');
+      this.toastService.showToast(this.translate.instant('No signature found on other daily logs.'));
     }
   }
 
@@ -229,7 +231,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
     if (this.dvir.signatureBase64.length === 0 && this.dvir.signatureLink.length === 0) {
-      this.toastService.showToast('Please sign the form before saving!');
+      this.toastService.showToast(this.translate.instant('Please sign the form before saving!'));
       return;
     }
 

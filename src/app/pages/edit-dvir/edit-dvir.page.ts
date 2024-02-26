@@ -18,6 +18,7 @@ import { InterService } from 'src/app/services/inter.service';
 import { Network } from '@capacitor/network';
 import { Capacitor } from '@capacitor/core';
 import { LocationService } from 'src/app/services/location.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-edit-dvir',
@@ -100,7 +101,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
     private toastService: ToastService,
     private utilityService: UtilityService,
     private interService: InterService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -146,7 +148,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
     let locationStatus = await this.storage.get('locationStatus');
     if (Capacitor.getPlatform() !== 'web') {
       if (!locationStatus) {
-        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+        this.toastService.showToast(this.translate.instant('Problems fetching location! Check the location service!'), 'danger', 2500);
       }
     }
     await this.locationService.getCurrentLocation().then(res => {
@@ -225,16 +227,16 @@ export class EditDvirPage implements OnInit, OnDestroy {
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
     if (this.dvir.status.code === 'D' && this.dvir.defectsTrailers.length === 0 && this.dvir.defectsVehicle.length === 0) {
-      this.toastService.showToast('You cannot select "Has Defects" without selecting any defect!');
+      this.toastService.showToast(this.translate.instant('You cannot select "Has Defects" without selecting any defect!'));
       return;
     }
     if (this.dvir.signatureBase64.length === 0 && this.dvir.signatureLink.length === 0) {
-      this.toastService.showToast('Please sign the form before saving!');
+      this.toastService.showToast(this.translate.instant('Please sign the form before saving!'));
       return;
     }
     if (this.dvir.status.code === 'DC') this.dvir.mechanicSignatureId = this.utilityService.uuidv4();
     if (this.dvir.status.code === 'DC' && this.dvir.mechanicSignatureBase64.length === 0 && this.dvir.mechanicSignatureLink.length === 0) {
-      this.toastService.showToast('Please complete the mechanic signature!');
+      this.toastService.showToast(this.translate.instant('Please complete the mechanic signature!'));
       return;
     }
     let networkStatus = await Network.getStatus();
@@ -353,11 +355,13 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   async restoreSignature() {
     if (this.signatureRestored) {
-      this.toastService.showToast('Signatured already restored!', 'warning');
+      this.toastService.showToast(this.translate.instant('Signatured already restored!'), 'warning');
       return;
     }
     this.imageLoading = true;
-    const firstNonEmptySignature = this.dvirs.find(dvir => dvir.signatureId !== '' && dvir.signatureId !== '00000000-0000-0000-0000-000000000000' && dvir.signatureLink !== '');
+    const firstNonEmptySignature = this.dvirs.find(
+      dvir => dvir.signatureId !== '' && dvir.signatureId !== '00000000-0000-0000-0000-000000000000' && dvir.signatureLink !== '' && dvir.dvirId !== this.dvir.dvirId
+    );
 
     if (firstNonEmptySignature) {
       this.dvir.signatureBase64 = '';
@@ -368,7 +372,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.signatureTimeout();
     } else {
       this.signatureFound = false;
-      this.toastService.showToast('No signature found on this current dvir.');
+      this.toastService.showToast(this.translate.instant('No signature found on this current dvir.'));
     }
   }
 
@@ -382,10 +386,11 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   restoreMechanicSignature() {
-    if (this.signatureRestored) {
-      this.toastService.showToast('Signatured already restored!', 'warning');
+    if (this.mechanicSignatureFound) {
+      this.toastService.showToast(this.translate.instant('Signature already present!'), 'warning');
       return;
     }
+
     this.mechanicImageLoading = true;
     if (this.dvir.mechanicSignatureLink && this.dvir.mechanicSignatureLink.length !== 0) {
       this.mechanicSignatureFound = true;
@@ -393,7 +398,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.mechanicSignatureTimeout();
     } else {
       this.mechanicSignatureFound = false;
-      this.toastService.showToast('No mechanic signature found!');
+      this.toastService.showToast(this.translate.instant('No mechanic signature found!'));
     }
   }
 

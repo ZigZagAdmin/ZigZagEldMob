@@ -1,19 +1,19 @@
 <ion-content [forceOverscroll]="false">
-  <app-header [title]="'DOT Inspection'"></app-header>
+  <app-header [title]="'DOT Inspection' | translate"></app-header>
   <div class="edit-form padding-g">
     <div class="flex-b">
-      <p class="subtitle">Inspection</p>
-      <button class="btn primary-btn" (click)="onStartInspectionClick()">Start Inspection</button>
+      <p class="subtitle">{{'Inspection' | translate}}</p>
+      <button class="btn primary-btn" (click)="onStartInspectionClick()">{{'Start Inspection' | translate}}</button>
     </div>
-    <p class="subtitle">Inspect logs for the 24-hour period and the previous days for one HOS cycle</p>
-    <button class="btn secondary-btn">7 Days + Today</button>
-    <p class="text-2">Press on “Start Inspection” Button and give your phone to the officer</p>
+    <p class="subtitle">{{'Inspect logs for the 24-hour period and the previous days for one HOS cycle' | translate}}</p>
+    <button class="btn secondary-btn">{{'7 Days + Today' | translate}}</button>
+    <p class="text-2">{{'Press on “Start Inspection” Button and give your phone to the officer' | translate}}</p>
     <div class="flex-b" style="border-top: 1px solid var(--gray-200); padding-top: 20px">
-      <p class="subtitle">Send Logs</p>
-      <button class="btn primary-btn" (click)="onSendLogsClick()">Send Logs</button>
+      <p class="subtitle">{{'Send Logs' | translate}}</p>
+      <button class="btn primary-btn" (click)="onSendLogsClick()">{{'Send Logs' | translate}}</button>
     </div>
-    <p class="subtitle">Send logs for 24-hour period and the previous days for one HOS cycle</p>
-    <button class="btn secondary-btn">7 Days + Today</button>
-    <p class="text-2">Send your logs to the officer if they request</p>
+    <p class="subtitle">{{'Send logs for 24-hour period and the previous days for one HOS cycle' | translate}}</p>
+    <button class="btn secondary-btn">{{'7 Days + Today' | translate}}</button>
+    <p class="text-2">{{'Send your logs to the officer if they request' | translate}}</p>
   </div>
 </ion-content>

@@ -23,6 +23,7 @@ import { Network } from '@capacitor/network';
 import { hosErrors } from 'src/app/utilities/hos-errors';
 import { ELD } from 'src/app/models/eld';
 import { GeolocationService } from 'src/app/services/geolocation.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-hos',
@@ -172,7 +173,8 @@ export class HosPage implements OnInit, OnDestroy {
     private shareService: ShareService,
     private changeDetectorRef: ChangeDetectorRef,
     private platform: Platform,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
@@ -823,7 +825,7 @@ export class HosPage implements OnInit, OnDestroy {
     this.locationLoading = true;
     if (Capacitor.getPlatform() !== 'web') {
       if (!this.locationStatus && check) {
-        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+        this.toastService.showToast(this.translate.instant('Problems fetching location! Check the location service!'), 'danger', 2500);
       }
     }
     await this.locationService.getCurrentLocation().then(async res => {
@@ -882,7 +884,7 @@ export class HosPage implements OnInit, OnDestroy {
         this.modalLoading = false;
       });
     } else {
-      this.toastService.showToast('You need to select a different status!', 'warning');
+      this.toastService.showToast(this.translate.instant('You need to select a different status!'), 'warning');
     }
   }
 

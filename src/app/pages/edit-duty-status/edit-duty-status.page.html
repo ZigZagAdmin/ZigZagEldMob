@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
-  <app-header *ngIf="!pageLoading" [title]="'Edit Duty Status'" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <app-header *ngIf="!pageLoading" [title]="'Edit Duty Status' | translate" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
   <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">
     <div class="card-info">
@@ -108,7 +108,7 @@
     </div>
     <div class="time-inputs">
       <app-date-time
-        [label]="'Start Time (' + timeZone + ')'"
+        [label]="('Start Time' | translate) + '(' + timeZone + ')'"
         [fill]="true"
         [labelPosition]="'top'"
         [disabled]="disableForm['timeInput']"
@@ -119,7 +119,7 @@
         (emitValue)="getNewStartDate($event)"
         [validation]="validation['startTime']"></app-date-time>
       <app-input
-        [label]="'Duration'"
+        [label]="'Duration' | translate"
         [fill]="true"
         [disabled]="true"
         [showDisabled]="true"
@@ -133,7 +133,7 @@
     </div>
     <div class="location-comments">
       <app-location-input
-        [label]="'Location'"
+        [label]="'Location' | translate"
         [disabled]="disableForm['location']"
         [showDisabled]="disableForm['location']"
         [fill]="true"
@@ -144,12 +144,12 @@
         (gpsCallback)="getLocalCurrentLocation()"
         [validation]="validation['location']"
         [noValidation]="noValidation"></app-location-input>
-      <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
+      <app-comments [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
     </div>
     <div class="confirm-buttons">
-      <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">Back</button>
+      <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">{{'Back' | translate}}</button>
       <button class="custom-btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
-        <span *ngIf="!loading" style="color: #fcfcfc">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+        <span *ngIf="!loading" style="color: #fcfcfc">{{'Save' | translate}}</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
       </button>
     </div>
   </div>

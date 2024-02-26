@@ -16,6 +16,7 @@ import { Company } from 'src/app/models/company';
 import { UtilityService } from 'src/app/services/utility.service';
 import { LocationService } from 'src/app/services/location.service';
 import { timeZones } from 'src/app/models/timeZone';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -61,7 +62,7 @@ export class InspectionPreviewPage implements OnInit {
 
   logEventsVehicles: { vehicle: Partial<Vehicle>; odomoter: string; distance: number; engineHours: string }[] = [];
 
-  constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
+  constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService, private translate: TranslateService) {}
 
   async ngOnInit() {
     this.timeZones = this.utilityService.checkSeason();
@@ -93,7 +94,7 @@ export class InspectionPreviewPage implements OnInit {
   getDateSub(date: string) {
     let _date = formatDate(date, 'EEEE, MMM d', 'en_US');
     let _today = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
-    return _date === _today ? _date + ' (Today)' : _date;
+    return _date === _today ? _date + ' (' + this.translate.instant('Today') + ')' : _date;
   }
 
   drawGraph() {
