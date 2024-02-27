@@ -19,6 +19,7 @@ import { Network } from '@capacitor/network';
 import { InterService } from 'src/app/services/inter.service';
 import { Capacitor } from '@capacitor/core';
 import { TranslateService } from '@ngx-translate/core';
+import { timeZones } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -95,6 +96,9 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
   loading: boolean = false;
   signatureFound: boolean = false;
 
+  timeZone: string = '';
+  timeZones: { [key: string]: string } = {};
+
   constructor(
     private databaseService: DatabaseService,
     private storage: Storage,
@@ -110,6 +114,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   async ngOnInit() {
+    this.timeZones = this.utilityService.checkSeason();
     this.dvir.status.name = 'Vehicle Condition Satisfactory';
     this.dvir.status.code = 'VCS';
     this.dvir.defectsVehicle = '';
@@ -120,14 +125,16 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     let vehicleUnit$ = this.storage.get('vehicleUnit');
     let vehicleId$ = this.storage.get('vehicleId');
     let driverId$ = this.storage.get('driverId');
+    let timeZone$ = this.storage.get('timeZone');
 
-    forkJoin([company$, dvirs$, vehicleUnit$, vehicleId$, driverId$]).subscribe(([company, dvirs, vehicleUnit, vehicleId, driverId]) => {
+    forkJoin([company$, dvirs$, vehicleUnit$, vehicleId$, driverId$, timeZone$]).subscribe(([company, dvirs, vehicleUnit, vehicleId, driverId, timeZone]) => {
       this.company = company;
       this.dvirs = dvirs;
       this.vehicleUnit = vehicleUnit;
       this.vehicleUnitDisable = !!this.vehicleUnit;
       this.vehicleId = vehicleId;
       this.driverId = driverId;
+      this.timeZone = timeZone;
     });
 
     await this.getLocalCurrentLocation();
@@ -290,7 +297,18 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getHour(value: number) {
-    return this.translate.instant(formatDate(value, "LLL", 'en_US')) + ' ' + formatDate(value, "d", 'en_US') + this.getOrdinalSuffix(formatDate(value, "d", 'en_US')) + ', ' + formatDate(value, "yyyy", 'en_US');
+    return (
+      this.translate.instant(formatDate(value, 'LLL', 'en_US', this.timeZones[this.timeZone])) +
+      ' ' +
+      formatDate(value, 'd', 'en_US') +
+      this.getOrdinalSuffix(formatDate(value, 'd', 'en_US', this.timeZones[this.timeZone])) +
+      ', ' +
+      formatDate(value, 'yyyy', 'en_US', this.timeZones[this.timeZone])
+    );
+  }
+
+  getTime(value: number) {
+    return formatDate(value, 'hh:mm a', 'en_US', this.timeZones[this.timeZone]);
   }
 
   getOrdinalSuffix(sday: string): string {
@@ -309,9 +327,5 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       default:
         return this.translate.instant('th');
     }
-  }
-
-  getTime(value: number) {
-    return formatDate(value, 'hh:mm a', 'en_US');
   }
 }

@@ -6,6 +6,8 @@ import { Subscription, firstValueFrom } from 'rxjs';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { InterService } from 'src/app/services/inter.service';
 import { TranslateService } from '@ngx-translate/core';
+import { UtilityService } from 'src/app/services/utility.service';
+import { Storage } from '@ionic/storage';
 
 @Component({
   selector: 'app-dvir',
@@ -21,14 +23,19 @@ export class DvirPage implements OnInit, OnDestroy {
 
   pageLoading: boolean = false;
 
-  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private interSerivce: InterService, private translate: TranslateService) {}
+  timeZones: { [key: string]: string } = {};
+  timeZone: string = '';
+
+  constructor(private navCtrl: NavController, private databaseService: DatabaseService, private interSerivce: InterService, private translate: TranslateService, private utilityService: UtilityService, private storage: Storage) {}
 
   ngOnInit() {
+    this.timeZones = this.utilityService.checkSeason();
     this.interSub = this.interSerivce.currentMessage.subscribe(async message => {
       if (message && message.topic === 'dvir') {
         this.pageLoading = true;
-        await firstValueFrom(this.databaseService.getDvirs()).then(dvirs => {
+        await firstValueFrom(this.databaseService.getDvirs()).then(async dvirs => {
           this.dvirs = dvirs;
+          this.timeZone = await this.storage.get('timeZone');
           this.pageLoading = false;
         });
       }
@@ -37,8 +44,9 @@ export class DvirPage implements OnInit, OnDestroy {
 
   async ionViewWillEnter() {
     this.pageLoading = true;
-    await firstValueFrom(this.databaseService.getDvirs()).then(dvirs => {
+    await firstValueFrom(this.databaseService.getDvirs()).then(async dvirs => {
       this.dvirs = dvirs;
+      this.timeZone = await this.storage.get('timeZone');
       this.pageLoading = false;
     });
   }

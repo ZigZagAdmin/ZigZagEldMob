@@ -10,11 +10,11 @@
             class="status-circle"
             [ngClass]="{'status-error': dvir.status.code === 'D' || dvir.status.code === 'DNNBC', 'status-success': dvir.status.code === 'VCS' || dvir.status.code === 'DC' }"></div>
           <div class="header-date">
-            {{ dvir.createDate | date: "ccc" | translate }}, {{ dvir.createDate | date: "LLL" | translate }} {{ dvir.createDate | date: "d" }}{{getOrdinalSuffix(dvir.createDate | date: "d")}} {{
-            dvir.createDate | date: "yyyy" }}
+            {{ dvir.createDate | date: "ccc" : timeZones[timeZone] | translate }}, {{ dvir.createDate | date: "LLL" : timeZones[timeZone] | translate }} {{ dvir.createDate | date: "d" :
+            timeZones[timeZone] }}{{getOrdinalSuffix(dvir.createDate | date: "d" : timeZones[timeZone])}} {{ dvir.createDate | date: "yyyy" : timeZones[timeZone] }}
           </div>
         </div>
-        <div class="card-header-time">{{ dvir.createDate | date: "hh:mm a" }}</div>
+        <div class="card-header-time">{{ dvir.createDate | date: "hh:mm a" : timeZones[timeZone] }}</div>
       </div>
       <div class="card-vehicle">
         <div class="card-vehicle-name">

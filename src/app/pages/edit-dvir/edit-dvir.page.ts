@@ -89,6 +89,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   locationLoading: boolean = false;
 
+  timeZones: { [key: string]: string } = {};
+
   constructor(
     private navCtrl: NavController,
     private storage: Storage,
@@ -109,6 +111,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
     this.pageLoading = true;
     this.imageLoading = true;
     this.mechanicImageLoading = true;
+    this.timeZones = this.utilityService.checkSeason();
 
     let dvirId$ = firstValueFrom(this.activatedRoute.queryParams);
     let company$ = firstValueFrom(this.databaseService.getCompany());
@@ -438,6 +441,10 @@ export class EditDvirPage implements OnInit, OnDestroy {
     });
   }
 
+  getRepairDate() {
+    return this.dvir?.repairDate ? this.dvir?.repairDate : this.today.getTime();
+  }
+
   goBack() {
     this.interService.changeMessage({ topic: 'dvir' });
     this.navCtrl.navigateBack('/unitab/dvir');
@@ -446,12 +453,12 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   getHour(value: number) {
     return (
-      this.translate.instant(formatDate(value, 'LLL', 'en_US')) +
+      this.translate.instant(formatDate(value, 'LLL', 'en_US', this.timeZones[this.timeZone])) +
       ' ' +
-      formatDate(value, 'd', 'en_US') +
-      this.getOrdinalSuffix(formatDate(value, 'd', 'en_US')) +
+      formatDate(value, 'd', 'en_US', this.timeZones[this.timeZone]) +
+      this.getOrdinalSuffix(formatDate(value, 'd', 'en_US', this.timeZones[this.timeZone])) +
       ', ' +
-      formatDate(value, 'yyyy', 'en_US')
+      formatDate(value, 'yyyy', 'en_US', this.timeZones[this.timeZone])
     );
   }
 
@@ -474,6 +481,6 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   getTime(value: number) {
-    return formatDate(value, 'hh:mm a', 'en_US');
+    return formatDate(value, 'hh:mm a', 'en_US', this.timeZones[this.timeZone]);
   }
 }

@@ -66,8 +66,8 @@
       </div>
       <p class="subtitle-lg" [ngClass]="{'no-display': !(dvir.status.code === 'DC')}">{{'Mechanic Signature' | translate}}</p>
       <div class="two-inputs" [ngClass]="{'no-display': !(dvir.status.code === 'DC')}">
-        <app-input [label]="'Signature Date'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(today.getTime())" [noValidation]="true"></app-input>
-        <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(today.getTime())" [noValidation]="true"></app-input>
+        <app-input [label]="'Signature Date'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(getRepairDate())" [noValidation]="true"></app-input>
+        <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(getRepairDate())" [noValidation]="true"></app-input>
       </div>
       <div [ngClass]="{'no-display': !(dvir.status.code === 'DC')}">
         <div class="canvas-container">
