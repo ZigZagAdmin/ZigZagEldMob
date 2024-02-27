@@ -73,7 +73,7 @@ export class SelectComponent implements OnInit {
   }
 
   triggerCheck(option: { value: string; checked: boolean }, index: number) {
-    this.optionsCheck.forEach(el => el.checked = false);
+    this.optionsCheck.forEach(el => (el.checked = false));
     const el = this.optionsCheck.find(el => el.value === option.value);
     if (el.checked) {
       el.checked = false;

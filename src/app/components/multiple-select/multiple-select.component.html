@@ -6,7 +6,7 @@
     <div class="input-box-value">{{ value || 'No option selected' }}</div>
     <img src="assets/icon/bottom-arrow-18.svg" />
   </div>
-  <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="id">
+  <ion-modal id="custom-modal" [isOpen]="isModalOpen" (willDismiss)="closeModal()" [trigger]="id">
     <ng-template>
       <div class="option-box" id="optionBox">
         <div class="select-option" *ngFor="let option of optionsCheck; index as i" (click)="triggerCheck(option, i)">
