@@ -72,15 +72,6 @@ export class CommentsComponent implements OnInit, OnDestroy {
     });
   }
 
-  calculatePosition() {
-    const element = this.el.nativeElement.querySelector('#custom-tooltip');
-    console.log(window.innerWidth);
-    console.log(element.offsetWidth);
-    if (element) {
-      this.renderer.setStyle(element, 'left', (window.innerWidth - element.offsetWidth - 40) / 2 + 'px');
-    }
-  }
-
   ngOnDestroy(): void {
     this.validateSubscription.unsubscribe();
   }
@@ -107,16 +98,15 @@ export class CommentsComponent implements OnInit, OnDestroy {
     }
     if (this.foundSuggestions.length !== 0) {
       this.showTooltip = true;
-      setTimeout(() => this.calculatePosition(), 0);
     } else {
       this.showTooltip = false;
     }
   }
 
   completeWord(suggestion: string) {
-    let separateValues = this.value.split(' ');
+    let separateValues = this.value.split(', ');
     separateValues[separateValues.length - 1] = suggestion;
-    this.value = separateValues.join(' ') + ' ';
+    this.value = separateValues.join(', ') + ', ';
     document.getElementById('custom-textarea').focus();
     setTimeout(() => (this.showTooltip = false), 100);
   }
