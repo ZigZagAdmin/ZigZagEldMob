@@ -183,10 +183,10 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       companyId: '',
       driverId: this.logDaily.driverId,
       eventTime: {
-        logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]),
+        logDate: formatDate(new Date(), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]),
         timeStamp: new Date().getTime(),
         timeStampEnd: new Date().getTime(),
-        timeZone: '',
+        timeZone: this.timeZone,
       },
       vehicle: {
         vehicleId: this.vehicleId,

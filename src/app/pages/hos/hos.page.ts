@@ -4,7 +4,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, firstValueFrom, forkJoin, interval } from 'rxjs';
 import { NavController } from '@ionic/angular';
 import { LogDailies } from 'src/app/models/log-dailies';
-import { LogEvents } from 'src/app/models/log-histories';
+import { ILocation, LogEvents } from 'src/app/models/log-histories';
 import { Storage } from '@ionic/storage';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { InternetService } from 'src/app/services/internet.service';
@@ -273,28 +273,67 @@ export class HosPage implements OnInit, OnDestroy {
 
         const logDailies$ = this.databaseService.getLogDailies();
         const logEvents$ = this.databaseService.getLogEvents();
+        const company$ = this.databaseService.getCompany();
         const elds$ = this.databaseService.getELDs();
 
-        forkJoin([logDailies$, logEvents$, elds$]).subscribe(async ([logDailies, logEvents, elds]) => {
+        forkJoin([logDailies$, logEvents$, elds$, company$]).subscribe(async ([logDailies, logEvents, elds, company]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
           const filteredLogEvents = this.logEvents.filter(item => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(item.type.code));
-          this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
-          this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+          let temp = new Date().setDate(new Date().getDate() - 14);
+          let day = formatDate(new Date(temp), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
+          let timeZoneDifference = new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US')).getTime() - new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime();
+
+          if (filteredLogEvents.length === 0) {
+            let firstLogEvent: LogEvents = {
+              logEventId: this.utilityService.uuidv4(),
+              companyId: company.companyId,
+              driverId: this.driverId,
+              eventTime: {
+                logDate: formatDate(new Date(temp), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]),
+                timeStamp: new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US')).getTime() + timeZoneDifference,
+                timeZone: this.timeZone,
+              },
+              vehicle: {
+                vehicleId: this.vehicleId,
+              },
+              eld: {
+                eldId: this.lastEld ? this.lastEld.eldId : '00000000-0000-0000-0000-000000000000',
+                macAddress: this.lastEld ? this.lastEld.macAddress : '',
+                serialNumber: this.lastEld ? this.lastEld.fwVersion : '',
+              },
+              sequenceNumber: 1,
+              type: { name: 'Off Duty', code: 'OFF' },
+              recordStatus: { name: 'Active', code: 'ACTIVE' },
+              recordOrigin: { name: 'Driver', code: 'DRIVER' },
+              malfunction: false,
+              dataDiagnosticEvent: false,
+              comment: '',
+              eventDataCheck: '',
+              inspection: false,
+              sent: true,
+            };
+            this.logEvents.push(firstLogEvent);
+            this.selectedButton = 'OFF';
+            this.lastSelectedButton = 'OFF';
+          } else {
+            this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+            this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+          }
           this.elds = elds;
           this.lastEld = chosenEldMac !== null && chosenEldMac !== undefined && chosenEldMac.length !== 0 ? this.elds.find(el => el.macAddress === chosenEldMac) : undefined;
 
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
-            lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]);
+            // lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]);
 
             let LoginLogEvent: LogEvents = {
               logEventId: this.utilityService.uuidv4(),
               companyId: lastLogEvent.companyId,
               driverId: this.driverId,
               eventTime: {
-                logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
+                logDate: formatDate(new Date(), 'yyyy/MM/dd', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
                 timeStamp: new Date().getTime(),
                 timeStampEnd: new Date().getTime(),
                 timeZone: this.timeZone,
@@ -321,7 +360,6 @@ export class HosPage implements OnInit, OnDestroy {
               engineHours: this.eldData['H'] ? parseInt(this.eldData['H']) : 1,
               malfunction: false,
               dataDiagnosticEvent: false,
-              certificationDate: lastLogEvent.certificationDate,
               comment: '',
               eventDataCheck: '',
               inspection: false,
@@ -891,6 +929,7 @@ export class HosPage implements OnInit, OnDestroy {
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
     let lastLogEvent = filteredLogEvents[filteredLogEvents.length - 1];
+    let lastBigEvent = this.logEvents[this.logEvents.length - 1]
 
     if (lastLogEvent) {
       lastLogEvent.eventTime.timeStampEnd = endTime;
@@ -946,7 +985,7 @@ export class HosPage implements OnInit, OnDestroy {
         latitude: this.location.latitude,
         longitude: this.location.longitude,
       },
-      sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
+      sequenceNumber: lastBigEvent ? lastBigEvent.sequenceNumber + 1 : 1,
       type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
       recordStatus: { name: 'Active', code: 'ACTIVE' },
       recordOrigin: { name: 'Driver', code: 'DRIVER' },

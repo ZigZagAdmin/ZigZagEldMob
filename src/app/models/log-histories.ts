@@ -39,7 +39,7 @@ interface IEld {
   serialNumber: string;
 }
 
-interface ILocation {
+export interface ILocation {
   locationType: string;
   description: string;
   latitude: number;

@@ -119,7 +119,7 @@ export class LoginPage implements OnInit, OnDestroy {
     }
 
     this.authService
-      .login(username, password, deviceModel.model, deviceModel.operatingSystem + ' ' + deviceModel.osVersion, appVersion.version)
+      .login(username.replace(/ /g, ''), password, deviceModel.model, deviceModel.operatingSystem + ' ' + deviceModel.osVersion, appVersion.version)
       .pipe(
         switchMap(async res => {
           this.authUser = res;

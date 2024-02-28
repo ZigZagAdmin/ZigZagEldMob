@@ -1,8 +1,8 @@
 <div class="banner-container" [ngClass]="type">
   <div class="banner-icon">
     <img *ngIf="type === 'success'" src="../../../assets/icon/tick-circle-white.svg" />
-    <img *ngIf="type === 'error'" src="../../../assets/icon/close-circle.svg" />
-    <img *ngIf="type === 'warning'" src="../../../assets/icon/info-circle.svg" />
+    <img *ngIf="type === 'error'" src="../../../assets/icon/info-circle.svg" />
+    <img *ngIf="type === 'warning'" src="../../../assets/icon/danger.svg" />
     <img *ngIf="type === 'default'" src="../../../assets/icon/more-circle.svg" />
   </div>
   <div class="banner-content" [ngStyle]="{ flex: !close ? '1 calc(100% - 39px)' : '1 calc(100% - 105px)' }">
