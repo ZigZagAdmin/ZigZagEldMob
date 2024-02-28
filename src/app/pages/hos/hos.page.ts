@@ -25,6 +25,13 @@ import { ELD } from 'src/app/models/eld';
 import { GeolocationService } from 'src/app/services/geolocation.service';
 import { TranslateService } from '@ngx-translate/core';
 
+interface BannerInfo {
+  show: boolean;
+  type: 'success' | 'warning' | 'default' | 'error';
+  title: string;
+  subtitle: string;
+}
+
 @Component({
   selector: 'app-hos',
   templateUrl: './hos.page.html',
@@ -105,7 +112,7 @@ export class HosPage implements OnInit, OnDestroy {
   internetSub: Subscription;
   networkStatus: boolean = true;
 
-  bannerInfo: { show: boolean; type: 'success' | 'warning' | 'default' | 'error'; title: string; subtitle: string } = {
+  bannerInfo: BannerInfo = {
     show: false,
     type: 'default',
     title: '',
@@ -199,7 +206,7 @@ export class HosPage implements OnInit, OnDestroy {
       });
       this.connectionSub = this.bluetoothService.getDeviceConnectionStatusObservable().subscribe(async (status: boolean) => {
         this.deviceConStatus = status;
-        console.log('Device connection status:', status);
+        await this.showBannerInfoMessage();
       });
       this.eldDataSub = this.bluetoothService.getBluetoothDataObservable().subscribe(async (data: { [key: string]: string }) => {
         console.log(data);
@@ -213,18 +220,7 @@ export class HosPage implements OnInit, OnDestroy {
 
     this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
-      if (!state) {
-        this.bannerInfo = {
-          show: true,
-          title: 'Offline Mode',
-          subtitle: 'Check your internet connection.',
-          type: 'warning',
-        };
-        this.changeDetectorRef.detectChanges();
-      } else {
-        this.bannerInfo.show = false;
-        this.changeDetectorRef.detectChanges();
-      }
+      await this.showBannerInfoMessage();
       if (state) {
         this.logEvents = await firstValueFrom(this.databaseService.getLogEvents());
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
@@ -404,7 +400,10 @@ export class HosPage implements OnInit, OnDestroy {
 
   async getBluetoothState() {
     let authorization = (await this.bluetoothService.getBluetoothAuthorizationStatus()).status;
-    this.bluetoothStatus = (await this.bluetoothService.getBluetoothState()) && authorization;
+    let serviceState = await this.bluetoothService.getBluetoothState();
+    this.bluetoothStatus = serviceState && authorization;
+    await this.showBannerInfoMessage();
+    console.log('bluetoothStatus: ', authorization);
     this.changeDetectorRef.detectChanges();
   }
 
@@ -459,7 +458,7 @@ export class HosPage implements OnInit, OnDestroy {
       }
       await this.bluetoothService.requestBluetoothPermission();
     }
-    if (!this.deviceConStatus) {
+    if (!this.deviceConStatus && this.bluetoothStatus) {
       this.goToConnectPage();
     }
   }
@@ -1258,6 +1257,70 @@ export class HosPage implements OnInit, OnDestroy {
 
   closeAutoDrivingModal() {
     this.isDrivingAuto = false;
+  }
+
+  async showBannerInfoMessage() {
+    if (Capacitor.getPlatform() !== 'web') {
+      let bluetoothServiceState = await this.bluetoothService.getBluetoothState();
+      let bluetoothAuthorization = (await this.bluetoothService.getBluetoothAuthorizationStatus()).status;
+
+      if (!this.networkStatus) {
+        this.bannerInfo = {
+          show: true,
+          title: 'Offline Mode',
+          subtitle: 'Check your internet connection.',
+          type: 'warning',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+
+      if (!bluetoothServiceState) {
+        this.bannerInfo = {
+          show: true,
+          title: 'Bluetooth Service Off',
+          subtitle: 'Please turn on the Bluetooth Service.',
+          type: 'error',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+
+      if (!bluetoothAuthorization) {
+        this.bannerInfo = {
+          show: true,
+          title: 'Bluetooth not authorized',
+          subtitle: 'Please give permissions to use the bluetooth service.',
+          type: 'error',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        console.log('inside third if');
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+
+      if (!this.deviceConStatus) {
+        this.bannerInfo = {
+          show: true,
+          title: 'ELD Not Connected',
+          subtitle: 'Please verify the ELD hardware connection.',
+          type: 'error',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+    }
   }
 
   async ionViewWillLeave() {

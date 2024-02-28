@@ -18,13 +18,17 @@ export class AuthService {
     private jwtHelper: JwtHelperService
   ) {}
 
-  login(username: string, password: string): Observable<AuthUser> {
+  login(username: string, password: string, deviceModel: string, operatingSystem: string, appVersion: string): Observable<AuthUser> {
     const project = 'ELD';
     return this.http
       .post<AuthUser>(this.apiUrl + 'api/auth/loginDriver', {
-        username,
-        password,
-        project,
+        username: username,
+        password: password,
+        project: project,
+        simcard: '',
+        deviceModel: deviceModel,
+        operatingSystem: operatingSystem,
+        appVersion: appVersion
       })
       .pipe(
         tap((res) => {

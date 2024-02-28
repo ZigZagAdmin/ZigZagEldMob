@@ -28,6 +28,8 @@ import { EncryptionService } from 'src/app/services/encryption.service';
 import { Keyboard } from '@capacitor/keyboard';
 import { Network } from '@capacitor/network';
 import { TranslateService } from '@ngx-translate/core';
+import { Device } from '@capacitor/device';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-login',
@@ -108,10 +110,16 @@ export class LoginPage implements OnInit, OnDestroy {
       }
     }
 
-    this.loading = true; // Показать спиннер
+    this.loading = true;
+    let deviceModel = { model: '', operatingSystem: '', osVersion: '' };
+    let appVersion = { version: '' };
+    if (Capacitor.getPlatform() !== 'web') {
+      deviceModel = await Device.getInfo();
+      appVersion = await App.getInfo();
+    }
 
     this.authService
-      .login(username, password)
+      .login(username, password, deviceModel.model, deviceModel.operatingSystem + ' ' + deviceModel.osVersion, appVersion.version)
       .pipe(
         switchMap(async res => {
           this.authUser = res;
