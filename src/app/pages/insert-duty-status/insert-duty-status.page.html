@@ -1,13 +1,7 @@
-<ion-content [forceOverscroll]="false">
-  <app-header [title]="'Log' | translate" [backButton]="true" (backButtonCallback)="goBack()">
-    <div style="display: flex; gap: 10px">
-      <div class="preview-container" (click)="nevigateToInspection()" *ngIf="canBeInspected()"><img src="../../../assets/imgs/eye.png" /></div>
-      <div class="dvir-add" (click)="insertStatus()">+</div>
-    </div>
-  </app-header>
+<ion-content [fullscreen]="true" [forceOverscroll]="false">
+  <app-header *ngIf="!pageLoading" [title]="'Insert Duty Status' | translate" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
-  <app-scroll-toolbar *ngIf="!pageLoading" [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
-  <div class="padding-g" *ngIf="!pageLoading">
+  <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">
     <div class="card-info">
       <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
         <g class="grid" transform="translate(65, 40)">
@@ -98,99 +92,66 @@
             <line *ngIf="event.yV > 0" [attr.x1]="event.x1" [attr.x2]="event.x1" [attr.y1]="event.y1" [attr.y2]="event.yV" class="vertical"></line>
           </g>
         </g>
-
+        <g transform="translate(65, 40)">
+          <rect [attr.x]="currentLogEventRect.x1" [attr.width]="currentLogEventRect.x2 - currentLogEventRect.x1" class="current-status" height="200"></rect>
+        </g>
         <g transform="translate(65, 40)">
           <rect [attr.x]="violationRect.x1" [attr.width]="violationRect.x2 - violationRect.x1" class="error-status-viol" height="200"></rect>
         </g>
       </svg>
-      <div class="violation-list" *ngIf="logDaily?.violations.length !== 0">
-        <div class="violation-item" *ngFor="let violation of logDaily?.violations" (click)="toggleViolationRect(violation)">
-          {{ (violation?.regulations.name | translate) + ' ' }}{{ violation.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
+      <div class="range-container" *ngIf="!disableForm['timeInput']"><span>Min: {{ minValue }}</span><span>Max: {{ maxValue }}</span></div>
+      <div class="violation-list" *ngIf="violations[logDaily.logDate] && violations[logDaily.logDate].length !== 0">
+        <div class="violation-item" *ngFor="let violation of violations[logDaily.logDate]" (click)="toggleViolationRect(violation)">
+          {{ violation?.regulations?.name + ' ' }}{{ violation?.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
         </div>
       </div>
     </div>
-    <div class="edit-form">
-      <div class="form-title">
-        <div class="custom-status-circle" [ngClass]="{ 'status-circle-error': !logDaily?.formManner, 'status-circle-success': logDaily?.formManner }"></div>
-        <p class="custom-subtitle">{{ 'Form' | translate }}</p>
-        <button class="btn primary-btn" style="width: 63px" (click)="onSubmit()">
-          <span *ngIf="!saveFormLoading" style="color: #fcfcfc">{{ 'Save' | translate }}</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
-        </button>
-      </div>
-      <div class="form-list">
-        <app-input [label]="'Vehicle' | translate" [fill]="true" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>
-        <app-input [label]="'Trailers' | translate" [fill]="true" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers" [noValidation]="true"></app-input>
-        <app-input
-          [label]="'Shipping Document' | translate"
-          [required]="true"
-          [fill]="true"
-          [labelPosition]="'left'"
-          [type]="'text'"
-          [(value)]="localForm.form.shippingDoc"
-          [(validation)]="validation['shippingDoc']"></app-input>
-        <app-input
-          [label]="'From Address' | translate"
-          [required]="true"
-          [fill]="true"
-          [labelPosition]="'left'"
-          [type]="'text'"
-          [(value)]="localForm.form.fromAddress"
-          [(validation)]="validation['fromAddress']"></app-input>
-        <app-input
-          [label]="'To Address' | translate"
-          [required]="true"
-          [fill]="true"
-          [labelPosition]="'left'"
-          [type]="'text'"
-          [(value)]="localForm.form.toAddress"
-          [(validation)]="validation['toAddress']"></app-input>
-      </div>
-      <div class="logs-certified">
-        <p class="subtitle" style="font-size: 15px">{{ 'Logs' | translate }}</p>
-        <div class="logs-buttons">
-          <button class="btn primary-btn" [ngClass]="{ 'btn-disabled ': currentDay === today }" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">
-            {{ 'Certify' | translate }}
-          </button>
-          <button class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">{{ 'Certified' | translate }}</button>
-        </div>
-      </div>
-      <ion-modal [isOpen]="isModalOpen">
-        <ng-template>
-          <ion-content [forceOverscroll]="false">
-            <app-header [title]="'Signature' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
-            <div style="display: flex; justify-content: center; align-items: center">
-              <div class="signature-visualization">
-                <img [ngClass]="{ 'no-image': imageLoading }" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
-                <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
-                <div class="no-signature" *ngIf="!finishedLoading && !imageLoading">{{ 'Signature could not be loaded.' | translate }}</div>
-              </div>
-            </div>
-          </ion-content>
-        </ng-template>
-      </ion-modal>
-      <div class="form-cards">
-        <div class="form-card" *ngFor="let logStatus of statusesOnDay; index as i">
-          <div class="card-row">
-            <div class="row-status">
-              <div class="status-circle" [ngStyle]="{ 'background-color': getStatusColor(logStatus.type.code) }"></div>
-              <div style="display: flex; flex-direction: column">
-                <p class="subtitle">{{ formatLocalDate(logStatus.eventTime.timeStamp) }} - {{ logStatus.type.name | translate }}</p>
-                <div style="font-size: 12px; color: var(--gray-700)">{{ i === 0 ? '(' + (logStatus.eventTime.logDate | date : 'mediumDate') + ')' : '' }}</div>
-              </div>
-            </div>
-            <p class="card-time" style="color: var(--gray-600)">{{ logEventDuration(logStatus) }}</p>
-          </div>
-          <div class="card-row">
-            <div class="row-status">
-              <img src="assets/icon/location.svg" alt="location" />
-              <p class="text-2" style="font-weight: 500; font-size: 13px">{{ logStatus?.location?.description }}</p>
-            </div>
-            <img src="assets/icon/edit.svg" *ngIf="i !== 0" (click)="editLog(logStatus)" alt="edit" />
-            <!--&& !(i === statusesOnDay.length - 1 && !(statusesOnDay[i].eventTime.timeStampEnd && statusesOnDay[i].eventTime.timeStampEnd !== 0))-->
-          </div>
-        </div>
-      </div>
+    <div class="time-inputs">
+      <app-date-time
+        [label]="('Start Time' | translate) + '(' + timeZone + ')'"
+        [fill]="true"
+        [labelPosition]="'top'"
+        [disabled]="disableForm['timeInput']"
+        [showDisabled]="disableForm['timeInput']"
+        [type]="'time'"
+        [timeZone]="timeZone"
+        [value]="logEvent.eventTime.timeStamp"
+        (emitValue)="getNewStartDate($event)"
+        [validation]="validation['startTime']"></app-date-time>
+      <app-input
+        [label]="'Duration' | translate"
+        [fill]="true"
+        [disabled]="true"
+        [showDisabled]="true"
+        [labelPosition]="'top'"
+        [type]="'text'"
+        [value]="duration | convertMsToHoursAndMinutesAndSecondsHm"
+        [validation]="validation['startTime']"></app-input>
+    </div>
+    <div class="status-change">
+      <app-duty-radio-button [disable]="disableForm['status']" [showDisabled]="disableForm['status']" [currentValue]="selectedButton" (selectedValue)="selectButton($event)"></app-duty-radio-button>
+    </div>
+    <div class="location-comments">
+      <app-location-input
+        [label]="'Location' | translate"
+        [disabled]="disableForm['location']"
+        [showDisabled]="disableForm['location']"
+        [fill]="true"
+        [labelPosition]="'top'"
+        [type]="'text'"
+        [loading]="locationLoading"
+        [(value)]="logEvent.location.description"
+        (gpsCallback)="getLocalCurrentLocation()"
+        [validation]="validation['location']"
+        [noValidation]="noValidation"></app-location-input>
+      <app-comments [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
+    </div>
+    <div class="confirm-buttons">
+      <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">{{'Back' | translate}}</button>
+      <button class="custom-btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
+        <span *ngIf="!loading" style="color: #fcfcfc">{{'Save' | translate}}</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+      </button>
     </div>
   </div>
-  <app-page-loader *ngIf="pageLoading"></app-page-loader>
+  <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>
 </ion-content>

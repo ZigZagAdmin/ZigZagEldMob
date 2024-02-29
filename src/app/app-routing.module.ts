@@ -136,7 +136,11 @@ const routes: Routes = [
   {
     path: 'log-certify',
     loadChildren: () => import('./pages/log-certify/log-certify.module').then( m => m.LogCertifyPageModule)
+  },  {
+    path: 'insert-duty-status',
+    loadChildren: () => import('./pages/insert-duty-status/insert-duty-status.module').then( m => m.InsertDutyStatusPageModule)
   },
+
 
 ];
 @NgModule({

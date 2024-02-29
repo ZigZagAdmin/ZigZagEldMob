@@ -282,8 +282,11 @@ export class HosPage implements OnInit, OnDestroy {
           const filteredLogEvents = this.logEvents.filter(item => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(item.type.code));
           let temp = new Date().setDate(new Date().getDate() - 14);
           let day = formatDate(new Date(temp), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
-          let timeZoneDifference = new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US')).getTime() - new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime();
-
+          let timeZoneDifference =
+            new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US')).getTime() -
+            new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime();
+          this.elds = elds;
+          this.lastEld = chosenEldMac !== null && chosenEldMac !== undefined && chosenEldMac.length !== 0 ? this.elds.find(el => el.macAddress === chosenEldMac) : undefined;
           if (filteredLogEvents.length === 0) {
             let firstLogEvent: LogEvents = {
               logEventId: this.utilityService.uuidv4(),
@@ -320,8 +323,6 @@ export class HosPage implements OnInit, OnDestroy {
             this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
             this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
           }
-          this.elds = elds;
-          this.lastEld = chosenEldMac !== null && chosenEldMac !== undefined && chosenEldMac.length !== 0 ? this.elds.find(el => el.macAddress === chosenEldMac) : undefined;
 
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
@@ -929,7 +930,7 @@ export class HosPage implements OnInit, OnDestroy {
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
     let lastLogEvent = filteredLogEvents[filteredLogEvents.length - 1];
-    let lastBigEvent = this.logEvents[this.logEvents.length - 1]
+    let lastBigEvent = this.logEvents[this.logEvents.length - 1];
 
     if (lastLogEvent) {
       lastLogEvent.eventTime.timeStampEnd = endTime;

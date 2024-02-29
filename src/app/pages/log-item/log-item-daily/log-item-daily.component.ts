@@ -635,4 +635,8 @@ export class LogItemDailyComponent implements OnInit {
       console.log(e);
     }
   }
+
+  insertStatus(){
+    this.navCtrl.navigateForward('insert-duty-status', { queryParams: { logDailyId: this.logDaily.logDailyId} });
+  }
 }
