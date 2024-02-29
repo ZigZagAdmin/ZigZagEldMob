@@ -58,6 +58,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   async ionViewWillEnter() {
+    this.shareService.changeMessage('reset');
     let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
     let company$ = firstValueFrom(this.databaseService.getCompany());
     let elds$ = firstValueFrom(this.databaseService.getELDs());
@@ -73,7 +74,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         this.backUrl = queryParams['backUrl'];
       }
       if (lastConnectedELD !== null && lastConnectedELD !== undefined && lastConnectedELD.length !== 0) {
-        await this.connect(lastConnectedELD);
+        console.log('last connected eld: ', lastConnectedELD);
+        await this.connect(lastConnectedELD, false);
       }
     });
   }
@@ -130,7 +132,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         console.log('connection result: ', res);
         if (res) {
           this.loading = false;
-          this.toastService.showToast(this.translate.instant('Device successfully connected'));
+          this.toastService.showToast(this.translate.instant('Device successfully connected'), 'success');
           await this.bluetoothService.subscribeToDeviceData(macAddress);
           await this.storage.set('lastConnectedELD', macAddress);
           await this.uploadEld(macAddress);

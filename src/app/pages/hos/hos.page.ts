@@ -162,6 +162,8 @@ export class HosPage implements OnInit, OnDestroy {
   autoChangeLoading: boolean = false;
   lastSpeedValue: number = 0;
   slowDownTimeout: any;
+  slowDownTimoutRemaining: number = 0;
+  slowDownTimoutRemainingInterval: any;
   lastRPM: number = 0;
 
   constructor(
@@ -319,6 +321,8 @@ export class HosPage implements OnInit, OnDestroy {
             this.logEvents.push(firstLogEvent);
             this.selectedButton = 'OFF';
             this.lastSelectedButton = 'OFF';
+            this.currentStatus.statusCode = 'OFF';
+            this.currentStatus.statusName = 'Off Duty';
           } else {
             this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
             this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
@@ -907,24 +911,35 @@ export class HosPage implements OnInit, OnDestroy {
     this.isModalOpen = false;
   }
 
-  async confirm() {
+  async confirm(hidden: boolean = false, code?: string) {
+    console.log(this.selectedButton);
+    console.log(this.lastSelectedButton);
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
-    if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
-      this.lastSelectedButton = this.selectedButton;
+    if (hidden) {
+      console.log('inside hidden');
       this.shareService.destroyMessage();
-      await this.storage.set('lastStatusCode', this.selectedButton);
-      await this.onWillDismiss().then(() => {
-        this.currentStatusColor = this.getStatusColor(this.selectedButton);
+      await this.onWillDismiss(code).then(() => {
         this.isModalOpen = false;
         this.modalLoading = false;
       });
     } else {
-      this.toastService.showToast(this.translate.instant('You need to select a different status!'), 'warning');
+      if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
+        this.lastSelectedButton = this.selectedButton;
+        this.shareService.destroyMessage();
+        await this.storage.set('lastStatusCode', this.selectedButton);
+        await this.onWillDismiss(this.selectedButton).then(() => {
+          this.currentStatusColor = this.getStatusColor(this.selectedButton);
+          this.isModalOpen = false;
+          this.modalLoading = false;
+        });
+      } else {
+        this.toastService.showToast(this.translate.instant('You need to select a different status!'), 'warning');
+      }
     }
   }
 
-  async onWillDismiss() {
+  async onWillDismiss(status: string) {
     this.modalLoading = true;
     const endTime = new Date().getTime();
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
@@ -961,6 +976,30 @@ export class HosPage implements OnInit, OnDestroy {
         statusName: 'Yard Moves',
         eventTypeType: 'DRIVER_INDICATES',
       },
+      UP_NORMAL: {
+        statusName: 'Engine Power-up w/ CLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      UP_REDUCED: {
+        statusName: 'Engine Power-up w/ RLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      DOWN_NORMAL: {
+        statusName: 'Engine Shut-down w/ CLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      DOWN_REDUCED: {
+        statusName: 'Engine Power-up w/ RLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      NORMAL_PRECISION: {
+        statusName: 'Intermediate w/ CLP Intermediate log with conventional location precision',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      REDUCED_PRECISION: {
+        statusName: 'Intermediate w/ RLP Intermediate log with reduced location precision',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
     };
 
     let newLogEvent: LogEvents = {
@@ -987,7 +1026,7 @@ export class HosPage implements OnInit, OnDestroy {
         longitude: this.location.longitude,
       },
       sequenceNumber: lastBigEvent ? lastBigEvent.sequenceNumber + 1 : 1,
-      type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
+      type: { name: statuses[status as keyof typeof statuses] ? statuses[status as keyof typeof statuses].statusName : 'Unknown', code: status },
       recordStatus: { name: 'Active', code: 'ACTIVE' },
       recordOrigin: { name: 'Driver', code: 'DRIVER' },
       odometer: this.eldData['O'] ? parseInt(this.eldData['O']) : 1,
@@ -1223,6 +1262,7 @@ export class HosPage implements OnInit, OnDestroy {
       await this.createLogDailies();
       await this.calcViolations();
       await this.uploadDriverStatus();
+      await this.createIntermediate();
     }, 60000);
   }
 
@@ -1242,21 +1282,40 @@ export class HosPage implements OnInit, OnDestroy {
       this.closeAutoDrivingModal();
       if (this.slowDownTimeout) {
         clearTimeout(this.slowDownTimeout);
+        clearInterval(this.slowDownTimoutRemainingInterval);
         this.slowDownTimeout = null;
       }
-    } else if (parseInt(this.eldData['V']) < 5 && this.lastSpeedValue >= 5 && this.currentStatus.statusCode === 'D') {
+    } else if (parseInt(this.eldData['V']) === 0 && parseInt(this.eldData['R']) === 0 && this.currentStatus.statusCode === 'D') {
+      await this.changeStatusLocally('ON');
+      this.closeAutoDrivingModal();
+      if (this.slowDownTimeout) {
+        clearTimeout(this.slowDownTimeout);
+        clearInterval(this.slowDownTimoutRemainingInterval);
+        this.slowDownTimeout = null;
+      }
+    } else if (parseInt(this.eldData['V']) === 0 && this.lastSpeedValue >= 5 && this.currentStatus.statusCode === 'D') {
       if (!this.slowDownTimeout) {
+        this.slowDownTimoutRemaining = 60; // to be changes
         this.slowDownTimeout = setTimeout(async () => {
           if (this.currentStatus.statusCode === 'D') {
             this.isDrivingAuto = true;
+            this.slowDownTimoutRemainingInterval = setInterval(async () => {
+              if (this.slowDownTimoutRemaining === 0) {
+                this.closeAutoDrivingModal();
+                await this.changeStatusLocally('ON');
+                clearInterval(this.slowDownTimoutRemainingInterval);
+              }
+              this.slowDownTimoutRemaining--;
+            }, 1000);
           }
           this.slowDownTimeout = null;
-        }, 60000);
+        }, 4000); // to be changed
       }
     } else {
       this.closeAutoDrivingModal();
       if (this.slowDownTimeout) {
         clearTimeout(this.slowDownTimeout);
+        clearInterval(this.slowDownTimoutRemainingInterval);
         this.slowDownTimeout = null;
       }
     }
@@ -1264,39 +1323,42 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async powerUpAndDown() {
+    this.lastRPM = 0;
+    this.eldData['R'] = '10';
+    this.eldData['O'] = '10';
+    this.eldData['H'] = '10';
     if (this.eldData['R']) {
       if (parseInt(this.eldData['R']) > 0 && this.lastRPM === 0) {
-        if (this.eldData['O'] && this.eldData['H'] && this.location.locationType === 'AUTOMATIC') {
-          await this.changeStatusLocally('UP_NORMAL', false);
+        if (this.eldData['O'] && this.eldData['H']) {
+          await this.changeStatusLocally('UP_NORMAL', false, false, true);
         } else {
-          await this.changeStatusLocally('UP_REDUCED', false);
+          await this.changeStatusLocally('UP_REDUCED', false, false, true);
         }
       } else if (parseInt(this.eldData['R']) === 0 && this.lastRPM > 0) {
-        if (this.eldData['O'] && this.eldData['H'] && this.location.locationType === 'AUTOMATIC') {
-          await this.changeStatusLocally('DOWN_NORMAL', false);
+        if (this.eldData['O'] && this.eldData['H']) {
+          await this.changeStatusLocally('DOWN_NORMAL', false, false, true);
         } else {
-          await this.changeStatusLocally('DOWN_REDUCED', false);
+          await this.changeStatusLocally('DOWN_REDUCED', false, false, true);
         }
       }
     }
     this.lastRPM = this.eldData['R'] ? parseInt(this.eldData['R']) : 0;
   }
 
-  async changeStatusLocally(code: string, loading: boolean = true) {
+  async changeStatusLocally(code: string, loading: boolean = true, select: boolean = true, hidden: boolean = false) {
     this.closeAutoDrivingModal();
-    if (loading) this.autoChangeLoading = true;
-    this.selectButton(code);
+    clearInterval(this.slowDownTimoutRemainingInterval);
+    this.autoChangeLoading = true;
+    if (select) this.selectButton(code);
     await this.getLocalCurrentLocation(false);
     this.validation['location'] = true;
-    await this.confirm()
-      .then(() => {
-        this.autoChangeLoading = false;
-      })
-      .catch(e => (this.autoChangeLoading = false));
+    this.autoChangeLoading = false;
+    await this.confirm(hidden, code).catch(e => (this.autoChangeLoading = false));
   }
 
   closeAutoDrivingModal() {
     this.isDrivingAuto = false;
+    clearInterval(this.slowDownTimoutRemainingInterval);
   }
 
   async showBannerInfoMessage() {
@@ -1359,6 +1421,22 @@ export class HosPage implements OnInit, OnDestroy {
       } else {
         this.bannerInfo.show = false;
         this.changeDetectorRef.detectChanges();
+      }
+    }
+  }
+
+  async createIntermediate() {
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+    if (this.currentStatus.statusCode === 'D') {
+      let visibleLogs = this.logEvents.filter(el => allSt.includes(el.type.code)).reverse();
+      // console.log(visibleLogs);
+      let currentDriving = visibleLogs.find(el => el.type.code === 'D');
+      // console.log(new Date().getTime() - currentDriving.eventTime.timeStamp);
+      // console.log((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000 / 60 / 60);
+      // console.log(((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000) % 3600);
+      if ((currentDriving.eventTime.timeStamp / 1000) % 3600 < 60) {
+        console.log('intermediate');
+        await this.changeStatusLocally('NORMAL_PRECISION', false, false, true);
       }
     }
   }
