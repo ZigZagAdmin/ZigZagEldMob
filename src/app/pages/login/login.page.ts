@@ -216,7 +216,7 @@ export class LoginPage implements OnInit, OnDestroy {
         },
         error => {
           console.log(error);
-          const errorMessage = 'An error occurred during login';
+          const errorMessage = error?.error?.message || 'An error occured during login';
           this.toastService.showToast(this.translate.instant(errorMessage), 'danger'); // Отобразить toast с ошибкой
           console.log(errorMessage);
         }
