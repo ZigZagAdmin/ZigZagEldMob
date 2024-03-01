@@ -12,13 +12,13 @@
         <img src="assets/icon/bluetooth_icon.svg" />
       </div>
     </div>
-
-    <div style="display: flex; gap: 5px">
+    <!--For testing purposes. DO NOT DELETE-->
+    <!-- <div style="display: flex; gap: 5px">
       <button style="padding: 5px" (click)="carSim.startEngine()">power up</button>
       <button style="padding: 5px" (click)="carSim.stopEngine()">power down</button>
       <button style="padding: 5px" (click)="carSim.driving()">drive</button>
       <button style="padding: 5px" (click)="carSim.stopDriving()">stop driving</button>
-    </div>
+    </div> -->
 
     <app-message-banner *ngIf="bannerInfo.show" [title]="bannerInfo.title | translate" [subtitle]="bannerInfo.subtitle | translate" [type]="bannerInfo.type"></app-message-banner>
 
