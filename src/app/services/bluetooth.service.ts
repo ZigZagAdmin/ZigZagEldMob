@@ -195,8 +195,16 @@ export class BluetoothService {
     // const macAddress: string = 'FC:29:99:B8:78:0E';
     try {
       await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => {
-        console.log('current heart rate', this.parseData(res));
-        this.bluetoothDataSubject.next(this.decodeJ1708(res));
+        try {
+          if (res) {
+            console.log('current heart rate', this.parseData(res));
+            this.bluetoothDataSubject.next(this.decodeJ1708(res));
+          } else {
+            this.deviceConnectionStatus.next(false);
+          }
+        } catch (e) {
+          this.deviceConnectionStatus.next(false);
+        }
       });
     } catch (e) {
       this.deviceConnectionStatus.next(false);

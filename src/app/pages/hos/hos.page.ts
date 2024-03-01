@@ -24,6 +24,7 @@ import { hosErrors } from 'src/app/utilities/hos-errors';
 import { ELD } from 'src/app/models/eld';
 import { GeolocationService } from 'src/app/services/geolocation.service';
 import { TranslateService } from '@ngx-translate/core';
+import { CarSimulatorService } from 'src/app/services/car-simulator.service';
 
 interface BannerInfo {
   show: boolean;
@@ -80,7 +81,7 @@ export class HosPage implements OnInit, OnDestroy {
   restCycle: number = 0;
 
   currentStatus = { statusCode: '', statusName: '' };
-  currentDriving: { start: number; index: number };
+  currentDriving: { start: number; index: number } = { start: 0, index: 0 };
   currentStatusTime = '';
   currentStatusColor: string = '';
 
@@ -167,6 +168,8 @@ export class HosPage implements OnInit, OnDestroy {
   slowDownTimoutRemainingInterval: any;
   lastRPM: number = 0;
 
+  skipFirst: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -184,10 +187,12 @@ export class HosPage implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private platform: Platform,
     private ngZone: NgZone,
-    private translate: TranslateService
+    private translate: TranslateService,
+    public carSim: CarSimulatorService
   ) {}
 
   async ngOnInit() {
+    // this.carSim.startSimulation();
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
@@ -215,8 +220,12 @@ export class HosPage implements OnInit, OnDestroy {
         console.log(data);
         if (data) {
           this.eldData = data;
-          await this.changeDrivingAutomatically();
-          await this.powerUpAndDown();
+          if (this.skipFirst) {
+            await this.changeDrivingAutomatically();
+            await this.powerUpAndDown();
+          }
+          this.skipFirst = true;
+          this.lastRPM = parseInt(this.eldData['R']);
         }
       });
     }
@@ -255,6 +264,7 @@ export class HosPage implements OnInit, OnDestroy {
     if (this.internetSub) this.internetSub.unsubscribe();
     if (this.locationSub) this.locationSub.unsubscribe();
     if (this.bluetoothSub) this.bluetoothSub.unsubscribe();
+    if (this.eldDataSub) this.eldDataSub.unsubscribe();
   }
 
   async ionViewWillEnter() {
@@ -290,7 +300,6 @@ export class HosPage implements OnInit, OnDestroy {
             new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime();
           this.elds = elds;
           this.lastEld = chosenEldMac !== null && chosenEldMac !== undefined && chosenEldMac.length !== 0 ? this.elds.find(el => el.macAddress === chosenEldMac) : undefined;
-          console.log('filtered log events: ', filteredLogEvents.toLocaleString());
           if (filteredLogEvents.length === 0) {
             let firstLogEvent: LogEvents = {
               logEventId: this.utilityService.uuidv4(),
@@ -320,16 +329,35 @@ export class HosPage implements OnInit, OnDestroy {
               inspection: false,
               sent: true,
             };
-            this.logEvents.push(firstLogEvent);
             this.selectedButton = 'OFF';
             this.lastSelectedButton = 'OFF';
             this.currentStatus.statusCode = 'OFF';
             this.currentStatus.statusName = 'Off Duty';
             this.currentStatusColor = this.getStatusColor(this.currentStatus.statusCode);
+
+            if (this.networkStatus) {
+              await this.dashboardService
+                .updateLogEvent(firstLogEvent)
+                .toPromise()
+                .then(async response => {
+                  console.log('New status is updated on server:', response);
+                  await this.updateLogEvents(firstLogEvent, true);
+                })
+                .catch(async error => {
+                  console.log('Internet Status: ' + this.networkStatus);
+                  console.log('New Log Event Status Pushed in offline logEvents Array');
+                  await this.updateLogEvents(firstLogEvent, false);
+                });
+            } else {
+              console.log('Updated logEvents in offline array');
+              await this.updateLogEvents(firstLogEvent, false);
+            }
           } else {
             this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
             this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
           }
+
+          console.log(this.logEvents);
 
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
@@ -914,11 +942,13 @@ export class HosPage implements OnInit, OnDestroy {
     this.isModalOpen = false;
   }
 
-  async confirm(hidden: boolean = false, code?: string) {
+  async confirm(hidden: boolean = false, code?: string, validate: boolean = true) {
     console.log(this.selectedButton);
     console.log(this.lastSelectedButton);
-    this.shareService.changeMessage(this.utilityService.generateString(5));
-    if (!this.utilityService.validateForm(this.validation)) return;
+    if (validate) {
+      this.shareService.changeMessage(this.utilityService.generateString(5));
+      if (!this.utilityService.validateForm(this.validation)) return;
+    }
     if (hidden) {
       console.log('inside hidden');
       this.shareService.destroyMessage();
@@ -1311,11 +1341,11 @@ export class HosPage implements OnInit, OnDestroy {
                 await this.changeStatusLocally('ON');
                 clearInterval(this.slowDownTimoutRemainingInterval);
                 clearTimeout(this.slowDownTimeout);
+                this.slowDownTimeout = null;
               }
               this.slowDownTimoutRemaining--;
             }, 1000);
           }
-          this.slowDownTimeout = null;
         }, 4000); // to be changed
       }
     } else {
@@ -1329,20 +1359,15 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async powerUpAndDown() {
-    // this.lastRPM = 0;
-    // this.eldData['R'] = '10';
-    // this.eldData['O'] = '10';
-    // this.eldData['H'] = '10';
-    let powerUpIndex = this.logEvents.reverse().findIndex(el => el.type.code === 'UP_NORMAL' || el.type.code === 'UP_NORMAL');
-    let powerDownIndex = this.logEvents.reverse().findIndex(el => el.type.code === 'DOWN_NORMAL' || el.type.code === 'DOWN_REDUCED');
     if (this.eldData['R']) {
-      if (parseInt(this.eldData['R']) > 0 && this.lastRPM === 0 && powerUpIndex < powerDownIndex) {
+      console.log(parseInt(this.eldData['R']), ' ', this.lastRPM);
+      if (parseInt(this.eldData['R']) > 0 && this.lastRPM === 0) {
         if (this.eldData['O'] && this.eldData['H']) {
           await this.changeStatusLocally('UP_NORMAL', false, false, true);
         } else {
           await this.changeStatusLocally('UP_REDUCED', false, false, true);
         }
-      } else if (parseInt(this.eldData['R']) === 0 && this.lastRPM > 0 && powerUpIndex > powerDownIndex) {
+      } else if (parseInt(this.eldData['R']) === 0 && this.lastRPM > 0) {
         if (this.eldData['O'] && this.eldData['H']) {
           await this.changeStatusLocally('DOWN_NORMAL', false, false, true);
         } else {
@@ -1356,17 +1381,21 @@ export class HosPage implements OnInit, OnDestroy {
   async changeStatusLocally(code: string, loading: boolean = true, select: boolean = true, hidden: boolean = false) {
     this.closeAutoDrivingModal();
     clearInterval(this.slowDownTimoutRemainingInterval);
-    this.autoChangeLoading = true;
+    clearTimeout(this.slowDownTimeout);
+    this.slowDownTimeout = null;
+    if (!hidden) this.autoChangeLoading = true;
     if (select) this.selectButton(code);
     await this.getLocalCurrentLocation(false);
     this.validation['location'] = true;
     this.autoChangeLoading = false;
-    await this.confirm(hidden, code).catch(e => (this.autoChangeLoading = false));
+    await this.confirm(hidden, code, false).catch(e => (this.autoChangeLoading = false));
   }
 
   closeAutoDrivingModal() {
     this.isDrivingAuto = false;
     clearInterval(this.slowDownTimoutRemainingInterval);
+    clearTimeout(this.slowDownTimeout);
+    this.slowDownTimeout = null;
   }
 
   async showBannerInfoMessage() {
@@ -1436,31 +1465,35 @@ export class HosPage implements OnInit, OnDestroy {
   async createIntermediate() {
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     if (this.currentStatus.statusCode === 'D') {
-      let visibleLogs = this.logEvents.filter(el => allSt.includes(el.type.code)).reverse();
+      let visibleLogs = this.logEvents
+        .filter(el => allSt.includes(el.type.code))
+        .slice()
+        .reverse();
       console.log(visibleLogs);
-      let currentDriving = visibleLogs.find(el => el.type.code === 'D');
+      let localDriving = visibleLogs.find(el => el.type.code === 'D');
       let numberOfIntermetdiates = 1;
-      this.logEvents.reverse().every(el => {
+      let reverseLogs = this.logEvents.slice().reverse();
+      reverseLogs.every(el => {
         if (el.type.code === 'NORMAL_PRECISION') {
           numberOfIntermetdiates++;
         }
         if (el.type.code === 'D') return false;
         return true;
       });
-      this.currentDriving.start = currentDriving.eventTime.timeStamp;
+      this.currentDriving.start = localDriving.eventTime.timeStamp;
       this.currentDriving.index = numberOfIntermetdiates;
 
       // console.log(new Date().getTime() - currentDriving.eventTime.timeStamp);
       // console.log((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000 / 60 / 60);
       // console.log(((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000) % 60);
 
-      if ((new Date().getTime() / 1000) % 300 < 60) {
+      if (((new Date().getTime() - this.currentDriving.start) / 1000) % 300 < 60) {
         //to be changed
         console.log('intermediate');
         await this.changeStatusLocally('NORMAL_PRECISION', false, false, true);
       }
     } else {
-      this.currentDriving = undefined;
+      this.currentDriving = { start: 0, index: 0 };
     }
   }
 
@@ -1468,5 +1501,8 @@ export class HosPage implements OnInit, OnDestroy {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+    // if (this.eldDataSub) {
+    //   this.eldDataSub.unsubscribe();
+    // }
   }
 }
