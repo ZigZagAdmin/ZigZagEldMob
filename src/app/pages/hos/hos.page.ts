@@ -26,6 +26,7 @@ import { GeolocationService } from 'src/app/services/geolocation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CarSimulatorService } from 'src/app/services/car-simulator.service';
 
+
 interface BannerInfo {
   show: boolean;
   type: 'success' | 'warning' | 'default' | 'error';
@@ -1504,5 +1505,9 @@ export class HosPage implements OnInit, OnDestroy {
     // if (this.eldDataSub) {
     //   this.eldDataSub.unsubscribe();
     // }
+  }
+
+  canDeactivate() {
+    return !this.autoChangeLoading;
   }
 }

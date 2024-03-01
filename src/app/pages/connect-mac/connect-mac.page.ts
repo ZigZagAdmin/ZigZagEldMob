@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { NavController } from '@ionic/angular';
+import { IonRouterOutlet, NavController, Platform } from '@ionic/angular';
 import { Geolocation } from '@capacitor/geolocation';
 import { Vehicle } from 'src/app/models/vehicle';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -169,5 +169,9 @@ export class ConnectMacPage implements OnInit, OnDestroy {
           await this.storage.set('elds', this.elds);
         });
     }
+  }
+
+  canDeactivate() {
+    return !this.loading;
   }
 }
