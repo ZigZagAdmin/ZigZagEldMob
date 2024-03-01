@@ -228,6 +228,10 @@ export class BluetoothService {
       let test = el.split('=');
       temp[test[0]] = test[1];
     });
+    temp['V'] = temp['V'] ? temp['V'] : '0';
+    temp['O'] = temp['O'] ? temp['O'] : '0';
+    temp['H'] = temp['H'] ? temp['H'] : '0';
+    temp['R'] = temp['R'] ? temp['R'] : '0';
 
     console.log('Speed: ', temp['V']);
     console.log('Odometers: ', temp['O']);

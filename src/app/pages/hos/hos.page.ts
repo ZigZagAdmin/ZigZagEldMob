@@ -80,6 +80,7 @@ export class HosPage implements OnInit, OnDestroy {
   restCycle: number = 0;
 
   currentStatus = { statusCode: '', statusName: '' };
+  currentDriving: { start: number; index: number };
   currentStatusTime = '';
   currentStatusColor: string = '';
 
@@ -289,6 +290,7 @@ export class HosPage implements OnInit, OnDestroy {
             new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime();
           this.elds = elds;
           this.lastEld = chosenEldMac !== null && chosenEldMac !== undefined && chosenEldMac.length !== 0 ? this.elds.find(el => el.macAddress === chosenEldMac) : undefined;
+          console.log('filtered log events: ', filteredLogEvents.toLocaleString());
           if (filteredLogEvents.length === 0) {
             let firstLogEvent: LogEvents = {
               logEventId: this.utilityService.uuidv4(),
@@ -323,6 +325,7 @@ export class HosPage implements OnInit, OnDestroy {
             this.lastSelectedButton = 'OFF';
             this.currentStatus.statusCode = 'OFF';
             this.currentStatus.statusName = 'Off Duty';
+            this.currentStatusColor = this.getStatusColor(this.currentStatus.statusCode);
           } else {
             this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
             this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
@@ -374,7 +377,7 @@ export class HosPage implements OnInit, OnDestroy {
 
             this.storage.set('lastStatusCode', this.selectedButton);
             this.storage.set('bAuthorized', true);
-
+            console.log('logevents after creations: ', JSON.stringify(this.logEvents));
             if (this.networkStatus) {
               await this.dashboardService
                 .updateLogEvent(lastLogEvent)
@@ -947,7 +950,7 @@ export class HosPage implements OnInit, OnDestroy {
     let lastLogEvent = filteredLogEvents[filteredLogEvents.length - 1];
     let lastBigEvent = this.logEvents[this.logEvents.length - 1];
 
-    if (lastLogEvent) {
+    if (lastLogEvent && allSt.includes(status)) {
       lastLogEvent.eventTime.timeStampEnd = endTime;
     }
 
@@ -1040,6 +1043,9 @@ export class HosPage implements OnInit, OnDestroy {
 
       sent: true,
     };
+    if (status.includes('PRECISION')) {
+      newLogEvent.eventTime.timeStamp = this.currentDriving.start + this.currentDriving.index * 5 * 60 * 1000;
+    }
 
     if (this.networkStatus) {
       await this.dashboardService
@@ -1293,7 +1299,7 @@ export class HosPage implements OnInit, OnDestroy {
         clearInterval(this.slowDownTimoutRemainingInterval);
         this.slowDownTimeout = null;
       }
-    } else if (parseInt(this.eldData['V']) === 0 && this.lastSpeedValue >= 5 && this.currentStatus.statusCode === 'D') {
+    } else if (parseInt(this.eldData['V']) < 5 && this.currentStatus.statusCode === 'D') {
       if (!this.slowDownTimeout) {
         this.slowDownTimoutRemaining = 60; // to be changes
         this.slowDownTimeout = setTimeout(async () => {
@@ -1304,6 +1310,7 @@ export class HosPage implements OnInit, OnDestroy {
                 this.closeAutoDrivingModal();
                 await this.changeStatusLocally('ON');
                 clearInterval(this.slowDownTimoutRemainingInterval);
+                clearTimeout(this.slowDownTimeout);
               }
               this.slowDownTimoutRemaining--;
             }, 1000);
@@ -1319,22 +1326,23 @@ export class HosPage implements OnInit, OnDestroy {
         this.slowDownTimeout = null;
       }
     }
-    this.lastSpeedValue = parseInt(this.eldData['V']);
   }
 
   async powerUpAndDown() {
-    this.lastRPM = 0;
-    this.eldData['R'] = '10';
-    this.eldData['O'] = '10';
-    this.eldData['H'] = '10';
+    // this.lastRPM = 0;
+    // this.eldData['R'] = '10';
+    // this.eldData['O'] = '10';
+    // this.eldData['H'] = '10';
+    let powerUpIndex = this.logEvents.reverse().findIndex(el => el.type.code === 'UP_NORMAL' || el.type.code === 'UP_NORMAL');
+    let powerDownIndex = this.logEvents.reverse().findIndex(el => el.type.code === 'DOWN_NORMAL' || el.type.code === 'DOWN_REDUCED');
     if (this.eldData['R']) {
-      if (parseInt(this.eldData['R']) > 0 && this.lastRPM === 0) {
+      if (parseInt(this.eldData['R']) > 0 && this.lastRPM === 0 && powerUpIndex < powerDownIndex) {
         if (this.eldData['O'] && this.eldData['H']) {
           await this.changeStatusLocally('UP_NORMAL', false, false, true);
         } else {
           await this.changeStatusLocally('UP_REDUCED', false, false, true);
         }
-      } else if (parseInt(this.eldData['R']) === 0 && this.lastRPM > 0) {
+      } else if (parseInt(this.eldData['R']) === 0 && this.lastRPM > 0 && powerUpIndex > powerDownIndex) {
         if (this.eldData['O'] && this.eldData['H']) {
           await this.changeStatusLocally('DOWN_NORMAL', false, false, true);
         } else {
@@ -1429,15 +1437,30 @@ export class HosPage implements OnInit, OnDestroy {
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     if (this.currentStatus.statusCode === 'D') {
       let visibleLogs = this.logEvents.filter(el => allSt.includes(el.type.code)).reverse();
-      // console.log(visibleLogs);
+      console.log(visibleLogs);
       let currentDriving = visibleLogs.find(el => el.type.code === 'D');
+      let numberOfIntermetdiates = 1;
+      this.logEvents.reverse().every(el => {
+        if (el.type.code === 'NORMAL_PRECISION') {
+          numberOfIntermetdiates++;
+        }
+        if (el.type.code === 'D') return false;
+        return true;
+      });
+      this.currentDriving.start = currentDriving.eventTime.timeStamp;
+      this.currentDriving.index = numberOfIntermetdiates;
+
       // console.log(new Date().getTime() - currentDriving.eventTime.timeStamp);
       // console.log((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000 / 60 / 60);
-      // console.log(((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000) % 3600);
-      if ((currentDriving.eventTime.timeStamp / 1000) % 3600 < 60) {
+      // console.log(((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000) % 60);
+
+      if ((new Date().getTime() / 1000) % 300 < 60) {
+        //to be changed
         console.log('intermediate');
         await this.changeStatusLocally('NORMAL_PRECISION', false, false, true);
       }
+    } else {
+      this.currentDriving = undefined;
     }
   }
 
