@@ -99,7 +99,6 @@
           <rect [attr.x]="violationRect.x1" [attr.width]="violationRect.x2 - violationRect.x1" class="error-status-viol" height="200"></rect>
         </g>
       </svg>
-      <div class="range-container" *ngIf="!disableForm['timeInput']"><span>Min: {{ minValue }}</span><span>Max: {{ maxValue }}</span></div>
       <div class="violation-list" *ngIf="violations[logDaily.logDate] && violations[logDaily.logDate].length !== 0">
         <div class="violation-item" *ngFor="let violation of violations[logDaily.logDate]" (click)="toggleViolationRect(violation)">
           {{ violation?.regulations?.name + ' ' }}{{ violation?.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
@@ -144,7 +143,7 @@
         (gpsCallback)="getLocalCurrentLocation()"
         [validation]="validation['location']"
         [noValidation]="noValidation"></app-location-input>
-      <app-comments [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
+      <app-comments [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [noValidation]="true"></app-comments>
     </div>
     <div class="confirm-buttons">
       <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">{{'Back' | translate}}</button>

@@ -193,7 +193,7 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // this.carSim.startSimulation();
+    this.carSim.startSimulation();
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
@@ -217,20 +217,20 @@ export class HosPage implements OnInit, OnDestroy {
         this.deviceConStatus = status;
         await this.showBannerInfoMessage();
       });
-      this.eldDataSub = this.bluetoothService.getBluetoothDataObservable().subscribe(async (data: { [key: string]: string }) => {
-        console.log(data);
-        if (data && JSON.stringify(data) !== JSON.stringify(this.lastEldData)) {
-          this.eldData = data;
-          this.lastEldData = data;
-          if (this.skipFirst) {
-            await this.changeDrivingAutomatically();
-            await this.powerUpAndDown();
-          }
-          this.skipFirst = true;
-          this.lastRPM = parseInt(this.eldData['R']);
-        }
-      });
     }
+    this.eldDataSub = this.carSim.dataObs.subscribe(async (data: { [key: string]: string }) => {
+      console.log(data);
+      if (data && JSON.stringify(data) !== JSON.stringify(this.lastEldData)) {
+        this.eldData = data;
+        this.lastEldData = data;
+        if (this.skipFirst) {
+          await this.changeDrivingAutomatically();
+          await this.powerUpAndDown();
+        }
+        this.skipFirst = true;
+        this.lastRPM = parseInt(this.eldData['R']);
+      }
+    });
 
     this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
@@ -944,9 +944,10 @@ export class HosPage implements OnInit, OnDestroy {
     this.isModalOpen = false;
   }
 
-  async confirm(hidden: boolean = false, code?: string, validate: boolean = true) {
+  async confirm(hidden: boolean = false, code?: string, validate: boolean = true, origin?: { name: string; code: string }) {
     console.log(this.selectedButton);
     console.log(this.lastSelectedButton);
+    console.log(origin);
     if (validate) {
       this.shareService.changeMessage(this.utilityService.generateString(5));
       if (!this.utilityService.validateForm(this.validation)) return;
@@ -963,7 +964,7 @@ export class HosPage implements OnInit, OnDestroy {
         this.lastSelectedButton = this.selectedButton;
         this.shareService.destroyMessage();
         await this.storage.set('lastStatusCode', this.selectedButton);
-        await this.onWillDismiss(this.selectedButton).then(() => {
+        await this.onWillDismiss(this.selectedButton, origin).then(() => {
           this.currentStatusColor = this.getStatusColor(this.selectedButton);
           this.isModalOpen = false;
           this.modalLoading = false;
@@ -974,7 +975,8 @@ export class HosPage implements OnInit, OnDestroy {
     }
   }
 
-  async onWillDismiss(status: string) {
+  async onWillDismiss(status: string, origin: { name: string; code: string } = { name: 'Driver', code: 'DRIVER' }) {
+    console.log(origin);
     this.modalLoading = true;
     const endTime = new Date().getTime();
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
@@ -1028,11 +1030,11 @@ export class HosPage implements OnInit, OnDestroy {
         eventTypeType: 'DRIVER_INDICATES',
       },
       NORMAL_PRECISION: {
-        statusName: 'Intermediate w/ CLP Intermediate log with conventional location precision',
+        statusName: 'Intermediate w/ CLP',
         eventTypeType: 'DRIVER_INDICATES',
       },
       REDUCED_PRECISION: {
-        statusName: 'Intermediate w/ RLP Intermediate log with reduced location precision',
+        statusName: 'Intermediate w/ RLP',
         eventTypeType: 'DRIVER_INDICATES',
       },
     };
@@ -1063,7 +1065,7 @@ export class HosPage implements OnInit, OnDestroy {
       sequenceNumber: lastBigEvent ? lastBigEvent.sequenceNumber + 1 : 1,
       type: { name: statuses[status as keyof typeof statuses] ? statuses[status as keyof typeof statuses].statusName : 'Unknown', code: status },
       recordStatus: { name: 'Active', code: 'ACTIVE' },
-      recordOrigin: { name: 'Driver', code: 'DRIVER' },
+      recordOrigin: origin,
       odometer: this.eldData['O'] ? parseInt(this.eldData['O']) : 1,
       engineHours: this.eldData['H'] ? parseInt(this.eldData['H']) : 1,
       malfunction: false,
@@ -1315,11 +1317,12 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async changeDrivingAutomatically() {
+    console.log(this.currentStatus);
     if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
-      await this.changeStatusLocally('D');
+      await this.changeStatusLocally('D', true, true, false, { name: 'Auto', code: 'AUTO' });
       this.closeAutoDrivingModal();
     } else if (parseInt(this.eldData['V']) === 0 && parseInt(this.eldData['R']) === 0 && this.currentStatus.statusCode === 'D') {
-      await this.changeStatusLocally('ON');
+      await this.changeStatusLocally('ON', true, true, false, { name: 'Auto', code: 'AUTO' });
       this.closeAutoDrivingModal();
     } else if (parseInt(this.eldData['V']) < 5 && this.currentStatus.statusCode === 'D') {
       if (!this.slowDownTimeout) {
@@ -1330,7 +1333,7 @@ export class HosPage implements OnInit, OnDestroy {
             this.slowDownTimoutRemainingInterval = setInterval(async () => {
               if (this.slowDownTimoutRemaining === 0) {
                 this.closeAutoDrivingModal();
-                await this.changeStatusLocally('ON');
+                await this.changeStatusLocally('ON', true, true, false, { name: 'Auto', code: 'AUTO' });
               }
               this.slowDownTimoutRemaining--;
             }, 1000);
@@ -1362,14 +1365,14 @@ export class HosPage implements OnInit, OnDestroy {
     this.lastRPM = this.eldData['R'] ? parseInt(this.eldData['R']) : 0;
   }
 
-  async changeStatusLocally(code: string, loading: boolean = true, select: boolean = true, hidden: boolean = false) {
+  async changeStatusLocally(code: string, loading: boolean = true, select: boolean = true, hidden: boolean = false, origin?: { name: string; code: string }) {
     if (!hidden) this.closeAutoDrivingModal();
     if (!hidden) this.autoChangeLoading = true;
     if (select) this.selectButton(code);
     await this.getLocalCurrentLocation(false);
     this.validation['location'] = true;
     this.autoChangeLoading = false;
-    await this.confirm(hidden, code, false).catch(e => (this.autoChangeLoading = false));
+    await this.confirm(hidden, code, false, origin).catch(e => (this.autoChangeLoading = false));
   }
 
   closeAutoDrivingModal() {
