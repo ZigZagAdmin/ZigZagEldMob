@@ -93,7 +93,7 @@
           </g>
         </g>
         <g transform="translate(65, 40)">
-          <rect [attr.x]="currentLogEventRect.x1" [attr.width]="currentLogEventRect.x2 - currentLogEventRect.x1" class="current-status" height="200"></rect>
+          <rect [attr.x]="currentLogEventRect.x1" [attr.width]="currentLogEventRect.x2 - currentLogEventRect.x1 >= 0 ? currentLogEventRect.x2 - currentLogEventRect.x1 : 0" class="current-status" height="200"></rect>
         </g>
         <g transform="translate(65, 40)">
           <rect [attr.x]="violationRect.x1" [attr.width]="violationRect.x2 - violationRect.x1" class="error-status-viol" height="200"></rect>

@@ -590,16 +590,21 @@ export class InsertDutyStatusPage implements OnInit, OnDestroy {
       } else {
         this.validation.eld = true;
         this.validate();
+
+        this.calculateDuration();
+        if (this.duration < 60000 && this.duration >= 0) {
+          this.invalidate();
+          this.validation.duration = false;
+          this.toastService.showToast(this.translate.instant('The created status must be at least 1 minute long!'), 'danger', 2500);
+        } else if (this.duration < 0) {
+          this.invalidate();
+          this.validation.duration = false;
+          this.toastService.showToast(this.translate.instant('You cannot create statuses ahead of time!'), 'danger', 2500);
+        } else {
+          this.validate();
+          this.validation.duration = true;
+        }
       }
-    }
-    this.calculateDuration();
-    if (this.duration < 60000) {
-      this.invalidate();
-      this.validation.duration = false;
-      this.toastService.showToast(this.translate.instant('The created status must be at least 1 minute long!'), 'danger', 2500);
-    } else {
-      this.validate();
-      this.validation.duration = true;
     }
 
     this.drawGraph();
