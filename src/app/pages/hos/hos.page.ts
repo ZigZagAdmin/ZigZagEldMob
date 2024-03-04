@@ -26,7 +26,6 @@ import { GeolocationService } from 'src/app/services/geolocation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CarSimulatorService } from 'src/app/services/car-simulator.service';
 
-
 interface BannerInfo {
   show: boolean;
   type: 'success' | 'warning' | 'default' | 'error';
@@ -168,6 +167,7 @@ export class HosPage implements OnInit, OnDestroy {
   slowDownTimoutRemaining: number = 0;
   slowDownTimoutRemainingInterval: any;
   lastRPM: number = 0;
+  lastEldData: { [key: string]: string } = {};
 
   skipFirst: boolean = false;
 
@@ -193,7 +193,7 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // this.carSim.startSimulation();
+    this.carSim.startSimulation();
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
@@ -217,19 +217,20 @@ export class HosPage implements OnInit, OnDestroy {
         this.deviceConStatus = status;
         await this.showBannerInfoMessage();
       });
-      this.eldDataSub = this.bluetoothService.getBluetoothDataObservable().subscribe(async (data: { [key: string]: string }) => {
-        console.log(data);
-        if (data) {
-          this.eldData = data;
-          if (this.skipFirst) {
-            await this.changeDrivingAutomatically();
-            await this.powerUpAndDown();
-          }
-          this.skipFirst = true;
-          this.lastRPM = parseInt(this.eldData['R']);
-        }
-      });
     }
+    this.eldDataSub = this.carSim.dataObs.subscribe(async (data: { [key: string]: string }) => {
+      console.log(data);
+      if (data && JSON.stringify(data) !== JSON.stringify(this.lastEldData)) {
+        this.eldData = data;
+        this.lastEldData = data;
+        if (this.skipFirst) {
+          await this.changeDrivingAutomatically();
+          await this.powerUpAndDown();
+        }
+        this.skipFirst = true;
+        this.lastRPM = parseInt(this.eldData['R']);
+      }
+    });
 
     this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
@@ -1317,19 +1318,9 @@ export class HosPage implements OnInit, OnDestroy {
     if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
       await this.changeStatusLocally('D');
       this.closeAutoDrivingModal();
-      if (this.slowDownTimeout) {
-        clearTimeout(this.slowDownTimeout);
-        clearInterval(this.slowDownTimoutRemainingInterval);
-        this.slowDownTimeout = null;
-      }
     } else if (parseInt(this.eldData['V']) === 0 && parseInt(this.eldData['R']) === 0 && this.currentStatus.statusCode === 'D') {
       await this.changeStatusLocally('ON');
       this.closeAutoDrivingModal();
-      if (this.slowDownTimeout) {
-        clearTimeout(this.slowDownTimeout);
-        clearInterval(this.slowDownTimoutRemainingInterval);
-        this.slowDownTimeout = null;
-      }
     } else if (parseInt(this.eldData['V']) < 5 && this.currentStatus.statusCode === 'D') {
       if (!this.slowDownTimeout) {
         this.slowDownTimoutRemaining = 60; // to be changes
@@ -1340,9 +1331,6 @@ export class HosPage implements OnInit, OnDestroy {
               if (this.slowDownTimoutRemaining === 0) {
                 this.closeAutoDrivingModal();
                 await this.changeStatusLocally('ON');
-                clearInterval(this.slowDownTimoutRemainingInterval);
-                clearTimeout(this.slowDownTimeout);
-                this.slowDownTimeout = null;
               }
               this.slowDownTimoutRemaining--;
             }, 1000);
@@ -1351,11 +1339,6 @@ export class HosPage implements OnInit, OnDestroy {
       }
     } else {
       this.closeAutoDrivingModal();
-      if (this.slowDownTimeout) {
-        clearTimeout(this.slowDownTimeout);
-        clearInterval(this.slowDownTimoutRemainingInterval);
-        this.slowDownTimeout = null;
-      }
     }
   }
 
@@ -1380,10 +1363,7 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async changeStatusLocally(code: string, loading: boolean = true, select: boolean = true, hidden: boolean = false) {
-    this.closeAutoDrivingModal();
-    clearInterval(this.slowDownTimoutRemainingInterval);
-    clearTimeout(this.slowDownTimeout);
-    this.slowDownTimeout = null;
+    if (!hidden) this.closeAutoDrivingModal();
     if (!hidden) this.autoChangeLoading = true;
     if (select) this.selectButton(code);
     await this.getLocalCurrentLocation(false);
@@ -1394,9 +1374,11 @@ export class HosPage implements OnInit, OnDestroy {
 
   closeAutoDrivingModal() {
     this.isDrivingAuto = false;
-    clearInterval(this.slowDownTimoutRemainingInterval);
-    clearTimeout(this.slowDownTimeout);
-    this.slowDownTimeout = null;
+    if (this.slowDownTimeout) {
+      clearTimeout(this.slowDownTimeout);
+      clearInterval(this.slowDownTimoutRemainingInterval);
+      this.slowDownTimeout = null;
+    }
   }
 
   async showBannerInfoMessage() {
