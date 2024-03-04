@@ -14,7 +14,6 @@ export class LeaveGuard implements CanDeactivate<ConnectMacPage | HosPage> {
     currentState: RouterStateSnapshot,
     nextState: RouterStateSnapshot
   ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
-    console.log('leave guard: ', component);
     return component && component.canDeactivate ? component.canDeactivate() : true;
   }
 }

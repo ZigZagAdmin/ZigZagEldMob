@@ -196,6 +196,7 @@ export class HosPage implements OnInit, OnDestroy {
     // this.carSim.startSimulation();
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
       await this.getBluetoothState();
@@ -248,6 +249,13 @@ export class HosPage implements OnInit, OnDestroy {
             this.pageLoading = true;
             if (logDailies.length !== 0) this.logDailies = logDailies;
             await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
+            let localCurrentStatus = JSON.parse(JSON.stringify(this.logEvents))
+              .reverse()
+              .find((el: LogEvents) => allSt.includes(el.type.code))?.type?.code;
+            await this.storage.set('lastStatusCode', localCurrentStatus);
+            this.currentStatus.statusCode = localCurrentStatus;
+            this.selectedButton = localCurrentStatus;
+            this.lastSelectedButton = localCurrentStatus;
             await this.createLogDailies();
             await this.calcViolations();
             this.pageLoading = false;
