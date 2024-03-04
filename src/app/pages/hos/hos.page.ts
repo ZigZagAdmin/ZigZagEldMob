@@ -193,7 +193,7 @@ export class HosPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.carSim.startSimulation();
+    // this.carSim.startSimulation();
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
@@ -217,20 +217,20 @@ export class HosPage implements OnInit, OnDestroy {
         this.deviceConStatus = status;
         await this.showBannerInfoMessage();
       });
-    }
-    this.eldDataSub = this.carSim.dataObs.subscribe(async (data: { [key: string]: string }) => {
-      console.log(data);
-      if (data && JSON.stringify(data) !== JSON.stringify(this.lastEldData)) {
-        this.eldData = data;
-        this.lastEldData = data;
-        if (this.skipFirst) {
-          await this.changeDrivingAutomatically();
-          await this.powerUpAndDown();
+      this.eldDataSub = this.bluetoothService.getBluetoothDataObservable().subscribe(async (data: { [key: string]: string }) => {
+        console.log(data);
+        if (data && JSON.stringify(data) !== JSON.stringify(this.lastEldData)) {
+          this.eldData = data;
+          this.lastEldData = data;
+          if (this.skipFirst) {
+            await this.changeDrivingAutomatically();
+            await this.powerUpAndDown();
+          }
+          this.skipFirst = true;
+          this.lastRPM = parseInt(this.eldData['R']);
         }
-        this.skipFirst = true;
-        this.lastRPM = parseInt(this.eldData['R']);
-      }
-    });
+      });
+    }
 
     this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
