@@ -19,6 +19,8 @@ export class SendLogsPage implements OnInit, OnDestroy {
     comments: false,
   };
 
+  options: string[] = ['Email', 'Web'];
+
   constructor(private navCtrl: NavController, private shareService: ShareService, private utilityService: UtilityService) {}
 
   ngOnInit() {}
@@ -35,6 +37,10 @@ export class SendLogsPage implements OnInit, OnDestroy {
     // Waiting for the back end function to send logs to hos
     this.loading = false;
     this.goBack();
+  }
+
+  showSelection() {
+    
   }
 
   goBack() {

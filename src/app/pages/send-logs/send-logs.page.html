@@ -1,7 +1,8 @@
-<ion-content>
+<ion-content [forceOverscroll]="false">
   <app-header [title]="'Send Logs' | translate" [backButton]="true" (backButtonCallback)="goBack()"><button class="btn secondary-btn">{{'7 Days + Today' | translate}}</button></app-header>
   <div class="edit-form padding-g">
-    <app-input [label]="'Data Transfer Type' | translate" [fill]="false" [type]="'text'" [(value)]="dataTransferType" [disabled]="loading" [(validation)]="validation['dataTransferType']"></app-input>
+    <!-- <app-input [label]="'Data Transfer Type' | translate" [fill]="false" [type]="'text'" [(value)]="dataTransferType" [disabled]="loading" [(validation)]="validation['dataTransferType']"></app-input> -->
+    <app-select [label]="'Data Transfer Type' | translate" [fill]="false" (changeDetection)="showSelection()" [(value)]="dataTransferType" [options]="options" [(validation)]="validation['dataTransferType']"></app-select>
     <app-textarea [label]="'Comments' | translate" [fill]="false" [type]="'text'" [(value)]="comments" [disabled]="loading" [(validation)]="validation['comments']"></app-textarea>
     <div class="btns-flex">
       <button class="btn secondary-btn" (click)="goBack()">{{'Back' | translate}}</button>

@@ -13,6 +13,7 @@ import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { InputComponentModule } from 'src/app/components/input/input.module';
 import { TextareaComponentModule } from 'src/app/components/textarea/textarea.module';
 import { TranslateModule } from '@ngx-translate/core';
+import { SelectComponentModule } from 'src/app/components/select/select.module';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { TranslateModule } from '@ngx-translate/core';
     HeaderComponentModule,
     InputComponentModule,
     TextareaComponentModule,
-    TranslateModule
+    TranslateModule,
+    SelectComponentModule
   ],
   declarations: [SendLogsPage]
 })
