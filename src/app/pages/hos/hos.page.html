@@ -18,6 +18,7 @@
       <button style="padding: 5px" (click)="carSim.stopEngine()">power down</button>
       <button style="padding: 5px" (click)="carSim.driving()">drive</button>
       <button style="padding: 5px" (click)="carSim.stopDriving()">stop driving</button>
+      <button style="padding: 5px" (click)="carSim.instantMessage()">instant data</button>
     </div> -->
 
     <app-message-banner *ngIf="bannerInfo.show" [title]="bannerInfo.title | translate" [subtitle]="bannerInfo.subtitle | translate" [type]="bannerInfo.type"></app-message-banner>

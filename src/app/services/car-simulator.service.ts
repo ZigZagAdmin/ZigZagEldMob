@@ -17,6 +17,10 @@ export class CarSimulatorService {
   speed = 0;
   rpm = 0;
   data: { [key: string]: string } = { O: this.odometer.toString(), H: this.engineHours.toString(), V: this.speed.toString(), R: this.rpm.toString() };
+
+  private debounceTimeout: any;
+  private debounceDelay: number = 10000;
+
   constructor() {}
 
   startSimulation() {
@@ -50,6 +54,15 @@ export class CarSimulatorService {
     this.drivingStatus = setInterval(() => {
       this.odometer += 0.0764;
     }, 5000);
+  }
+
+  instantMessage() {
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout);
+    }
+    this.debounceTimeout = setTimeout(() => {
+      this.dataBehSub.next(this.data);
+    }, this.debounceDelay);
   }
 
   stopDriving() {

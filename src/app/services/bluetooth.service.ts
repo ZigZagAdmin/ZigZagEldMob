@@ -18,6 +18,9 @@ export class BluetoothService {
   service = numberToUUID(0x1800);
   read = '00002A00-0000-1000-8000-00805F9B34FB';
 
+  private debounceTimeout: any;
+  private debounceDelay: number = 10000;
+
   constructor(private platform: Platform, private translate: TranslateService) {}
 
   async initialize() {
@@ -196,12 +199,17 @@ export class BluetoothService {
     try {
       await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => {
         try {
-          if (res) {
-            console.log('current heart rate', this.parseData(res));
-            this.bluetoothDataSubject.next(this.decodeJ1708(res));
-          } else {
-            this.deviceConnectionStatus.next(false);
+          if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
           }
+          this.debounceTimeout = setTimeout(() => {
+            if (res) {
+              console.log('current heart rate', this.parseData(res));
+              this.bluetoothDataSubject.next(this.decodeJ1708(res));
+            } else {
+              this.deviceConnectionStatus.next(false);
+            }
+          }, this.debounceDelay);
         } catch (e) {
           this.deviceConnectionStatus.next(false);
         }

@@ -220,7 +220,7 @@ export class HosPage implements OnInit, OnDestroy {
       });
       this.eldDataSub = this.bluetoothService.getBluetoothDataObservable().subscribe(async (data: { [key: string]: string }) => {
         console.log(data);
-        if (data && JSON.stringify(data) !== JSON.stringify(this.lastEldData)) {
+        if (data) {
           this.eldData = data;
           this.lastEldData = data;
           if (this.skipFirst) {
@@ -1477,14 +1477,13 @@ export class HosPage implements OnInit, OnDestroy {
       this.currentDriving.start = localDriving.eventTime.timeStamp;
       this.currentDriving.index = numberOfIntermetdiates;
 
-      // console.log(new Date().getTime() - currentDriving.eventTime.timeStamp);
-      // console.log((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000 / 60 / 60);
-      // console.log(((new Date().getTime() - currentDriving.eventTime.timeStamp) / 1000) % 60);
+      // console.log(((new Date().getTime() - this.currentDriving.start) / 1000) % 300 < 60);
+      // console.log(((new Date().getTime() - this.currentDriving.start) / 1000) % 300);
 
-      if (((new Date().getTime() - this.currentDriving.start) / 1000) % 300 < 60) {
+      if (new Date().getTime() - this.currentDriving.start > 60000 && ((new Date().getTime() - this.currentDriving.start) / 1000) % 300 < 60) {
         //to be changed
         console.log('intermediate');
-        await this.changeStatusLocally('NORMAL_PRECISION', false, false, true);
+        await this.changeStatusLocally('NORMAL_PRECISION', false, false, true, { name: 'Auto', code: 'AUTO' });
       }
     } else {
       this.currentDriving = { start: 0, index: 0 };
@@ -1495,9 +1494,9 @@ export class HosPage implements OnInit, OnDestroy {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
-    // if (this.eldDataSub) {
-    //   this.eldDataSub.unsubscribe();
-    // }
+    if (this.eldDataSub) {
+      this.eldDataSub.unsubscribe();
+    }
   }
 
   canDeactivate() {
