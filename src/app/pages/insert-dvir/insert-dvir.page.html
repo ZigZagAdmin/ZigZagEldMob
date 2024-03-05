@@ -6,8 +6,8 @@
       <div class="edit-dvir-block">
         <app-input [label]="'Company' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
         <div class="two-inputs">
-          <app-input [label]="'Time' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
-          <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
+          <app-input style="flex: 1" [label]="'Time' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
+          <app-input style="flex: 1" [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
         </div>
         <app-location-input
           [label]="'Location' | translate"
@@ -23,7 +23,11 @@
       <div class="edit-dvir-block">
         <app-input [label]="'Vehicle Name' | translate" [fill]="true" [type]="'text'" [disabled]="vehicleUnitDisable" [value]="vehicleUnit" [noValidation]="true"></app-input>
         <app-input [label]="'Odometer' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="dvir.odometer.toString()" [noValidation]="true"></app-input>
-        <app-multiple-select [label]="'Vehicle Defects (Optional)' | translate" [(value)]="dvir.defectsVehicle" (changeDetection)="checkSelectPresent($event)" [options]="defectsVehicle"></app-multiple-select>
+        <app-multiple-select
+          [label]="'Vehicle Defects (Optional)' | translate"
+          [(value)]="dvir.defectsVehicle"
+          (changeDetection)="checkSelectPresent($event)"
+          [options]="defectsVehicle"></app-multiple-select>
       </div>
       <p class="subtitle-lg">{{'Trailer Info' | translate}}</p>
       <div class="edit-dvir-block">
@@ -44,9 +48,9 @@
         <app-textarea [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="dvir.comments" [noValidation]="true"></app-textarea>
       </div>
       <p class="subtitle-lg">{{'Signature' | translate}}</p>
-      <div>
+      <div class="canvas-box">
         <div class="canvas-container">
-          <canvas #sPad height="200" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
+          <canvas #sPad height="300" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
           <div class="image-container" *ngIf="signatureFound">
             <img [ngClass]="{ 'no-display': imageLoading }" [src]="dvir.signatureLink" (load)="imageLoaded()" />
             <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, HostListener } from '@angular/core';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { InternetService } from 'src/app/services/internet.service';
@@ -25,9 +25,9 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: './edit-dvir.page.html',
   styleUrls: ['./edit-dvir.page.scss'],
 })
-export class EditDvirPage implements OnInit, OnDestroy {
-  @ViewChild('sPad', { static: false }) signaturePadElement!: ElementRef;
-  @ViewChild('mechanicSPad', { static: false }) mechanicSignaturePadElement!: ElementRef;
+export class EditDvirPage implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('sPad', { static: false }) signaturePadElement: ElementRef;
+  @ViewChild('mechanicSPad', { static: false }) mechanicSignaturePadElement: ElementRef;
 
   defectsVehicle = defectsVehicle;
   defectsTrailers = defectsVehicle;
@@ -90,6 +90,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
   locationLoading: boolean = false;
 
   timeZones: { [key: string]: string } = {};
+  oldSignatureLink: string = '';
+  oldSignatureId: string = '';
 
   constructor(
     private navCtrl: NavController,
@@ -125,6 +127,8 @@ export class EditDvirPage implements OnInit, OnDestroy {
         this.dvirs = dvirs;
         this.timeZone = timeZone;
         this.dvir = this.dvirs.find(item => item.dvirId === this.dvirId);
+        this.oldSignatureLink = this.dvir.signatureLink;
+        this.oldSignatureId = this.dvir.signatureId;
         console.log(this.dvir);
         if (!(this.dvir.signatureBase64 && this.dvir.signatureBase64.length !== 0)) this.dvir.signatureBase64 = '';
         if (!(this.dvir.mechanicSignatureBase64 && this.dvir.mechanicSignatureBase64.length !== 0)) this.dvir.mechanicSignatureBase64 = '';
@@ -137,6 +141,13 @@ export class EditDvirPage implements OnInit, OnDestroy {
     );
     this.signatureTimeout();
     this.mechanicSignatureTimeout();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.resizeCanvas();
+      this.resizeMechCanvas();
+    }, 100);
   }
 
   ionViewDidEnter(): void {
@@ -177,6 +188,10 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.dvir.mechanicSignatureId = '00000000-0000-0000-0000-000000000000';
       this.dvir.mechanicSignatureBase64 = '';
       this.clearMechanicSignature();
+    }
+    if (this.dvir.status.code === 'DC' && this.mechanicSignaturePad) {
+      this.initMechanicalSignaturePad();
+      setTimeout(() => this.resizeMechCanvas(), 100);
     }
   }
 
@@ -293,9 +308,9 @@ export class EditDvirPage implements OnInit, OnDestroy {
         this.updateSignatureField();
       });
 
-      if (this.dvir && this.dvir.signatureBase64) {
-        this.renderSignature('data:image/png;base64,' + this.dvir.signatureBase64);
-      }
+      // if (this.dvir && this.dvir.signatureBase64) {
+      //   this.renderSignature('data:image/png;base64,' + this.dvir.signatureBase64);
+      // }
     }
     if (this.dvir.signatureLink && this.dvir.signatureLink.length !== 0) {
       this.signatureFound = true;
@@ -311,9 +326,9 @@ export class EditDvirPage implements OnInit, OnDestroy {
         this.updateMechanicSignatureField();
       });
 
-      if (this.dvir && this.dvir.mechanicSignatureBase64) {
-        this.renderMechanicSignature('data:image/png;base64,' + this.dvir.mechanicSignatureBase64);
-      }
+      // if (this.dvir && this.dvir.mechanicSignatureBase64) {
+      //   this.renderMechanicSignature('data:image/png;base64,' + this.dvir.mechanicSignatureBase64);
+      // }
     }
     if (this.dvir.mechanicSignatureLink && this.dvir.mechanicSignatureLink.length !== 0) {
       this.mechanicSignatureFound = true;
@@ -357,7 +372,7 @@ export class EditDvirPage implements OnInit, OnDestroy {
   }
 
   async restoreSignature() {
-    if (this.signatureRestored) {
+    if (this.signatureFound) {
       this.toastService.showToast(this.translate.instant('Signatured already restored!'), 'warning');
       return;
     }
@@ -373,6 +388,13 @@ export class EditDvirPage implements OnInit, OnDestroy {
       this.signatureFound = true;
       this.signatureRestored = true;
       this.signatureTimeout();
+    } else if (this.oldSignatureId.length !== 0 && this.oldSignatureLink.length !== 0) {
+      this.dvir.signatureId = this.oldSignatureId;
+      this.dvir.signatureLink = this.oldSignatureLink;
+      this.signatureFound = true;
+      this.signatureRestored = true;
+      this.signatureTimeout();
+      this.toastService.showToast(this.translate.instant('No other signature found. Restoring old signature.'), 'warning');
     } else {
       this.signatureFound = false;
       this.toastService.showToast(this.translate.instant('No signature found on this current dvir.'));
@@ -482,5 +504,27 @@ export class EditDvirPage implements OnInit, OnDestroy {
 
   getTime(value: number) {
     return formatDate(value, 'hh:mm a', 'en_US', this.timeZones[this.timeZone]);
+  }
+
+  resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    this.signaturePadElement.nativeElement.width = this.signaturePadElement.nativeElement.offsetWidth * ratio;
+    this.signaturePadElement.nativeElement.height = this.signaturePadElement.nativeElement.offsetHeight * ratio;
+    this.signaturePadElement.nativeElement.getContext('2d').scale(ratio, ratio);
+    this.clearSignature();
+  }
+
+  resizeMechCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    this.mechanicSignaturePadElement.nativeElement.width = this.mechanicSignaturePadElement.nativeElement.offsetWidth * ratio;
+    this.mechanicSignaturePadElement.nativeElement.height = this.mechanicSignaturePadElement.nativeElement.offsetHeight * ratio;
+    this.mechanicSignaturePadElement.nativeElement.getContext('2d').scale(ratio, ratio);
+    this.clearMechanicSignature();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.resizeCanvas();
+    this.resizeMechCanvas();
   }
 }

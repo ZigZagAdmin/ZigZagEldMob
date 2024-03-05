@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
@@ -56,7 +56,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   signaturePadOptions: any = {
     minWidth: 2,
     maxWidth: 3,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     penColor: 'black',
   };
 
@@ -97,6 +97,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initSignaturePad();
+    setTimeout(() => this.resizeCanvas(), 0);
   }
 
   ngOnDestroy(): void {}
@@ -114,6 +115,19 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
         this.updateSignatureField();
       });
     }
+  }
+
+  resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    this.signaturePad.nativeElement.width = this.signaturePad.nativeElement.offsetWidth * ratio;
+    this.signaturePad.nativeElement.height = this.signaturePad.nativeElement.offsetHeight * ratio;
+    this.signaturePad.nativeElement.getContext('2d').scale(ratio, ratio);
+    this.clearSignature();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.resizeCanvas();
   }
 
   async restoreSignature() {
@@ -223,7 +237,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
       await firstValueFrom(this.dashboardService.updateLogDaily(this.logDaily as LogDailies)).then(
         async (response: any) => {
-          this.toastService.showToast(this.translate.instant('Successfully signed the log certification.'), 'success');
+          this.toastService.showToast(this.translate.instant('Successfully signed the log certification. (' + this.logDaily.logDate + ')'), 'success');
           if (response.signatureLink) this.logDaily.form.signatureLink = response.signatureLink;
           await this.updateIndexLogDaily(this.logDaily as LogDailies, true).then(() => {
             console.log('logDaily got updated on the server: ', response);

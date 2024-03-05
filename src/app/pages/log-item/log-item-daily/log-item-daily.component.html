@@ -154,11 +154,11 @@
           <button class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">{{ 'Certified' | translate }}</button>
         </div>
       </div>
-      <ion-modal [isOpen]="isModalOpen">
+      <ion-modal id="cert-modal" [isOpen]="isModalOpen" [backdropDismiss]="false">
         <ng-template>
           <ion-content [forceOverscroll]="false">
             <app-header [title]="'Signature' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
-            <div style="display: flex; justify-content: center; align-items: center">
+            <div class="sign-box">
               <div class="signature-visualization">
                 <img [ngClass]="{ 'no-image': imageLoading }" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
                 <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>

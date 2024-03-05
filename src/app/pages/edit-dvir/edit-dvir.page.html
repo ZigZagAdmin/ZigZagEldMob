@@ -6,8 +6,8 @@
       <div class="edit-dvir-block">
         <app-input [label]="'Company' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
         <div class="two-inputs">
-          <app-input [label]="'Time' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir?.createDate)" [noValidation]="true"></app-input>
-          <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir?.createDate)" [noValidation]="true"></app-input>
+          <app-input style="flex: 1" [label]="'Time' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir?.createDate)" [noValidation]="true"></app-input>
+          <app-input style="flex: 1" [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir?.createDate)" [noValidation]="true"></app-input>
         </div>
         <app-location-input
           [label]="'Location' | translate"
@@ -51,7 +51,7 @@
         <app-textarea [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="dvir.comments" [noValidation]="true"></app-textarea>
       </div>
       <p class="subtitle-lg">{{'Signature' | translate}}</p>
-      <div>
+      <div class="canvas-box">
         <div class="canvas-container">
           <canvas #sPad height="200" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
           <div class="image-container" *ngIf="signatureFound">
@@ -66,8 +66,8 @@
       </div>
       <p class="subtitle-lg" [ngClass]="{'no-display': !(dvir.status.code === 'DC')}">{{'Mechanic Signature' | translate}}</p>
       <div class="two-inputs" [ngClass]="{'no-display': !(dvir.status.code === 'DC')}">
-        <app-input [label]="'Signature Date'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(getRepairDate())" [noValidation]="true"></app-input>
-        <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(getRepairDate())" [noValidation]="true"></app-input>
+        <app-input style="flex: 1" [label]="'Signature Date'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(getRepairDate())" [noValidation]="true"></app-input>
+        <app-input style="flex: 1" [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(getRepairDate())" [noValidation]="true"></app-input>
       </div>
       <div [ngClass]="{'no-display': !(dvir.status.code === 'DC')}">
         <div class="canvas-container">

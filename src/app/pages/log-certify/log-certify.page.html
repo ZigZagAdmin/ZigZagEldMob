@@ -3,7 +3,7 @@
     <div class="date-label">{{logDate | date: 'EEEE' | translate}}, {{logDate | date: 'MMM' | translate}} {{logDate | date: 'd'}}</div>
   </app-header>
   <div class="main-container padding-g">
-    <div>
+    <div class="canvas-box">
       <div class="canvas-container">
         <canvas #sPad height="290" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
         <div class="image-container" *ngIf="signatureFound">

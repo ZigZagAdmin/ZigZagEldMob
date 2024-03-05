@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { NavController } from '@ionic/angular';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
@@ -165,6 +165,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initSignaturePad();
+    setTimeout(() => this.resizeCanvas(), 0);
   }
 
   checkSelectPresent(data: any) {
@@ -181,6 +182,19 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       this.dvir.status.code = status;
       this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
     }
+  }
+
+  resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    document.querySelector('canvas').width = document.querySelector('canvas').offsetWidth * ratio;
+    document.querySelector('canvas').height = document.querySelector('canvas').offsetHeight * ratio;
+    document.querySelector('canvas').getContext('2d').scale(ratio, ratio);
+    this.clearSignature();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.resizeCanvas();
   }
 
   initSignaturePad() {

@@ -398,3 +398,19 @@ ion-col {
   background-color: var(--primary-600);
   border-radius: 10px;
 }
+
+.sign-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 768px) and (min-height: 600px) {
+  .sign-box {
+    height: calc(100% - 86px); // header height + 2 * margin-top
+  }
+
+  ion-modal#cert-modal {
+    --border-radius: 10px;
+  }
+}

@@ -17,12 +17,12 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  //   max-width: 700px;
-  height: 320px;
   max-width: 500px;
+  height: 320px;
   background-color: var(--gray-100);
   border-radius: 10px;
   padding: 15px;
+  margin: 0 auto;
 
   canvas {
     width: 100%;
@@ -33,7 +33,10 @@
 
 .signature-buttons {
   display: flex;
+  width: 100%;
+  max-width: 500px;
   gap: 30px;
+  margin: 0 auto;
   margin-top: 10px;
 }
 
@@ -173,4 +176,17 @@ ion-modal#custom-modal {
 .primary {
   color: var(--gray-25);
   background-color: var(--primary-600);
+}
+
+.canvas-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: auto;
+}
+
+@media (min-width: 700px) and (min-height: 1000px) {
+  .canvas-box {
+    margin-top: 50px;
+  }
 }
