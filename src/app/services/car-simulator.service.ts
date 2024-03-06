@@ -26,7 +26,7 @@ export class CarSimulatorService {
   startSimulation() {
     this.dataInterval = setInterval(() => {
       this.data = { O: this.odometer.toFixed(0), H: this.engineHours.toFixed(4), V: this.speed.toString(), R: this.rpm.toString() };
-      console.log('simulated data:', this.data);
+      console.log('simulated data:', JSON.stringify(this.data));
       this.dataBehSub.next(this.data);
     }, 10000);
   }

@@ -224,8 +224,8 @@ export class HosPage implements OnInit, OnDestroy {
           this.eldData = data;
           this.lastEldData = data;
           if (this.skipFirst) {
-            await this.changeDrivingAutomatically();
-            await this.powerUpAndDown();
+            this.changeDrivingAutomatically();// removed await
+            this.powerUpAndDown(); // removed await
           }
           this.skipFirst = true;
           this.lastRPM = parseInt(this.eldData['R']);
@@ -625,7 +625,7 @@ export class HosPage implements OnInit, OnDestroy {
 
                   if ((splitTime >= 7 && firstEvent.type.code === 'SB') || (splitTime < 7 && dur < 7)) {
                     shiftT2 = shiftT2 - time;
-                    shiftT -= time
+                    shiftT -= time;
                     let temp = {
                       duration: splitTime,
                       time: shiftT2,
@@ -637,7 +637,7 @@ export class HosPage implements OnInit, OnDestroy {
                     } else if (this.splitSleepData && shiftT2) {
                       if (splitTime + this.splitSleepData.duration >= 10) {
                         shiftT2 -= this.splitSleepData.time;
-                        shiftT -= this.splitSleepData.time
+                        shiftT -= this.splitSleepData.time;
                         driveT -= this.splitSleepData.drivingT;
                         this.splitSleepData = {
                           duration: splitTime,
@@ -1337,17 +1337,21 @@ export class HosPage implements OnInit, OnDestroy {
   async changeDrivingAutomatically() {
     console.log(this.currentStatus);
     if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
+      console.log('changeDrivingAuto first if');
       await this.changeStatusLocally('D', true, true, false, { name: 'Auto', code: 'AUTO' });
       this.closeAutoDrivingModal();
     } else if (parseInt(this.eldData['V']) === 0 && parseInt(this.eldData['R']) === 0 && this.currentStatus.statusCode === 'D') {
+      console.log('changeDrivingAuto second if');
       await this.changeStatusLocally('ON', true, true, false, { name: 'Auto', code: 'AUTO' });
       this.closeAutoDrivingModal();
     } else if (parseInt(this.eldData['V']) < 5 && this.currentStatus.statusCode === 'D') {
+      console.log('changeDrivingAuto third if');
       if (!this.slowDownTimeout) {
         this.slowDownTimoutRemaining = 60; // to be changes
         this.slowDownTimeout = setTimeout(async () => {
           if (this.currentStatus.statusCode === 'D') {
             this.isDrivingAuto = true;
+            this.changeDetectorRef.detectChanges();
             this.slowDownTimoutRemainingInterval = setInterval(async () => {
               if (this.slowDownTimoutRemaining === 0) {
                 this.closeAutoDrivingModal();
@@ -1359,6 +1363,7 @@ export class HosPage implements OnInit, OnDestroy {
         }, 4000); // to be changed
       }
     } else {
+      console.log('changeDrivingAuto else');
       this.closeAutoDrivingModal();
     }
   }
@@ -1400,6 +1405,7 @@ export class HosPage implements OnInit, OnDestroy {
       clearInterval(this.slowDownTimoutRemainingInterval);
       this.slowDownTimeout = null;
     }
+    this.changeDetectorRef.detectChanges();
   }
 
   async showBannerInfoMessage() {
