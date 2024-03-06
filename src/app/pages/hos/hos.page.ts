@@ -572,6 +572,7 @@ export class HosPage implements OnInit, OnDestroy {
     let driveT = 0;
     let driveT2 = 0;
     let shiftT = 0;
+    let shiftT2 = 0;
     let cycleT = 0;
     let firstEvent: LogEvents;
     let secondEvent: LogEvents;
@@ -605,6 +606,7 @@ export class HosPage implements OnInit, OnDestroy {
             case 'PC':
               breakT += time;
               shiftT += time;
+              shiftT2 += time;
               timeNotDrive += time;
 
               if (this.splitSleeperBerth) {
@@ -622,22 +624,24 @@ export class HosPage implements OnInit, OnDestroy {
                   }
 
                   if ((splitTime >= 7 && firstEvent.type.code === 'SB') || (splitTime < 7 && dur < 7)) {
-                    shiftT = shiftT - time;
+                    shiftT2 = shiftT2 - time;
+                    shiftT -= time
                     let temp = {
                       duration: splitTime,
-                      time: shiftT,
+                      time: shiftT2,
                       drivingT: driveT,
                     };
 
-                    if (!this.splitSleepData && shiftT) {
+                    if (!this.splitSleepData && shiftT2) {
                       this.splitSleepData = temp;
-                    } else if (this.splitSleepData && shiftT) {
+                    } else if (this.splitSleepData && shiftT2) {
                       if (splitTime + this.splitSleepData.duration >= 10) {
-                        shiftT -= this.splitSleepData.time;
+                        shiftT2 -= this.splitSleepData.time;
+                        shiftT -= this.splitSleepData.time
                         driveT -= this.splitSleepData.drivingT;
                         this.splitSleepData = {
                           duration: splitTime,
-                          time: shiftT,
+                          time: shiftT2,
                           drivingT: driveT,
                         };
                       }
@@ -649,10 +653,12 @@ export class HosPage implements OnInit, OnDestroy {
               if (breakT >= this.newShift) {
                 driveT = 0;
                 shiftT = 0;
+                shiftT2 = 0;
                 this.splitSleepData = undefined;
               }
               if (breakT >= this.restartTime) {
                 shiftT = 0;
+                shiftT2 = 0;
                 cycleT = 0;
                 driveT = 0;
                 this.splitSleepData = undefined;
@@ -667,14 +673,16 @@ export class HosPage implements OnInit, OnDestroy {
               breakT = 0;
               timeNotDrive += time;
               shiftT += time;
+              shiftT2 += time;
               cycleT += time;
-              if (shiftT > this.shiftLimit) {
+              if (shiftT2 > this.shiftLimit) {
                 this.pushViolation(
-                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
                   hosErrors.DUTY_LIMIT,
-                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                  secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)
                 );
-                shiftT = 0;
+                shiftT2 = 0;
+                // shiftT = 0;
               }
               if (cycleT > this.cycleLimit) {
                 this.pushViolation(
@@ -690,6 +698,7 @@ export class HosPage implements OnInit, OnDestroy {
               driveT2 += time;
               driveT += time;
               shiftT += time;
+              shiftT2 += time;
               cycleT += time;
               if (driveT2 > this.driveWithoutBreakLimit && timeNotDrive < this.notDriveLimit) {
                 this.pushViolation(
@@ -713,13 +722,14 @@ export class HosPage implements OnInit, OnDestroy {
                 );
                 driveT = 0;
               }
-              if (shiftT > this.shiftLimit) {
+              if (shiftT2 > this.shiftLimit) {
                 this.pushViolation(
-                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
                   hosErrors.DUTY_LIMIT,
-                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                  secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)
                 );
-                shiftT = 0;
+                shiftT2 = 0;
+                // shiftT = 0;
               }
               if (cycleT > this.cycleLimit) {
                 this.pushViolation(
