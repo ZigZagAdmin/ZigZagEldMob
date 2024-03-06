@@ -19,7 +19,7 @@ export class BluetoothService {
   read = '00002A00-0000-1000-8000-00805F9B34FB';
 
   private debounceTimeout: any;
-  private debounceDelay: number = 10000;
+  private debounceDelay: number = 5000;
 
   constructor(private platform: Platform, private translate: TranslateService) {}
 
@@ -196,27 +196,43 @@ export class BluetoothService {
 
   async subscribeToDeviceData(macAddress: string = 'FC:29:99:B8:78:0E') {
     // const macAddress: string = 'FC:29:99:B8:78:0E';
-    try {
-      await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => {
-        try {
-          if (this.debounceTimeout) {
-            clearTimeout(this.debounceTimeout);
-          }
-          this.debounceTimeout = setTimeout(() => {
-            if (res) {
-              console.log('current heart rate', this.parseData(res));
-              this.bluetoothDataSubject.next(this.decodeJ1708(res));
-            } else {
-              this.deviceConnectionStatus.next(false);
-            }
-          }, this.debounceDelay);
-        } catch (e) {
+    let dataReceivedTimeout: any;
+
+    const handleDataTimeout = () => {
+      console.log('No data received in 15 seconds, assuming disconnection');
+      this.deviceConnectionStatus.next(false);
+    };
+
+    const resetDataReceivedTimeout = () => {
+      if (dataReceivedTimeout) {
+        clearTimeout(dataReceivedTimeout);
+      }
+      dataReceivedTimeout = setTimeout(handleDataTimeout, 15000); // 15 seconds
+    };
+
+    resetDataReceivedTimeout();
+
+    await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => {
+      if (this.debounceTimeout) {
+        clearTimeout(this.debounceTimeout);
+      }
+      this.debounceTimeout = setTimeout(() => {
+        if (res) {
+          console.log('current heart rate', this.parseData(res));
+          this.bluetoothDataSubject.next(this.decodeJ1708(res));
+          resetDataReceivedTimeout();
+        } else {
           this.deviceConnectionStatus.next(false);
         }
-      });
-    } catch (e) {
-      this.deviceConnectionStatus.next(false);
-    }
+      }, this.debounceDelay);
+
+      return () => {
+        clearTimeout(dataReceivedTimeout);
+        if (this.debounceTimeout) {
+          clearTimeout(this.debounceTimeout);
+        }
+      };
+    });
   }
 
   async getServices(macAddress: string = 'FC:29:99:B8:78:0E') {
