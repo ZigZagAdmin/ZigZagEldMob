@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
 import { Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,7 +21,7 @@ export class BluetoothService {
   private debounceTimeout: any;
   private debounceDelay: number = 5000;
 
-  constructor(private platform: Platform, private translate: TranslateService) {}
+  constructor(private platform: Platform, private translate: TranslateService, private ngZone: NgZone) {}
 
   async initialize() {
     await BleClient.initialize({ androidNeverForLocation: true });
@@ -211,27 +211,28 @@ export class BluetoothService {
     };
 
     resetDataReceivedTimeout();
-
-    await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => {
-      if (this.debounceTimeout) {
-        clearTimeout(this.debounceTimeout);
-      }
-      this.debounceTimeout = setTimeout(() => {
-        if (res) {
-          console.log('current heart rate', this.parseData(res));
-          this.bluetoothDataSubject.next(this.decodeJ1708(res));
-          resetDataReceivedTimeout();
-        } else {
-          this.deviceConnectionStatus.next(false);
-        }
-      }, this.debounceDelay);
-
-      return () => {
-        clearTimeout(dataReceivedTimeout);
+    this.ngZone.runOutsideAngular(async () => {
+      await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => {
         if (this.debounceTimeout) {
           clearTimeout(this.debounceTimeout);
         }
-      };
+        this.debounceTimeout = setTimeout(() => {
+          if (res) {
+            console.log('current heart rate', this.parseData(res));
+            this.bluetoothDataSubject.next(this.decodeJ1708(res));
+            resetDataReceivedTimeout();
+          } else {
+            this.deviceConnectionStatus.next(false);
+          }
+        }, this.debounceDelay);
+
+        return () => {
+          clearTimeout(dataReceivedTimeout);
+          if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+          }
+        };
+      });
     });
   }
 

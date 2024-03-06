@@ -224,7 +224,7 @@ export class HosPage implements OnInit, OnDestroy {
           this.eldData = data;
           this.lastEldData = data;
           if (this.skipFirst) {
-            this.changeDrivingAutomatically();// removed await
+            this.changeDrivingAutomatically(); // removed await
             this.powerUpAndDown(); // removed await
           }
           this.skipFirst = true;
@@ -1353,11 +1353,14 @@ export class HosPage implements OnInit, OnDestroy {
             this.isDrivingAuto = true;
             this.changeDetectorRef.detectChanges();
             this.slowDownTimoutRemainingInterval = setInterval(async () => {
-              if (this.slowDownTimoutRemaining === 0) {
-                this.closeAutoDrivingModal();
-                await this.changeStatusLocally('ON', true, true, false, { name: 'Auto', code: 'AUTO' });
-              }
-              this.slowDownTimoutRemaining--;
+              this.changeDetectorRef.detectChanges();
+              this.ngZone.run(async () => {
+                if (this.slowDownTimoutRemaining === 0) {
+                  this.closeAutoDrivingModal();
+                  await this.changeStatusLocally('ON', true, true, false, { name: 'Auto', code: 'AUTO' });
+                }
+                this.slowDownTimoutRemaining--;
+              });
             }, 1000);
           }
         }, 4000); // to be changed
