@@ -383,3 +383,29 @@ ion-loading {
   --background: var(--gray-25);
   --spinner-color: var(--gray-700);
 }
+
+.sleep-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--warning-500);
+  padding: 10px 15px;
+  border-radius: 50px;
+
+  .sleep-warning {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    img {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    span {
+      font-size: 15px;
+      color: var(--gray-25);
+    }
+  }
+}

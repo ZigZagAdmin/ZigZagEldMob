@@ -167,6 +167,9 @@
         </div>
       </div>
     </div>
+    <div class="sleep-container" *ngIf="splitSleeperBerth && splitSleepData && this.titleShift < 1800 && this.titleShift > 0">
+      <div class="sleep-warning"><img src="../../../assets/icon/danger.svg" /> <span>Warning: Shift will end in less than 30 min</span></div>
+    </div>
     <div class="rest-mode" *ngIf="restMode">
       <div class="rest-row">
         <div class="row-1">
