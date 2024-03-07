@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
   <app-header [title]="'Co-Driver' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">
-    <app-select [label]="'Select Co-Driver' | translate" (changeDetection)="showSelection()" [(value)]="chosenDriver" [options]="coDriverNames"></app-select>
+    <app-select [label]="'Select Co-Driver' | translate" (changeDetection)="showSelection()" [(value)]="chosenDriver" [options]="coDriverNames" [noValidation]="true"></app-select>
     <button class="btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
       <span *ngIf="!loading" style="color: #fcfcfc">{{'Save' | translate}}</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
     </button>

@@ -35,13 +35,12 @@ export class SendLogsPage implements OnInit, OnDestroy {
 
     this.loading = true;
     // Waiting for the back end function to send logs to hos
+
     this.loading = false;
     this.goBack();
   }
 
-  showSelection() {
-    
-  }
+  showSelection() {}
 
   goBack() {
     this.navCtrl.navigateBack('unitab/inspection');

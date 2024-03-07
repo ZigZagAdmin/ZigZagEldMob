@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { ShareService } from 'src/app/services/share.service';
+import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
@@ -7,7 +9,7 @@ import { UtilityService } from 'src/app/services/utility.service';
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.scss'],
 })
-export class SelectComponent implements OnInit {
+export class SelectComponent implements OnInit, OnDestroy {
   @Input() label: string;
   @Input() fill: boolean = true;
   @Input() validators: { regex: RegExp; message: string }[] = [];
@@ -60,16 +62,27 @@ export class SelectComponent implements OnInit {
 
   id: string = '';
 
-  constructor(private utilityService: UtilityService) {}
+  validationSub: Subscription;
+
+  constructor(private utilityService: UtilityService, private toastService: ToastService, private shareService: ShareService) {}
 
   ngOnInit() {
     this.id = this.utilityService.generateString(8);
     this.optionsCheck = this.options.map(value => ({ value: value, checked: false }));
+    this.validationSub = this.shareService.currentMessage.subscribe(data => {
+      if (data) {
+        this.validateSubmission('Field required!');
+      }
+    });
     if (this._value && this._value.length !== 0) {
       const localArray = this._value.split(', ');
       this.optionsCheck.forEach(option => localArray.forEach(valueSent => (option.value === valueSent ? (option.checked = true) : null)));
     }
     this.lastStatus = this.cloneArray(this.optionsCheck);
+  }
+
+  ngOnDestroy(): void {
+    this.validationSub.unsubscribe();
   }
 
   triggerCheck(option: { value: string; checked: boolean }, index: number) {
@@ -95,8 +108,21 @@ export class SelectComponent implements OnInit {
     let chosenElements: string[] = [];
     this.optionsCheck.forEach(el => (el.checked === true ? chosenElements.push(el.value) : null));
     this.value = chosenElements.join(', ');
+    this.validateSubmission('You must select a value!');
     this.lastStatus = this.cloneArray(this.optionsCheck);
     this.isModalOpen = false;
+  }
+
+  validateSubmission(message: string) {
+    if (!this.noValidation) {
+      if (this.value && this.value.length !== 0) {
+        this.valid = true;
+      } else {
+        this.valid = false;
+        this.toastService.showToast(message);
+      }
+      this.validationChange.emit(this.valid);
+    }
   }
 
   cloneArray(array: any) {

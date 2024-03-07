@@ -31,7 +31,7 @@
         [disabled]="true"
         [value]="company?.terminals[0].street + ', ' + company?.terminals[0].city + ', ' + company?.terminals[0].stateProvinceCode + ' ' + company?.terminals[0].zipCode + ', ' + company?.terminals[0].countryCode"
         [noValidation]="true"></app-input>
-      <app-select [label]="'Language' | translate" (changeDetection)="showSelection($event)" [(value)]="inputLanguage" [options]="languageOptions"></app-select>
+      <app-select [label]="'Language' | translate" (changeDetection)="showSelection($event)" [(value)]="inputLanguage" [options]="languageOptions" [noValidation]="true"></app-select>
     </div>
     <div style="flex: 1; display: flex; align-items: flex-end">
       <div class="reminder">

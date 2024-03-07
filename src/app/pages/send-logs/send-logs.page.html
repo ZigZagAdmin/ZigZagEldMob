@@ -6,7 +6,9 @@
     <app-textarea [label]="'Comments' | translate" [fill]="false" [type]="'text'" [(value)]="comments" [disabled]="loading" [(validation)]="validation['comments']"></app-textarea>
     <div class="btns-flex">
       <button class="btn secondary-btn" (click)="goBack()">{{'Back' | translate}}</button>
-      <button class="btn primary-btn" style="color: #fcfcfc" (click)="submit()">{{'Send' | translate}}</button>
+      <button class="btn primary-btn btn-custom" style="color: #fcfcfc" (click)="submit()">
+        <span *ngIf="!loading">{{'Save' | translate}}</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      </button>
     </div>
   </div>
 </ion-content>
