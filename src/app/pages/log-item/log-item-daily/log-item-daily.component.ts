@@ -115,7 +115,6 @@ export class LogItemDailyComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('LOG DAILY ON INIT');
     this.shareService.destroyMessage();
     this.shareService.changeMessage('reset');
     this.timeZones = this.utilityService.checkSeason();
@@ -123,7 +122,6 @@ export class LogItemDailyComponent implements OnInit {
       if (state) {
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
         if (this.LogDailiesId) {
-          console.log('LOG DAILY NETWORK SUB');
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
         }
       }
@@ -131,7 +129,6 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   async ionViewWillEnter() {
-    console.log('LOG DAILY VIEW ENTER');
     this.pageLoading = true;
     this.shareService.destroyMessage();
     this.shareService.changeMessage('reset');
@@ -161,7 +158,6 @@ export class LogItemDailyComponent implements OnInit {
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           if (this.logDaily) {
             this.currentDay = this.logDaily.logDate;
-            console.log(this.logDaily);
             this.fillFormWithLogDailyData();
           }
           this.drawGraph();
@@ -228,7 +224,6 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   drawGraph() {
-    console.log('LOG DAILY DRAW GRAPH');
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.eventGraphicLine = [];
     this.statusesOnDay = [];
@@ -398,7 +393,6 @@ export class LogItemDailyComponent implements OnInit {
         }
       }
     });
-    console.log(this.statusesOnDay);
   }
 
   goToNextLog() {

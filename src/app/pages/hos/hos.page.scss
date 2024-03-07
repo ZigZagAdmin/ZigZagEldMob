@@ -386,16 +386,18 @@ ion-loading {
 
 .sleep-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 10px;
-  background-color: var(--warning-500);
-  padding: 10px 15px;
-  border-radius: 50px;
+  width: 100%;
 
-  .sleep-warning {
+  .sleep-box {
+    width: 100%;
     display: flex;
-    align-items: flex-end;
-    gap: 3px;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 15px;
+    border-radius: 50px;
     img {
       width: 18px;
       height: 18px;
@@ -408,4 +410,18 @@ ion-loading {
       color: var(--gray-25);
     }
   }
+}
+
+.sleep-warning {
+  background-color: var(--warning-500);
+}
+
+.sleep-error {
+  background-color: var(--error-500);
+}
+
+.hide-container {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }

@@ -167,8 +167,35 @@
         </div>
       </div>
     </div>
-    <div class="sleep-container" *ngIf="splitSleeperBerth && splitSleepData && this.titleShift < 1800 && this.titleShift > 0">
-      <div class="sleep-warning"><img src="../../../assets/icon/danger.svg" /> <span>Warning: Shift will end in less than 30 min</span></div>
+    <div id="violation-m" class="sleep-container" [ngClass]="{'hide-container': !checkElementHasChildren('sleep-box')}">
+      <!-- Shift -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleShift < 1800 && this.titleShift > 0">
+        <img src="../../../assets/icon/danger.svg" /> <span>Shift Warning: Shift will end in {{convertSecondToHours(this.titleShift)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleShift === 0">
+        <img src="../../../assets/icon/danger.svg" /> <span>Shift Violation: Shift is 00:00</span>
+      </div>
+      <!-- Break -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleBreak < 1800 && this.titleBreak > 0 && currentStatus.statusCode === 'D'">
+        <img src="../../../assets/icon/danger.svg" /> <span>Break Warning: You'll have to take a break in {{convertSecondToHours(this.titleBreak)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'D') && this.titleBreak === 0">
+        <img src="../../../assets/icon/danger.svg" /> <span>Break Violation: Break is 00:00. You need to take a break</span>
+      </div>
+      <!-- Cycle -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleCycle < 1800 && this.titleCycle > 0">
+        <img src="../../../assets/icon/danger.svg" /> <span>Cycle Warning: Cycle will end in {{convertSecondToHours(this.titleCycle)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleCycle === 0">
+        <img src="../../../assets/icon/danger.svg" /> <span>Cycle Violation: Cycle is 00:00</span>
+      </div>
+      <!-- Driving -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleDriving < 1800 && this.titleDriving > 0 && currentStatus.statusCode === 'D'">
+        <img src="../../../assets/icon/danger.svg" /> <span>Driving Warning: Driving will end in {{convertSecondToHours(this.titleDriving)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="currentStatus.statusCode === 'D' && this.titleDriving === 0">
+        <img src="../../../assets/icon/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
+      </div>
     </div>
     <div class="rest-mode" *ngIf="restMode">
       <div class="rest-row">

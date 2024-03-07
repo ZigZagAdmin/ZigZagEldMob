@@ -53,10 +53,8 @@ export class UtilityService {
       new Date().getTime() >= seasonChanges[new Date().getFullYear().toString() as keyof typeof seasonChanges].summer &&
       new Date().getTime() < seasonChanges[new Date().getFullYear().toString() as keyof typeof seasonChanges].winter
     ) {
-      console.log('summer');
       return timeZoneSummer;
     } else {
-      console.log('winter');
       return timeZoneWinter;
     }
   }

@@ -17,6 +17,7 @@ import { LocationService } from './services/location.service';
 import { BluetoothService } from './services/bluetooth.service';
 import { Capacitor } from '@capacitor/core';
 import { TranslateService } from '@ngx-translate/core';
+import { KeepAwake } from '@capacitor-community/keep-awake';
 // import { Driver } from './models/driver';
 
 @Component({
@@ -65,6 +66,9 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       this.lastNetworkStatus = currentStatus.connected;
     });
+    if (await KeepAwake.isSupported()) {
+      await KeepAwake.keepAwake();
+    }
     if (Capacitor.getPlatform() !== 'web') {
       this.locationService.watchLocationStatus();
       this.bluetoothService.watchBluetoothStatus();

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonModal, Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, firstValueFrom, forkJoin, interval } from 'rxjs';
@@ -38,7 +38,7 @@ interface BannerInfo {
   templateUrl: './hos.page.html',
   styleUrls: ['./hos.page.scss'],
 })
-export class HosPage implements OnInit, OnDestroy {
+export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   message = '';
   someErrors: boolean = false;
   bReady: boolean = false;
@@ -269,6 +269,10 @@ export class HosPage implements OnInit, OnDestroy {
     setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
   }
 
+  ngAfterViewChecked(): void {
+    this.changeDetectorRef.detectChanges();
+  }
+
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
     if (this.internetSub) this.internetSub.unsubscribe();
@@ -367,8 +371,6 @@ export class HosPage implements OnInit, OnDestroy {
             this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
           }
 
-          console.log(this.logEvents);
-
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
@@ -415,7 +417,6 @@ export class HosPage implements OnInit, OnDestroy {
 
             this.storage.set('lastStatusCode', this.selectedButton);
             this.storage.set('bAuthorized', true);
-            console.log('logevents after creations: ', JSON.stringify(this.logEvents));
             if (this.networkStatus) {
               await this.dashboardService
                 .updateLogEvent(lastLogEvent)
@@ -1520,5 +1521,10 @@ export class HosPage implements OnInit, OnDestroy {
 
   canDeactivate() {
     return !this.autoChangeLoading;
+  }
+
+  checkElementHasChildren(id: string) {
+    let value = document.getElementsByClassName(id).length > 0;
+    return value;
   }
 }
