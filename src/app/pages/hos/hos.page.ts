@@ -1133,6 +1133,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
     await this.createLogDailies();
     await this.calcViolations();
+    await this.uploadDriverStatus();
   }
 
   convertSecondToHours(secs: number): string {
