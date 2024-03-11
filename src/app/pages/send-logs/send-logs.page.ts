@@ -23,9 +23,15 @@ export class SendLogsPage implements OnInit, OnDestroy {
 
   constructor(private navCtrl: NavController, private shareService: ShareService, private utilityService: UtilityService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.shareService.changeMessage('reset');
+  }
 
   ngOnDestroy(): void {
+    this.shareService.destroyMessage();
+  }
+
+  ionWillLeave() {
     this.shareService.destroyMessage();
   }
 

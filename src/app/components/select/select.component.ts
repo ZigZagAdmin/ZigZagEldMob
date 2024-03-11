@@ -71,7 +71,11 @@ export class SelectComponent implements OnInit, OnDestroy {
     this.optionsCheck = this.options.map(value => ({ value: value, checked: false }));
     this.validationSub = this.shareService.currentMessage.subscribe(data => {
       if (data) {
-        this.validateSubmission('Field required!');
+        if(data === 'reset') {
+          this.valid = true;
+        } else {
+          this.validateSubmission('Field required!');
+        }
       }
     });
     if (this._value && this._value.length !== 0) {
