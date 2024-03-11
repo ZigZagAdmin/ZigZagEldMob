@@ -440,6 +440,7 @@ export class InsertDutyStatusPage implements OnInit, OnDestroy {
     this.logDaily.violations = this.violations[this.logDaily.logDate] ? JSON.parse(JSON.stringify(this.violations[this.logDaily.logDate])) : [];
     this.noValidation = false;
     if (!this.validation.eld || !this.validation.duration) {
+      this.invalidate();
       this.toastService.showToast(this.translate.instant('Start Time not valid!'));
       return;
     }

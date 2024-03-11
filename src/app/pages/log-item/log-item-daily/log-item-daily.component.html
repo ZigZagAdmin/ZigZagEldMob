@@ -151,10 +151,10 @@
           <button class="btn primary-btn" [ngClass]="{ 'btn-disabled ': currentDay === today }" *ngIf="!logDaily?.certified" [disabled]="currentDay === today" (click)="certifyLog()">
             {{ 'Certify' | translate }}
           </button>
-          <button class="btn secondary-btn" *ngIf="logDaily?.certified" (click)="openModal()">{{ 'Certified' | translate }}</button>
+          <button class="btn secondary-btn" id="trigger-cert-modal" [ngClass]="{ 'no-image': !logDaily?.certified }" (click)="openModal()">{{ 'Certified' | translate }}</button>
         </div>
       </div>
-      <ion-modal id="cert-modal" [isOpen]="isModalOpen" [backdropDismiss]="false">
+      <ion-modal class="cert-modal" [isOpen]="isModalOpen" [trigger]="'trigger-cert-modal'">
         <ng-template>
           <ion-content [forceOverscroll]="false">
             <app-header [title]="'Signature' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>

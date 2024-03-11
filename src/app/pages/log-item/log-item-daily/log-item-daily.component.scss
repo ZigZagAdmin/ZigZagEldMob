@@ -410,7 +410,7 @@ ion-col {
     height: calc(100% - 86px); // header height + 2 * margin-top
   }
 
-  ion-modal#cert-modal {
+  ion-modal.cert-modal {
     --border-radius: 10px;
   }
 }
