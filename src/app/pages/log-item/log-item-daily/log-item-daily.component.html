@@ -1,7 +1,7 @@
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Log' | translate" [backButton]="true" (backButtonCallback)="goBack()">
     <div style="display: flex; gap: 10px">
-      <div class="preview-container" (click)="nevigateToInspection()" *ngIf="canBeInspected()"><img src="../../../assets/imgs/eye.png" /></div>
+      <div class="preview-container" (click)="nevigateToInspection()" *ngIf="canBeInspected()"><img src="../../../../assets/icon/header-eye.svg" /></div>
       <div class="dvir-add" (click)="insertStatus()">+</div>
     </div>
   </app-header>
