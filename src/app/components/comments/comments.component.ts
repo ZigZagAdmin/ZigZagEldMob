@@ -113,23 +113,24 @@ export class CommentsComponent implements OnInit, OnDestroy {
 
   validateInput() {
     if (!this.noValidation) {
-      if (this.value.length === 0) {
+      console.log(this.value);
+      if (this.value === undefined || this.value === null || this.value.length === 0) {
         this.valid = false;
         this.toastService.showToast(this.translate.instant('Field required'));
         // return;
       } else if (this.value.length > 0) {
         this.valid = true;
       }
-      if (this.value.length >= 0 && this.validators.length !== 0) {
-        this.validators.every(validator => {
-          if (!validator.regex.test(this.value)) {
-            this.valid = true;
-            this.toastService.showToast(validator.message);
-            return false;
-          }
-          return true;
-        });
-      }
+      // if (this.value.length >= 0 && this.validators.length !== 0) {
+      //   this.validators.every(validator => {
+      //     if (!validator.regex.test(this.value)) {
+      //       this.valid = true;
+      //       this.toastService.showToast(validator.message);
+      //       return false;
+      //     }
+      //     return true;
+      //   });
+      // }
       this.validation = this.valid;
     }
   }

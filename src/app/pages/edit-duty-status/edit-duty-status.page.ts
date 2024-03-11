@@ -387,7 +387,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       return;
     }
     if (this.logEvent.location.description && this.logEvent.location.description.length !== 0) this.validation.location = true;
-    if (this.logEvent.comment && this.logEvent.comment.length !== 0) this.validation.comments = true;
+    if (this.logEvent?.comment && this.logEvent?.comment?.length !== 0) this.validation.comments = true;
     this.shareService.changeMessage(this.utilityService.generateString(5));
     console.log(this.validation);
     if (!this.utilityService.validateForm(this.validation)) return;
