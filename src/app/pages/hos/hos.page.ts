@@ -708,6 +708,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
                   hosErrors.REST_BREAK,
                   secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)
                 );
+                driveT2 = 0;
               }
               // if (time > this.driveWithoutBreakLimit) {
               //   this.pushViolation(
