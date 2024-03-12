@@ -196,7 +196,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     // this.carSim.startSimulation();
     this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
-    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
       await this.getBluetoothState();
@@ -242,28 +241,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    this.paramsSubscription = this.route.params.subscribe(async params => {
-      if (this.bReady) {
-        await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
-          if (!this.ionViewTrigger) {
-            this.pageLoading = true;
-            if (logDailies.length !== 0) this.logDailies = logDailies;
-            await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
-            let localCurrentStatus = JSON.parse(JSON.stringify(this.logEvents))
-              .reverse()
-              .find((el: LogEvents) => allSt.includes(el.type.code))?.type?.code;
-            await this.storage.set('lastStatusCode', localCurrentStatus);
-            this.currentStatus.statusCode = localCurrentStatus;
-            this.selectedButton = localCurrentStatus;
-            this.lastSelectedButton = localCurrentStatus;
-            await this.createLogDailies();
-            await this.calcViolations();
-            this.pageLoading = false;
-          }
-        });
-      }
-    });
-
     this.updateEveryMinute();
 
     setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
@@ -283,6 +260,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   async ionViewWillEnter() {
     this.ionViewTrigger = true;
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.getVehicle();
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
@@ -451,8 +429,31 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
           await this.createLogDailies();
           await this.calcViolations();
+          setTimeout(() => (this.pageLoading = false), 100);
           this.ionViewTrigger = false;
-          this.pageLoading = false;
+        });
+      }
+    });
+
+    this.paramsSubscription = this.route.params.subscribe(async params => {
+      if (this.bReady) {
+        await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
+          if (!this.ionViewTrigger) {
+            console.log('HOS PAGE PARAM SUBS');
+            // this.pageLoading = true;
+            if (logDailies.length !== 0) this.logDailies = logDailies;
+            await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
+            let localCurrentStatus = JSON.parse(JSON.stringify(this.logEvents))
+              .reverse()
+              .find((el: LogEvents) => allSt.includes(el.type.code))?.type?.code;
+            await this.storage.set('lastStatusCode', localCurrentStatus);
+            this.currentStatus.statusCode = localCurrentStatus;
+            this.selectedButton = localCurrentStatus;
+            this.lastSelectedButton = localCurrentStatus;
+            await this.createLogDailies();
+            await this.calcViolations();
+            // this.pageLoading = false;
+          }
         });
       }
     });
