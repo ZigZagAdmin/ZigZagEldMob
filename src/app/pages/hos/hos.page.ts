@@ -440,7 +440,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
           if (!this.ionViewTrigger) {
             console.log('HOS PAGE PARAM SUBS');
-            // this.pageLoading = true;
+            // this.pageLoading = true; // to be changed
             if (logDailies.length !== 0) this.logDailies = logDailies;
             await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
             let localCurrentStatus = JSON.parse(JSON.stringify(this.logEvents))
@@ -452,7 +452,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
             this.lastSelectedButton = localCurrentStatus;
             await this.createLogDailies();
             await this.calcViolations();
-            // this.pageLoading = false;
+            // this.pageLoading = false; // to be changed
           }
         });
       }
