@@ -92,9 +92,9 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async login(username: string, password: string) {
-    if (Capacitor.getPlatform() !== 'web') {
-      Keyboard.hide();
-    }
+    // if (Capacitor.getPlatform() !== 'web') {
+    //   Keyboard.hide();
+    // }
     let networkStatus = await Network.getStatus();
     if (!networkStatus.connected) {
       this.toastService.showToast(this.translate.instant("You cannot login while you're offline!"));

@@ -29,6 +29,7 @@ export class DvirPage implements OnInit, OnDestroy {
   constructor(private navCtrl: NavController, private databaseService: DatabaseService, private interSerivce: InterService, private translate: TranslateService, private utilityService: UtilityService, private storage: Storage) {}
 
   ngOnInit() {
+    this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     this.interSub = this.interSerivce.currentMessage.subscribe(async message => {
       if (message && message.topic === 'dvir') {
@@ -43,7 +44,6 @@ export class DvirPage implements OnInit, OnDestroy {
   }
 
   async ionViewWillEnter() {
-    this.pageLoading = true;
     await firstValueFrom(this.databaseService.getDvirs()).then(async dvirs => {
       this.dvirs = dvirs;
       this.timeZone = await this.storage.get('timeZone');
