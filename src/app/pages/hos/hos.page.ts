@@ -170,6 +170,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   lastEldData: { [key: string]: string } = {};
 
   skipFirst: boolean = false;
+  firstLoading: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -195,6 +196,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   async ngOnInit() {
     // this.carSim.startSimulation();
     this.pageLoading = true;
+    this.firstLoading = true;
     this.ionViewTrigger = true;
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.timeZones = this.utilityService.checkSeason();
@@ -245,7 +247,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     this.paramsSubscription = this.route.params.subscribe(async params => {
       if (this.bReady) {
         await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
-          console.log(this.ionViewTrigger);
           if (!this.ionViewTrigger) {
             console.log('HOS PAGE PARAM SUBS');
             // this.pageLoading = true; // to be changed
@@ -453,11 +454,18 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
           await this.createLogDailies();
           await this.calcViolations();
-          setTimeout(() => (this.pageLoading = false), 100);
+          if (!this.firstLoading) this.pageLoading = false;
           this.ionViewTrigger = false;
         });
       }
     });
+  }
+
+  ionViewDidEnter() {
+    if (this.firstLoading) {
+      this.pageLoading = false;
+      this.firstLoading = false;
+    }
   }
 
   async handleSplitSleep(value: boolean | undefined | null) {
@@ -1219,7 +1227,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     this.countDays.sort((a, b) => b.logDate.localeCompare(a.logDate));
 
     this.logDailies = this.countDays.slice();
-    console.log('CREATE LOG DAILIES: ', this.logDailies);
 
     await this.storage.set('logDailies', this.logDailies);
   }
