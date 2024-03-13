@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonModal, Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
-import { Subscription, firstValueFrom, forkJoin, interval } from 'rxjs';
+import { Subscription, debounceTime, firstValueFrom, forkJoin, interval } from 'rxjs';
 import { NavController } from '@ionic/angular';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { ILocation, LogEvents } from 'src/app/models/log-histories';
@@ -195,6 +195,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   async ngOnInit() {
     // this.carSim.startSimulation();
     this.pageLoading = true;
+    this.ionViewTrigger = true;
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
@@ -240,6 +242,29 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
       }
     });
+    this.paramsSubscription = this.route.params.subscribe(async params => {
+      if (this.bReady) {
+        await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
+          console.log(this.ionViewTrigger);
+          if (!this.ionViewTrigger) {
+            console.log('HOS PAGE PARAM SUBS');
+            // this.pageLoading = true; // to be changed
+            if (logDailies.length !== 0) this.logDailies = logDailies;
+            await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
+            let localCurrentStatus = JSON.parse(JSON.stringify(this.logEvents))
+              .reverse()
+              .find((el: LogEvents) => allSt.includes(el.type.code))?.type?.code;
+            await this.storage.set('lastStatusCode', localCurrentStatus);
+            this.currentStatus.statusCode = localCurrentStatus;
+            this.selectedButton = localCurrentStatus;
+            this.lastSelectedButton = localCurrentStatus;
+            await this.createLogDailies();
+            await this.calcViolations();
+            // this.pageLoading = false; // to be changed
+          }
+        });
+      }
+    });
 
     this.updateEveryMinute();
 
@@ -260,7 +285,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   async ionViewWillEnter() {
     this.ionViewTrigger = true;
-    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.getVehicle();
     this.vehicleId = await this.storage.get('vehicleId');
     this.driverId = await this.storage.get('driverId');
@@ -431,29 +455,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           await this.calcViolations();
           setTimeout(() => (this.pageLoading = false), 100);
           this.ionViewTrigger = false;
-        });
-      }
-    });
-
-    this.paramsSubscription = this.route.params.subscribe(async params => {
-      if (this.bReady) {
-        await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
-          if (!this.ionViewTrigger) {
-            console.log('HOS PAGE PARAM SUBS');
-            // this.pageLoading = true; // to be changed
-            if (logDailies.length !== 0) this.logDailies = logDailies;
-            await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
-            let localCurrentStatus = JSON.parse(JSON.stringify(this.logEvents))
-              .reverse()
-              .find((el: LogEvents) => allSt.includes(el.type.code))?.type?.code;
-            await this.storage.set('lastStatusCode', localCurrentStatus);
-            this.currentStatus.statusCode = localCurrentStatus;
-            this.selectedButton = localCurrentStatus;
-            this.lastSelectedButton = localCurrentStatus;
-            await this.createLogDailies();
-            await this.calcViolations();
-            // this.pageLoading = false; // to be changed
-          }
         });
       }
     });
@@ -823,9 +824,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
             addTime(day, startDayTime);
           }
         }
-        for(const key in this.eventLogDailies) {
-          this.eventLogDailies[key].timeWorked =
-            this.eventLogDailies[key].timeOnDuty + this.eventLogDailies[key].timeDriving;
+        for (const key in this.eventLogDailies) {
+          this.eventLogDailies[key].timeWorked = this.eventLogDailies[key].timeOnDuty + this.eventLogDailies[key].timeDriving;
         }
       }
     });
@@ -887,7 +887,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         }
       }
     }
-    console.log(this.eventLogDailies);
   }
 
   pushViolation(day: string, error: { code: string; name: string }, date: number) {
@@ -1220,6 +1219,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     this.countDays.sort((a, b) => b.logDate.localeCompare(a.logDate));
 
     this.logDailies = this.countDays.slice();
+    console.log('CREATE LOG DAILIES: ', this.logDailies);
 
     await this.storage.set('logDailies', this.logDailies);
   }
