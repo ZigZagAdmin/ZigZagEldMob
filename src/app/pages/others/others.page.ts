@@ -13,6 +13,7 @@ import { Network } from '@capacitor/network';
 import { ManageService } from 'src/app/services/manage.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ACCESS_TOKEN_KEY } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-others',
@@ -256,6 +257,7 @@ export class OthersPage implements OnInit {
     this.loading = false;
     this.storage.remove('accessToken');
     this.storage.remove('pickedVehicle');
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
     this.isModalOpen = false;
     setTimeout(() => this.navCtrl.navigateForward('/login', { replaceUrl: true }), 0);
   }

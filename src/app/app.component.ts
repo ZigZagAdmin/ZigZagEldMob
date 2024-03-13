@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, getPlatform } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, getPlatform } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
 import { forkJoin, throwError } from 'rxjs';
@@ -42,7 +42,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private locationService: LocationService,
     private bluetoothService: BluetoothService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -72,6 +73,12 @@ export class AppComponent implements OnInit, OnDestroy {
     if (Capacitor.getPlatform() !== 'web') {
       this.locationService.watchLocationStatus();
       this.bluetoothService.watchBluetoothStatus();
+    }
+    console.log('AUTHENTICATED: ', this.authService.isAuthenticated());
+    if (!this.authService.isAuthenticated()) {
+      this.navCtrl.navigateForward('/login');
+    } else {
+      this.navCtrl.navigateForward('/select-vehicle');
     }
     this.loading = true;
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
@@ -168,13 +175,13 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.loading = true;
-    if (this.pickedVehicle) {
-      this.navCtrl.navigateForward('/connect-mac');
-    } else {
-      this.navCtrl.navigateForward('/select-vehicle');
-    }
-    this.loading = false;
+    // this.loading = true;
+    // if (this.pickedVehicle) {
+    //   this.navCtrl.navigateForward('/connect-mac');
+    // } else {
+    //   this.navCtrl.navigateForward('/select-vehicle');
+    // }
+    // this.loading = false;
   }
 
   ngOnDestroy(): void {

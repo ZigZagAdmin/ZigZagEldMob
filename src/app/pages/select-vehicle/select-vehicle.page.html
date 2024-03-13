@@ -1,9 +1,9 @@
 <ion-content [forceOverscroll]="false" [fullscreen]="true">
   <app-header [title]="'Select Vehicle' | translate" [backButton]="showBackButton" (backButtonCallback)="goBack()"></app-header>
 
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+  <!-- <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
+  </ion-refresher> -->
 
   <div class="vehicle-container">
     <div class="vehicle-card" *ngFor="let vehicle of driver?.driverInfo?.assignedVehicles" (click)="selectVehicle(vehicle)">
