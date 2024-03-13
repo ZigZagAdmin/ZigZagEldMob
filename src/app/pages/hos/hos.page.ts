@@ -822,8 +822,10 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
             let startDayTime = 24 * 60 * 60 * 1000 - (starTime.getHours() * 60 * 60 * 1000 + starTime.getMinutes() * 60 * 1000 + starTime.getSeconds() * 1000);
             addTime(day, startDayTime);
           }
-          this.eventLogDailies[firstEvent.eventTime.logDate].timeWorked =
-            this.eventLogDailies[firstEvent.eventTime.logDate].timeOnDuty + this.eventLogDailies[firstEvent.eventTime.logDate].timeDriving;
+        }
+        for(const key in this.eventLogDailies) {
+          this.eventLogDailies[key].timeWorked =
+            this.eventLogDailies[key].timeOnDuty + this.eventLogDailies[key].timeDriving;
         }
       }
     });
@@ -885,7 +887,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         }
       }
     }
-    // console.log(this.violations);
+    console.log(this.eventLogDailies);
   }
 
   pushViolation(day: string, error: { code: string; name: string }, date: number) {
