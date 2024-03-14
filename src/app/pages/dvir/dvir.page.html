@@ -2,7 +2,7 @@
   <app-header [title]="'DVIRs'">
     <div class="dvir-add" (click)="insertDvir()">+</div>
   </app-header>
-  <div class="dvirs-list" [ngClass]="{'hide-el': dvirs.length === 0 && pageLoading}">
+  <div class="dvirs-list" [ngClass]="{'hide-el': !(dvirs.length !== 0 && !pageLoading)}">
     <div class="dvir-card" *ngFor="let dvir of dvirs" (click)="editDvir(dvir)">
       <div class="dvir-card-header">
         <div class="card-header-date">
@@ -48,6 +48,6 @@
       </div>
     </div>
   </div>
-  <div class="no-data" [ngClass]="{'hide-el': dvirs.length !== 0 && pageLoading}">No data.</div>
+  <div class="no-data" [ngClass]="{'hide-el': !(dvirs.length === 0 && !pageLoading)}">No data.</div>
   <app-page-loader [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
 </ion-content>

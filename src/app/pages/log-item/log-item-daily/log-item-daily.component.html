@@ -6,8 +6,8 @@
     </div>
   </app-header>
 
-  <app-scroll-toolbar [ngClass]="{'hide-el': pageLoading}" [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
-  <div class="padding-g" [ngClass]="{'hide-el': pageLoading}">
+  <app-scroll-toolbar *ngIf="!pageLoading" [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
+  <div class="padding-g" *ngIf="!pageLoading">
     <div class="card-info">
       <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
         <g class="grid" transform="translate(65, 40)">
@@ -192,5 +192,5 @@
       </div>
     </div>
   </div>
-  <app-page-loader [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

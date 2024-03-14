@@ -1,6 +1,6 @@
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Rules' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" [ngClass]="{'hide-el': pageLoading}">
+  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">
       <div class="flex-b">
         <p class="text-2">{{'Cycle Rule' | translate}}</p>
@@ -56,5 +56,5 @@
       </div>
     </div>
   </div>
-  <app-page-loader [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

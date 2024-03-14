@@ -47,10 +47,12 @@ export class AccountPage implements OnInit {
   }
 
   async showSelection(value: any) {
-    let key = Object.keys(this.languages).find(key => this.languages[key] === value);
-    await this.storage.set('selectedLanguage', key);
-    this.translate.setDefaultLang(key);
-    this.translate.use(key);
+    if (value !== undefined && value !== null && value.length !== 0) {
+      let key = Object.keys(this.languages).find(key => this.languages[key] === value);
+      await this.storage.set('selectedLanguage', key);
+      this.translate.setDefaultLang(key);
+      this.translate.use(key);
+    }
   }
 
   goBack() {

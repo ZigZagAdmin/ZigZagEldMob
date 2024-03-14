@@ -1,6 +1,6 @@
 <ion-content [forceOverscroll]="false">
   <app-header [title]="'Account' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" [ngClass]="{'hide-el': pageLoading}">
+  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">
       <app-input [label]="'Name' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.name" [noValidation]="true"></app-input>
       <app-input [label]="'Email' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.email" [noValidation]="true"></app-input>
@@ -40,5 +40,5 @@
       </div>
     </div>
   </div>
-  <app-page-loader [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

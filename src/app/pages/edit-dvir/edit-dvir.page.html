@@ -1,6 +1,6 @@
 <ion-content [forceOverscroll]="false">
   <app-header [title]="('Edit' | translate) + ' DVIR'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <form class="padding-g" style="padding-top: 10px" [ngClass]="{'hide-el': pageLoading}">
+  <form class="padding-g" style="padding-top: 10px" *ngIf="!pageLoading">
     <div class="edit-form">
       <p class="subtitle-lg">{{'General Info' | translate}}</p>
       <div class="edit-dvir-block">
@@ -87,5 +87,5 @@
       </button>
     </div>
   </form>
-  <app-page-loader [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>
