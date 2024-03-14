@@ -2,14 +2,14 @@
   <div class="hos-wrapper" [ngClass]="{'hide-el': pageLoading}">
     <div class="hos-header">
       <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}" (click)="checkLocation()">
-        <img src="assets/icon/location_icon.svg" />
+        <img src="assets/icons/location_icon.svg" />
       </div>
       <div class="hos-name">
         <p class="subtitle">{{ driverName }}</p>
         <p class="text-1">{{'Vehicle Unit' | translate}}: {{ vehicle?.vehicleUnit }}</p>
       </div>
       <div class="service" [ngClass]="{'service-on': deviceConStatus, 'service-off': !deviceConStatus}" (click)="checkBluetooth()">
-        <img src="assets/icon/bluetooth_icon.svg" />
+        <img src="assets/icons/bluetooth_icon.svg" />
       </div>
     </div>
     <!-- For testing purposes. DO NOT DELETE -->
@@ -27,7 +27,7 @@
       <p class="subtitle">{{'Current Status' | translate}}</p>
       <div class="green" id="trigger-status" [ngStyle]="{'background-color': currentStatusColor}" style="max-width: 39%" (click)="toggleModal()">
         <span class="text-elipsis">{{currentStatus.statusName | translate}}</span>
-        <img src="assets/icon/arrow-bottom.svg" alt="arrow" />
+        <img src="assets/icons/arrow-bottom.svg" alt="arrow" />
       </div>
       <div class="green" [ngStyle]="{'background-color': currentStatusColor}">{{currentStatusTime}}</div>
     </div>
@@ -131,31 +131,31 @@
     <div id="violation-m" class="sleep-container" [ngClass]="{'hide-container': !checkElementHasChildren('sleep-box')}">
       <!-- Shift -->
       <div class="sleep-box sleep-warning" *ngIf="this.titleShift < 1800 && this.titleShift > 0">
-        <img src="../../../assets/icon/danger.svg" /> <span>Shift Warning: Shift will end in {{convertSecondToHours(this.titleShift)}} min</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Shift Warning: Shift will end in {{convertSecondToHours(this.titleShift)}} min</span>
       </div>
       <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleShift === 0">
-        <img src="../../../assets/icon/danger.svg" /> <span>Shift Violation: Shift is 00:00</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Shift Violation: Shift is 00:00</span>
       </div>
       <!-- Break -->
       <div class="sleep-box sleep-warning" *ngIf="this.titleBreak < 1800 && this.titleBreak > 0 && currentStatus.statusCode === 'D'">
-        <img src="../../../assets/icon/danger.svg" /> <span>Break Warning: You'll have to take a break in {{convertSecondToHours(this.titleBreak)}} min</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Break Warning: You'll have to take a break in {{convertSecondToHours(this.titleBreak)}} min</span>
       </div>
       <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'D') && this.titleBreak === 0">
-        <img src="../../../assets/icon/danger.svg" /> <span>Break Violation: Break is 00:00. You need to take a break</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Break Violation: Break is 00:00. You need to take a break</span>
       </div>
       <!-- Cycle -->
       <div class="sleep-box sleep-warning" *ngIf="this.titleCycle < 1800 && this.titleCycle > 0">
-        <img src="../../../assets/icon/danger.svg" /> <span>Cycle Warning: Cycle will end in {{convertSecondToHours(this.titleCycle)}} min</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Cycle Warning: Cycle will end in {{convertSecondToHours(this.titleCycle)}} min</span>
       </div>
       <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleCycle === 0">
-        <img src="../../../assets/icon/danger.svg" /> <span>Cycle Violation: Cycle is 00:00</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Cycle Violation: Cycle is 00:00</span>
       </div>
       <!-- Driving -->
       <div class="sleep-box sleep-warning" *ngIf="this.titleDriving < 1800 && this.titleDriving > 0 && currentStatus.statusCode === 'D'">
-        <img src="../../../assets/icon/danger.svg" /> <span>Driving Warning: Driving will end in {{convertSecondToHours(this.titleDriving)}} min</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Driving Warning: Driving will end in {{convertSecondToHours(this.titleDriving)}} min</span>
       </div>
       <div class="sleep-box sleep-error" *ngIf="currentStatus.statusCode === 'D' && this.titleDriving === 0">
-        <img src="../../../assets/icon/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
+        <img src="../../../assets/icons/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
       </div>
     </div>
     <div class="rest-mode" *ngIf="restMode">
@@ -204,8 +204,8 @@
       <app-toggle-switch [isChecked]="splitSleeperBerth" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
     </div>
     <button class="btn primary-btn custom-sleep-btn" (click)="switchMode()">
-      <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />
-      <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon" />
+      <img *ngIf="!restMode" src="assets/icons/moon.svg" alt="moon" />
+      <img *ngIf="restMode" src="assets/icons/drive.svg" alt="moon" />
       <span>{{ (restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode') | translate }}</span>
     </button>
     <p class="subtitle">{{'Logs and Recap Hours' | translate}}</p>
@@ -214,7 +214,7 @@
         <div class="log-left">
           <div class="subtitle">
             {{ logDaily.logDate | date:'EEEE' | translate }}, {{ logDaily.logDate | date: 'MMMM' | translate }} {{logDaily.logDate | date: 'dd'}}
-            <div *ngIf="logDaily.violations.length !== 0" class="violation-number"><img src="../../../assets/icon/violation.svg" />{{logDaily.violations.length}}</div>
+            <div *ngIf="logDaily.violations.length !== 0" class="violation-number"><img src="../../../assets/icons/violation.svg" />{{logDaily.violations.length}}</div>
           </div>
           <div class="sub-info">
             <div class="status-dot" [ngClass]="{'status-dot-error': !logDaily.formManner, 'status-dot-success': logDaily.formManner }"></div>

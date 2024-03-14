@@ -2,8 +2,8 @@
   <app-header [title]="'Others' | translate">
     <div class="buttons-header-container">
       <div class="dark-mode-button" (click)="toggleDarkMode()">
-        <img *ngIf="darkMode" src="../../../assets/icon/sun-light.svg" />
-        <img *ngIf="!darkMode" src="../../../assets/icon/moon-dark.svg" />
+        <img *ngIf="darkMode" src="../../../assets/icons/sun-light.svg" />
+        <img *ngIf="!darkMode" src="../../../assets/icons/moon-dark.svg" />
       </div>
       <div class="sync-button" (click)="syncData()">
         <span *ngIf="!syncLoading">sync</span>
@@ -14,31 +14,31 @@
   <div class="edit-form padding-g">
     <div class="other-items">
       <div class="other-item" (click)="onVehicleClick()">
-        <img src="assets/icon/truck.svg" alt="vehicle" />
+        <img src="assets/icons/truck.svg" alt="vehicle" />
         <p class="text-14-600">{{'Vehicle' | translate}}</p>
       </div>
       <div class="other-item" (click)="onCoDriverClick()">
-        <img src="assets/icon/co-driver.svg" alt="co-driver" />
+        <img src="assets/icons/co-driver.svg" alt="co-driver" />
         <p class="text-14-600">{{'Co-Driver' | translate}}</p>
       </div>
     </div>
     <div class="other-items">
       <div class="other-item" (click)="onAccountClick()">
-        <img src="assets/icon/my-account.svg" alt="my account" />
+        <img src="assets/icons/my-account.svg" alt="my account" />
         <p class="text-14-600">{{'My Account' | translate}}</p>
       </div>
       <div class="other-item" (click)="onRulesClick()">
-        <img src="assets/icon/rules.svg" alt="rules" />
+        <img src="assets/icons/rules.svg" alt="rules" />
         <p class="text-14-600">{{'Rules' | translate}}</p>
       </div>
     </div>
     <div class="other-items">
       <div class="other-item" (click)="onInformationClick()">
-        <img src="assets/icon/information.svg" alt="information" />
+        <img src="assets/icons/information.svg" alt="information" />
         <p class="text-14-600">{{'Information' | translate}}</p>
       </div>
       <div class="other-item" (click)="logoutConfirm()">
-        <img src="assets/icon/logout.svg" alt="logout" />
+        <img src="assets/icons/logout.svg" alt="logout" />
         <p class="text-14-600" id="trigger-log-out-modal">{{'Logout' | translate}}</p>
       </div>
     </div>

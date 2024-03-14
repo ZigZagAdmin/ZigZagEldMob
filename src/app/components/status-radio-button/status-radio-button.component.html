@@ -6,7 +6,7 @@
     [ngClass]="{ 'disable-option': ((item.value === 'VCS' || item.value === 'D') && disableOption && half) || (item.value === 'VCS' && disableOption && !half) }"
     (click)="select(item)">
     <div class="item-data">
-      <div class="status-icon"><img [src]="item.icon === 'success' ? 'assets/icon/shield-tick.svg' : 'assets/icon/shield-cross.svg'" /></div>
+      <div class="status-icon"><img [src]="item.icon === 'success' ? 'assets/icons/shield-tick.svg' : 'assets/icons/shield-cross.svg'" /></div>
       <div class="status-label" [ngClass]="item.icon">{{ item.label | translate }}</div>
     </div>
     <div class="item-checkbox">
