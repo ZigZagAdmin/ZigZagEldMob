@@ -20,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import { svgPreloadUrls } from './utilities/svg-preloads';
 import { GeolocationService } from './services/geolocation.service';
+import { imagePreloads } from './utilities/img-preloads';
 // import { Driver } from './models/driver';
 
 @Component({
@@ -29,6 +30,7 @@ import { GeolocationService } from './services/geolocation.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
   loading: boolean = false;
+  loadingModal: any;
   pickedVehicle!: string;
   databaseSubscription: Subscription | undefined;
   lastNetworkStatus: boolean = null;
@@ -49,7 +51,10 @@ export class AppComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private geolocationService: GeolocationService
   ) {
-    this.ngZone.runOutsideAngular(() => this.preloadSVG());
+    this.ngZone.runOutsideAngular(() => {
+      this.preloadSVG();
+      this.preloadImages();
+    });
   }
 
   async ngOnInit() {
@@ -85,6 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.navCtrl.navigateForward('/login');
     } else {
       this.navCtrl.navigateForward('/select-vehicle');
+      setTimeout(async () => (this.loadingModal = await this.presentLoading()), 0);
     }
     this.loading = true;
     let localPC = await this.storage.get('placesCity');
@@ -111,7 +117,7 @@ export class AppComponent implements OnInit, OnDestroy {
         const driverId = user?.DriverId;
         if (accessToken) {
           if (this.authService.isAuthenticated()) {
-            const loading = await this.presentLoading();
+            // const loading = await this.presentLoading();
             const fetchRequests = [
               this.manageService.getDrivers(driverId),
               this.manageService.getDrivers('ALL'),
@@ -129,7 +135,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   const errorMessage = 'Error fetching data';
                   console.warn(errorMessage);
                   this.loading = false;
-                  loading.dismiss();
+                  this.loadingModal.dismiss();
                   return throwError(errorMessage);
                 }),
                 switchMap(([drivers, coDrivers, company, terminals, elds, dvirs, logDailies, logEvents]) => {
@@ -151,7 +157,7 @@ export class AppComponent implements OnInit, OnDestroy {
                       return throwError(errorMessage);
                     }),
                     tap(() => {
-                      loading.dismiss();
+                      this.loadingModal.dismiss();
                       this.loading = false;
                       if (pickedVehicle) {
                         this.navCtrl.navigateForward('/connect-mac');
@@ -201,6 +207,21 @@ export class AppComponent implements OnInit, OnDestroy {
           link.href = el;
           link.as = 'image';
           link.type = 'image/svg+xml';
+          document.head.appendChild(link);
+        }
+      });
+    });
+  }
+
+  preloadImages() {
+    Promise.resolve().then(() => {
+      imagePreloads.forEach(el => {
+        if (!document.querySelector(`link[href="${el}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.href = el;
+          link.as = 'image';
+          link.type = 'image/png';
           document.head.appendChild(link);
         }
       });
