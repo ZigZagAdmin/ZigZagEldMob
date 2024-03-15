@@ -19,6 +19,7 @@ import { Capacitor } from '@capacitor/core';
 import { TranslateService } from '@ngx-translate/core';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import { svgPreloadUrls } from './utilities/svg-preloads';
+import { GeolocationService } from './services/geolocation.service';
 // import { Driver } from './models/driver';
 
 @Component({
@@ -45,7 +46,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private bluetoothService: BluetoothService,
     private translate: TranslateService,
     private changeDetectorRef: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private geolocationService: GeolocationService
   ) {
     this.ngZone.runOutsideAngular(() => this.preloadSVG());
   }
@@ -85,6 +87,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.navCtrl.navigateForward('/select-vehicle');
     }
     this.loading = true;
+    let localPC = await this.storage.get('placesCity');
+    this.geolocationService.getPlacesCity(localPC);
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
       if (ready) {
         const accessToken = await this.storage.get('accessToken');
