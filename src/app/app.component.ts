@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, getPlatform } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, getPlatform } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
 import { forkJoin, throwError } from 'rxjs';
@@ -18,6 +18,7 @@ import { BluetoothService } from './services/bluetooth.service';
 import { Capacitor } from '@capacitor/core';
 import { TranslateService } from '@ngx-translate/core';
 import { KeepAwake } from '@capacitor-community/keep-awake';
+import { svgPreloadUrls } from './utilities/svg-preloads';
 // import { Driver } from './models/driver';
 
 @Component({
@@ -43,8 +44,11 @@ export class AppComponent implements OnInit, OnDestroy {
     private locationService: LocationService,
     private bluetoothService: BluetoothService,
     private translate: TranslateService,
-    private changeDetectorRef: ChangeDetectorRef
-  ) {}
+    private changeDetectorRef: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {
+    this.ngZone.runOutsideAngular(() => this.preloadSVG());
+  }
 
   async ngOnInit() {
     this.networkSub = this.internetService.interetStatusObs.subscribe(async status => {
@@ -182,6 +186,21 @@ export class AppComponent implements OnInit, OnDestroy {
     //   this.navCtrl.navigateForward('/select-vehicle');
     // }
     // this.loading = false;
+  }
+
+  preloadSVG() {
+    Promise.resolve().then(() => {
+      svgPreloadUrls.forEach(el => {
+        if (!document.querySelector(`link[href="${el}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.href = el;
+          link.as = 'image';
+          link.type = 'image/svg+xml';
+          document.head.appendChild(link);
+        }
+      });
+    });
   }
 
   ngOnDestroy(): void {
