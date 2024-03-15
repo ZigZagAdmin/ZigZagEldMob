@@ -267,7 +267,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
     this.updateEveryMinute();
 
-    setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
+    setTimeout(() => (this.animateCircles = false), 2000); // It's ugly, but it works
   }
 
   ngAfterViewChecked(): void {

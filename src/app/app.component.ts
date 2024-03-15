@@ -89,8 +89,8 @@ export class AppComponent implements OnInit, OnDestroy {
     if (!this.authService.isAuthenticated()) {
       this.navCtrl.navigateForward('/login');
     } else {
-      this.navCtrl.navigateForward('/select-vehicle');
-      setTimeout(async () => (this.loadingModal = await this.presentLoading()), 0);
+      this.navCtrl.navigateForward('/blank');
+      this.loadingModal = await this.presentLoading();
     }
     this.loading = true;
     let localPC = await this.storage.get('placesCity');
