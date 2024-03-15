@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
   <app-header [title]="'Inspection Preview' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <app-scroll-toolbar [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
-  <div class="padding-g">
+  <app-scroll-toolbar *ngIf="!pageLoading" [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
+  <div class="padding-g" *ngIf="!pageLoading">
     <div class="card-info" style="margin-bottom: 20px">
       <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
         <g class="grid" transform="translate(65, 40)">
@@ -220,4 +220,5 @@
       </div>
     </div>
   </div>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

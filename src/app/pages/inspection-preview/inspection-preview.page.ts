@@ -62,9 +62,12 @@ export class InspectionPreviewPage implements OnInit {
 
   logEventsVehicles: { vehicle: Partial<Vehicle>; odomoter: string; distance: number; engineHours: string }[] = [];
 
+  pageLoading: boolean = false;
+
   constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService, private translate: TranslateService) {}
 
   async ngOnInit() {
+    this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     let queryParams$ = firstValueFrom(this.route.queryParams);
     let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
@@ -88,6 +91,7 @@ export class InspectionPreviewPage implements OnInit {
       this.logEvents = logEvents;
       this.company = company;
       this.drawGraph();
+      this.pageLoading = false;
     });
   }
 
