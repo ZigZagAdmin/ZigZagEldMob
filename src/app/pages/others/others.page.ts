@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { DashboardService } from 'src/app/services/dashboard.service';
-import { InternetService } from 'src/app/services/internet.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { LogEvents } from 'src/app/models/log-histories';
@@ -58,7 +57,6 @@ export class OthersPage implements OnInit {
     private navCtrl: NavController,
     private databaseService: DatabaseService,
     private dashboardService: DashboardService,
-    private internetService: InternetService,
     private storage: Storage,
     private utilityService: UtilityService,
     private manageService: ManageService,
@@ -148,6 +146,7 @@ export class OthersPage implements OnInit {
       },
       async error => {
         this.toastService.showToast(this.translate.instant('There was a problem syncing data.'), 'error');
+        console.error('There was a problem syncing data: ' + error)
         this.syncLoading = false;
       }
     );
@@ -230,7 +229,7 @@ export class OthersPage implements OnInit {
             console.log('Last LogEvent is updated on server:', response);
             await this.updateIndexLogEvents(lastLogEvent, true);
           })
-          .catch(async error => {
+          .catch(async () => {
             console.log('Internet Status: ' + networkStatus);
             console.log('Last LogEvent Pushed in offline logEvents array');
             await this.updateIndexLogEvents(lastLogEvent, false);
@@ -242,7 +241,7 @@ export class OthersPage implements OnInit {
             console.log('New status is updated on server:', response);
             this.updateLogEvents(LogoutLogEvent, true);
           })
-          .catch(async error => {
+          .catch(async () => {
             console.log('Internet Status: ' + networkStatus);
             console.log('New Log Event Status Pushed in offline logEvents Array');
             this.updateLogEvents(LogoutLogEvent, false);

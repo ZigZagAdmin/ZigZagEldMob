@@ -9,7 +9,6 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Company } from 'src/app/models/company';
 import { DVIRs } from 'src/app/models/dvirs';
 import { DashboardService } from 'src/app/services/dashboard.service';
-import { InternetService } from 'src/app/services/internet.service';
 import { defectsVehicle, defectsTrailers, dvirStatuses } from 'src/app/utilities/defects';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
@@ -19,7 +18,6 @@ import { Network } from '@capacitor/network';
 import { InterService } from 'src/app/services/inter.service';
 import { Capacitor } from '@capacitor/core';
 import { TranslateService } from '@ngx-translate/core';
-import { timeZones } from 'src/app/models/timeZone';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -103,7 +101,6 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     private databaseService: DatabaseService,
     private storage: Storage,
     private dashboardService: DashboardService,
-    private internetService: InternetService,
     private navCtrl: NavController,
     private utilityService: UtilityService,
     private shareService: ShareService,

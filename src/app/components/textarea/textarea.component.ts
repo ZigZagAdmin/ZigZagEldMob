@@ -9,7 +9,7 @@ import { ToastService } from 'src/app/services/toast.service';
   templateUrl: './textarea.component.html',
   styleUrls: ['./textarea.component.scss'],
 })
-export class TextareaComponent implements OnInit {
+export class TextareaComponent implements OnInit, OnDestroy {
   @Input() label: string;
   @Input() type: string = 'text';
   @Input() placeholder: string = '';

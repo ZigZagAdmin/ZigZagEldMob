@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, getPlatform } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
 import { forkJoin, throwError } from 'rxjs';
@@ -47,7 +47,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private locationService: LocationService,
     private bluetoothService: BluetoothService,
     private translate: TranslateService,
-    private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private geolocationService: GeolocationService
   ) {
@@ -58,7 +57,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.networkSub = this.internetService.interetStatusObs.subscribe(async status => {
+    this.networkSub = this.internetService.interetStatusObs.subscribe(async () => {
       let currentStatus = await Network.getStatus();
       if (currentStatus.connected === true) {
         if (this.lastNetworkStatus === false) {
@@ -133,7 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   console.warn(errorMessage);
                   this.loading = false;
                   this.loadingModal.dismiss();
-                  return throwError(errorMessage);
+                  return throwError(errorMessage + ' :' + error);
                 }),
                 switchMap(([drivers, coDrivers, company, terminals, elds, dvirs, logDailies, logEvents]) => {
                   const saveRequests = [
@@ -151,7 +150,7 @@ export class AppComponent implements OnInit, OnDestroy {
                     catchError(error => {
                       const errorMessage = 'Error saving data to storage';
                       console.warn(errorMessage);
-                      return throwError(errorMessage);
+                      return throwError(errorMessage + ' :' + error);
                     }),
                     tap(() => {
                       this.loadingModal.dismiss();

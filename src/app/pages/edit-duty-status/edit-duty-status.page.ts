@@ -410,7 +410,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
           // this.loading = false;
           // this.goBack();
         })
-        .catch(async error => {
+        .catch(async () => {
           console.log('Last LogEvent Pushed in offline logEvents array');
           await this.updateIndexLogEvents(this.logEvent, false);
           // this.loading = false;
@@ -425,7 +425,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
           this.loading = false;
           this.goBack();
         })
-        .catch(async error => {
+        .catch(async () => {
           console.log('Last LogEvent Pushed in offline logEvents array');
           await this.updateIndexLogEvents(this._statusesOnDay[index - 1], false);
           this.loading = false;
@@ -872,7 +872,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
           console.log('LogDaily (durationStatuses) is updated on server:', response);
           await this.updateIndexLogDaily(logDaily, true);
         })
-        .catch(async error => {
+        .catch(async () => {
           await this.updateIndexLogDaily(logDaily, false);
           console.log('Pushed in logDailies');
         });

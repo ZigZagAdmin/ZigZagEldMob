@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, Renderer2, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { ShareService } from 'src/app/services/share.service';
@@ -58,7 +58,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   foundSuggestions: string[] = [];
   showTooltip: boolean = false;
 
-  constructor(private toastService: ToastService, private shareService: ShareService, private renderer: Renderer2, private el: ElementRef, private translate: TranslateService) {}
+  constructor(private toastService: ToastService, private shareService: ShareService, private translate: TranslateService) {}
 
   ngOnInit() {
     this.validateSubscription = this.shareService.currentMessage.subscribe(data => {

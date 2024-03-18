@@ -75,7 +75,7 @@ export class CoDriverPage implements OnInit {
           if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' ' + this.translate.instant('is now your co-driver'), 'medium');
           if (this.chosenDriver.length !== 0 && this.chosenDriver === 'None') this.toastService.showToast(this.translate.instant('You have no co-driver now'), 'medium');
         })
-        .catch(async error => {
+        .catch(async () => {
           await this.updateIndexLogDaily(this.logDailies[0], false);
           console.log('Pushed in offline logDailies');
           this.goBack();

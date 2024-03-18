@@ -1,10 +1,10 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { IonModal, Platform } from '@ionic/angular';
+import { AfterViewChecked, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
-import { Subscription, debounceTime, firstValueFrom, forkJoin, interval } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { NavController } from '@ionic/angular';
 import { LogDailies } from 'src/app/models/log-dailies';
-import { ILocation, LogEvents } from 'src/app/models/log-histories';
+import { LogEvents } from 'src/app/models/log-histories';
 import { Storage } from '@ionic/storage';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { InternetService } from 'src/app/services/internet.service';
@@ -19,7 +19,6 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { Capacitor } from '@capacitor/core';
 import { Location } from 'src/app/models/dvirs';
-import { Network } from '@capacitor/network';
 import { hosErrors } from 'src/app/utilities/hos-errors';
 import { ELD } from 'src/app/models/eld';
 import { GeolocationService } from 'src/app/services/geolocation.service';
@@ -242,7 +241,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
       }
     });
-    this.paramsSubscription = this.route.params.subscribe(async params => {
+    this.paramsSubscription = this.route.params.subscribe(async () => {
       if (this.bReady) {
         await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
           if (!this.ionViewTrigger) {
@@ -426,7 +425,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
                   console.log('Last LogEvent is updated on server:', response);
                   await this.updateIndexLogEvents(lastLogEvent, true);
                 })
-                .catch(async error => {
+                .catch(async () => {
                   console.log('Internet Status: ' + this.networkStatus);
                   console.log('Last LogEvent Pushed in offline logEvents array');
                   await this.updateIndexLogEvents(lastLogEvent, false);
@@ -438,7 +437,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
                   console.log('New status is updated on server:', response);
                   await this.updateLogEvents(LoginLogEvent, true);
                 })
-                .catch(async error => {
+                .catch(async () => {
                   console.log('Internet Status: ' + this.networkStatus);
                   console.log('New Log Event Status Pushed in offline logEvents Array');
                   await this.updateLogEvents(LoginLogEvent, false);
@@ -1111,7 +1110,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           console.log('Last LogEvent is updated on server:', response);
           await this.updateIndexLogEvents(lastLogEvent, true);
         })
-        .catch(async error => {
+        .catch(async () => {
           console.log('Internet Status: ' + this.networkStatus);
           console.log('Last LogEvent Pushed in offline logEvents array');
           await this.updateIndexLogEvents(lastLogEvent, false);
@@ -1123,7 +1122,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           console.log('New status is updated on server:', response);
           await this.updateLogEvents(newLogEvent, true);
         })
-        .catch(async error => {
+        .catch(async () => {
           console.log('Internet Status: ' + this.networkStatus);
           console.log('New Log Event Status Pushed in offline logEvents Array');
           await this.updateLogEvents(newLogEvent, false);
@@ -1230,7 +1229,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           console.log('LogDaily (durationStatuses) is updated on server:', response);
           await this.updateIndexLogDaily(logDaily, true);
         },
-        async error => {
+        async () => {
           console.log('Internet Status: ' + this.networkStatus);
           await this.updateIndexLogDaily(logDaily, false);
           console.log('Pushed in logDailies');
@@ -1403,7 +1402,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     await this.getLocalCurrentLocation(false);
     this.validation['location'] = true;
     this.autoChangeLoading = false;
-    await this.confirm(hidden, code, false, origin).catch(e => (this.autoChangeLoading = false));
+    await this.confirm(hidden, code, false, origin).catch(() => (this.autoChangeLoading = false));
   }
 
   closeAutoDrivingModal() {

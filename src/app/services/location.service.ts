@@ -3,7 +3,6 @@ import { Geolocation } from '@capacitor/geolocation';
 import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { BehaviorSubject } from 'rxjs';
 import { GeolocationService } from './geolocation.service';
-import { Location } from 'src/app/models/dvirs';
 import { Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 

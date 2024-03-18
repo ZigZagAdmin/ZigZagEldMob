@@ -3,7 +3,6 @@ import { NavController } from '@ionic/angular';
 import { DVIRs } from 'src/app/models/dvirs';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, firstValueFrom } from 'rxjs';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { InterService } from 'src/app/services/inter.service';
 import { TranslateService } from '@ngx-translate/core';
 import { UtilityService } from 'src/app/services/utility.service';

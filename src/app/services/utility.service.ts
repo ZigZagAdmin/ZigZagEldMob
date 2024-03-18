@@ -1,13 +1,11 @@
-import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
-import { Storage } from '@ionic/storage';
 import { seasonChanges, timeZoneSummer, timeZoneWinter } from '../models/timeZone';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilityService {
-  constructor(private storage: Storage) {}
+  constructor() {}
 
   public generateString(length: number) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

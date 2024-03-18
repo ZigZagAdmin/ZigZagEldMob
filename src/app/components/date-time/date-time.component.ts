@@ -1,9 +1,7 @@
 import { formatDate } from '@angular/common';
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { Storage } from '@ionic/storage';
 import { Subscription } from 'rxjs';
 import { ShareService } from 'src/app/services/share.service';
-import { ToastService } from 'src/app/services/toast.service';
 import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({

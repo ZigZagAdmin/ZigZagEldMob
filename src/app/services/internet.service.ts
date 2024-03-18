@@ -7,9 +7,6 @@ import { LogDailies } from '../models/log-dailies';
 import { LogEvents } from '../models/log-histories';
 import { ELD } from '../models/eld';
 import { DashboardService } from './dashboard.service';
-import { ManageService } from './manage.service';
-import { formatDate } from '@angular/common';
-import { DatabaseService } from './database.service';
 
 @Injectable({
   providedIn: 'root',

@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { IonRouterOutlet, NavController, Platform } from '@ionic/angular';
-import { Geolocation } from '@capacitor/geolocation';
+import { NavController } from '@ionic/angular';
 import { Vehicle } from 'src/app/models/vehicle';
 import { DatabaseService } from 'src/app/services/database.service';
 import { UtilityService } from 'src/app/services/utility.service';
@@ -92,10 +91,6 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     }
   }
 
-  async getLocation() {
-    const location = await Geolocation.getCurrentPosition();
-  }
-
   navigateToHos() {
     this.navCtrl.navigateRoot('/unitab', { animated: true, animationDirection: 'forward' });
   }
@@ -165,7 +160,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         .then(async () => {
           await this.storage.set('elds', this.elds);
         })
-        .catch(async e => {
+        .catch(async () => {
           await this.storage.set('elds', this.elds);
         });
     }

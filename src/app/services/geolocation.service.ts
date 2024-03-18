@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { PlacesCity } from '../models/places-city';
-import { Storage } from '@ionic/storage';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -10,7 +9,7 @@ export class GeolocationService {
   private readonly placesCityBehSub: BehaviorSubject<PlacesCity[]> = new BehaviorSubject<PlacesCity[]>([]);
   placesCity = this.placesCityBehSub.asObservable();
 
-  constructor(private storage: Storage) {}
+  constructor() {}
 
   getPlacesCity(value: PlacesCity[]) {
     this.placesCityBehSub.next(value);

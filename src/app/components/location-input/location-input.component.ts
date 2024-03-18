@@ -9,7 +9,7 @@ import { ToastService } from 'src/app/services/toast.service';
   templateUrl: './location-input.component.html',
   styleUrls: ['./location-input.component.scss'],
 })
-export class LocationInputComponent implements OnInit {
+export class LocationInputComponent implements OnInit, OnDestroy {
   @Input() label: string;
   @Input() type: string = 'text';
   @Input() placeholder: string = '';
