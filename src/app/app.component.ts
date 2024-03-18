@@ -99,9 +99,6 @@ export class AppComponent implements OnInit, OnDestroy {
       if (ready) {
         const accessToken = await this.storage.get('accessToken');
         const pickedVehicle = await this.storage.get('vehicleUnit');
-        const darkMode = await this.storage.get('darkMode');
-        document.body.classList.toggle('dark', darkMode);
-        if (darkMode === null || darkMode === undefined) await this.storage.set('darkMode', false);
         this.pickedVehicle = pickedVehicle;
         const user = await this.storage.get('user');
         if (user) {

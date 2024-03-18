@@ -69,6 +69,7 @@ export class OthersPage implements OnInit {
   ngOnInit(): void {}
 
   async ionViewWillEnter() {
+    this.darkMode = localStorage.getItem('darkMode') === 'true';
     let vehicleId$ = this.storage.get('vehicleId');
     let driverId$ = this.storage.get('driverId');
     let companyId$ = this.storage.get('companyId');
@@ -77,10 +78,9 @@ export class OthersPage implements OnInit {
     let lastStatusCode$ = this.storage.get('lastStatusCode');
     let autoLogin$ = this.storage.get('autoLogin');
     let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
-    let darkMode$ = this.storage.get('darkMode');
 
-    forkJoin([vehicleId$, driverId$, companyId$, timeZone$, bAuthorized$, lastStatusCode$, autoLogin$, logEvents$, darkMode$]).subscribe(
-      ([vehicleId, driverId, companyId, timeZone, bAuthorized, lastStatusCode, autoLogin, logEvents, darkMode]) => {
+    forkJoin([vehicleId$, driverId$, companyId$, timeZone$, bAuthorized$, lastStatusCode$, autoLogin$, logEvents$]).subscribe(
+      ([vehicleId, driverId, companyId, timeZone, bAuthorized, lastStatusCode, autoLogin, logEvents]) => {
         this.vehicleId = vehicleId;
         this.driverId = driverId;
         this.companyId = companyId;
@@ -91,7 +91,6 @@ export class OthersPage implements OnInit {
           this.autoLogin = autoLogin;
         }
         this.logEvents = logEvents;
-        this.darkMode = darkMode;
       }
     );
   }
@@ -302,7 +301,7 @@ export class OthersPage implements OnInit {
     if (this.darkMode) this.darkMode = false;
     else this.darkMode = true;
     document.body.classList.toggle('dark', this.darkMode);
-    await this.storage.set('darkMode', this.darkMode);
+    localStorage.setItem('darkMode', this.darkMode.toString());
   }
 
   ionViewWillLeave() {
