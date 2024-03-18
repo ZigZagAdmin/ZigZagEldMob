@@ -152,16 +152,16 @@ body {
 body.dark {
   --all-background: #070707;
 
-  --gray-25: #090909;
-  --gray-50: #0a0a0a;
-  --gray-100: #0e0e0e;
-  --gray-150: #101213;
-  --gray-200: #121518;
-  --gray-300: #1b1f24;
-  --gray-400: #98a1b2;
-  --gray-500: #667085;
-  --gray-600: #9ba6b5;
-  --gray-700: #aeb8c8;
+  --gray-25: #1a1a1a; /* was #090909 */
+  --gray-50: #1b1b1b; /* was #0a0a0a */
+  --gray-100: #1f1f1f; /* was #0e0e0e */
+  --gray-150: #212325; /* was #101213 */
+  --gray-200: #232729; /* was #121518 */
+  --gray-300: #2c3035; /* was #1b1f24 */
+  --gray-400: #a9b2c3; /* was #98a1b2 */
+  --gray-500: #77859a; /* was #667085 */
+  --gray-600: #acb7c5; /* was #9ba6b5 */
+  --gray-700: #bfcbd8; /* was #aeb8c8 */
   // --gray-800: #3b4b62;
   // --gray-900: #1f2a41;
 
@@ -258,6 +258,9 @@ body.dark {
   }
   .other-item img {
     filter: invert(0.7);
+  }
+  .banner-icon img {
+    filter: invert(1);
   }
 }
 
