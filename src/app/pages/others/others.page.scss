@@ -67,10 +67,12 @@ ion-modal#custom-modal {
 .modal-title {
   font-size: 18px;
   font-weight: 600;
+  color: var(--gray-700);
 }
 
 .modal-status {
   font-size: 15px;
+  color: var(--gray-700);
 }
 
 .default {
@@ -102,6 +104,7 @@ ion-modal#custom-modal {
 
   .autologin-checkbox-label {
     font-size: 15px;
+    color: var(--gray-500);
   }
 }
 
@@ -123,6 +126,12 @@ ion-checkbox::part(container) {
   border-radius: 50%;
 }
 
+.buttons-header-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .sync-button {
   font-size: 14px;
   font-weight: 600;
@@ -137,5 +146,20 @@ ion-checkbox::part(container) {
 
   ion-spinner {
     scale: 0.7;
+  }
+}
+
+.dark-mode-button {
+  height: 32px;
+  width: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--gray-100);
+  border-radius: 10px;
+
+  img {
+    width: 18px;
+    height: 18px;
   }
 }

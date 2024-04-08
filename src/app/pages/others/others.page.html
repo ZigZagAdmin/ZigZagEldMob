@@ -1,61 +1,69 @@
 <ion-content [forceOverscroll]="false">
-  <app-header [title]="'Others'">
-    <div class="sync-button" (click)="syncData()">
-      <span *ngIf="!syncLoading">sync</span>
-      <ion-spinner *ngIf="syncLoading" name="circular" color="medium"></ion-spinner>
+  <app-header [title]="'Others' | translate">
+    <div class="buttons-header-container">
+      <div class="dark-mode-button" (click)="toggleDarkMode()">
+        <img *ngIf="darkMode" src="../../../assets/icons/sun-light.svg" />
+        <img *ngIf="!darkMode" src="../../../assets/icons/moon-dark.svg" />
+      </div>
+      <div class="sync-button" (click)="syncData()">
+        <span *ngIf="!syncLoading">sync</span>
+        <ion-spinner *ngIf="syncLoading" name="circular" color="medium"></ion-spinner>
+      </div>
     </div>
   </app-header>
   <div class="edit-form padding-g">
     <div class="other-items">
       <div class="other-item" (click)="onVehicleClick()">
-        <img src="assets/icon/truck.svg" alt="vehicle" />
-        <p class="text-14-600">Vehicle</p>
+        <img src="assets/icons/truck.svg" alt="vehicle" />
+        <p class="text-14-600">{{'Vehicle' | translate}}</p>
       </div>
       <div class="other-item" (click)="onCoDriverClick()">
-        <img src="assets/icon/co-driver.svg" alt="co-driver" />
-        <p class="text-14-600">Co-Driver</p>
+        <img src="assets/icons/co-driver.svg" alt="co-driver" />
+        <p class="text-14-600">{{'Co-Driver' | translate}}</p>
       </div>
     </div>
     <div class="other-items">
       <div class="other-item" (click)="onAccountClick()">
-        <img src="assets/icon/my-account.svg" alt="my account" />
-        <p class="text-14-600">My Account</p>
+        <img src="assets/icons/my-account.svg" alt="my account" />
+        <p class="text-14-600">{{'My Account' | translate}}</p>
       </div>
       <div class="other-item" (click)="onRulesClick()">
-        <img src="assets/icon/rules.svg" alt="rules" />
-        <p class="text-14-600">Rules</p>
+        <img src="assets/icons/rules.svg" alt="rules" />
+        <p class="text-14-600">{{'Rules' | translate}}</p>
       </div>
     </div>
     <div class="other-items">
       <div class="other-item" (click)="onInformationClick()">
-        <img src="assets/icon/information.svg" alt="information" />
-        <p class="text-14-600">Information</p>
+        <img src="assets/icons/information.svg" alt="information" />
+        <p class="text-14-600">{{'Information' | translate}}</p>
       </div>
       <div class="other-item" (click)="logoutConfirm()">
-        <img src="assets/icon/logout.svg" alt="logout" />
-        <p class="text-14-600" id="trigger-log-out-modal">Logout</p>
+        <img src="assets/icons/logout.svg" alt="logout" />
+        <p class="text-14-600" id="trigger-log-out-modal">{{'Logout' | translate}}</p>
       </div>
     </div>
   </div>
   <ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-log-out-modal">
     <ng-template>
       <div class="modal-box">
-        <div class="modal-title">{{ isForbidden(lastStatusCode) ? 'Unable to log out' : 'Log Out' }}</div>
+        <div class="modal-title">{{ (isForbidden(lastStatusCode) ? 'Unable to log out' : 'Log Out') | translate }}</div>
         <div class="modal-status">
-          {{ 'Your current status: '}}<span style="font-size: 16px; font-weight: 600" [ngClass]="{'label-error': isForbidden(lastStatusCode)}">{{ statusList[lastStatusCode] }}</span>
+          {{ 'Your current status' | translate}}{{': '}}<span style="font-size: 16px; font-weight: 600" [ngClass]="{'label-error': isForbidden(lastStatusCode)}"
+            >{{ statusList[lastStatusCode] | translate }}</span
+          >
         </div>
         <div *ngIf="!isForbidden(lastStatusCode)" class="autologin-checkbox" (click)="toggleCheck()">
           <ion-checkbox [checked]="autoLogin"></ion-checkbox>
-          <div class="autologin-checkbox-label">Remember me next time</div>
+          <div class="autologin-checkbox-label">{{'Remember me next time' | translate}}</div>
         </div>
       </div>
       <div class="submit-buttons" [ngClass]="{'submit-buttons-error': isForbidden(lastStatusCode)}">
-        <div class="action-button default" (click)="closeModal()" [ngClass]="{ 'disable-click': loading }">Cancel</div>
+        <div class="action-button default" (click)="closeModal()" [ngClass]="{ 'disable-click': loading }">{{'Cancel' | translate}}</div>
         <div class="action-button primary" *ngIf="!isForbidden(lastStatusCode)" [ngClass]="{ 'disable-click': loading }" (click)="onLogoutClick()">
-          <span *ngIf="!loading">Log Out</span>
+          <span *ngIf="!loading">{{'Log Out' | translate}}</span>
           <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
         </div>
-        <div class="action-button error" *ngIf="isForbidden(lastStatusCode)" (click)="goSwitchStatus()">Switch status</div>
+        <div class="action-button error" *ngIf="isForbidden(lastStatusCode)" (click)="goSwitchStatus()">{{'Switch status' | translate}}</div>
       </div>
     </ng-template>
   </ion-modal>

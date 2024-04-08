@@ -67,11 +67,12 @@ export class SelectVehiclePage implements OnInit {
     }
   }
 
-  handleRefresh(event: any) {
-    setTimeout(() => {
-      event.target.complete();
-    }, 1000);
-  }
+
+  // handleRefresh(event: any) {
+  //   setTimeout(() => {
+  //     event.target.complete();
+  //   }, 1000);
+  // }
 
   selectVehicle(vehicle: IAssignedVehicle) {
     this.storage.set('vehicleId', vehicle.vehicleId);

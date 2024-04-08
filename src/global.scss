@@ -178,7 +178,7 @@ p {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background: url('assets/icon/arrow-bottom-2.svg') no-repeat;
+  background: url('assets/icons/arrow-bottom-2.svg') no-repeat;
   background-position: right 10px center;
   padding: 10px !important;
 }
@@ -288,4 +288,10 @@ p {
 
 .disable-input-opacity {
   opacity: 0.65;
+}
+
+.loading-app-component {
+  color: var(--gray-700);
+  --background: var(--gray-25);
+  --spinner-color: var(--gray-700);
 }

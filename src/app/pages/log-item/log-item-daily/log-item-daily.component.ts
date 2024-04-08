@@ -19,6 +19,7 @@ import { ManageService } from 'src/app/services/manage.service';
 import { timeZoneSummer, timeZoneWinter, seasonChanges } from 'src/app/models/timeZone';
 import { Network } from '@capacitor/network';
 import { hosErrors } from 'src/app/utilities/hos-errors';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-log-item-daily',
@@ -109,7 +110,8 @@ export class LogItemDailyComponent implements OnInit {
     private navCtrl: NavController,
     private utilityService: UtilityService,
     private shareService: ShareService,
-    private manageService: ManageService
+    private manageService: ManageService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -156,7 +158,6 @@ export class LogItemDailyComponent implements OnInit {
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
           if (this.logDaily) {
             this.currentDay = this.logDaily.logDate;
-            console.log(this.logDaily);
             this.fillFormWithLogDailyData();
           }
           this.drawGraph();
@@ -169,6 +170,7 @@ export class LogItemDailyComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
+    if (this.networkSub) this.networkSub.unsubscribe();
   }
 
   signatureTimeout() {
@@ -183,11 +185,11 @@ export class LogItemDailyComponent implements OnInit {
   getStatusColor(status: string) {
     if (status) {
       let colorObj = {
-        OFF: 'var(--gray-300)',
-        SB: 'var(--gray-500)',
+        OFF: 'var(--off-duty)',
+        SB: 'var(--split-spleeper-berth)',
         ON: 'var(--warning-400)',
         D: 'var(--success-500)',
-        PC: 'var(--gray-300)',
+        PC: 'var(--off-duty)',
         YM: 'var(--warning-400)',
       };
       return colorObj[status as keyof typeof colorObj];
@@ -196,9 +198,15 @@ export class LogItemDailyComponent implements OnInit {
   }
 
   getDateSub(date: string) {
-    let date_ = formatDate(date, 'EEEE, MMM d', 'en_US');
-    let today_ = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
-    return date_ === today_ ? date_ + ' (Today)' : date_;
+    let date_ =
+      this.translate.instant(formatDate(date, 'EEEE', 'en_US')) + ', ' + this.translate.instant(formatDate(date, 'MMM', 'en_US')) + ' ' + this.translate.instant(formatDate(date, 'd', 'en_US'));
+    let today_ =
+      this.translate.instant(formatDate(new Date(), 'EEEE', 'en_US')) +
+      ', ' +
+      this.translate.instant(formatDate(new Date(), 'MMM', 'en_US')) +
+      ' ' +
+      this.translate.instant(formatDate(new Date(), 'd', 'en_US'));
+    return date_ === today_ ? date_ + ' (' + this.translate.instant('Today') + ')' : date_;
   }
 
   fillFormWithLogDailyData() {
@@ -394,6 +402,7 @@ export class LogItemDailyComponent implements OnInit {
 
     if (nextIndex < this.logDailies.length) {
       this.logDaily = this.logDailies[nextIndex];
+      this.LogDailiesId = this.logDailies[nextIndex].logDailyId;
       this.fillFormWithLogDailyData();
       this.drawGraph();
     }
@@ -407,6 +416,7 @@ export class LogItemDailyComponent implements OnInit {
 
     if (previousIndex >= 0) {
       this.logDaily = this.logDailies[previousIndex];
+      this.LogDailiesId = this.logDailies[previousIndex].logDailyId;
       this.fillFormWithLogDailyData();
       this.drawGraph();
     }
@@ -435,19 +445,19 @@ export class LogItemDailyComponent implements OnInit {
           console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
           await this.updateIndexLogDaily(this.logDaily as LogDailies, true);
           this.saveFormLoading = false;
-          this.toastService.showToast('Saved successfully!', 'success');
+          this.toastService.showToast(this.translate.instant('Saved successfully!'), 'success');
         },
         async error => {
           await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
           this.saveFormLoading = false;
-          this.toastService.showToast('Offline save!', 'warning');
+          this.toastService.showToast(this.translate.instant('Offline save!'), 'warning');
         }
       );
     } else {
       console.log('Updated logEvents in offline array');
       this.saveFormLoading = false;
       await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
-      this.toastService.showToast('Offline save!', 'warning');
+      this.toastService.showToast(this.translate.instant('Offline save!'), 'warning');
     }
   }
 
@@ -540,11 +550,12 @@ export class LogItemDailyComponent implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+    if (this.networkSub) this.networkSub.unsubscribe();
   }
 
   certifyLog() {
     if (!this.logDaily.formManner && this.statusesOnDay.length >= 2) {
-      this.toastService.showToast('You must complete the form first!');
+      this.toastService.showToast(this.translate.instant('You must complete the form first!'));
       this.validation = {
         shippingDoc: false,
         toAddress: false,
@@ -631,5 +642,9 @@ export class LogItemDailyComponent implements OnInit {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  insertStatus() {
+    this.navCtrl.navigateForward('insert-duty-status', { queryParams: { logDailyId: this.logDaily.logDailyId } });
   }
 }

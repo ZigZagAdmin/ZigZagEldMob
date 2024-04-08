@@ -1,11 +1,14 @@
-<ion-content>
-  <app-header [title]="'Send Logs'" [backButton]="true" (backButtonCallback)="goBack()"><button class="btn secondary-btn">7 Days + Today</button></app-header>
+<ion-content [forceOverscroll]="false">
+  <app-header [title]="'Send Logs' | translate" [backButton]="true" (backButtonCallback)="goBack()"><button class="btn secondary-btn">{{'7 Days + Today' | translate}}</button></app-header>
   <div class="edit-form padding-g">
-    <app-input [label]="'Data Transfer Type'" [fill]="false" [type]="'text'" [(value)]="dataTransferType" [disabled]="loading" [(validation)]="validation['dataTransferType']"></app-input>
-    <app-textarea [label]="'Comment'" [fill]="false" [type]="'text'" [(value)]="comments" [disabled]="loading" [(validation)]="validation['comments']"></app-textarea>
+    <!-- <app-input [label]="'Data Transfer Type' | translate" [fill]="false" [type]="'text'" [(value)]="dataTransferType" [disabled]="loading" [(validation)]="validation['dataTransferType']"></app-input> -->
+    <app-select [label]="'Data Transfer Type' | translate" [fill]="false" (changeDetection)="showSelection()" [(value)]="dataTransferType" [options]="options" [(validation)]="validation['dataTransferType']"></app-select>
+    <app-textarea [label]="'Comments' | translate" [fill]="false" [type]="'text'" [(value)]="comments" [disabled]="loading" [(validation)]="validation['comments']"></app-textarea>
     <div class="btns-flex">
-      <button class="btn secondary-btn" (click)="goBack()">Back</button>
-      <button class="btn primary-btn" (click)="submit()">Send</button>
+      <button class="btn secondary-btn" (click)="goBack()">{{'Back' | translate}}</button>
+      <button class="btn primary-btn btn-custom" style="color: #fcfcfc" (click)="submit()">
+        <span *ngIf="!loading">{{'Save' | translate}}</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+      </button>
     </div>
   </div>
 </ion-content>

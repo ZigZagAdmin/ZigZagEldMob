@@ -234,6 +234,12 @@ MIT
 @meddv/ngx-pinch-zoom
 MIT
 
+@ngx-translate/core
+MIT
+
+@ngx-translate/http-loader
+MIT
+
 capacitor-native-settings
 MIT
 MIT License

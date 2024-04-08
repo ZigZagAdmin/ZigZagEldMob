@@ -24,38 +24,38 @@ rect.eventBorder {
 }
 
 line {
-  stroke: #94a4d7;
-  stroke-width: 0.5;
+  stroke: var(--gray-400);
+  stroke-width: 1;
 }
 
 .eventStatusOFF {
-  stroke: rgb(198, 198, 198);
+  stroke: var(--off-duty);
   stroke-width: 5;
 }
 
 .eventStatusSB {
-  stroke: rgb(31, 49, 64);
+  stroke: var(--split-spleeper-berth);
   stroke-width: 5;
 }
 
 .eventStatusD {
-  stroke: rgb(60, 118, 61);
+  stroke: var(--success-500);
   stroke-width: 5;
 }
 
 .eventStatusON {
-  stroke: rgb(213, 133, 18);
+  stroke: var(--warning-400);
   stroke-width: 5;
 }
 
 .eventStatusPC {
-  stroke: rgb(198, 198, 198);
+  stroke: var(--off-duty);
   stroke-width: 5;
   stroke-dasharray: 7;
 }
 
 .eventStatusYM {
-  stroke: rgb(213, 133, 18);
+  stroke: var(--warning-400);
   stroke-width: 5;
   stroke-dasharray: 7;
 }
@@ -171,4 +171,20 @@ line {
   stroke: var(--error-600);
   opacity: 0.2;
   stroke-width: 1px;
+}
+
+.duty-status-labels .label {
+  fill: var(--gray-700) !important;
+}
+
+.hour-labels .label {
+  fill: var(--gray-700) !important;
+}
+
+.durations .label {
+  fill: var(--gray-700) !important;
+}
+
+.hide-el {
+  display: none;
 }

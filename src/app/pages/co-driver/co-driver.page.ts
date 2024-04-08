@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
+import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Driver } from 'src/app/models/driver';
 import { LogDailies } from 'src/app/models/log-dailies';
@@ -27,7 +28,7 @@ export class CoDriverPage implements OnInit {
 
   pageLoading: boolean = false;
 
-  constructor(private navCtrl: NavController, private toastService: ToastService, private storage: Storage, private databaseService: DatabaseService, private dashboardService: DashboardService) {}
+  constructor(private navCtrl: NavController, private toastService: ToastService, private storage: Storage, private databaseService: DatabaseService, private dashboardService: DashboardService, private translate: TranslateService) {}
 
   async ngOnInit() {
     this.pageLoading = true;
@@ -71,10 +72,10 @@ export class CoDriverPage implements OnInit {
           await this.updateIndexLogDaily(this.logDailies[0], true);
           this.goBack();
           this.loading = false;
-          if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' is now your co-driver', 'medium');
-          if (this.chosenDriver.length !== 0 && this.chosenDriver === 'None') this.toastService.showToast('You have no co-driver now', 'medium');
+          if (this.chosenDriver.length !== 0 && this.chosenDriver !== 'None') this.toastService.showToast(this.chosenDriver + ' ' + this.translate.instant('is now your co-driver'), 'medium');
+          if (this.chosenDriver.length !== 0 && this.chosenDriver === 'None') this.toastService.showToast(this.translate.instant('You have no co-driver now'), 'medium');
         })
-        .catch(async error => {
+        .catch(async () => {
           await this.updateIndexLogDaily(this.logDailies[0], false);
           console.log('Pushed in offline logDailies');
           this.goBack();

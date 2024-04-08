@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { IonModal, Platform } from '@ionic/angular';
+import { AfterViewChecked, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
-import { Subscription, firstValueFrom, forkJoin, interval } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { NavController } from '@ionic/angular';
 import { LogDailies } from 'src/app/models/log-dailies';
 import { LogEvents } from 'src/app/models/log-histories';
@@ -19,15 +19,25 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
 import { Capacitor } from '@capacitor/core';
 import { Location } from 'src/app/models/dvirs';
-import { Network } from '@capacitor/network';
 import { hosErrors } from 'src/app/utilities/hos-errors';
+import { ELD } from 'src/app/models/eld';
+import { GeolocationService } from 'src/app/services/geolocation.service';
+import { TranslateService } from '@ngx-translate/core';
+import { CarSimulatorService } from 'src/app/services/car-simulator.service';
+
+interface BannerInfo {
+  show: boolean;
+  type: 'success' | 'warning' | 'default' | 'error';
+  title: string;
+  subtitle: string;
+}
 
 @Component({
   selector: 'app-hos',
   templateUrl: './hos.page.html',
   styleUrls: ['./hos.page.scss'],
 })
-export class HosPage implements OnInit, OnDestroy {
+export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   message = '';
   someErrors: boolean = false;
   bReady: boolean = false;
@@ -70,7 +80,9 @@ export class HosPage implements OnInit, OnDestroy {
   restCycle: number = 0;
 
   currentStatus = { statusCode: '', statusName: '' };
+  currentDriving: { start: number; index: number } = { start: 0, index: 0 };
   currentStatusTime = '';
+  currentStatusColor: string = '';
 
   vehicle!: Vehicle;
   locationDescription = '';
@@ -101,7 +113,7 @@ export class HosPage implements OnInit, OnDestroy {
   internetSub: Subscription;
   networkStatus: boolean = true;
 
-  bannerInfo: { show: boolean; type: 'success' | 'warning' | 'default' | 'error'; title: string; subtitle: string } = {
+  bannerInfo: BannerInfo = {
     show: false,
     type: 'default',
     title: '',
@@ -136,6 +148,28 @@ export class HosPage implements OnInit, OnDestroy {
   violations: any = {};
   ionViewTrigger: boolean = false;
 
+  locationSub: Subscription;
+  bluetoothSub: Subscription;
+  connectionSub: Subscription;
+  platformSub: Subscription;
+
+  deviceConStatus: boolean = false;
+  eldData: { [key: string]: string } = {};
+  eldDataSub: Subscription;
+  lastEld: ELD;
+  elds: ELD[] = [];
+  isDrivingAuto: boolean = false;
+
+  autoChangeLoading: boolean = false;
+  lastSpeedValue: number = 0;
+  slowDownTimeout: any;
+  slowDownTimoutRemaining: number = 0;
+  slowDownTimoutRemainingInterval: any;
+  lastRPM: number = 0;
+  lastEldData: { [key: string]: string } = {};
+
+  skipFirst: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -145,68 +179,86 @@ export class HosPage implements OnInit, OnDestroy {
     private storage: Storage,
     private storageService: DatabaseService,
     private locationService: LocationService,
+    private geolocationService: GeolocationService,
     private bluetoothService: BluetoothService,
     private toastService: ToastService,
     private utilityService: UtilityService,
     private shareService: ShareService,
     private changeDetectorRef: ChangeDetectorRef,
     private platform: Platform,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private translate: TranslateService,
+    public carSim: CarSimulatorService
   ) {}
 
   async ngOnInit() {
+    // this.carSim.startSimulation();
     this.pageLoading = true;
+    this.ionViewTrigger = true;
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     this.timeZones = this.utilityService.checkSeason();
     if (Capacitor.getPlatform() !== 'web') {
       await this.getLocationState();
       await this.getBluetoothState();
-      this.platform.resume.subscribe(() => {
+      this.platformSub = this.platform.resume.subscribe(() => {
         this.ngZone.run(async () => {
           await this.getLocationState();
           await this.getBluetoothState();
         });
       });
-      this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
+      this.locationSub = this.locationService.getLocationStatusObservable().subscribe(async (status: boolean) => {
         this.locationServiceState = status;
         await this.getLocationState();
       });
-      this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
+      this.bluetoothSub = this.bluetoothService.getBluetoothStatusObservable().subscribe(async (status: boolean) => {
         await this.getBluetoothState();
         await this.bluetoothService.getBluetoothAuthorizationStatus();
+      });
+      this.connectionSub = this.bluetoothService.getDeviceConnectionStatusObservable().subscribe(async (status: boolean) => {
+        this.deviceConStatus = status;
+        await this.showBannerInfoMessage();
+      });
+      this.eldDataSub = this.bluetoothService.getBluetoothDataObservable().subscribe(async (data: { [key: string]: string }) => {
+        console.log(data);
+        if (data) {
+          this.eldData = data;
+          this.lastEldData = data;
+          if (this.skipFirst) {
+            this.changeDrivingAutomatically(); // removed await
+            this.powerUpAndDown(); // removed await
+          }
+          this.skipFirst = true;
+          this.lastRPM = parseInt(this.eldData['R']);
+        }
       });
     }
 
     this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
-      if (!state) {
-        this.bannerInfo = {
-          show: true,
-          title: 'Offline Mode',
-          subtitle: 'Check your internet connection.',
-          type: 'warning',
-        };
-        this.changeDetectorRef.detectChanges();
-      } else {
-        this.bannerInfo.show = false;
-        this.changeDetectorRef.detectChanges();
-      }
+      await this.showBannerInfoMessage();
       if (state) {
         this.logEvents = await firstValueFrom(this.databaseService.getLogEvents());
         this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
       }
     });
-
-    this.paramsSubscription = this.route.params.subscribe(async params => {
+    this.paramsSubscription = this.route.params.subscribe(async () => {
       if (this.bReady) {
         await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
           if (!this.ionViewTrigger) {
-            this.pageLoading = true;
+            console.log('HOS PAGE PARAM SUBS');
+            // this.pageLoading = true; // to be changed
             if (logDailies.length !== 0) this.logDailies = logDailies;
             await firstValueFrom(this.databaseService.getLogEvents()).then(res => (res.length !== 0 ? (this.logEvents = res) : null));
+            let localCurrentStatus = JSON.parse(JSON.stringify(this.logEvents))
+              .reverse()
+              .find((el: LogEvents) => allSt.includes(el.type.code))?.type?.code;
+            await this.storage.set('lastStatusCode', localCurrentStatus);
+            this.currentStatus.statusCode = localCurrentStatus;
+            this.selectedButton = localCurrentStatus;
+            this.lastSelectedButton = localCurrentStatus;
             await this.createLogDailies();
             await this.calcViolations();
-            this.pageLoading = false;
-            console.log('Updated form params');
+            // this.pageLoading = false; // to be changed
           }
         });
       }
@@ -214,11 +266,19 @@ export class HosPage implements OnInit, OnDestroy {
 
     this.updateEveryMinute();
 
-    setTimeout(() => (this.animateCircles = false), 500); // It's ugly, but it works
+    setTimeout(() => (this.animateCircles = false), 2000); // It's ugly, but it works
+  }
+
+  ngAfterViewChecked(): void {
+    // this.changeDetectorRef.detectChanges();
   }
 
   ngOnDestroy(): void {
     this.shareService.destroyMessage();
+    if (this.internetSub) this.internetSub.unsubscribe();
+    if (this.locationSub) this.locationSub.unsubscribe();
+    if (this.bluetoothSub) this.bluetoothSub.unsubscribe();
+    if (this.eldDataSub) this.eldDataSub.unsubscribe();
   }
 
   async ionViewWillEnter() {
@@ -232,6 +292,7 @@ export class HosPage implements OnInit, OnDestroy {
     this.driverName = await this.storage.get('name');
     this.pickedVehicle = await this.storage.get('vehicleUnit');
     let localSplitSleep = await this.storage.get('splitSleeperBerth');
+    let chosenEldMac = await this.storage.get('lastConnectedELD');
     await this.handleSplitSleep(localSplitSleep);
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
@@ -239,25 +300,88 @@ export class HosPage implements OnInit, OnDestroy {
 
         const logDailies$ = this.databaseService.getLogDailies();
         const logEvents$ = this.databaseService.getLogEvents();
+        const company$ = this.databaseService.getCompany();
+        const elds$ = this.databaseService.getELDs();
 
-        forkJoin([logDailies$, logEvents$]).subscribe(async ([logDailies, logEvents]) => {
+        forkJoin([logDailies$, logEvents$, elds$, company$]).subscribe(async ([logDailies, logEvents, elds, company]) => {
           this.logDailies = logDailies;
           this.logEvents = logEvents;
           const filteredLogEvents = this.logEvents.filter(item => ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'].includes(item.type.code));
-          this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
-          this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+          let temp = new Date().setDate(new Date().getDate() - 14);
+          let day = formatDate(new Date(temp), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]);
+          let timeZoneDifference =
+            new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US')).getTime() -
+            new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones])).getTime();
+          this.elds = elds;
+          this.lastEld = chosenEldMac !== null && chosenEldMac !== undefined && chosenEldMac.length !== 0 ? this.elds.find(el => el.macAddress === chosenEldMac) : undefined;
+          if (filteredLogEvents.length === 0) {
+            let firstLogEvent: LogEvents = {
+              logEventId: this.utilityService.uuidv4(),
+              companyId: company.companyId,
+              driverId: this.driverId,
+              eventTime: {
+                logDate: formatDate(new Date(temp), 'yyyy/MM/dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]),
+                timeStamp: new Date(formatDate(new Date(`${day} 00:00:00`), 'yyyy/MM/dd hh:mm:ss a', 'en_US')).getTime() + timeZoneDifference,
+                timeZone: this.timeZone,
+              },
+              vehicle: {
+                vehicleId: this.vehicleId,
+              },
+              eld: {
+                eldId: this.lastEld ? this.lastEld.eldId : '00000000-0000-0000-0000-000000000000',
+                macAddress: this.lastEld ? this.lastEld.macAddress : '',
+                serialNumber: this.lastEld ? this.lastEld.fwVersion : '',
+              },
+              sequenceNumber: 1,
+              type: { name: 'Off Duty', code: 'OFF' },
+              recordStatus: { name: 'Active', code: 'ACTIVE' },
+              recordOrigin: { name: 'Driver', code: 'DRIVER' },
+              malfunction: false,
+              dataDiagnosticEvent: false,
+              comment: '',
+              eventDataCheck: '',
+              inspection: false,
+              sent: true,
+            };
+            this.selectedButton = 'OFF';
+            this.lastSelectedButton = 'OFF';
+            this.currentStatus.statusCode = 'OFF';
+            this.currentStatus.statusName = 'Off Duty';
+            this.currentStatusColor = this.getStatusColor(this.currentStatus.statusCode);
+
+            if (this.networkStatus) {
+              await this.dashboardService
+                .updateLogEvent(firstLogEvent)
+                .toPromise()
+                .then(async response => {
+                  console.log('New status is updated on server:', response);
+                  await this.updateLogEvents(firstLogEvent, true);
+                })
+                .catch(async error => {
+                  console.log('Internet Status: ' + this.networkStatus);
+                  console.log('New Log Event Status Pushed in offline logEvents Array');
+                  await this.updateLogEvents(firstLogEvent, false);
+                });
+            } else {
+              console.log('Updated logEvents in offline array');
+              await this.updateLogEvents(firstLogEvent, false);
+            }
+          } else {
+            this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+            this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
+          }
 
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
-            lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]);
+            // lastLogEvent.eventTime.logDate = formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]);
 
             let LoginLogEvent: LogEvents = {
               logEventId: this.utilityService.uuidv4(),
               companyId: lastLogEvent.companyId,
               driverId: this.driverId,
               eventTime: {
-                logDate: formatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
+                logDate: formatDate(new Date(), 'yyyy/MM/dd', 'en_US', timeZones[this.timeZone as keyof typeof timeZones]),
                 timeStamp: new Date().getTime(),
                 timeStampEnd: new Date().getTime(),
                 timeZone: this.timeZone,
@@ -266,13 +390,13 @@ export class HosPage implements OnInit, OnDestroy {
                 vehicleId: this.vehicleId,
               },
               eld: {
-                eldId: '00000000-0000-0000-0000-000000000000',
-                macAddress: '',
-                serialNumber: '',
+                eldId: this.lastEld ? this.lastEld.eldId : '00000000-0000-0000-0000-000000000000',
+                macAddress: this.lastEld ? this.lastEld.macAddress : '',
+                serialNumber: this.lastEld ? this.lastEld.fwVersion : '',
               },
               location: {
-                locationType: 'AUTOMATIC',
-                description: '2mi from Chisinau, Chisinau',
+                locationType: '',
+                description: '',
                 latitude: 0,
                 longitude: 0,
               },
@@ -280,11 +404,10 @@ export class HosPage implements OnInit, OnDestroy {
               type: { name: 'Login', code: 'LOGIN' },
               recordStatus: { name: 'Active', code: 'ACTIVE' },
               recordOrigin: { name: 'Driver', code: 'DRIVER' },
-              odometer: 0,
-              engineHours: 0,
+              odometer: this.eldData['O'] ? parseInt(this.eldData['O']) : 1,
+              engineHours: this.eldData['H'] ? parseInt(this.eldData['H']) : 1,
               malfunction: false,
               dataDiagnosticEvent: false,
-              certificationDate: lastLogEvent.certificationDate,
               comment: '',
               eventDataCheck: '',
               inspection: false,
@@ -294,7 +417,6 @@ export class HosPage implements OnInit, OnDestroy {
 
             this.storage.set('lastStatusCode', this.selectedButton);
             this.storage.set('bAuthorized', true);
-
             if (this.networkStatus) {
               await this.dashboardService
                 .updateLogEvent(lastLogEvent)
@@ -303,7 +425,7 @@ export class HosPage implements OnInit, OnDestroy {
                   console.log('Last LogEvent is updated on server:', response);
                   await this.updateIndexLogEvents(lastLogEvent, true);
                 })
-                .catch(async error => {
+                .catch(async () => {
                   console.log('Internet Status: ' + this.networkStatus);
                   console.log('Last LogEvent Pushed in offline logEvents array');
                   await this.updateIndexLogEvents(lastLogEvent, false);
@@ -315,7 +437,7 @@ export class HosPage implements OnInit, OnDestroy {
                   console.log('New status is updated on server:', response);
                   await this.updateLogEvents(LoginLogEvent, true);
                 })
-                .catch(async error => {
+                .catch(async () => {
                   console.log('Internet Status: ' + this.networkStatus);
                   console.log('New Log Event Status Pushed in offline logEvents Array');
                   await this.updateLogEvents(LoginLogEvent, false);
@@ -329,12 +451,13 @@ export class HosPage implements OnInit, OnDestroy {
 
           await this.createLogDailies();
           await this.calcViolations();
-          this.ionViewTrigger = false;
           this.pageLoading = false;
+          this.ionViewTrigger = false;
         });
       }
     });
   }
+
 
   async handleSplitSleep(value: boolean | undefined | null) {
     if (value === null || value === undefined) {
@@ -363,7 +486,10 @@ export class HosPage implements OnInit, OnDestroy {
 
   async getBluetoothState() {
     let authorization = (await this.bluetoothService.getBluetoothAuthorizationStatus()).status;
-    this.bluetoothStatus = (await this.bluetoothService.getBluetoothState()) && authorization;
+    let serviceState = await this.bluetoothService.getBluetoothState();
+    this.bluetoothStatus = serviceState && authorization;
+    await this.showBannerInfoMessage();
+    console.log('bluetoothStatus: ', authorization);
     this.changeDetectorRef.detectChanges();
   }
 
@@ -402,20 +528,25 @@ export class HosPage implements OnInit, OnDestroy {
   }
 
   async checkBluetooth() {
-    if (!(await this.bluetoothService.getBluetoothState())) {
-      if (Capacitor.getPlatform() === 'android') {
-        let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
-        if (confirmation) {
-          await this.bluetoothService.goToBluetoothServiceSettings();
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        if (Capacitor.getPlatform() === 'android') {
+          let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
+          if (confirmation) {
+            await this.bluetoothService.goToBluetoothServiceSettings();
+          } else {
+            alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+          }
         } else {
-          alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
+          alert('In order to connect to a device, you have to turn on the Bluetooth Service.');
+          return;
         }
-      } else {
-        alert('In order to connect to a device, you have to turn on the Bluetooth Service.');
-        return;
       }
+      await this.bluetoothService.requestBluetoothPermission();
     }
-    await this.bluetoothService.requestBluetoothPermission();
+    if (!this.deviceConStatus && this.bluetoothStatus) {
+      this.goToConnectPage();
+    }
   }
 
   toggleMode() {
@@ -443,6 +574,7 @@ export class HosPage implements OnInit, OnDestroy {
     let driveT = 0;
     let driveT2 = 0;
     let shiftT = 0;
+    let shiftT2 = 0;
     let cycleT = 0;
     let firstEvent: LogEvents;
     let secondEvent: LogEvents;
@@ -466,6 +598,7 @@ export class HosPage implements OnInit, OnDestroy {
           else {
             this.currentStatus.statusCode = event.type.code;
             this.currentStatus.statusName = event.type.name;
+            this.currentStatusColor = this.getStatusColor(this.currentStatus.statusCode);
           }
           this.currentStatusTime = this.convertSecondToHours(time / 1000);
 
@@ -475,6 +608,7 @@ export class HosPage implements OnInit, OnDestroy {
             case 'PC':
               breakT += time;
               shiftT += time;
+              shiftT2 += time;
               timeNotDrive += time;
 
               if (this.splitSleeperBerth) {
@@ -492,22 +626,24 @@ export class HosPage implements OnInit, OnDestroy {
                   }
 
                   if ((splitTime >= 7 && firstEvent.type.code === 'SB') || (splitTime < 7 && dur < 7)) {
-                    shiftT = shiftT - time;
+                    shiftT2 = shiftT2 - time;
+                    shiftT -= time;
                     let temp = {
                       duration: splitTime,
-                      time: shiftT,
+                      time: shiftT2,
                       drivingT: driveT,
                     };
 
-                    if (!this.splitSleepData && shiftT) {
+                    if (!this.splitSleepData && shiftT2) {
                       this.splitSleepData = temp;
-                    } else if (this.splitSleepData && shiftT) {
+                    } else if (this.splitSleepData && shiftT2) {
                       if (splitTime + this.splitSleepData.duration >= 10) {
+                        shiftT2 -= this.splitSleepData.time;
                         shiftT -= this.splitSleepData.time;
                         driveT -= this.splitSleepData.drivingT;
                         this.splitSleepData = {
                           duration: splitTime,
-                          time: shiftT,
+                          time: shiftT2,
                           drivingT: driveT,
                         };
                       }
@@ -519,10 +655,12 @@ export class HosPage implements OnInit, OnDestroy {
               if (breakT >= this.newShift) {
                 driveT = 0;
                 shiftT = 0;
+                shiftT2 = 0;
                 this.splitSleepData = undefined;
               }
               if (breakT >= this.restartTime) {
                 shiftT = 0;
+                shiftT2 = 0;
                 cycleT = 0;
                 driveT = 0;
                 this.splitSleepData = undefined;
@@ -537,14 +675,16 @@ export class HosPage implements OnInit, OnDestroy {
               breakT = 0;
               timeNotDrive += time;
               shiftT += time;
+              shiftT2 += time;
               cycleT += time;
-              if (shiftT > this.shiftLimit) {
+              if (shiftT2 > this.shiftLimit) {
                 this.pushViolation(
-                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
                   hosErrors.DUTY_LIMIT,
-                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                  secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)
                 );
-                shiftT = 0;
+                shiftT2 = 0;
+                // shiftT = 0;
               }
               if (cycleT > this.cycleLimit) {
                 this.pushViolation(
@@ -560,6 +700,7 @@ export class HosPage implements OnInit, OnDestroy {
               driveT2 += time;
               driveT += time;
               shiftT += time;
+              shiftT2 += time;
               cycleT += time;
               if (driveT2 > this.driveWithoutBreakLimit && timeNotDrive < this.notDriveLimit) {
                 this.pushViolation(
@@ -567,6 +708,7 @@ export class HosPage implements OnInit, OnDestroy {
                   hosErrors.REST_BREAK,
                   secondEvent.eventTime.timeStamp - (driveT2 - this.driveWithoutBreakLimit)
                 );
+                driveT2 = 0;
               }
               // if (time > this.driveWithoutBreakLimit) {
               //   this.pushViolation(
@@ -583,13 +725,14 @@ export class HosPage implements OnInit, OnDestroy {
                 );
                 driveT = 0;
               }
-              if (shiftT > this.shiftLimit) {
+              if (shiftT2 > this.shiftLimit) {
                 this.pushViolation(
-                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
+                  formatDate(new Date(secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone]),
                   hosErrors.DUTY_LIMIT,
-                  secondEvent.eventTime.timeStamp - (shiftT - this.shiftLimit)
+                  secondEvent.eventTime.timeStamp - (shiftT2 - this.shiftLimit)
                 );
-                shiftT = 0;
+                shiftT2 = 0;
+                // shiftT = 0;
               }
               if (cycleT > this.cycleLimit) {
                 this.pushViolation(
@@ -608,6 +751,8 @@ export class HosPage implements OnInit, OnDestroy {
           }
 
           /** CALCULATE RECAP */
+
+          if (!this.eventLogDailies[firstEvent.eventTime.logDate]) this.eventLogDailies[firstEvent.eventTime.logDate] = { timeOff: 0, timeDriving: 0, timeOnDuty: 0, timeSleeper: 0, timeWorked: 0 };
 
           if (firstEvent.eventTime.logDate === formatDate(new Date(secondEvent.eventTime.timeStamp), 'yyyy/MM/dd', 'en-US', this.timeZones[this.timeZone])) {
             let timeRecap = (secondEvent.eventTime.timeStamp - firstEvent.eventTime.timeStamp) / 1000;
@@ -665,18 +810,21 @@ export class HosPage implements OnInit, OnDestroy {
 
             addTime(day, endDayTime);
             day = formatDate(new Date(day).setDate(new Date(day).getDate() - 1), 'yyyy/MM/dd', 'en-US');
-            while (day != firstEvent.eventTime.logDate) {
+            let iterationLimit = 100;
+            while (day != firstEvent.eventTime.logDate && iterationLimit > 0) {
               addTime(day, 24 * 60 * 60 * 1000);
               let temp = new Date(day);
               temp.setDate(temp.getDate() - 1);
               day = formatDate(temp, 'yyyy/MM/dd', 'en-US');
+              iterationLimit--;
             }
             let starTime = new Date(formatDate(new Date(firstEvent.eventTime.timeStamp), 'MMM dd hh:mm:ss a', 'en-US', this.timeZones[this.timeZone]));
             let startDayTime = 24 * 60 * 60 * 1000 - (starTime.getHours() * 60 * 60 * 1000 + starTime.getMinutes() * 60 * 1000 + starTime.getSeconds() * 1000);
             addTime(day, startDayTime);
           }
-          this.eventLogDailies[firstEvent.eventTime.logDate].timeWorked =
-            this.eventLogDailies[firstEvent.eventTime.logDate].timeOnDuty + this.eventLogDailies[firstEvent.eventTime.logDate].timeDriving;
+        }
+        for (const key in this.eventLogDailies) {
+          this.eventLogDailies[key].timeWorked = this.eventLogDailies[key].timeOnDuty + this.eventLogDailies[key].timeDriving;
         }
       }
     });
@@ -738,7 +886,6 @@ export class HosPage implements OnInit, OnDestroy {
         }
       }
     }
-    console.log(this.violations);
   }
 
   pushViolation(day: string, error: { code: string; name: string }, date: number) {
@@ -768,22 +915,34 @@ export class HosPage implements OnInit, OnDestroy {
     await this.getLocalCurrentLocation();
   }
 
-  async getLocalCurrentLocation() {
+  async getLocalCurrentLocation(check: boolean = true) {
     this.locationLoading = true;
     if (Capacitor.getPlatform() !== 'web') {
-      if (!this.locationStatus) {
-        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+      if (!this.locationStatus && check) {
+        this.toastService.showToast(this.translate.instant('Problems fetching location! Check the location service!'), 'danger', 2500);
       }
     }
-    await this.locationService.getCurrentLocation().then(res => {
+    await this.locationService.getCurrentLocation().then(async res => {
       this.location = res;
       this.locationDescription = this.location.description;
-      this.locationLoading = false;
       if (this.location.locationType === 'AUTOMATIC') {
-        this.locationDisable = true;
+        if (this.eldData['G']) {
+          let data = this.utilityService.getEldLocation(this.eldData['G']);
+          let description = await this.geolocationService.getCurrentLocation(data[2], data[3]);
+          this.location = {
+            locationType: 'AUTOMATIC',
+            latitude: data[2],
+            longitude: data[3],
+            description: description,
+          };
+          this.locationDescription = this.location.description;
+        } else {
+          this.locationDisable = true;
+        }
       } else {
         this.locationDisable = false;
       }
+      this.locationLoading = false;
     });
   }
 
@@ -806,30 +965,47 @@ export class HosPage implements OnInit, OnDestroy {
     this.isModalOpen = false;
   }
 
-  async confirm() {
-    this.shareService.changeMessage(this.utilityService.generateString(5));
-    if (!this.utilityService.validateForm(this.validation)) return;
-    if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
-      this.lastSelectedButton = this.selectedButton;
+  async confirm(hidden: boolean = false, code?: string, validate: boolean = true, origin?: { name: string; code: string }) {
+    console.log(this.selectedButton);
+    console.log(this.lastSelectedButton);
+    console.log(origin);
+    if (validate) {
+      this.shareService.changeMessage(this.utilityService.generateString(5));
+      if (!this.utilityService.validateForm(this.validation)) return;
+    }
+    if (hidden) {
+      console.log('inside hidden');
       this.shareService.destroyMessage();
-      await this.storage.set('lastStatusCode', this.selectedButton);
-      await this.onWillDismiss().then(() => {
+      await this.onWillDismiss(code).then(() => {
         this.isModalOpen = false;
         this.modalLoading = false;
       });
     } else {
-      this.toastService.showToast('You need to select a different status!', 'warning');
+      if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
+        this.lastSelectedButton = this.selectedButton;
+        this.shareService.destroyMessage();
+        await this.storage.set('lastStatusCode', this.selectedButton);
+        await this.onWillDismiss(this.selectedButton, origin).then(() => {
+          this.currentStatusColor = this.getStatusColor(this.selectedButton);
+          this.isModalOpen = false;
+          this.modalLoading = false;
+        });
+      } else {
+        this.toastService.showToast(this.translate.instant('You need to select a different status!'), 'warning');
+      }
     }
   }
 
-  async onWillDismiss() {
+  async onWillDismiss(status: string, origin: { name: string; code: string } = { name: 'Driver', code: 'DRIVER' }) {
+    console.log(origin);
     this.modalLoading = true;
     const endTime = new Date().getTime();
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
     const filteredLogEvents = this.logEvents.filter(item => allSt.includes(item.type.code));
     let lastLogEvent = filteredLogEvents[filteredLogEvents.length - 1];
+    let lastBigEvent = this.logEvents[this.logEvents.length - 1];
 
-    if (lastLogEvent) {
+    if (lastLogEvent && allSt.includes(status)) {
       lastLogEvent.eventTime.timeStampEnd = endTime;
     }
 
@@ -858,6 +1034,30 @@ export class HosPage implements OnInit, OnDestroy {
         statusName: 'Yard Moves',
         eventTypeType: 'DRIVER_INDICATES',
       },
+      UP_NORMAL: {
+        statusName: 'Engine Power-up w/ CLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      UP_REDUCED: {
+        statusName: 'Engine Power-up w/ RLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      DOWN_NORMAL: {
+        statusName: 'Engine Shut-down w/ CLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      DOWN_REDUCED: {
+        statusName: 'Engine Power-up w/ RLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      NORMAL_PRECISION: {
+        statusName: 'Intermediate w/ CLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
+      REDUCED_PRECISION: {
+        statusName: 'Intermediate w/ RLP',
+        eventTypeType: 'DRIVER_INDICATES',
+      },
     };
 
     let newLogEvent: LogEvents = {
@@ -873,9 +1073,9 @@ export class HosPage implements OnInit, OnDestroy {
         vehicleId: this.vehicleId,
       },
       eld: {
-        eldId: '00000000-0000-0000-0000-000000000000',
-        macAddress: '',
-        serialNumber: '',
+        eldId: this.lastEld ? this.lastEld.eldId : '00000000-0000-0000-0000-000000000000',
+        macAddress: this.lastEld ? this.lastEld.macAddress : '',
+        serialNumber: this.lastEld ? this.lastEld.fwVersion : '',
       },
       location: {
         locationType: this.location.locationType,
@@ -883,12 +1083,12 @@ export class HosPage implements OnInit, OnDestroy {
         latitude: this.location.latitude,
         longitude: this.location.longitude,
       },
-      sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
-      type: { name: statuses[this.selectedButton as keyof typeof statuses] ? statuses[this.selectedButton as keyof typeof statuses].statusName : 'Unknown', code: this.selectedButton },
+      sequenceNumber: lastBigEvent ? lastBigEvent.sequenceNumber + 1 : 1,
+      type: { name: statuses[status as keyof typeof statuses] ? statuses[status as keyof typeof statuses].statusName : 'Unknown', code: status },
       recordStatus: { name: 'Active', code: 'ACTIVE' },
-      recordOrigin: { name: 'Driver', code: 'DRIVER' },
-      odometer: 0,
-      engineHours: 0,
+      recordOrigin: origin,
+      odometer: this.eldData['O'] ? parseInt(this.eldData['O']) : 1,
+      engineHours: this.eldData['H'] ? parseInt(this.eldData['H']) : 1,
       malfunction: false,
       dataDiagnosticEvent: false,
       certificationDate: lastLogEvent.certificationDate,
@@ -898,6 +1098,9 @@ export class HosPage implements OnInit, OnDestroy {
 
       sent: true,
     };
+    if (status.includes('PRECISION')) {
+      newLogEvent.eventTime.timeStamp = this.currentDriving.start + this.currentDriving.index * 5 * 60 * 1000;
+    }
 
     if (this.networkStatus) {
       await this.dashboardService
@@ -907,7 +1110,7 @@ export class HosPage implements OnInit, OnDestroy {
           console.log('Last LogEvent is updated on server:', response);
           await this.updateIndexLogEvents(lastLogEvent, true);
         })
-        .catch(async error => {
+        .catch(async () => {
           console.log('Internet Status: ' + this.networkStatus);
           console.log('Last LogEvent Pushed in offline logEvents array');
           await this.updateIndexLogEvents(lastLogEvent, false);
@@ -919,7 +1122,7 @@ export class HosPage implements OnInit, OnDestroy {
           console.log('New status is updated on server:', response);
           await this.updateLogEvents(newLogEvent, true);
         })
-        .catch(async error => {
+        .catch(async () => {
           console.log('Internet Status: ' + this.networkStatus);
           console.log('New Log Event Status Pushed in offline logEvents Array');
           await this.updateLogEvents(newLogEvent, false);
@@ -932,6 +1135,7 @@ export class HosPage implements OnInit, OnDestroy {
 
     await this.createLogDailies();
     await this.calcViolations();
+    await this.uploadDriverStatus();
   }
 
   convertSecondToHours(secs: number): string {
@@ -1025,7 +1229,7 @@ export class HosPage implements OnInit, OnDestroy {
           console.log('LogDaily (durationStatuses) is updated on server:', response);
           await this.updateIndexLogDaily(logDaily, true);
         },
-        async error => {
+        async () => {
           console.log('Internet Status: ' + this.networkStatus);
           await this.updateIndexLogDaily(logDaily, false);
           console.log('Pushed in logDailies');
@@ -1055,11 +1259,11 @@ export class HosPage implements OnInit, OnDestroy {
   getStatusColor(status: string) {
     if (status) {
       let colorObj = {
-        OFF: 'var(--gray-300)',
-        SB: 'var(--gray-500)',
+        OFF: 'var(--off-duty)',
+        SB: 'var(--split-spleeper-berth)',
         ON: 'var(--warning-400)',
         D: 'var(--success-500)',
-        PC: 'var(--gray-300)',
+        PC: 'var(--off-duty)',
         YM: 'var(--warning-400)',
       };
       return colorObj[status as keyof typeof colorObj];
@@ -1120,6 +1324,7 @@ export class HosPage implements OnInit, OnDestroy {
       await this.createLogDailies();
       await this.calcViolations();
       await this.uploadDriverStatus();
+      await this.createIntermediate();
     }, 60000);
   }
 
@@ -1129,9 +1334,200 @@ export class HosPage implements OnInit, OnDestroy {
     }, 0);
   }
 
+  goToConnectPage() {
+    this.navCtrl.navigateForward('/connect-mac', { queryParams: { backUrl: '/hos' } });
+  }
+
+  async changeDrivingAutomatically() {
+    console.log(this.currentStatus);
+    if (parseInt(this.eldData['V']) >= 5 && this.currentStatus.statusCode !== 'D') {
+      console.log('changeDrivingAuto first if');
+      await this.changeStatusLocally('D', true, true, false, { name: 'Auto', code: 'AUTO' });
+      this.closeAutoDrivingModal();
+    } else if (parseInt(this.eldData['V']) === 0 && parseInt(this.eldData['R']) === 0 && this.currentStatus.statusCode === 'D') {
+      console.log('changeDrivingAuto second if');
+      await this.changeStatusLocally('ON', true, true, false, { name: 'Auto', code: 'AUTO' });
+      this.closeAutoDrivingModal();
+    } else if (parseInt(this.eldData['V']) < 5 && this.currentStatus.statusCode === 'D') {
+      console.log('changeDrivingAuto third if');
+      if (!this.slowDownTimeout) {
+        this.slowDownTimoutRemaining = 60; // to be changes
+        this.slowDownTimeout = setTimeout(async () => {
+          if (this.currentStatus.statusCode === 'D') {
+            this.isDrivingAuto = true;
+            this.changeDetectorRef.detectChanges();
+            this.slowDownTimoutRemainingInterval = setInterval(async () => {
+              this.changeDetectorRef.detectChanges();
+              this.ngZone.run(async () => {
+                if (this.slowDownTimoutRemaining === 0) {
+                  this.closeAutoDrivingModal();
+                  await this.changeStatusLocally('ON', true, true, false, { name: 'Auto', code: 'AUTO' });
+                }
+                this.slowDownTimoutRemaining--;
+              });
+            }, 1000);
+          }
+        }, 4000); // to be changed
+      }
+    } else {
+      console.log('changeDrivingAuto else');
+      this.closeAutoDrivingModal();
+    }
+  }
+
+  async powerUpAndDown() {
+    if (this.eldData['R']) {
+      console.log(parseInt(this.eldData['R']), ' ', this.lastRPM);
+      if (parseInt(this.eldData['R']) > 0 && this.lastRPM === 0) {
+        if (this.eldData['O'] && this.eldData['H']) {
+          await this.changeStatusLocally('UP_NORMAL', false, false, true);
+        } else {
+          await this.changeStatusLocally('UP_REDUCED', false, false, true);
+        }
+      } else if (parseInt(this.eldData['R']) === 0 && this.lastRPM > 0) {
+        if (this.eldData['O'] && this.eldData['H']) {
+          await this.changeStatusLocally('DOWN_NORMAL', false, false, true);
+        } else {
+          await this.changeStatusLocally('DOWN_REDUCED', false, false, true);
+        }
+      }
+    }
+    this.lastRPM = this.eldData['R'] ? parseInt(this.eldData['R']) : 0;
+  }
+
+  async changeStatusLocally(code: string, loading: boolean = true, select: boolean = true, hidden: boolean = false, origin?: { name: string; code: string }) {
+    if (!hidden) this.closeAutoDrivingModal();
+    if (!hidden) this.autoChangeLoading = true;
+    if (select) this.selectButton(code);
+    await this.getLocalCurrentLocation(false);
+    this.validation['location'] = true;
+    this.autoChangeLoading = false;
+    await this.confirm(hidden, code, false, origin).catch(() => (this.autoChangeLoading = false));
+  }
+
+  closeAutoDrivingModal() {
+    this.isDrivingAuto = false;
+    if (this.slowDownTimeout) {
+      clearTimeout(this.slowDownTimeout);
+      clearInterval(this.slowDownTimoutRemainingInterval);
+      this.slowDownTimeout = null;
+    }
+    this.changeDetectorRef.detectChanges();
+  }
+
+  async showBannerInfoMessage() {
+    if (Capacitor.getPlatform() !== 'web') {
+      let bluetoothServiceState = await this.bluetoothService.getBluetoothState();
+      let bluetoothAuthorization = (await this.bluetoothService.getBluetoothAuthorizationStatus()).status;
+
+      if (!this.networkStatus) {
+        this.bannerInfo = {
+          show: true,
+          title: 'Offline Mode',
+          subtitle: 'Check your internet connection.',
+          type: 'warning',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+
+      if (!bluetoothServiceState) {
+        this.bannerInfo = {
+          show: true,
+          title: 'Bluetooth Service Off',
+          subtitle: 'Please turn on the Bluetooth Service.',
+          type: 'error',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+
+      if (!bluetoothAuthorization) {
+        this.bannerInfo = {
+          show: true,
+          title: 'Bluetooth not authorized',
+          subtitle: 'Please give permissions to use the bluetooth service.',
+          type: 'error',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        console.log('inside third if');
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+
+      if (!this.deviceConStatus) {
+        this.bannerInfo = {
+          show: true,
+          title: 'ELD Not Connected',
+          subtitle: 'Please verify the ELD hardware connection.',
+          type: 'error',
+        };
+        this.changeDetectorRef.detectChanges();
+        return;
+      } else {
+        this.bannerInfo.show = false;
+        this.changeDetectorRef.detectChanges();
+      }
+    }
+  }
+
+  async createIntermediate() {
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+    if (this.currentStatus.statusCode === 'D') {
+      let visibleLogs = this.logEvents
+        .filter(el => allSt.includes(el.type.code))
+        .slice()
+        .reverse();
+      console.log(visibleLogs);
+      let localDriving = visibleLogs.find(el => el.type.code === 'D');
+      let numberOfIntermetdiates = 1;
+      let reverseLogs = this.logEvents.slice().reverse();
+      reverseLogs.every(el => {
+        if (el.type.code === 'NORMAL_PRECISION') {
+          numberOfIntermetdiates++;
+        }
+        if (el.type.code === 'D') return false;
+        return true;
+      });
+      this.currentDriving.start = localDriving.eventTime.timeStamp;
+      this.currentDriving.index = numberOfIntermetdiates;
+
+      // console.log(((new Date().getTime() - this.currentDriving.start) / 1000) % 300 < 60);
+      // console.log(((new Date().getTime() - this.currentDriving.start) / 1000) % 300);
+
+      if (new Date().getTime() - this.currentDriving.start > 60000 && ((new Date().getTime() - this.currentDriving.start) / 1000) % 300 < 60) {
+        //to be changed
+        console.log('intermediate');
+        await this.changeStatusLocally('NORMAL_PRECISION', false, false, true, { name: 'Auto', code: 'AUTO' });
+      }
+    } else {
+      this.currentDriving = { start: 0, index: 0 };
+    }
+  }
+
   async ionViewWillLeave() {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+    if (this.eldDataSub) {
+      this.eldDataSub.unsubscribe();
+    }
+  }
+
+  canDeactivate() {
+    return !this.autoChangeLoading;
+  }
+
+  checkElementHasChildren(id: string) {
+    let value = document.getElementsByClassName(id).length > 0;
+    return value;
   }
 }

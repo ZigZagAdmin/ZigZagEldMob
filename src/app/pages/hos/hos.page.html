@@ -1,56 +1,38 @@
 <ion-content [forceOverscroll]="false">
-  <div class="hos-wrapper" *ngIf="!pageLoading">
+  <div class="hos-wrapper" [ngClass]="{'hide-el': pageLoading}">
     <div class="hos-header">
       <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}" (click)="checkLocation()">
-        <img src="assets/icon/location_icon.svg" />
+        <img src="assets/icons/location_icon.svg" />
       </div>
       <div class="hos-name">
         <p class="subtitle">{{ driverName }}</p>
-        <p class="text-1">Vehicle Unit: {{ vehicle?.vehicleUnit }}</p>
+        <p class="text-1">{{'Vehicle Unit' | translate}}: {{ vehicle?.vehicleUnit }}</p>
       </div>
-      <div class="service" [ngClass]="{'service-on': bluetoothStatus, 'service-off': !bluetoothStatus}" (click)="checkBluetooth()">
-        <img src="assets/icon/bluetooth_icon.svg" />
+      <div class="service" [ngClass]="{'service-on': deviceConStatus, 'service-off': !deviceConStatus}" (click)="checkBluetooth()">
+        <img src="assets/icons/bluetooth_icon.svg" />
       </div>
     </div>
+    <!-- For testing purposes. DO NOT DELETE -->
+    <!-- <div style="display: flex; gap: 5px">
+      <button style="padding: 5px" (click)="carSim.startEngine()">power up</button>
+      <button style="padding: 5px" (click)="carSim.stopEngine()">power down</button>
+      <button style="padding: 5px" (click)="carSim.driving()">drive</button>
+      <button style="padding: 5px" (click)="carSim.stopDriving()">stop driving</button>
+      <button style="padding: 5px" (click)="carSim.instantMessage()">instant data</button>
+    </div> -->
 
-    <app-message-banner *ngIf="bannerInfo.show" [title]="bannerInfo.title" [subtitle]="bannerInfo.subtitle" [type]="bannerInfo.type"></app-message-banner>
+    <app-message-banner *ngIf="bannerInfo.show" [title]="bannerInfo.title | translate" [subtitle]="bannerInfo.subtitle | translate" [type]="bannerInfo.type"></app-message-banner>
 
     <div class="status-bar">
-      <p class="subtitle">Current Status</p>
-      <div class="green" id="trigger-status" [ngStyle]="{'background-color': getStatusColor(selectedButton)}" style="max-width: 39%" (click)="toggleModal()">
-        <span class="text-elipsis">{{currentStatus.statusName}}</span>
-        <img src="assets/icon/arrow-bottom.svg" alt="arrow" />
+      <p class="subtitle">{{'Current Status' | translate}}</p>
+      <div class="green" id="trigger-status" [ngStyle]="{'background-color': currentStatusColor}" style="max-width: 39%" (click)="toggleModal()">
+        <span class="text-elipsis">{{currentStatus.statusName | translate}}</span>
+        <img src="assets/icons/arrow-bottom.svg" alt="arrow" />
       </div>
-      <div class="green" [ngStyle]="{'background-color': getStatusColor(selectedButton)}">{{currentStatusTime}}</div>
+      <div class="green" [ngStyle]="{'background-color': currentStatusColor}">{{currentStatusTime}}</div>
     </div>
-    <ion-modal [isOpen]="isModalOpen" trigger="trigger-status">
-      <ng-template>
-        <ion-content [forceOverscroll]="false">
-          <app-header [title]="'Select Duty Status'" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
-          <div class="modal-content">
-            <app-duty-radio-button (selectedValue)="selectButton($event)" [currentValue]="selectedButton"></app-duty-radio-button>
-            <app-location-input
-              [label]="'Location'"
-              [fill]="true"
-              [type]="'text'"
-              [(value)]="locationDescription"
-              [loading]="locationLoading"
-              [disabled]="locationDisable"
-              (gpsCallback)="getLocalCurrentLocation()"
-              [(validation)]="validation['location']"></app-location-input>
-            <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-comments>
-            <div class="btns-flex">
-              <button class="btn secondary-btn btn-custom" (click)="cancel()">Back</button>
-              <button class="btn primary-btn btn-custom" (click)="confirm()">
-                <span *ngIf="!modalLoading">Save</span> <ion-spinner *ngIf="modalLoading" name="circular" color="light"></ion-spinner>
-              </button>
-            </div>
-          </div>
-        </ion-content>
-      </ng-template>
-    </ion-modal>
     <div class="circles">
-      <p class="text-2" style="margin-bottom: 5px">Hours Remaining</p>
+      <p class="text-2" style="margin-bottom: 5px">{{'Hours Remaining' | translate}}</p>
       <div class="circles-block" *ngIf="!restMode">
         <div class="circle-block">
           <circle-progress
@@ -58,16 +40,16 @@
             [responsive]="true"
             [space]="-15"
             [outerStrokeWidth]="15"
-            outerStrokeColor="rgb(254, 200, 75)"
-            innerStrokeColor="rgba(228, 231, 236, 1)"
+            outerStrokeColor="var(--warning-300)"
+            innerStrokeColor="var(--gray-200)"
             [innerStrokeWidth]="15"
             titleFontSize="22"
             [title]="convertSecondToHours(titleBreak)"
-            titleColor="rgb(254, 200, 75)"
+            titleColor="var(--warning-400)"
             titleFontWeight="600"
-            subtitle="Break"
+            [subtitle]="'Break' | translate"
             subtitleFontWeight="500"
-            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleColor="var(--gray-400)"
             subtitleFontSize="22"
             [showUnits]="false"
             [animation]="animateCircles"
@@ -81,16 +63,16 @@
             [responsive]="true"
             [space]="-15"
             [outerStrokeWidth]="15"
-            outerStrokeColor="rgba(18, 183, 106, 1)"
-            innerStrokeColor="rgba(228, 231, 236, 1)"
+            outerStrokeColor="var(--success-500)"
+            innerStrokeColor="var(--gray-200)"
             [innerStrokeWidth]="15"
             titleFontSize="22"
             [title]="convertSecondToHours(titleDriving)"
-            titleColor="rgba(18, 183, 106, 1)"
+            titleColor="var(--success-600)"
             titleFontWeight="600"
-            subtitle="Driving"
+            [subtitle]="'Driving' | translate"
             subtitleFontWeight="500"
-            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleColor="var(--gray-400)"
             subtitleFontSize="22"
             [animation]="animateCircles"
             [showUnits]="false"
@@ -104,16 +86,16 @@
             [responsive]="true"
             [space]="-15"
             [outerStrokeWidth]="15"
-            outerStrokeColor="rgba(155, 138, 251, 1)"
-            innerStrokeColor="rgba(228, 231, 236, 1)"
+            outerStrokeColor="var(--purple-500)"
+            innerStrokeColor="var(--gray-200)"
             [innerStrokeWidth]="15"
             titleFontSize="22"
             [title]="convertSecondToHours(titleShift)"
-            titleColor="rgba(155, 138, 251, 1)"
+            titleColor="var(--purple-600)"
             titleFontWeight="600"
-            subtitle="Shift"
+            [subtitle]="'Shift' | translate"
             subtitleFontWeight="500"
-            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleColor="var(--gray-400)"
             subtitleFontSize="22"
             [showUnits]="false"
             [animation]="animateCircles"
@@ -127,16 +109,16 @@
             [responsive]="true"
             [space]="-15"
             [outerStrokeWidth]="15"
-            outerStrokeColor="rgba(251, 101, 20, 1)"
-            innerStrokeColor="rgba(228, 231, 236, 1)"
+            outerStrokeColor="var(--orange-400)"
+            innerStrokeColor="var(--gray-200)"
             [innerStrokeWidth]="15"
             titleFontSize="22"
             [title]="convertSecondToHours(titleCycle)"
-            titleColor="rgba(251, 101, 20, 1)"
+            titleColor="var(--orange-400)"
             titleFontWeight="600"
-            subtitle="Cycle"
+            [subtitle]="'Cycle' | translate"
             subtitleFontWeight="500"
-            subtitleColor="rgba(152, 162, 179, 1)"
+            subtitleColor="var(--gray-400)"
             subtitleFontSize="22"
             [showUnits]="false"
             [animation]="animateCircles"
@@ -146,10 +128,40 @@
         </div>
       </div>
     </div>
+    <div id="violation-m" class="sleep-container" [ngClass]="{'hide-container': !checkElementHasChildren('sleep-box')}">
+      <!-- Shift -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleShift < 1800 && this.titleShift > 0">
+        <img src="../../../assets/icons/danger.svg" /> <span>Shift Warning: Shift will end in {{convertSecondToHours(this.titleShift)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleShift === 0">
+        <img src="../../../assets/icons/danger.svg" /> <span>Shift Violation: Shift is 00:00</span>
+      </div>
+      <!-- Break -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleBreak < 1800 && this.titleBreak > 0 && currentStatus.statusCode === 'D'">
+        <img src="../../../assets/icons/danger.svg" /> <span>Break Warning: You'll have to take a break in {{convertSecondToHours(this.titleBreak)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'D') && this.titleBreak === 0">
+        <img src="../../../assets/icons/danger.svg" /> <span>Break Violation: Break is 00:00. You need to take a break</span>
+      </div>
+      <!-- Cycle -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleCycle < 1800 && this.titleCycle > 0">
+        <img src="../../../assets/icons/danger.svg" /> <span>Cycle Warning: Cycle will end in {{convertSecondToHours(this.titleCycle)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleCycle === 0">
+        <img src="../../../assets/icons/danger.svg" /> <span>Cycle Violation: Cycle is 00:00</span>
+      </div>
+      <!-- Driving -->
+      <div class="sleep-box sleep-warning" *ngIf="this.titleDriving < 1800 && this.titleDriving > 0 && currentStatus.statusCode === 'D'">
+        <img src="../../../assets/icons/danger.svg" /> <span>Driving Warning: Driving will end in {{convertSecondToHours(this.titleDriving)}} min</span>
+      </div>
+      <div class="sleep-box sleep-error" *ngIf="currentStatus.statusCode === 'D' && this.titleDriving === 0">
+        <img src="../../../assets/icons/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
+      </div>
+    </div>
     <div class="rest-mode" *ngIf="restMode">
       <div class="rest-row">
         <div class="row-1">
-          <p class="subtitle">Minimum Break Required</p>
+          <p class="subtitle">{{'Minimum Break Required' | translate}}</p>
           <p class="subtitle">{{ convertSecondToHours(restBreak) }} / 00:30</p>
         </div>
         <div class="progress-bar-outer">
@@ -159,7 +171,7 @@
 
       <div class="rest-row">
         <div class="row-1">
-          <p class="subtitle">Until shift reset</p>
+          <p class="subtitle">{{'Until shift reset' | translate}}</p>
           <p class="subtitle">{{ convertSecondToHours(restShift) }} / 10:00</p>
         </div>
         <div class="progress-bar-outer">
@@ -169,7 +181,7 @@
 
       <div class="rest-row">
         <div class="row-1">
-          <p class="subtitle">Until Cycle Reset</p>
+          <p class="subtitle">{{'Until Cycle Reset' | translate}}</p>
           <p class="subtitle">{{ convertSecondToHours(restCycle) }} / 34:00</p>
         </div>
         <div class="progress-bar-outer">
@@ -180,35 +192,35 @@
     <div class="time">
       <div class="time-block">
         <p class="subtitle">{{ getTotalWorkedHours() | convertSecondsToHoursAndMinutesHm }}</p>
-        <p class="text-1">Last 7 Days</p>
+        <p class="text-1">{{'Last 7 Days' | translate}}</p>
       </div>
       <div class="time-block">
         <p class="subtitle">{{ hoursRecap | convertSecondsToHoursAndMinutesHm }}</p>
-        <p class="text-1">Hours Tomorrow</p>
+        <p class="text-1">{{'Hours Tomorrow' | translate}}</p>
       </div>
     </div>
     <div class="switch-sleep">
-      <p class="subtitle">Split Sleeper Berth</p>
+      <p class="subtitle">{{'Split Sleeper Berth' | translate}}</p>
       <app-toggle-switch [isChecked]="splitSleeperBerth" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
     </div>
-    <button class="btn primary-btn" (click)="switchMode()">
-      <img *ngIf="!restMode" src="assets/icon/moon.svg" alt="moon" />
-      <img *ngIf="restMode" src="assets/icon/drive.svg" alt="moon" />
-      {{ restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode' }}
+    <button class="btn primary-btn custom-sleep-btn" (click)="switchMode()">
+      <img *ngIf="!restMode" src="assets/icons/moon.svg" alt="moon" />
+      <img *ngIf="restMode" src="assets/icons/drive.svg" alt="moon" />
+      <span>{{ (restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode') | translate }}</span>
     </button>
-    <p class="subtitle">Logs and Recap Hours</p>
+    <p class="subtitle">{{'Logs and Recap Hours' | translate}}</p>
     <div class="log-dailies">
       <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
         <div class="log-left">
           <div class="subtitle">
-            {{ logDaily.logDate | date:'EEEE' }}, {{ logDaily.logDate | date: 'MMMM dd' }}
-            <div *ngIf="logDaily.violations.length !== 0" class="violation-number"><img src="../../../assets/icon/violation.svg" />{{logDaily.violations.length}}</div>
+            {{ logDaily.logDate | date:'EEEE' | translate }}, {{ logDaily.logDate | date: 'MMMM' | translate }} {{logDaily.logDate | date: 'dd'}}
+            <div *ngIf="logDaily.violations.length !== 0" class="violation-number"><img src="../../../assets/icons/violation.svg" />{{logDaily.violations.length}}</div>
           </div>
           <div class="sub-info">
             <div class="status-dot" [ngClass]="{'status-dot-error': !logDaily.formManner, 'status-dot-success': logDaily.formManner }"></div>
-            <p>Form</p>
+            <p>{{'Form' | translate}}</p>
             <div class="status-dot" [ngClass]="{'status-dot-error': !logDaily.certified, 'status-dot-success': logDaily.certified }"></div>
-            <p>Certify</p>
+            <p>{{'Certify' | translate}}</p>
           </div>
         </div>
         <div class="log-right">
@@ -216,6 +228,46 @@
         </div>
       </div>
     </div>
+    <ion-modal [isOpen]="isModalOpen" trigger="trigger-status">
+      <ng-template>
+        <ion-content [forceOverscroll]="false">
+          <app-header [title]="'Select Duty Status' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
+          <div class="modal-content">
+            <app-duty-radio-button (selectedValue)="selectButton($event)" [currentValue]="selectedButton"></app-duty-radio-button>
+            <app-location-input
+              [label]="'Location' | translate"
+              [fill]="true"
+              [type]="'text'"
+              [(value)]="locationDescription"
+              [loading]="locationLoading"
+              [disabled]="locationDisable"
+              (gpsCallback)="getLocalCurrentLocation()"
+              [(validation)]="validation['location']"></app-location-input>
+            <app-comments [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="comments" [noValidation]="true"></app-comments>
+            <div class="btns-flex">
+              <button class="btn secondary-btn btn-custom" (click)="cancel()">{{'Back' | translate}}</button>
+              <button class="btn primary-btn btn-custom" style="color: #fcfcfc" (click)="confirm()">
+                <span *ngIf="!modalLoading">{{'Save' | translate}}</span> <ion-spinner *ngIf="modalLoading" name="circular" color="light"></ion-spinner>
+              </button>
+            </div>
+          </div>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+    <ion-modal id="custom-modal" [isOpen]="isDrivingAuto" [backdropDismiss]="false">
+      <ng-template>
+        <div class="modal-box">
+          <div class="modal-title">{{"Looks like you didn't move for more than a minute! " | translate}}{{"(" + slowDownTimoutRemaining + ")"}}</div>
+          <div class="modal-status">{{'Would you like to change your status to On Duty or Off Duty?' | translate}}</div>
+        </div>
+        <div class="submit-buttons">
+          <div class="action-button default" (click)="closeAutoDrivingModal()">{{'Cancel' | translate}}</div>
+          <div class="action-button defaultd" (click)="changeStatusLocally('OFF')">{{'Off Duty' | translate}}</div>
+          <div class="action-button warningb" (click)="changeStatusLocally('ON')">{{'On Duty' | translate}}</div>
+        </div>
+      </ng-template>
+    </ion-modal>
   </div>
-  <app-page-loader [height]="'100%'" *ngIf="pageLoading"></app-page-loader>
+  <app-page-loader [height]="'100%'" [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
+  <ion-loading [isOpen]="autoChangeLoading" [message]="'Changing status...' | translate" spinner="circles" [backdropDismiss]="false"></ion-loading>
 </ion-content>

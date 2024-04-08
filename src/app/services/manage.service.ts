@@ -8,7 +8,6 @@ import { ELD } from '../models/eld';
 import { LogEvents } from '../models/log-histories';
 import { Driver } from '../models/driver';
 import { LogDailies } from '../models/log-dailies';
-import { Vehicle } from '../models/vehicle';
 import { DVIRs } from '../models/dvirs';
 import { PlacesCity } from '../models/places-city';
 

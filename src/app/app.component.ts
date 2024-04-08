@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, getPlatform } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Storage } from '@ionic/storage';
 import { forkJoin, throwError } from 'rxjs';
@@ -16,6 +16,11 @@ import { Network } from '@capacitor/network';
 import { LocationService } from './services/location.service';
 import { BluetoothService } from './services/bluetooth.service';
 import { Capacitor } from '@capacitor/core';
+import { TranslateService } from '@ngx-translate/core';
+import { KeepAwake } from '@capacitor-community/keep-awake';
+import { svgPreloadUrls } from './utilities/svg-preloads';
+import { GeolocationService } from './services/geolocation.service';
+import { imagePreloads } from './utilities/img-preloads';
 // import { Driver } from './models/driver';
 
 @Component({
@@ -25,6 +30,7 @@ import { Capacitor } from '@capacitor/core';
 })
 export class AppComponent implements OnInit, OnDestroy {
   loading: boolean = false;
+  loadingModal: any;
   pickedVehicle!: string;
   databaseSubscription: Subscription | undefined;
   lastNetworkStatus: boolean = null;
@@ -39,45 +45,80 @@ export class AppComponent implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private toastService: ToastService,
     private locationService: LocationService,
-    private bluetoothService: BluetoothService
-  ) {}
+    private bluetoothService: BluetoothService,
+    private translate: TranslateService,
+    private ngZone: NgZone,
+    private geolocationService: GeolocationService
+  ) {
+    this.ngZone.runOutsideAngular(() => {
+      this.preloadSVG();
+      this.preloadImages();
+    });
+  }
 
   async ngOnInit() {
-    this.networkSub = this.internetService.interetStatusObs.subscribe(async status => {
+    this.networkSub = this.internetService.interetStatusObs.subscribe(async () => {
       let currentStatus = await Network.getStatus();
       if (currentStatus.connected === true) {
         if (this.lastNetworkStatus === false) {
-          this.toastService.showToast('You are back online!', 'success');
+          this.toastService.showToast(this.translate.instant('You are back online!'), 'success');
           await this.internetService
             .postOfflineData()
             .then(async () => {
-              this.toastService.showToast('All offline data uploaded successfully!', 'success');
+              this.toastService.showToast(this.translate.instant('All offline data uploaded successfully!'), 'success');
             })
             .catch(e => {
-              this.toastService.showToast("There's been an error uploading the offline data!", 'error');
+              this.toastService.showToast(this.translate.instant("There's been an error uploading the offline data!"), 'error');
               console.error(e);
             });
         }
       } else {
-        this.toastService.showToast('You are now in Offline Mode!', 'warning');
+        this.toastService.showToast(this.translate.instant('You are now in Offline Mode!'), 'warning');
       }
       this.lastNetworkStatus = currentStatus.connected;
     });
-    if(Capacitor.getPlatform() !== 'web') {
+    if (await KeepAwake.isSupported()) {
+      await KeepAwake.keepAwake();
+    }
+    if (Capacitor.getPlatform() !== 'web') {
       this.locationService.watchLocationStatus();
       this.bluetoothService.watchBluetoothStatus();
     }
+    console.log('AUTHENTICATED: ', this.authService.isAuthenticated());
+    if (!this.authService.isAuthenticated()) {
+      this.navCtrl.navigateForward('/login');
+    } else {
+      if ((await Network.getStatus()).connected) {
+        this.navCtrl.navigateForward('/blank');
+        this.loadingModal = await this.presentLoading();
+      } else {
+        this.navCtrl.navigateForward('/select-vehicle');
+        return;
+      }
+    }
     this.loading = true;
+    let localPC = await this.storage.get('placesCity');
+    this.geolocationService.getPlacesCity(localPC);
     this.databaseSubscription = this.databaseService.isDatabaseReady().subscribe(async (ready: boolean) => {
       if (ready) {
         const accessToken = await this.storage.get('accessToken');
         const pickedVehicle = await this.storage.get('vehicleUnit');
         this.pickedVehicle = pickedVehicle;
         const user = await this.storage.get('user');
+        if (user) {
+          await this.storage.set('language', user?.Language);
+          let selectedLanguage = await this.storage.get('selectedLanguage');
+          if (selectedLanguage === null || selectedLanguage === undefined) {
+            selectedLanguage = user?.Language;
+            await this.storage.set('selectedLanguage', user?.Language);
+          }
+          this.translate.setDefaultLang(selectedLanguage || 'en');
+          this.translate.use(selectedLanguage || 'en');
+        }
         const driverId = user?.DriverId;
         if (accessToken) {
           if (this.authService.isAuthenticated()) {
-            const loading = await this.presentLoading();
+            // const loading = await this.presentLoading();
             const fetchRequests = [
               this.manageService.getDrivers(driverId),
               this.manageService.getDrivers('ALL'),
@@ -95,8 +136,8 @@ export class AppComponent implements OnInit, OnDestroy {
                   const errorMessage = 'Error fetching data';
                   console.warn(errorMessage);
                   this.loading = false;
-                  loading.dismiss();
-                  return throwError(errorMessage);
+                  this.loadingModal.dismiss();
+                  return throwError(errorMessage + ' :' + error);
                 }),
                 switchMap(([drivers, coDrivers, company, terminals, elds, dvirs, logDailies, logEvents]) => {
                   const saveRequests = [
@@ -114,10 +155,10 @@ export class AppComponent implements OnInit, OnDestroy {
                     catchError(error => {
                       const errorMessage = 'Error saving data to storage';
                       console.warn(errorMessage);
-                      return throwError(errorMessage);
+                      return throwError(errorMessage + ' :' + error);
                     }),
                     tap(() => {
-                      loading.dismiss();
+                      this.loadingModal.dismiss();
                       this.loading = false;
                       if (pickedVehicle) {
                         this.navCtrl.navigateForward('/connect-mac');
@@ -130,7 +171,7 @@ export class AppComponent implements OnInit, OnDestroy {
               )
               .subscribe(
                 () => {
-                  this.toastService.showToast('Welcome Back!', 'success');
+                  this.toastService.showToast(this.translate.instant('Welcome Back!'), 'success');
                 },
                 error => {
                   console.log(error);
@@ -140,7 +181,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.storage.remove('accessToken');
             this.loading = false;
             this.navCtrl.navigateForward('/login', { replaceUrl: true });
-            this.toastService.showToast('Access token has expired. Please log in again.', 'danger');
+            this.toastService.showToast(this.translate.instant('Access token has expired. Please log in again.'), 'danger');
           }
         } else {
           await this.storage.remove('accessToken');
@@ -149,13 +190,43 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.loading = true;
-    if (this.pickedVehicle) {
-      this.navCtrl.navigateForward('/connect-mac');
-    } else {
-      this.navCtrl.navigateForward('/select-vehicle');
-    }
-    this.loading = false;
+    // this.loading = true;
+    // if (this.pickedVehicle) {
+    //   this.navCtrl.navigateForward('/connect-mac');
+    // } else {
+    //   this.navCtrl.navigateForward('/select-vehicle');
+    // }
+    // this.loading = false;
+  }
+
+  preloadSVG() {
+    Promise.resolve().then(() => {
+      svgPreloadUrls.forEach(el => {
+        if (!document.querySelector(`link[href="${el}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.href = el;
+          link.as = 'image';
+          link.type = 'image/svg+xml';
+          document.head.appendChild(link);
+        }
+      });
+    });
+  }
+
+  preloadImages() {
+    Promise.resolve().then(() => {
+      imagePreloads.forEach(el => {
+        if (!document.querySelector(`link[href="${el}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.href = el;
+          link.as = 'image';
+          link.type = 'image/png';
+          document.head.appendChild(link);
+        }
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -168,8 +239,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private async presentLoading() {
     const loading = await this.loadingController.create({
-      message: 'Loading data...',
+      message: this.translate.instant('Loading data') + '...',
       spinner: 'bubbles',
+      cssClass: 'loading-app-component',
     });
     await loading.present();
     return loading;

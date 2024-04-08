@@ -1,63 +1,60 @@
 <ion-content [forceOverscroll]="false">
-  <app-header [title]="'Rules'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <app-header [title]="'Rules' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">
       <div class="flex-b">
-        <p class="text-2">Cycle Rule</p>
-        <div class="btn secondary-btn">{{ driver.driverInfo.settings.hoursOfService.name }}</div>
+        <p class="text-2">{{'Cycle Rule' | translate}}</p>
+        <div class="btn secondary-btn">{{ driver.driverInfo.settings.hoursOfService.name | translate }}</div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Cargo Type</p>
-        <div class="btn secondary-btn">{{ driver.driverInfo.settings.cargoType.name }}</div>
+        <p class="text-2">{{'Cargo Type' | translate}}</p>
+        <div class="btn secondary-btn">{{ driver.driverInfo.settings.cargoType.name | translate }}</div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Rest Break</p>
-        <div class="btn secondary-btn">{{ driver.driverInfo.settings.restBreak.name }}</div>
+        <p class="text-2">{{'Rest Break' | translate}}</p>
+        <div class="btn secondary-btn">{{ driver.driverInfo.settings.restBreak.name | translate}}</div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Restart</p>
-        <div class="btn secondary-btn">{{ driver.driverInfo.settings.restartHours.name }}</div>
+        <p class="text-2">{{'Restart' | translate}}</p>
+        <div class="btn secondary-btn">{{ driver.driverInfo.settings.restartHours.name | translate}}</div>
       </div>
       <div class="flex-b">
-        <p class="text-2">16-hour short-haul exeption</p>
+        <p class="text-2">{{'16-hour short-haul exeption' | translate}}</p>
         <div class="btn" [ngClass]="{'error-btn': !driver.driverInfo.settings.shortHaulException, 'success-btn': driver.driverInfo.settings.shortHaulException}">
-          {{ driver.driverInfo.settings.shortHaulException ? 'Allowed' : 'Forbidden' }}
+          {{ (driver.driverInfo.settings.shortHaulException ? 'Allowed' : 'Forbidden') | translate }}
         </div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Personal Conveyance</p>
+        <p class="text-2">{{'Personal Conveyance' | translate}}</p>
         <div class="btn" [ngClass]="{'error-btn': !driver.driverInfo.settings.allowPersonalUse, 'success-btn': driver.driverInfo.settings.allowPersonalUse}">
-          {{ driver.driverInfo.settings.allowPersonalUse ? 'Allowed' : 'Forbidden' }}
+          {{ (driver.driverInfo.settings.allowPersonalUse ? 'Allowed' : 'Forbidden') | translate }}
         </div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Yard Moves</p>
+        <p class="text-2">{{'Yard Moves' | translate}}</p>
         <div class="btn" [ngClass]="{'error-btn': !driver.driverInfo.settings.allowYardMoves, 'success-btn': driver.driverInfo.settings.allowYardMoves}">
-          {{ driver.driverInfo.settings.allowYardMoves ? 'Allowed' : 'Forbidden' }}
+          {{ (driver.driverInfo.settings.allowYardMoves ? 'Allowed' : 'Forbidden') | translate }}
         </div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Unlimited Trailerlease</p>
+        <p class="text-2">{{'Unlimited Trailerlease' | translate}}</p>
         <div class="btn" [ngClass]="{'error-btn': !driver.driverInfo.settings.shortHaulException, 'success-btn': driver.driverInfo.settings.shortHaulException}">
-          {{ driver.driverInfo.settings.shortHaulException ? 'Allowed' : 'Forbidden' }}
+          {{ (driver.driverInfo.settings.shortHaulException ? 'Allowed' : 'Forbidden') | translate }}
         </div>
       </div>
       <div class="flex-b">
-        <p class="text-2">Unlimited Shipping Documents</p>
+        <p class="text-2">{{'Unlimited Shipping Documents' | translate}}</p>
         <div class="btn" [ngClass]="{'error-btn': !driver.driverInfo.settings.exemptDriver, 'success-btn': driver.driverInfo.settings.exemptDriver}">
-          {{ driver.driverInfo.settings.exemptDriver ? 'Allowed' : 'Forbidden' }}
+          {{ (driver.driverInfo.settings.exemptDriver ? 'Allowed' : 'Forbidden') | translate }}
         </div>
       </div>
     </div>
     <div style="flex: 1; display: flex; align-items: flex-end">
       <div class="reminder">
-        <img src="assets/icon/reminder.svg" alt="reminder" />
-        <p class="reminder-text">In order to change your information please contact your fleet manager</p>
+        <img src="assets/icons/reminder.svg" alt="reminder" />
+        <p class="reminder-text">{{'In order to change your information please contact your fleet manager' | translate}}</p>
       </div>
     </div>
   </div>
-  <div class="spinner-container" *ngIf="pageLoading">
-    <ion-spinner color="dark"></ion-spinner>
-    <div>LOADING</div>
-  </div>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

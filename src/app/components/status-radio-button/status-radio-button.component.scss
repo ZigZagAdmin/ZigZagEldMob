@@ -44,6 +44,7 @@ ion-checkbox {
   --border-color: transparent;
   --border-color-checked: transparent;
   --checkmark-width: 2px;
+  pointer-events: none;
 }
 
 ion-checkbox::part(container) {

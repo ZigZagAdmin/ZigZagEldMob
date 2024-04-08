@@ -18,6 +18,7 @@ import { ConvertSecondsToHoursAndMinutesHmPipe } from 'src/app/pipe/convert-seco
 import { CommentsComponentModule } from 'src/app/components/comments/comments.module';
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 import { ConvertMsToHoursAndMinutesAndSecondsHmPipe } from 'src/app/pipe/convert-ms-to-hours-and-minutes-and-seconds-hm.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -35,6 +36,7 @@ import { ConvertMsToHoursAndMinutesAndSecondsHmPipe } from 'src/app/pipe/convert
     MessageBannerComponentModule,
     CommentsComponentModule,
     PageLoaderComponentModule,
+    TranslateModule
   ],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],
   exports: [ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],

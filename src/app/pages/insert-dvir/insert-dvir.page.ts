@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { NavController } from '@ionic/angular';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
@@ -9,7 +9,6 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Company } from 'src/app/models/company';
 import { DVIRs } from 'src/app/models/dvirs';
 import { DashboardService } from 'src/app/services/dashboard.service';
-import { InternetService } from 'src/app/services/internet.service';
 import { defectsVehicle, defectsTrailers, dvirStatuses } from 'src/app/utilities/defects';
 import { UtilityService } from 'src/app/services/utility.service';
 import { ShareService } from 'src/app/services/share.service';
@@ -18,6 +17,7 @@ import { LocationService } from 'src/app/services/location.service';
 import { Network } from '@capacitor/network';
 import { InterService } from 'src/app/services/inter.service';
 import { Capacitor } from '@capacitor/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-insert-dvir',
@@ -94,20 +94,24 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
   loading: boolean = false;
   signatureFound: boolean = false;
 
+  timeZone: string = '';
+  timeZones: { [key: string]: string } = {};
+
   constructor(
     private databaseService: DatabaseService,
     private storage: Storage,
     private dashboardService: DashboardService,
-    private internetService: InternetService,
     private navCtrl: NavController,
     private utilityService: UtilityService,
     private shareService: ShareService,
     private toastService: ToastService,
     private locationService: LocationService,
-    private interService: InterService
+    private interService: InterService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
+    this.timeZones = this.utilityService.checkSeason();
     this.dvir.status.name = 'Vehicle Condition Satisfactory';
     this.dvir.status.code = 'VCS';
     this.dvir.defectsVehicle = '';
@@ -118,14 +122,16 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     let vehicleUnit$ = this.storage.get('vehicleUnit');
     let vehicleId$ = this.storage.get('vehicleId');
     let driverId$ = this.storage.get('driverId');
+    let timeZone$ = this.storage.get('timeZone');
 
-    forkJoin([company$, dvirs$, vehicleUnit$, vehicleId$, driverId$]).subscribe(([company, dvirs, vehicleUnit, vehicleId, driverId]) => {
+    forkJoin([company$, dvirs$, vehicleUnit$, vehicleId$, driverId$, timeZone$]).subscribe(([company, dvirs, vehicleUnit, vehicleId, driverId, timeZone]) => {
       this.company = company;
       this.dvirs = dvirs;
       this.vehicleUnit = vehicleUnit;
       this.vehicleUnitDisable = !!this.vehicleUnit;
       this.vehicleId = vehicleId;
       this.driverId = driverId;
+      this.timeZone = timeZone;
     });
 
     await this.getLocalCurrentLocation();
@@ -136,7 +142,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     let locationStatus = await this.storage.get('locationStatus');
     if (Capacitor.getPlatform() !== 'web') {
       if (!locationStatus) {
-        this.toastService.showToast('Problems fetching location! Check the location service!', 'danger', 2500);
+        this.toastService.showToast(this.translate.instant('Problems fetching location! Check the location service!'), 'danger', 2500);
       }
     }
     await this.locationService.getCurrentLocation().then(res => {
@@ -156,6 +162,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initSignaturePad();
+    setTimeout(() => this.resizeCanvas(), 0);
   }
 
   checkSelectPresent(data: any) {
@@ -172,6 +179,19 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       this.dvir.status.code = status;
       this.dvir.status.name = dvirStatuses.find(el => el.code === status).name;
     }
+  }
+
+  resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    document.querySelector('canvas').width = document.querySelector('canvas').offsetWidth * ratio;
+    document.querySelector('canvas').height = document.querySelector('canvas').offsetHeight * ratio;
+    document.querySelector('canvas').getContext('2d').scale(ratio, ratio);
+    this.clearSignature();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.resizeCanvas();
   }
 
   initSignaturePad() {
@@ -203,7 +223,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
       this.signatureFound = true;
     } else {
       this.signatureFound = false;
-      this.toastService.showToast('No signature found on other daily logs.');
+      this.toastService.showToast(this.translate.instant('No signature found on other daily logs.'));
     }
   }
 
@@ -229,7 +249,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
     this.shareService.changeMessage(this.utilityService.generateString(5));
     if (!this.utilityService.validateForm(this.validation)) return;
     if (this.dvir.signatureBase64.length === 0 && this.dvir.signatureLink.length === 0) {
-      this.toastService.showToast('Please sign the form before saving!');
+      this.toastService.showToast(this.translate.instant('Please sign the form before saving!'));
       return;
     }
 
@@ -288,10 +308,35 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getHour(value: number) {
-    return formatDate(value, "LLL d'th', yyyy", 'en_US');
+    return (
+      this.translate.instant(formatDate(value, 'LLL', 'en_US', this.timeZones[this.timeZone])) +
+      ' ' +
+      formatDate(value, 'd', 'en_US') +
+      this.getOrdinalSuffix(formatDate(value, 'd', 'en_US', this.timeZones[this.timeZone])) +
+      ', ' +
+      formatDate(value, 'yyyy', 'en_US', this.timeZones[this.timeZone])
+    );
   }
 
   getTime(value: number) {
-    return formatDate(value, 'hh:mm a', 'en_US');
+    return formatDate(value, 'hh:mm a', 'en_US', this.timeZones[this.timeZone]);
+  }
+
+  getOrdinalSuffix(sday: string): string {
+    let day = parseInt(sday);
+    if (day >= 11 && day <= 13) {
+      return this.translate.instant('th');
+    }
+
+    switch (day % 10) {
+      case 1:
+        return this.translate.instant('st');
+      case 2:
+        return this.translate.instant('nd');
+      case 3:
+        return this.translate.instant('rd');
+      default:
+        return this.translate.instant('th');
+    }
   }
 }

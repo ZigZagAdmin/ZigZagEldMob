@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
-  <app-header [title]="'ELD User Manual'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div class="padding-g no-data" *ngIf="pdfError">No data.</div>
+  <app-header [title]="'ELD Instructions' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <div class="padding-g no-data" *ngIf="pdfError">{{'No data.' | translate}}</div>
   <div class="general-container" *ngIf="!pdfError">
     <pinch-zoom [autoHeight]="true" [backgroundColor]="'#ffffff'" style="width: 100%; height: 100%">
       <pdf-viewer [src]="'assets/manuals/zigzad-eld-instructions.pdf'" [render-text]="true" [original-size]="false" style="width: 100%; height: 100%" (error)="pdfNotLoading()"></pdf-viewer>

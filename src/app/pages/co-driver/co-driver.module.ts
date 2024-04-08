@@ -12,6 +12,9 @@ import { HeaderComponentModule } from 'src/app/components/header/header.module';
 
 import { SelectComponentModule } from 'src/app/components/select/select.module';
 
+import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
+import { TranslateModule } from '@ngx-translate/core';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -19,7 +22,9 @@ import { SelectComponentModule } from 'src/app/components/select/select.module';
     IonicModule,
     CoDriverPageRoutingModule,
     HeaderComponentModule,
-    SelectComponentModule
+    SelectComponentModule,
+    PageLoaderComponentModule,
+    TranslateModule
   ],
   declarations: [CoDriverPage]
 })

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
@@ -10,13 +11,13 @@ import { ToastService } from 'src/app/services/toast.service';
 export class UserManualPage implements OnInit {
   pdfError: boolean = false;
 
-  constructor(private navCtrl: NavController, private toastService: ToastService) {}
+  constructor(private navCtrl: NavController, private toastService: ToastService, private translate: TranslateService) {}
 
   ngOnInit() {}
 
   pdfNotLoading() {
     this.pdfError = true;
-    this.toastService.showToast('Manual PDF could not be loaded!');
+    this.toastService.showToast(this.translate.instant('Manual PDF could not be loaded!'));
   }
 
   goBack() {

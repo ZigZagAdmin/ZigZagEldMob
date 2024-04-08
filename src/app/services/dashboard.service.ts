@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { AUTH_API_URL } from '../app-injection-tokens';
 import { Observable } from 'rxjs';
 import { DVIRs } from '../models/dvirs';

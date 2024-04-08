@@ -10,9 +10,11 @@ import { InspectionPreviewPage } from './inspection-preview.page';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { ScrollToolbarComponentModule } from 'src/app/components/scroll-toolbar/scroll-toolbar.module';
 import { HosPageModule } from '../hos/hos.module';
+import { TranslateModule } from '@ngx-translate/core';
+import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, InspectionPreviewPageRoutingModule, HeaderComponentModule, ScrollToolbarComponentModule, HosPageModule],
+  imports: [CommonModule, FormsModule, IonicModule, InspectionPreviewPageRoutingModule, HeaderComponentModule, ScrollToolbarComponentModule, HosPageModule, TranslateModule, PageLoaderComponentModule],
   declarations: [InspectionPreviewPage],
 })
 export class InspectionPreviewPageModule {}

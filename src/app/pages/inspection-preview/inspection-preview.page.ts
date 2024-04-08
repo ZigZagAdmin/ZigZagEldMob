@@ -16,6 +16,7 @@ import { Company } from 'src/app/models/company';
 import { UtilityService } from 'src/app/services/utility.service';
 import { LocationService } from 'src/app/services/location.service';
 import { timeZones } from 'src/app/models/timeZone';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -61,9 +62,12 @@ export class InspectionPreviewPage implements OnInit {
 
   logEventsVehicles: { vehicle: Partial<Vehicle>; odomoter: string; distance: number; engineHours: string }[] = [];
 
-  constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService) {}
+  pageLoading: boolean = false;
+
+  constructor(private databaseService: DatabaseService, private storage: Storage, private navCtrl: NavController, private route: ActivatedRoute, private utilityService: UtilityService, private translate: TranslateService) {}
 
   async ngOnInit() {
+    this.pageLoading = true;
     this.timeZones = this.utilityService.checkSeason();
     let queryParams$ = firstValueFrom(this.route.queryParams);
     let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
@@ -87,13 +91,14 @@ export class InspectionPreviewPage implements OnInit {
       this.logEvents = logEvents;
       this.company = company;
       this.drawGraph();
+      this.pageLoading = false;
     });
   }
 
   getDateSub(date: string) {
-    let _date = formatDate(date, 'EEEE, MMM d', 'en_US');
-    let _today = formatDate(new Date(), 'EEEE, MMM d', 'en_US');
-    return _date === _today ? _date + ' (Today)' : _date;
+    let date_ = this.translate.instant(formatDate(date, 'EEEE', 'en_US')) + ', ' + this.translate.instant(formatDate(date, 'MMM', 'en_US')) + ' ' + this.translate.instant(formatDate(date, 'd', 'en_US'));
+    let today_ = this.translate.instant(formatDate(new Date(), 'EEEE', 'en_US')) + ', ' + this.translate.instant(formatDate(new Date(), 'MMM', 'en_US')) + ' ' + this.translate.instant(formatDate(new Date(), 'd', 'en_US'));
+    return date_ === today_ ? date_ + ' (' + this.translate.instant('Today') + ')' : date_;
   }
 
   drawGraph() {

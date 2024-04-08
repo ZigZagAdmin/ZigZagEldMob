@@ -1,10 +1,10 @@
 <ion-content [forceOverscroll]="false">
-  <app-header [title]="'Account'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)">
+  <app-header [title]="'Account' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">
-      <app-input [label]="'Name'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.name" [noValidation]="true"></app-input>
-      <app-input [label]="'Email'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.email" [noValidation]="true"></app-input>
-      <app-input [label]="'Phone Number'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.phoneNumber" [noValidation]="true"></app-input>
+      <app-input [label]="'Name' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.name" [noValidation]="true"></app-input>
+      <app-input [label]="'Email' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.email" [noValidation]="true"></app-input>
+      <app-input [label]="'Phone Number' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.phoneNumber" [noValidation]="true"></app-input>
       <div style="display: flex; gap: 15px">
         <app-input
           [label]="'License'"
@@ -13,31 +13,38 @@
           [disabled]="true"
           [value]="driver?.driverInfo?.licenseCountry + ', ' + driver?.driverInfo?.licenseNumber"
           [noValidation]="true"></app-input>
-        <app-input [label]="'Time Zone'" [fill]="true" [type]="'text'" [disabled]="true" [value]="timeZone" [noValidation]="true"></app-input>
-        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.driverInfo?.settings?.hoursOfService?.odometerUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Time Zone' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="timeZone" [noValidation]="true"></app-input>
+        <app-input
+          [label]="'Odometer' | translate"
+          [fill]="true"
+          [type]="'text'"
+          [disabled]="true"
+          [value]="driver?.driverInfo?.settings?.hoursOfService?.odometerUnit"
+          [noValidation]="true"></app-input>
       </div>
-      <app-input [label]="'Carrier'" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
+      <app-input [label]="'Carrier' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
       <app-input
-        [label]="'Main Office Address'"
+        [label]="'Main Office Address' | translate"
         [fill]="true"
         [type]="'text'"
         [disabled]="true"
         [value]="company?.mainOffice?.street + ', ' + company?.mainOffice?.city + ', ' + company?.mainOffice?.stateProvinceCode + ' ' + company?.mainOffice?.zipCode + ', ' + company?.mainOffice?.countryCode"
         [noValidation]="true"></app-input>
       <app-input
-        [label]="'Home Terminal Address'"
+        [label]="'Home Terminal Address' | translate"
         [fill]="true"
         [type]="'text'"
         [disabled]="true"
         [value]="company?.terminals[0].street + ', ' + company?.terminals[0].city + ', ' + company?.terminals[0].stateProvinceCode + ' ' + company?.terminals[0].zipCode + ', ' + company?.terminals[0].countryCode"
         [noValidation]="true"></app-input>
-      <app-input [label]="'Language'" [fill]="true" [type]="'text'" [disabled]="true" [value]="language" [noValidation]="true"></app-input>
+      <app-select [label]="'Language' | translate" (changeDetection)="showSelection($event)" [(value)]="inputLanguage" [options]="languageOptions" [noValidation]="true"></app-select>
     </div>
     <div style="flex: 1; display: flex; align-items: flex-end">
       <div class="reminder">
-        <img src="assets/icon/reminder.svg" alt="reminder" />
-        <p class="reminder-text">In order to change your information please contact your fleet manager</p>
+        <img src="assets/icons/reminder.svg" alt="reminder" />
+        <p class="reminder-text">{{'In order to change your information please contact your fleet manager' | translate}}</p>
       </div>
     </div>
   </div>
+  <app-page-loader *ngIf="pageLoading"></app-page-loader>
 </ion-content>

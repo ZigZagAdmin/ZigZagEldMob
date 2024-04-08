@@ -1,32 +1,30 @@
 <ion-content [forceOverscroll]="false" [fullscreen]="true">
-  <app-header [title]="'Connect to ELD'" [subtitle]="'Vehicle Unit: ' + vehicle?.vehicleUnit" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <app-header [title]="'Connect to ELD' | translate" [subtitle]="('Vehicle Unit' | translate) + ': ' + vehicle?.vehicleUnit" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
   <div class="connect-wrapper padding-g">
     <div class="input-container">
       <div class="input-block custom-block">
-        <app-input [label]="'MAC Address'" [fill]="false" [type]="'text'" [(value)]="macAddress" [(validation)]="validation['macAddress']"></app-input>
+        <app-input [label]="'MAC Address' | translate" [fill]="false" [type]="'text'" [(value)]="macAddress" [(validation)]="validation['macAddress']"></app-input>
       </div>
-      <button class="btn primary-btn custom-button" (click)="connect()">
-        <span *ngIf="!loading">Connect</span>
-        <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
-      </button>
+      <button class="btn primary-btn custom-button" (click)="connect(macAddress)">{{'Connect' | translate}}</button>
     </div>
     <div class="card-connect-container" *ngIf="elds.length !== 0">
-      <div class="card-connect" *ngFor="let eld of elds" (click)="connectToELD()">
+      <div class="card-connect" *ngFor="let eld of elds" (click)="connect(eld.macAddress, false)">
         <div class="card-connect-content">
           <div class="card-connect-title">{{ eld?.name || 'Generic ELD' }}</div>
-          <div class="card-connect-mac">{{ 'MAC Address: ' + eld.macAddress.toUpperCase() }}</div>
+          <div class="card-connect-mac">{{ ('MAC Address' | translate) + ': ' + eld.macAddress.toUpperCase() }}</div>
         </div>
         <div class="card-connect-icon">
-          <img src="../../../assets/icon/smart-car.svg" />
+          <img src="../../../assets/icons/smart-car.svg" />
         </div>
       </div>
     </div>
     <div class="or-container">
       <div class="line"></div>
-      <div class="word">or</div>
+      <div class="word">{{'or' | translate}}</div>
       <div class="line"></div>
     </div>
-    <button class="btn secondary-btn" (click)="continueDisconected()">Continue disconnected</button>
+    <button class="btn secondary-btn custom-button2" (click)="navigateToHos()">{{'Continue disconnected' | translate}}</button>
   </div>
+  <ion-loading [isOpen]="loading" [message]="'Connecting to device...' | translate" spinner="circles" [backdropDismiss]="false"></ion-loading>
 </ion-content>

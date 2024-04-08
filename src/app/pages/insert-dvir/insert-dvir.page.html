@@ -1,16 +1,16 @@
 <ion-content>
-  <app-header [title]="'Insert Dvir'" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <app-header [title]="'Insert Dvir' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <form class="padding-g" style="padding-top: 10px">
     <div class="edit-form">
-      <p class="subtitle-lg">General Info</p>
+      <p class="subtitle-lg">{{'General Info' | translate}}</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Company'" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
+        <app-input [label]="'Company' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="company?.name" [noValidation]="true"></app-input>
         <div class="two-inputs">
-          <app-input [label]="'Time'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
-          <app-input [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
+          <app-input style="flex: 1" [label]="'Time' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="getHour(dvir.createDate)" [noValidation]="true"></app-input>
+          <app-input style="flex: 1" [label]="'none'" [fill]="true" [type]="'text'" [disabled]="true" [value]="getTime(dvir.createDate)" [noValidation]="true"></app-input>
         </div>
         <app-location-input
-          [label]="'Location'"
+          [label]="'Location' | translate"
           [fill]="true"
           [type]="'text'"
           [disabled]="locationDisable"
@@ -19,16 +19,20 @@
           (gpsCallback)="getLocalCurrentLocation()"
           [(validation)]="validation['locationDescription']"></app-location-input>
       </div>
-      <p class="subtitle-lg">Vehicle Info</p>
+      <p class="subtitle-lg">{{'Vehicle Info' | translate}}</p>
       <div class="edit-dvir-block">
-        <app-input [label]="'Vehicle Name'" [fill]="true" [type]="'text'" [disabled]="vehicleUnitDisable" [value]="vehicleUnit" [noValidation]="true"></app-input>
-        <app-input [label]="'Odometer'" [fill]="true" [type]="'text'" [disabled]="true" [value]="dvir.odometer.toString()" [noValidation]="true"></app-input>
-        <app-multiple-select [label]="'Vehicle Defects (Optional)'" [(value)]="dvir.defectsVehicle" (changeDetection)="checkSelectPresent($event)" [options]="defectsVehicle"></app-multiple-select>
+        <app-input [label]="'Vehicle Name' | translate" [fill]="true" [type]="'text'" [disabled]="vehicleUnitDisable" [value]="vehicleUnit" [noValidation]="true"></app-input>
+        <app-input [label]="'Odometer' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="dvir.odometer.toString()" [noValidation]="true"></app-input>
+        <app-multiple-select
+          [label]="'Vehicle Defects (Optional)' | translate"
+          [(value)]="dvir.defectsVehicle"
+          (changeDetection)="checkSelectPresent($event)"
+          [options]="defectsVehicle"></app-multiple-select>
       </div>
-      <p class="subtitle-lg">Trailer Info</p>
+      <p class="subtitle-lg">{{'Trailer Info' | translate}}</p>
       <div class="edit-dvir-block">
         <app-input
-          [label]="'Trailer Name'"
+          [label]="'Trailer Name' | translate"
           [fill]="true"
           [type]="'text'"
           [(value)]="dvir.trailers"
@@ -36,30 +40,30 @@
           [noValidation]="!!!this.dvir.defectsTrailers.length"></app-input>
         <app-multiple-select [label]="'Trailer Defects (Optional)'" [(value)]="dvir.defectsTrailers" (changeDetection)="checkSelectPresent($event)" [options]="defectsTrailers"></app-multiple-select>
       </div>
-      <p class="subtitle-lg">Status</p>
+      <p class="subtitle-lg">{{'Status' | translate}}</p>
       <div class="edit-dvir-block">
         <div class="input-block-2">
           <app-status-radio-button [half]="true" (selectedValue)="switchStatus($event)" [(value)]="dvir.status.code" [disableOption]="true"></app-status-radio-button>
         </div>
-        <app-textarea [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="dvir.comments" [noValidation]="true"></app-textarea>
+        <app-textarea [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="dvir.comments" [noValidation]="true"></app-textarea>
       </div>
-      <p class="subtitle-lg">Signature</p>
-      <div>
+      <p class="subtitle-lg">{{'Signature' | translate}}</p>
+      <div class="canvas-box">
         <div class="canvas-container">
-          <canvas #sPad height="200" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
+          <canvas #sPad height="300" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
           <div class="image-container" *ngIf="signatureFound">
             <img [ngClass]="{ 'no-display': imageLoading }" [src]="dvir.signatureLink" (load)="imageLoaded()" />
             <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
           </div>
         </div>
         <div class="signature-buttons">
-          <div class="signature-button" (click)="clearSignature()">Clear signature</div>
-          <div class="signature-button" (click)="restoreSignature()">Restore signature</div>
+          <div class="signature-button" (click)="clearSignature()">{{'Clear signature' | translate}}</div>
+          <div class="signature-button" (click)="restoreSignature()">{{'Restore signature' | translate}}</div>
         </div>
       </div>
 
       <button class="btn primary-btn" [ngClass]="{ 'disable-click': loading }" (click)="onSubmit()">
-        <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
+        <span *ngIf="!loading" style="color: #fcfcfc">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light"></ion-spinner>
       </button>
     </div>
   </form>

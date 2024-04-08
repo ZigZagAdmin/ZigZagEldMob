@@ -9,9 +9,10 @@ import { OthersPageRoutingModule } from './others-routing.module';
 import { OthersPage } from './others.page';
 
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, OthersPageRoutingModule, HeaderComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, OthersPageRoutingModule, HeaderComponentModule, TranslateModule],
   declarations: [OthersPage],
 })
 export class OthersPageModule {}

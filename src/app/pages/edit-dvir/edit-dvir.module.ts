@@ -17,6 +17,8 @@ import { TextareaComponentModule } from 'src/app/components/textarea/textarea.mo
 import { StatusRadioButtonComponentModule } from 'src/app/components/status-radio-button/status-radio-button.module';
 import { MultipleSelectComponentModule } from 'src/app/components/multiple-select/multiple-select.module';
 import { LocationInputComponentModule } from 'src/app/components/location-input/location-input.module';
+import { TranslateModule } from '@ngx-translate/core';
+import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 
 @NgModule({
   imports: [
@@ -31,7 +33,9 @@ import { LocationInputComponentModule } from 'src/app/components/location-input/
     TextareaComponentModule,
     StatusRadioButtonComponentModule,
     MultipleSelectComponentModule,
-    LocationInputComponentModule
+    LocationInputComponentModule,
+    TranslateModule,
+    PageLoaderComponentModule,
   ],
   declarations: [EditDvirPage],
   providers: [NavParams],

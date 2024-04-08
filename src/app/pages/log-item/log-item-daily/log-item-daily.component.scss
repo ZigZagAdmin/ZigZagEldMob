@@ -28,38 +28,38 @@ rect.eventBorder {
 }
 
 line {
-  stroke: #94a4d7;
-  stroke-width: 0.5;
+  stroke: var(--gray-400);
+  stroke-width: 1;
 }
 
 .eventStatusOFF {
-  stroke: rgb(198, 198, 198);
+  stroke: var(--off-duty);
   stroke-width: 5;
 }
 
 .eventStatusSB {
-  stroke: rgb(31, 49, 64);
+  stroke: var(--split-spleeper-berth);
   stroke-width: 5;
 }
 
 .eventStatusD {
-  stroke: rgb(60, 118, 61);
+  stroke: var(--success-500);
   stroke-width: 5;
 }
 
 .eventStatusON {
-  stroke: rgb(213, 133, 18);
+  stroke: var(--warning-400);
   stroke-width: 5;
 }
 
 .eventStatusPC {
-  stroke: rgb(198, 198, 198);
+  stroke: var(--off-duty);
   stroke-width: 5;
   stroke-dasharray: 7;
 }
 
 .eventStatusYM {
-  stroke: rgb(213, 133, 18);
+  stroke: var(--warning-400);
   stroke-width: 5;
   stroke-dasharray: 7;
 }
@@ -82,7 +82,9 @@ line {
 }
 
 .vertical {
-  stroke: #002ed0;
+  stroke: var(--gray-500) !important;
+  fill: var(--gray-500) !important;
+  stroke-width: 1;
 }
 
 .horizontalRed {
@@ -190,6 +192,7 @@ ion-col {
   gap: 15px;
   .custom-subtitle {
     flex-grow: 1;
+    color: var(--gray-700);
   }
   .btn {
     display: flex;
@@ -281,6 +284,9 @@ ion-col {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
 
   img {
     width: 24px;
@@ -367,4 +373,48 @@ ion-col {
   stroke: var(--error-600);
   opacity: 0.2;
   stroke-width: 1px;
+}
+
+.duty-status-labels .label {
+  fill: var(--gray-700) !important;
+}
+
+.hour-labels .label {
+  fill: var(--gray-700) !important;
+}
+
+.durations .label {
+  fill: var(--gray-700) !important;
+}
+
+.dvir-add {
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--gray-25);
+  background-color: var(--primary-600);
+  border-radius: 10px;
+}
+
+.sign-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 768px) and (min-height: 600px) {
+  .sign-box {
+    height: calc(100% - 86px); // header height + 2 * margin-top
+  }
+
+  ion-modal.cert-modal {
+    --border-radius: 10px;
+  }
+}
+
+.hide-el {
+  display: none;
 }

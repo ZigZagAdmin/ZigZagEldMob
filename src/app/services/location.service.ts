@@ -3,8 +3,8 @@ import { Geolocation } from '@capacitor/geolocation';
 import { NativeSettings, AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { BehaviorSubject } from 'rxjs';
 import { GeolocationService } from './geolocation.service';
-import { Location } from 'src/app/models/dvirs';
 import { Platform } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 declare let cordova: any;
 
@@ -14,7 +14,7 @@ declare let cordova: any;
 export class LocationService {
   private locationStatusSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
 
-  constructor(private geolocationService: GeolocationService, private platform: Platform) {}
+  constructor(private geolocationService: GeolocationService, private platform: Platform, private translate: TranslateService) {}
 
   watchLocationStatus() {
     this.platform.ready().then(() => {
@@ -159,12 +159,12 @@ export class LocationService {
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ONCE:
                 status = false;
                 this.locationStatusSubject.next(false);
-                alert('You need to give location permissions in order to normally use the app');
+                alert(this.translate.instant('You need to give location permissions in order to normally use the app'));
                 break;
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
                 status = false;
                 this.locationStatusSubject.next(false);
-                let state = confirm('You need to give access to your location.\nProceed to settings?');
+                let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
                 if (state) {
                   await NativeSettings.open({
                     optionAndroid: AndroidSettings.ApplicationDetails,

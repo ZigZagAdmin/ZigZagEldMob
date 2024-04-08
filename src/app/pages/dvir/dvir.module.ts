@@ -7,9 +7,10 @@ import { DvirPage } from './dvir.page';
 import { OrdinalPipe } from 'src/app/pipe/ordinal.pipe';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, DvirPageRoutingModule, HeaderComponentModule, PageLoaderComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, DvirPageRoutingModule, HeaderComponentModule, PageLoaderComponentModule, TranslateModule],
   declarations: [DvirPage, OrdinalPipe],
 })
 export class DvirPageModule {}

@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  authApi: 'http://apitest.zigzagplus.com/',
+  authApi: 'https://apitest.zigzagplus.com/',
   tokenAllowedDomains: ['apitest.zigzagplus.com'],
 };
 

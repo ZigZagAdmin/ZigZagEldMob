@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { DashboardService } from 'src/app/services/dashboard.service';
-import { InternetService } from 'src/app/services/internet.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Storage } from '@ionic/storage';
 import { LogEvents } from 'src/app/models/log-histories';
@@ -12,6 +11,8 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { Network } from '@capacitor/network';
 import { ManageService } from 'src/app/services/manage.service';
 import { ToastService } from 'src/app/services/toast.service';
+import { TranslateService } from '@ngx-translate/core';
+import { ACCESS_TOKEN_KEY } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-others',
@@ -50,20 +51,23 @@ export class OthersPage implements OnInit {
 
   syncLoading: boolean = false;
 
+  darkMode: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private databaseService: DatabaseService,
     private dashboardService: DashboardService,
-    private internetService: InternetService,
     private storage: Storage,
     private utilityService: UtilityService,
     private manageService: ManageService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {}
 
   async ionViewWillEnter() {
+    this.darkMode = localStorage.getItem('darkMode') === 'true';
     let vehicleId$ = this.storage.get('vehicleId');
     let driverId$ = this.storage.get('driverId');
     let companyId$ = this.storage.get('companyId');
@@ -91,11 +95,11 @@ export class OthersPage implements OnInit {
 
   async syncData() {
     if (!(await Network.getStatus()).connected) {
-      this.toastService.showToast('Cannot sync data while offline!', 'warning');
+      this.toastService.showToast(this.translate.instant('Cannot sync data while offline!'), 'warning');
       return;
     }
     this.syncLoading = true;
-    this.toastService.showToast('Syncing data... Please wait.', 'medium');
+    this.toastService.showToast(this.translate.instant('Syncing data... Please wait.'), 'medium');
     let driver$ = firstValueFrom(this.manageService.getDrivers(this.driverId));
     let drivers$ = firstValueFrom(this.manageService.getDrivers('ALL'));
     let company$ = firstValueFrom(this.manageService.getCompany());
@@ -120,14 +124,29 @@ export class OthersPage implements OnInit {
         await this.storage.set('companyId', company?.companyId);
         await this.storage.set('driverId', driver[0]?.driverId);
         await this.storage.set('name', driver[0]?.name);
+        let todayLogDate = logDailies.find(el => el.logDate === new Date().toISOString().split('T')[0].replace(/-/g, '/'));
+
+        if (todayLogDate?.form?.coDriver?.driverId === '00000000-0000-0000-0000-000000000000') {
+          await this.storage.set('coDriver', {
+            driverId: '00000000-0000-0000-0000-000000000000',
+            driverIdentifier: null,
+            driverInfo: null,
+            email: null,
+            firstName: null,
+            lastName: null,
+          });
+        } else {
+          await this.storage.set('coDriver', todayLogDate?.form?.coDriver);
+        }
         // await this.storage.set('vehicles', driver[0]?.driverInfo?.assignedVehicles[0]);
         // await this.storage.set('vehicleId', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleId);
         // await this.storage.set('vehicleUnit', driver[0]?.driverInfo?.assignedVehicles[0]?.vehicleUnit);
-        this.toastService.showToast('Data successfully synced', 'success');
+        this.toastService.showToast(this.translate.instant('Data successfully synced'), 'success');
         this.syncLoading = false;
       },
       async error => {
-        this.toastService.showToast('There was a problem syncing data.', 'error');
+        this.toastService.showToast(this.translate.instant('There was a problem syncing data.'), 'error');
+        console.error('There was a problem syncing data: ' + error)
         this.syncLoading = false;
       }
     );
@@ -210,7 +229,7 @@ export class OthersPage implements OnInit {
             console.log('Last LogEvent is updated on server:', response);
             await this.updateIndexLogEvents(lastLogEvent, true);
           })
-          .catch(async error => {
+          .catch(async () => {
             console.log('Internet Status: ' + networkStatus);
             console.log('Last LogEvent Pushed in offline logEvents array');
             await this.updateIndexLogEvents(lastLogEvent, false);
@@ -222,7 +241,7 @@ export class OthersPage implements OnInit {
             console.log('New status is updated on server:', response);
             this.updateLogEvents(LogoutLogEvent, true);
           })
-          .catch(async error => {
+          .catch(async () => {
             console.log('Internet Status: ' + networkStatus);
             console.log('New Log Event Status Pushed in offline logEvents Array');
             this.updateLogEvents(LogoutLogEvent, false);
@@ -236,6 +255,7 @@ export class OthersPage implements OnInit {
     this.loading = false;
     this.storage.remove('accessToken');
     this.storage.remove('pickedVehicle');
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
     this.isModalOpen = false;
     setTimeout(() => this.navCtrl.navigateForward('/login', { replaceUrl: true }), 0);
   }
@@ -274,6 +294,13 @@ export class OthersPage implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  async toggleDarkMode() {
+    if (this.darkMode) this.darkMode = false;
+    else this.darkMode = true;
+    document.body.classList.toggle('dark', this.darkMode);
+    localStorage.setItem('darkMode', this.darkMode.toString());
   }
 
   ionViewWillLeave() {

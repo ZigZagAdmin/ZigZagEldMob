@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" [forceOverscroll]="false">
-  <app-header *ngIf="!pageLoading" [title]="'Edit Duty Status'" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
+  <app-header *ngIf="!pageLoading" [title]="'Edit Duty Status' | translate" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
   <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">
     <div class="card-info">
@@ -43,7 +43,7 @@
           <line class="row" x1="0" x2="1440" y1="200" y2="200"></line>
         </g>
 
-        <g class="duty-status-labels" transform="translate(35, 40)">
+        <g class="duty-status-labels" transform="translate(40, 40)">
           <text class="label" transform="translate(15, 25)" text-anchor="end" dy="0.35em">OFF</text>
           <text class="label" transform="translate(15, 75)" text-anchor="end" dy="0.35em">SB</text>
           <text class="label" transform="translate(15, 125)" text-anchor="end" dy="0.35em">D</text>
@@ -78,7 +78,7 @@
           <text class="label" transform="translate(1440, 10)" text-anchor="middle" dy="-1em">M</text>
         </g>
 
-        <g class="durations" transform="translate(1520, 40)">
+        <g class="durations" transform="translate(1515, 40)">
           <text class="label" transform="translate(0, 25)" dy="0.35em">{{ durationsOFF * 60 | convertSecotdsToHoursAndMinutes }}</text>
           <text class="label" transform="translate(0, 75)" dy="0.35em">{{ durationsSB * 60 | convertSecotdsToHoursAndMinutes }}</text>
           <text class="label" transform="translate(0, 125)" dy="0.35em">{{ durationsD * 60 | convertSecotdsToHoursAndMinutes }}</text>
@@ -108,7 +108,7 @@
     </div>
     <div class="time-inputs">
       <app-date-time
-        [label]="'Start Time (' + timeZone + ')'"
+        [label]="('Start Time' | translate) + '(' + timeZone + ')'"
         [fill]="true"
         [labelPosition]="'top'"
         [disabled]="disableForm['timeInput']"
@@ -119,7 +119,7 @@
         (emitValue)="getNewStartDate($event)"
         [validation]="validation['startTime']"></app-date-time>
       <app-input
-        [label]="'Duration'"
+        [label]="'Duration' | translate"
         [fill]="true"
         [disabled]="true"
         [showDisabled]="true"
@@ -133,7 +133,7 @@
     </div>
     <div class="location-comments">
       <app-location-input
-        [label]="'Location'"
+        [label]="'Location' | translate"
         [disabled]="disableForm['location']"
         [showDisabled]="disableForm['location']"
         [fill]="true"
@@ -144,12 +144,12 @@
         (gpsCallback)="getLocalCurrentLocation()"
         [validation]="validation['location']"
         [noValidation]="noValidation"></app-location-input>
-      <app-comments [label]="'Comments'" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
+      <app-comments [label]="'Comments' | translate" [fill]="true" [type]="'text'" [(value)]="logEvent.comment" [validation]="validation['comments']" [noValidation]="noValidation"></app-comments>
     </div>
     <div class="confirm-buttons">
-      <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">Back</button>
+      <button class="custom-btn secondary-btn" (click)="goBack()" [ngClass]="{ 'disable-click': loading }">{{'Back' | translate}}</button>
       <button class="custom-btn primary-btn" (click)="save()" [ngClass]="{ 'disable-click': loading }">
-        <span *ngIf="!loading">Save</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
+        <span *ngIf="!loading" style="color: #fcfcfc">{{'Save' | translate}}</span> <ion-spinner *ngIf="loading" name="circular" color="light" class="spinner"></ion-spinner>
       </button>
     </div>
   </div>

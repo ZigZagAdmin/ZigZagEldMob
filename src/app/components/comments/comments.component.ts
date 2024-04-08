@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, Renderer2, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { ShareService } from 'src/app/services/share.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -57,7 +58,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   foundSuggestions: string[] = [];
   showTooltip: boolean = false;
 
-  constructor(private toastService: ToastService, private shareService: ShareService, private renderer: Renderer2, private el: ElementRef) {}
+  constructor(private toastService: ToastService, private shareService: ShareService, private translate: TranslateService) {}
 
   ngOnInit() {
     this.validateSubscription = this.shareService.currentMessage.subscribe(data => {
@@ -69,15 +70,6 @@ export class CommentsComponent implements OnInit, OnDestroy {
         if (data && data.length !== 0) this.validateInput();
       }
     });
-  }
-
-  calculatePosition() {
-    const element = this.el.nativeElement.querySelector('#custom-tooltip');
-    console.log(window.innerWidth);
-    console.log(element.offsetWidth);
-    if (element) {
-      this.renderer.setStyle(element, 'left', (window.innerWidth - element.offsetWidth - 40) / 2 + 'px');
-    }
   }
 
   ngOnDestroy(): void {
@@ -106,39 +98,39 @@ export class CommentsComponent implements OnInit, OnDestroy {
     }
     if (this.foundSuggestions.length !== 0) {
       this.showTooltip = true;
-      setTimeout(() => this.calculatePosition(), 0);
     } else {
       this.showTooltip = false;
     }
   }
 
   completeWord(suggestion: string) {
-    let separateValues = this.value.split(' ');
+    let separateValues = this.value.split(', ');
     separateValues[separateValues.length - 1] = suggestion;
-    this.value = separateValues.join(' ') + ' ';
+    this.value = separateValues.join(', ') + ', ';
     document.getElementById('custom-textarea').focus();
     setTimeout(() => (this.showTooltip = false), 100);
   }
 
   validateInput() {
     if (!this.noValidation) {
-      if (this.value.length === 0) {
+      console.log(this.value);
+      if (this.value === undefined || this.value === null || this.value.length === 0) {
         this.valid = false;
-        this.toastService.showToast('Field required');
+        this.toastService.showToast(this.translate.instant('Field required'));
         // return;
       } else if (this.value.length > 0) {
         this.valid = true;
       }
-      if (this.value.length >= 0 && this.validators.length !== 0) {
-        this.validators.every(validator => {
-          if (!validator.regex.test(this.value)) {
-            this.valid = true;
-            this.toastService.showToast(validator.message);
-            return false;
-          }
-          return true;
-        });
-      }
+      // if (this.value.length >= 0 && this.validators.length !== 0) {
+      //   this.validators.every(validator => {
+      //     if (!validator.regex.test(this.value)) {
+      //       this.valid = true;
+      //       this.toastService.showToast(validator.message);
+      //       return false;
+      //     }
+      //     return true;
+      //   });
+      // }
       this.validation = this.valid;
     }
   }

@@ -8,7 +8,7 @@
     [placeholder]="placeholder"
     class="input-box"
     [ngClass]="{ 'input-fill': fill, 'validation-error': !valid }"></textarea>
-  <div class="custom-tooltip" id="custom-tooltip" [ngClass]="{ 'hide-tooltip': !showTooltip }">
+  <!-- <div class="custom-tooltip" id="custom-tooltip" [ngClass]="{ 'hide-tooltip': !showTooltip }">
     <div class="tooltip-box" id="tooltip-box">
       <div class="tooltip-buttons">
         <div class="button-box" *ngFor="let suggestion of foundSuggestions">
@@ -18,5 +18,10 @@
       </div>
     </div>
     <div class="tooltip-triangle"></div>
+  </div> -->
+  <div class="suggestion-menu" [ngClass]="{ 'hide-tooltip': !showTooltip }">
+    <div class="suggestion-item" *ngFor="let suggestion of foundSuggestions" (click)="completeWord(suggestion)">
+      {{ suggestion }}
+    </div>
   </div>
 </div>

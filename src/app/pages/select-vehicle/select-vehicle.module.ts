@@ -8,9 +8,18 @@ import { SelectVehiclePage } from './select-vehicle.page';
 import { DatabaseService } from 'src/app/services/database.service';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, SelectVehiclePageRoutingModule, HeaderComponentModule, PageLoaderComponentModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    SelectVehiclePageRoutingModule,
+    HeaderComponentModule,
+    PageLoaderComponentModule,
+    TranslateModule
+  ],
   declarations: [SelectVehiclePage],
   providers: [Storage, DatabaseService],
 })

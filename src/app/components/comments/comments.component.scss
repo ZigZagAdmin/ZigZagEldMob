@@ -22,7 +22,7 @@
   font-size: 14px;
   font-weight: 400;
   color: var(--gray-500) !important;
-  background-color: #ffffff;
+  background-color: var(--all-background);
   border: 1px solid var(--gray-200);
 }
 
@@ -131,4 +131,36 @@
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s, opacity 0s;
+}
+
+.suggestion-menu {
+  position: absolute;
+  transform-origin: bottom left;
+  transform: translateY(-105px);
+  bottom: 0;
+  right: 0;
+  min-width: 70%;
+  max-height: 100px;
+  height: fit-content;
+  border-radius: 10px;
+  background-color: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  overflow-y: auto;
+  padding: 5px 0;
+
+  .suggestion-item {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-700);
+
+    &:active {
+      background-color: var(--gray-200);
+    }
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

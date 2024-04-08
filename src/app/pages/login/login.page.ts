@@ -4,7 +4,7 @@ import { Observable, firstValueFrom, forkJoin, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 import { Storage } from '@ionic/storage';
-import { NavController, Platform } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 
 import { DatabaseService } from 'src/app/services/database.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -25,8 +25,10 @@ import { ShareService } from 'src/app/services/share.service';
 import { LocationService } from 'src/app/services/location.service';
 import { Capacitor } from '@capacitor/core';
 import { EncryptionService } from 'src/app/services/encryption.service';
-import { Keyboard } from '@capacitor/keyboard';
 import { Network } from '@capacitor/network';
+import { TranslateService } from '@ngx-translate/core';
+import { Device } from '@capacitor/device';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-login',
@@ -58,7 +60,8 @@ export class LoginPage implements OnInit, OnDestroy {
     private utilityService: UtilityService,
     private shareService: ShareService,
     private locationService: LocationService,
-    private encryptionService: EncryptionService
+    private encryptionService: EncryptionService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit() {
@@ -88,12 +91,12 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async login(username: string, password: string) {
-    if (Capacitor.getPlatform() !== 'web') {
-      Keyboard.hide();
-    }
+    // if (Capacitor.getPlatform() !== 'web') {
+    //   Keyboard.hide();
+    // }
     let networkStatus = await Network.getStatus();
     if (!networkStatus.connected) {
-      this.toastService.showToast("You cannot login while you're offline!");
+      this.toastService.showToast(this.translate.instant("You cannot login while you're offline!"));
       return;
     }
     this.shareService.changeMessage(this.utilityService.generateString(5));
@@ -106,12 +109,18 @@ export class LoginPage implements OnInit, OnDestroy {
       }
     }
 
-    this.loading = true; // Показать спиннер
+    this.loading = true;
+    let deviceModel = { model: '', operatingSystem: '', osVersion: '' };
+    let appVersion = { version: '' };
+    if (Capacitor.getPlatform() !== 'web') {
+      deviceModel = await Device.getInfo();
+      appVersion = await App.getInfo();
+    }
 
     this.authService
-      .login(username, password)
+      .login(username.replace(/ /g, ''), password, deviceModel.model, deviceModel.operatingSystem + ' ' + deviceModel.osVersion, appVersion.version)
       .pipe(
-        switchMap(res => {
+        switchMap(async res => {
           this.authUser = res;
           this.driverId = res.DriverId;
           this.companyId = res.CompanyId;
@@ -119,9 +128,16 @@ export class LoginPage implements OnInit, OnDestroy {
           this.storage.set('driverId', res.DriverId);
           this.storage.set('companyId', res.CompanyId);
           this.storage.set('name', res.Name);
-          this.storage.set('language', res.Language);
           this.storage.set('username', this.encryptionService.encrypt(username));
           this.storage.set('password', this.encryptionService.encrypt(password));
+          this.storage.set('language', res.Language);
+          let selectedLanguage = await this.storage.get('selectedLanguage');
+          if (selectedLanguage === null || selectedLanguage === undefined) {
+            selectedLanguage = res.Language;
+            await this.storage.set('selectedLanguage', res.Language);
+          }
+          this.translate.setDefaultLang(selectedLanguage);
+          this.translate.use(selectedLanguage);
           return this.saveAuthUser(res);
         }),
         switchMap(() => {
@@ -155,8 +171,8 @@ export class LoginPage implements OnInit, OnDestroy {
           return forkJoin(fetchRequests).pipe(
             catchError(error => {
               const errorMessage = 'Error fetching data';
-              this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-              return throwError(errorMessage);
+              this.toastService.showToast(this.translate.instant(errorMessage)); // Отобразить toast с ошибкой
+              return throwError(errorMessage + ': ' + error);
             })
           );
         }),
@@ -181,8 +197,8 @@ export class LoginPage implements OnInit, OnDestroy {
           return forkJoin(saveRequests).pipe(
             catchError(error => {
               const errorMessage = 'Error saving data to database';
-              this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-              return throwError(errorMessage);
+              this.toastService.showToast(this.translate.instant(errorMessage)); // Отобразить toast с ошибкой
+              return throwError(errorMessage + ': ' + error);
             })
           );
         }),
@@ -194,13 +210,13 @@ export class LoginPage implements OnInit, OnDestroy {
         () => {
           // Все запросы и сохранения выполнены успешно
           this.storage.set('bAuthorized', false);
-          this.toastService.showToast('Login successful', 'success'); // Отобразить toast с сообщением об успешном входе
+          this.toastService.showToast(this.translate.instant('Login successful'), 'success'); // Отобразить toast с сообщением об успешном входе
           this.navCtrl.navigateRoot('/select-vehicle', { animated: true, animationDirection: 'forward' });
         },
         error => {
           console.log(error);
-          const errorMessage = 'An error occurred during login';
-          this.toastService.showToast(errorMessage, 'danger'); // Отобразить toast с ошибкой
+          const errorMessage = error?.error?.message || 'An error occured during login';
+          this.toastService.showToast(this.translate.instant(errorMessage), 'danger'); // Отобразить toast с ошибкой
           console.log(errorMessage);
         }
       );
@@ -208,15 +224,15 @@ export class LoginPage implements OnInit, OnDestroy {
 
   async checkLocation() {
     if (!(await this.locationService.isLocationServiceAvailable())) {
-      let state = confirm('Looks like the location service is turned off.\nProceed to settings?');
+      let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
       if (state) {
-        if(Capacitor.getPlatform() === 'android') {
+        if (Capacitor.getPlatform() === 'android') {
           await this.locationService.goToLocationServiceSettings();
         } else {
-          alert('Go to Settings -> Location Services to enable the location service.')
+          alert(this.translate.instant('Go to Settings -> Location Services to enable the location service.'));
         }
       } else {
-        alert('You have to turn on the location service in order to continue.');
+        alert(this.translate.instant('You have to turn on the location service in order to continue.'));
         return false;
       }
     }
@@ -229,7 +245,7 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving auth user to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -239,7 +255,7 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving drivers to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -249,7 +265,7 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving drivers to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -259,27 +275,27 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving company to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
 
-  private saveVehicles(vehicles: Vehicle[]): Observable<any> {
-    return this.databaseService.saveVehicles(vehicles).pipe(
-      catchError(error => {
-        const errorMessage = 'Error saving vehicles to database';
-        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
-      })
-    );
-  }
+  // private saveVehicles(vehicles: Vehicle[]): Observable<any> {
+  //   return this.databaseService.saveVehicles(vehicles).pipe(
+  //     catchError(error => {
+  //       const errorMessage = 'Error saving vehicles to database';
+  //       this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
+  //       return throwError(errorMessage + ': ' + error);
+  //     })
+  //   );
+  // }
 
   private saveTerminals(terminals: Terminal[]): Observable<any> {
     return this.databaseService.saveTerminals(terminals).pipe(
       catchError(error => {
         const errorMessage = 'Error saving terminals to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -289,7 +305,7 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving ELDs to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -302,7 +318,7 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving dvirs to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -312,27 +328,27 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving logMaps to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
 
-  private getPlacesCity(): Observable<PlacesCity[]> {
-    return this.databaseService.getPlacesCity().pipe(
-      catchError(error => {
-        const errorMessage = 'Error getting logMaps to database';
-        this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
-      })
-    );
-  }
+  // private getPlacesCity(): Observable<PlacesCity[]> {
+  //   return this.databaseService.getPlacesCity().pipe(
+  //     catchError(error => {
+  //       const errorMessage = 'Error getting logMaps to database';
+  //       this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
+  //       return throwError(errorMessage + ': ' + error);
+  //     })
+  //   );
+  // }
 
   private saveLogDailies(logDailies: LogDailies[]): Observable<any> {
     return this.databaseService.saveLogDailies(logDailies).pipe(
       catchError(error => {
         const errorMessage = 'Error saving log dailies to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -342,7 +358,7 @@ export class LoginPage implements OnInit, OnDestroy {
       catchError(error => {
         const errorMessage = 'Error saving log histories to database';
         this.toastService.showToast(errorMessage); // Отобразить toast с ошибкой
-        return throwError(errorMessage);
+        return throwError(errorMessage + ': ' + error);
       })
     );
   }
@@ -420,6 +436,10 @@ export class LoginPage implements OnInit, OnDestroy {
     }
 
     await firstValueFrom(this.saveLogDailies(countDays));
+  }
+
+  getYearCopyright() {
+    return new Date().getFullYear();
   }
 
   forgotPassword() {}

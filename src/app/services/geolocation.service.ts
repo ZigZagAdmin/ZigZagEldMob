@@ -1,22 +1,27 @@
 import { Injectable } from '@angular/core';
 import { PlacesCity } from '../models/places-city';
-import { Storage } from '@ionic/storage';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GeolocationService {
-  private placesCity: PlacesCity[] = [];
+  private readonly placesCityBehSub: BehaviorSubject<PlacesCity[]> = new BehaviorSubject<PlacesCity[]>([]);
+  placesCity = this.placesCityBehSub.asObservable();
 
-  constructor(private storage: Storage) {}
+  constructor() {}
+
+  getPlacesCity(value: PlacesCity[]) {
+    this.placesCityBehSub.next(value);
+  }
 
   public async getCurrentLocation(latitude: number, longitude: number): Promise<string> {
     console.log(latitude, longitude);
     let dDistanceFinal = 0;
     let sCurrentLocationDescription: string = '';
-    await this.storage.get('placesCity').then(res => (this.placesCity = res));
+    let localPlacesCity = await firstValueFrom(this.placesCity);
     try {
-      for (const cityPlace of this.placesCity) {
+      for (const cityPlace of localPlacesCity) {
         let dLatitude: number = cityPlace.latitude !== null && cityPlace.latitude !== undefined ? cityPlace.latitude : 0;
         let dLongitude: number = cityPlace.longitude !== null && cityPlace.longitude !== undefined ? cityPlace.longitude : 0;
 

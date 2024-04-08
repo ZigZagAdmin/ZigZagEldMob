@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
 import { Platform } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { BehaviorSubject } from 'rxjs';
 
@@ -11,14 +12,19 @@ declare let cordova: any;
 })
 export class BluetoothService {
   private bluetoothStatusSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
+  private deviceConnectionStatus: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
+  private bluetoothDataSubject: BehaviorSubject<{ [key: string]: string }> = new BehaviorSubject<{ [key: string]: string }>(null);
 
   service = numberToUUID(0x1800);
   read = '00002A00-0000-1000-8000-00805F9B34FB';
 
-  constructor(private platform: Platform) {}
+  private debounceTimeout: any;
+  private debounceDelay: number = 5000;
+
+  constructor(private platform: Platform, private translate: TranslateService, private ngZone: NgZone) {}
 
   async initialize() {
-    await BleClient.initialize();
+    await BleClient.initialize({ androidNeverForLocation: true });
   }
 
   async watchBluetoothStatus() {
@@ -112,14 +118,14 @@ export class BluetoothService {
                 status = false;
                 this.bluetoothStatusSubject.next(false);
                 if (!noPop) {
-                  alert('You need to give bluetooth permissions in order to connect');
+                  alert(this.translate.instant('You need to give bluetooth permissions in order to connect'));
                 }
                 break;
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
                 status = false;
                 this.bluetoothStatusSubject.next(false);
                 if (!noPop) {
-                  let state = confirm('You need to give access to your bluetooth.\nProceed to settings?');
+                  let state = confirm(this.translate.instant('You need to give access to your bluetooth.\nProceed to settings?'));
                   if (state) {
                     await NativeSettings.open({
                       optionAndroid: AndroidSettings.ApplicationDetails,
@@ -153,39 +159,91 @@ export class BluetoothService {
     return this.bluetoothStatusSubject.asObservable();
   }
 
-  async connectToDevice(macAddress: string) {
+  getBluetoothDataObservable() {
+    return this.bluetoothDataSubject.asObservable();
+  }
+
+  getDeviceConnectionStatusObservable() {
+    return this.deviceConnectionStatus.asObservable();
+  }
+
+  async connectToDevice(macAddress: string = 'FC:29:99:B8:78:0E') {
     try {
       await BleClient.connect(macAddress);
       console.log('Connected macAdrress:', macAddress);
+      this.deviceConnectionStatus.next(true);
+      return true;
+    } catch (error) {
+      console.error('Bluetooth error:', error);
+      this.deviceConnectionStatus.next(false);
+      return false;
+    }
+  }
+
+  async listAvailableDevices() {
+    try {
+      const result = await BleClient.requestDevice();
+      console.log('Available devices:', JSON.stringify(result));
     } catch (error) {
       console.error('Bluetooth error:', error);
     }
   }
 
-  async readDeviceDate(macAddress: string) {
+  async readDeviceDate(macAddress: string = 'FC:29:99:B8:78:0E') {
     const res = await BleClient.read(macAddress, this.service, this.read);
     this.decodeJ1708(res);
   }
 
-  async subscribeToDeviceData(macAddress: string) {
+  async subscribeToDeviceData(macAddress: string = 'FC:29:99:B8:78:0E') {
     // const macAddress: string = 'FC:29:99:B8:78:0E';
-    await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => { // put services here
-      console.log('current heart rate', this.parseData(res));
-      this.decodeJ1708(res);
+    let dataReceivedTimeout: any;
+
+    const handleDataTimeout = () => {
+      console.log('No data received in 15 seconds, assuming disconnection');
+      this.deviceConnectionStatus.next(false);
+    };
+
+    const resetDataReceivedTimeout = () => {
+      if (dataReceivedTimeout) {
+        clearTimeout(dataReceivedTimeout);
+      }
+      dataReceivedTimeout = setTimeout(handleDataTimeout, 15000); // 15 seconds
+    };
+
+    resetDataReceivedTimeout();
+    this.ngZone.runOutsideAngular(async () => {
+      await BleClient.startNotifications(macAddress, '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e', res => {
+        if (this.debounceTimeout) {
+          clearTimeout(this.debounceTimeout);
+        }
+        this.debounceTimeout = setTimeout(() => {
+          if (res) {
+            console.log('current heart rate', this.parseData(res));
+            this.bluetoothDataSubject.next(this.decodeJ1708(res));
+            resetDataReceivedTimeout();
+          } else {
+            this.deviceConnectionStatus.next(false);
+          }
+        }, this.debounceDelay);
+
+        return () => {
+          clearTimeout(dataReceivedTimeout);
+          if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+          }
+        };
+      });
     });
   }
 
-  async getServices(macAddress: string){
-    // const macAddress: string = 'FC:29:99:B8:78:0E';
-    await BleClient.getServices(macAddress)
-      .then(res=>{
-        console.log(res)
-        res.forEach(el=>{
-          console.log(el.uuid)
-          console.log(JSON.stringify(el.characteristics))
-        })
-        // console.log( 'Payload:decoder',new TextDecoder().decode(res))
-      })
+  async getServices(macAddress: string = 'FC:29:99:B8:78:0E') {
+    await BleClient.getServices(macAddress).then(res => {
+      console.log('Bluetooth services:', JSON.stringify(res));
+      res.forEach(el => {
+        console.log(el.uuid);
+        console.log(JSON.stringify(el.characteristics));
+      });
+    });
   }
 
   decodeJ1708(dataView: DataView) {
@@ -193,6 +251,26 @@ export class BluetoothService {
 
     console.log('JSON:', JSON.stringify(payload));
     console.log('Payload:decoder', new TextDecoder().decode(payload));
+    return this.parseStringData(new TextDecoder().decode(payload));
+  }
+
+  parseStringData(message: string) {
+    let array = message.split('&');
+    let temp: { [key: string]: string } = {};
+    array.forEach(el => {
+      let test = el.split('=');
+      temp[test[0]] = test[1];
+    });
+    temp['V'] = temp['V'] ? temp['V'] : '0';
+    temp['O'] = temp['O'] ? temp['O'] : '0';
+    temp['H'] = temp['H'] ? temp['H'] : '0';
+    temp['R'] = temp['R'] ? temp['R'] : '0';
+
+    console.log('Speed: ', temp['V']);
+    console.log('Odometers: ', temp['O']);
+    console.log('EngineHours: ', temp['H']);
+    console.log('RPM: ', temp['R']);
+    return temp;
   }
 
   parseData(value: DataView): number {

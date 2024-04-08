@@ -16,6 +16,7 @@ import { TextareaComponentModule } from 'src/app/components/textarea/textarea.mo
 import { MultipleSelectComponentModule } from 'src/app/components/multiple-select/multiple-select.module';
 
 import { LocationInputComponentModule } from 'src/app/components/location-input/location-input.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -31,6 +32,7 @@ import { LocationInputComponentModule } from 'src/app/components/location-input/
     TextareaComponentModule,
     MultipleSelectComponentModule,
     LocationInputComponentModule,
+    TranslateModule
   ],
   declarations: [InsertDvirPage],
 })

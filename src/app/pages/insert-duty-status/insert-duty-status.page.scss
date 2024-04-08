@@ -1,0 +1,190 @@
+svg:not(:root) {
+  overflow: hidden;
+}
+
+svg {
+  display: block;
+  width: 100%;
+}
+
+.SVGline {
+  stroke: #141;
+  stroke-width: 3;
+}
+
+rect {
+  fill: transparent;
+}
+
+rect.eventBorder {
+  fill: transparent;
+  stroke-opacity: 0;
+  transition: fill 300ms ease;
+  cursor: pointer;
+}
+
+line {
+  stroke: var(--gray-400);
+  stroke-width: 1;
+}
+
+.eventStatusOFF {
+  stroke: var(--off-duty);
+  stroke-width: 5;
+}
+
+.eventStatusSB {
+  stroke: var(--split-spleeper-berth);
+  stroke-width: 5;
+}
+
+.eventStatusD {
+  stroke: var(--success-500);
+  stroke-width: 5;
+}
+
+.eventStatusON {
+  stroke: var(--warning-400);
+  stroke-width: 5;
+}
+
+.eventStatusPC {
+  stroke: var(--off-duty);
+  stroke-width: 5;
+  stroke-dasharray: 7;
+}
+
+.eventStatusYM {
+  stroke: var(--warning-400);
+  stroke-width: 5;
+  stroke-dasharray: 7;
+}
+
+.eventStatusNP {
+  stroke-width: 3;
+  stroke: rgb(60, 118, 61);
+}
+
+.eventStatusLogin {
+  stroke-width: 3;
+  stroke: rgb(3, 33, 252);
+  stroke-dasharray: 6;
+}
+
+.eventStatusLogout {
+  stroke-width: 3;
+  stroke: rgb(255, 0, 0);
+  stroke-dasharray: 6;
+}
+
+.vertical {
+  stroke: #002ed0;
+}
+
+.horizontalRed {
+  stroke: #db2828;
+  stroke-width: 7;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.custom-btn {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  height: 50px;
+}
+
+.time-inputs {
+  display: flex;
+  gap: 10px;
+
+  app-date-time {
+    flex: 1;
+  }
+
+  app-input {
+    flex: 1;
+  }
+}
+
+.location-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.location-comments textarea {
+  height: 100px;
+}
+
+.current-status {
+  fill: var(--gray-400) !important;
+  stroke: var(--gray-400);
+  opacity: 0.2;
+  stroke-width: 1px;
+}
+
+.range-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  color: var(--gray-500);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+.disable-click {
+  pointer-events: none;
+}
+
+.violation-list {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .violation-item {
+    font-size: 11px;
+    color: var(--error-600);
+    border: 1px solid var(--error-600);
+    background-color: var(--error-50);
+    padding: 5px 10px;
+    border-radius: 50px;
+  }
+}
+
+.error-status-viol {
+  fill: var(--error-600) !important;
+  stroke: var(--error-600);
+  opacity: 0.2;
+  stroke-width: 1px;
+}
+
+.duty-status-labels .label {
+  fill: var(--gray-700) !important;
+}
+
+.hour-labels .label {
+  fill: var(--gray-700) !important;
+}
+
+.durations .label {
+  fill: var(--gray-700) !important;
+}
+
+.hide-el {
+  display: none;
+}
