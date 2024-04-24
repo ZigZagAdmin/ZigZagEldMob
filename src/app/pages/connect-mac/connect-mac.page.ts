@@ -15,6 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { Company } from 'src/app/models/company';
 import { TranslateService } from '@ngx-translate/core';
+import { BleClient } from '@capacitor-community/bluetooth-le';
 
 @Component({
   selector: 'app-connect-mac',
@@ -27,6 +28,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   vehicle: Vehicle;
   elds: ELD[] = [];
   company: Company;
+  isScanModalOpen: boolean = false;
 
   defects = defectsVehicle;
 
@@ -37,6 +39,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   loading: boolean = false;
   backUrl: string = '';
   firstLogin: boolean = false;
+  availableDevices: string[] = [];
 
   constructor(
     private navCtrl: NavController,
@@ -126,7 +129,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
       }
       try {
         await this.bluetoothService.requestBluetoothPermission();
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       }
     }
@@ -182,5 +185,13 @@ export class ConnectMacPage implements OnInit, OnDestroy {
 
   canDeactivate() {
     return !this.loading;
+  }
+
+  async openScanner() {
+    this.isScanModalOpen = true;
+    await BleClient.requestLEScan({ allowDuplicates: false }, res => {
+      console.log(res);
+      this.availableDevices.push(res.device.name + ' - ' + res.device.deviceId);
+    });
   }
 }

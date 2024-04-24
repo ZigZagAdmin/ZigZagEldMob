@@ -148,3 +148,9 @@ ion-loading {
   --background: var(--gray-25);
   --spinner-color: var(--gray-700);
 }
+
+.custom-default {
+  background-color: var(--gray-200);
+  color: var(--gray-700);
+  font-weight: 700;
+}
