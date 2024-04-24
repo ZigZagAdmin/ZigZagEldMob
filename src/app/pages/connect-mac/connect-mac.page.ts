@@ -124,7 +124,11 @@ export class ConnectMacPage implements OnInit, OnDestroy {
           return;
         }
       }
-      await this.bluetoothService.requestBluetoothPermission();
+      try {
+        await this.bluetoothService.requestBluetoothPermission();
+      } catch(e) {
+        console.error(e);
+      }
     }
     if (checkForForm) {
       this.shareService.changeMessage(this.utilityService.generateString(5));
