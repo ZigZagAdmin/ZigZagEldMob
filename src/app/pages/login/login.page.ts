@@ -239,7 +239,7 @@ export class LoginPage implements OnInit, OnDestroy {
     // }
     console.log(this.firstLogin);
     if (!this.firstLogin) {
-      alert('We need location access in order to provide the directions to your pick-ups and deliveries!');
+      alert('We need location access in order to create automatic activity logs for the LogBook!');
       await this.locationService.requestPermission('pass');
     }
     return (await this.locationService.isLocationPermissionGranted()).status;
