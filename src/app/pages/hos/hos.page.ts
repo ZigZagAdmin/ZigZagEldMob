@@ -552,7 +552,11 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           return;
         }
       }
-      await this.bluetoothService.requestBluetoothPermission();
+      try {
+        await this.bluetoothService.requestBluetoothPermission();
+      } catch (e) {
+        console.error(e);
+      }
     }
     if (!this.deviceConStatus && this.bluetoothStatus) {
       this.goToConnectPage();

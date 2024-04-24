@@ -62,7 +62,7 @@ export class BluetoothService {
             resolve(enabled);
           },
           (error: any) => {
-            console.error('Error checking location availability:', error);
+            console.error('Error checking bluetooth availability:', error);
             resolve(false);
           }
         );
@@ -170,7 +170,8 @@ export class BluetoothService {
   async connectToDevice(macAddress: string = 'FC:29:99:B8:78:0E') {
     try {
       // await BleClient.requestLEScan({}, () => {});
-      await BleClient.connect(macAddress);
+      await this.listAvailableDevices();
+      // await BleClient.connect(macAddress);
       console.log('Connected macAdrress: ', macAddress);
       this.deviceConnectionStatus.next(true);
       return true;
@@ -184,6 +185,7 @@ export class BluetoothService {
   async listAvailableDevices() {
     try {
       const result = await BleClient.requestDevice();
+      await BleClient.connect(result.deviceId);
       console.log('Available devices:', JSON.stringify(result));
     } catch (error) {
       console.error('Bluetooth error:', error);
