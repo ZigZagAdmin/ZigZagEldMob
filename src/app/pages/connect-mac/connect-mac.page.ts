@@ -36,6 +36,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
 
   loading: boolean = false;
   backUrl: string = '';
+  firstLogin: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -51,9 +52,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    if (Capacitor.getPlatform() !== 'web') {
-      await this.bluetoothService.requestBluetoothPermission(true);
-    }
+    let _firstLogin = localStorage.getItem('firstLogin');
+    if (_firstLogin && _firstLogin.length !== 0) this.firstLogin = Boolean(_firstLogin);
   }
 
   async ionViewWillEnter() {
@@ -77,6 +77,16 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         await this.connect(lastConnectedELD, false);
       }
     });
+  }
+
+  async ionViewDidEnter() {
+    if (!this.firstLogin) {
+      alert('You need to provide bluetooth access in order to to connect to the ELD device!');
+      localStorage.setItem('firstLogin', String(this.firstLogin));
+    }
+    if (Capacitor.getPlatform() !== 'web') {
+      await this.bluetoothService.requestBluetoothPermission(true);
+    }
   }
 
   ngOnDestroy(): void {

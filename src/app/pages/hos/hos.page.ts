@@ -24,6 +24,7 @@ import { ELD } from 'src/app/models/eld';
 import { GeolocationService } from 'src/app/services/geolocation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CarSimulatorService } from 'src/app/services/car-simulator.service';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 
 interface BannerInfo {
   show: boolean;
@@ -458,7 +459,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-
   async handleSplitSleep(value: boolean | undefined | null) {
     if (value === null || value === undefined) {
       this.splitSleeperBerth = false;
@@ -524,7 +524,17 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       }
       return;
     }
-    await this.locationService.requestPermission();
+    if (Capacitor.getPlatform() === 'android' || (Capacitor.getPlatform() === 'ios' && (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() === 'NOT_REQUESTED')) {
+      await this.locationService.requestPermission('no');
+    } else if (Capacitor.getPlatform() === 'ios') {
+      let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
+      if (state) {
+        await NativeSettings.open({
+          optionAndroid: AndroidSettings.ApplicationDetails,
+          optionIOS: IOSSettings.App,
+        });
+      }
+    }
   }
 
   async checkBluetooth() {

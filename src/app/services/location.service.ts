@@ -144,7 +144,7 @@ export class LocationService {
     });
   }
 
-  async requestPermission() {
+  async requestPermission(pass: string) {
     return new Promise<{ value: string; status: boolean }>((resolve, reject) => {
       this.platform.ready().then(() => {
         cordova.plugins.diagnostic.requestLocationAuthorization(
@@ -159,17 +159,19 @@ export class LocationService {
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ONCE:
                 status = false;
                 this.locationStatusSubject.next(false);
-                alert(this.translate.instant('You need to give location permissions in order to normally use the app'));
+                // alert(this.translate.instant('You need to give location permissions in order to normally use the app'));
                 break;
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
                 status = false;
                 this.locationStatusSubject.next(false);
-                let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
-                if (state) {
-                  await NativeSettings.open({
-                    optionAndroid: AndroidSettings.ApplicationDetails,
-                    optionIOS: IOSSettings.App,
-                  });
+                if (pass !== 'pass') {
+                  let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
+                  if (state) {
+                    await NativeSettings.open({
+                      optionAndroid: AndroidSettings.ApplicationDetails,
+                      optionIOS: IOSSettings.App,
+                    });
+                  }
                 }
                 break;
               case cordova.plugins.diagnostic.permissionStatus.GRANTED:

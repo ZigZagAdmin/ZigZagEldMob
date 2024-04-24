@@ -49,6 +49,7 @@ export class LoginPage implements OnInit, OnDestroy {
   driverId: string = '';
   placesCity: PlacesCity[] = [];
   autoLogin: boolean = false;
+  firstLogin: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -65,6 +66,8 @@ export class LoginPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    let _firstLogin = localStorage.getItem('firstLogin');
+    if (_firstLogin && _firstLogin.length !== 0) this.firstLogin = Boolean(_firstLogin);
     this.placesCity = await this.storage.get('placesCity');
     await this.storage.get('autoLogin').then(async res => {
       if (res !== null && res !== undefined) {
@@ -104,9 +107,7 @@ export class LoginPage implements OnInit, OnDestroy {
     this.shareService.changeMessage('reset');
 
     if (Capacitor.getPlatform() !== 'web') {
-      if (!(await this.checkLocation())) {
-        return;
-      }
+      await this.checkLocation();
     }
 
     this.loading = true;
@@ -223,20 +224,24 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async checkLocation() {
-    if (!(await this.locationService.isLocationServiceAvailable())) {
-      let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
-      if (state) {
-        if (Capacitor.getPlatform() === 'android') {
-          await this.locationService.goToLocationServiceSettings();
-        } else {
-          alert(this.translate.instant('Go to Settings -> Location Services to enable the location service.'));
-        }
-      } else {
-        alert(this.translate.instant('You have to turn on the location service in order to continue.'));
-        return false;
-      }
+    // if (!(await this.locationService.isLocationServiceAvailable())) {
+    //   let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
+    //   if (state) {
+    //     if (Capacitor.getPlatform() === 'android') {
+    //       await this.locationService.goToLocationServiceSettings();
+    //     } else {
+    //       alert(this.translate.instant('Go to Settings -> Location Services to enable the location service.'));
+    //     }
+    //   } else {
+    //     alert(this.translate.instant('You have to turn on the location service in order to continue.'));
+    //     return false;
+    //   }
+    // }
+    console.log(this.firstLogin);
+    if (!this.firstLogin) {
+      alert('We need location access in order to provide the directions to your pick-ups and deliveries!');
+      await this.locationService.requestPermission('pass');
     }
-    await this.locationService.requestPermission();
     return (await this.locationService.isLocationPermissionGranted()).status;
   }
 
