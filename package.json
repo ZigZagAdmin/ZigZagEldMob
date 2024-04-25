@@ -43,6 +43,7 @@
     "@meddv/ngx-pinch-zoom": "^15.0.1",
     "@ngx-translate/core": "^14.0.0",
     "@ngx-translate/http-loader": "^7.0.0",
+    "animate.css": "^4.1.1",
     "awesome-cordova-plugins": "^5.40.0",
     "capacitor-native-settings": "^5.0.1",
     "cordova.plugins.diagnostic": "^7.1.4",

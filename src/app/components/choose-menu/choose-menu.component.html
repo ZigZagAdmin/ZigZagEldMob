@@ -1,10 +1,12 @@
 <ion-modal id="custom-modal" [isOpen]="isModalOpen" (willDismiss)="closeModal()" [trigger]="trigger">
   <ng-template>
-    <div class="option-box" id="optionBox">
-      <div class="select-option" *ngFor="let option of optionsCheck; index as i" (click)="triggerCheck(option, i)">
-        <div class="select-value">{{ option.value }}</div>
-        <div class="select-icon"><ion-checkbox [checked]="option.checked"></ion-checkbox></div>
+    <div class="option-box" id="optionBox" *ngIf="_options.length !== 0">
+      <div class="select-option animate__animated animate__slideInRight" *ngFor="let option of _options; index as i" (click)="choose(option)">
+        <div class="select-value" [innerHTML]="option"></div>
       </div>
+    </div>
+    <div class="no-options" *ngIf="_options.length === 0">
+      {{ noOptionsText }}
     </div>
   </ng-template>
 </ion-modal>

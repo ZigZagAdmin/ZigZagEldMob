@@ -169,8 +169,6 @@ export class BluetoothService {
 
   async connectToDevice(macAddress: string = 'FC:29:99:B8:78:0E') {
     try {
-      // await BleClient.requestLEScan({}, () => {});
-      // await this.listAvailableDevices();
       await BleClient.connect(macAddress);
       console.log('Connected macAdrress: ', macAddress);
       this.deviceConnectionStatus.next(true);

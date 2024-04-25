@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { NavController } from '@ionic/angular';
 import { Vehicle } from 'src/app/models/vehicle';
@@ -15,7 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DashboardService } from 'src/app/services/dashboard.service';
 import { Company } from 'src/app/models/company';
 import { TranslateService } from '@ngx-translate/core';
-import { BleClient } from '@capacitor-community/bluetooth-le';
+import { BleClient, ScanResult } from '@capacitor-community/bluetooth-le';
 
 @Component({
   selector: 'app-connect-mac',
@@ -51,7 +51,8 @@ export class ConnectMacPage implements OnInit, OnDestroy {
     private storage: Storage,
     private route: ActivatedRoute,
     private dashboardService: DashboardService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -138,7 +139,11 @@ export class ConnectMacPage implements OnInit, OnDestroy {
       if (!this.utilityService.validateForm(this.validation)) return;
     }
     if (Capacitor.getPlatform() !== 'web') {
-      await this.bluetoothService.initialize();
+      try {
+        await this.bluetoothService.initialize();
+      } catch (e) {
+        console.error(e);
+      }
       this.loading = true;
       await this.bluetoothService.connectToDevice(macAddress).then(async res => {
         console.log('connection result: ', res);
@@ -188,10 +193,81 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   async openScanner() {
+    if (Capacitor.getPlatform() !== 'web') {
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        let confirmation = confirm(this.translate.instant('Bluetooth service is turned off.\nProceed to settings?'));
+        if (confirmation) {
+          if (Capacitor.getPlatform() === 'android') {
+            await this.bluetoothService.goToBluetoothServiceSettings();
+          } else {
+            alert(this.translate.instant('Go to Settings -> Bluetooth in order to enable the bluetooth service.'));
+          }
+        } else {
+          alert(this.translate.instant('In order to connect to a device, you to turn on the bluetooth service'));
+          return;
+        }
+      }
+      try {
+        await this.bluetoothService.requestBluetoothPermission();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    let deviceQueue: ScanResult[] = [];
+    let timeout = 1;
     this.isScanModalOpen = true;
+    try {
+      await this.bluetoothService.initialize();
+    } catch (e) {
+      console.error(e);
+    }
     await BleClient.requestLEScan({ allowDuplicates: false }, res => {
-      console.log(res);
-      this.availableDevices.push(res.device.name + ' - ' + res.device.deviceId);
+      deviceQueue.push(res);
+      timeout = (deviceQueue.length - 1) * 100;
+      setTimeout(() => {
+        this.availableDevices.unshift(
+          `<div class="value-block"><div class="value-block-title">${res.device.name ? res.device.name : 'Generic device'}</div><div class="value-block-subtitle">MAC/UUID: ${
+            res.device.deviceId
+          }</div></div>`
+        );
+        this.changeDetectorRef.detectChanges();
+        setTimeout(() => (timeout = 100), 4000);
+      }, timeout);
+      console.log(this.availableDevices);
     });
+  }
+
+  async connectToSelectedScannedDevice(value: string) {
+    this.isScanModalOpen = false;
+    await BleClient.stopLEScan();
+    const regex2 = /MAC\/UUID:\s*([\w:]+)/g;
+    let macAddress = regex2.exec(value)[1];
+    this.loading = true;
+    this.changeDetectorRef.detectChanges();
+    await this.bluetoothService.connectToDevice(macAddress).then(async res => {
+      if (res) {
+        this.loading = false;
+        this.changeDetectorRef.detectChanges();
+        this.toastService.showToast(this.translate.instant('Device successfully connected'), 'success');
+        await this.bluetoothService.subscribeToDeviceData(macAddress);
+        await this.storage.set('lastConnectedELD', macAddress);
+        await this.uploadEld(macAddress);
+        this.navigateToHos();
+      } else {
+        this.loading = false;
+        this.changeDetectorRef.detectChanges();
+        this.toastService.showToast(this.translate.instant('Could not connect to') + ' ' + macAddress);
+      }
+    });
+    this.availableDevices = [];
+  }
+
+  async resetScan() {
+    this.isScanModalOpen = false;
+    await BleClient.stopLEScan();
+    setTimeout((): void => {
+      this.availableDevices = [];
+      return;
+    }, 500);
   }
 }
