@@ -239,7 +239,7 @@ export class LoginPage implements OnInit, OnDestroy {
     // }
     console.log(this.firstLogin);
     if (!this.firstLogin) {
-      alert('We need location access in order to create automatic activity logs for the LogBook!');
+      alert('Location and background location access is required for:\n1.Tracking your position in order to create accurate logs for the Logbook;\n2.Providing the same accurate level of log creation when the app is used in background (partially or completely closed);\nThe app does not use location for ads or other purposes, only Logbook related work.');
       await this.locationService.requestPermission('pass');
     }
     return (await this.locationService.isLocationPermissionGranted()).status;
