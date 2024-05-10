@@ -25,6 +25,7 @@ import { GeolocationService } from 'src/app/services/geolocation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CarSimulatorService } from 'src/app/services/car-simulator.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { App } from '@capacitor/app';
 
 interface BannerInfo {
   show: boolean;
@@ -517,50 +518,112 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   async checkLocation() {
     if (!(await this.locationService.isLocationServiceAvailable())) {
-      if (Capacitor.getPlatform() === 'android') {
-        await this.locationService.goToLocationServiceSettings();
-      } else {
-        alert('Go to Settings -> Location Services to enable the location service.');
-      }
-      return;
-    }
-    if (Capacitor.getPlatform() === 'android' || (Capacitor.getPlatform() === 'ios' && (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() === 'NOT_REQUESTED')) {
-      await this.locationService.requestPermission('no');
-    } else if (Capacitor.getPlatform() === 'ios') {
-      let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
+      let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
       if (state) {
-        await NativeSettings.open({
-          optionAndroid: AndroidSettings.ApplicationDetails,
-          optionIOS: IOSSettings.App,
-        });
+        await this.openLocationSettingsAndAwaitReturn();
       }
     }
+    await this.platform.ready().then(async (res) => {
+      if (
+        Capacitor.getPlatform() === 'android' ||
+        (Capacitor.getPlatform() === 'ios' &&
+          ((await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() === 'NOT_REQUESTED' ||
+            (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() === 'NOT_DETERMINED'))
+      ) {
+        await this.locationService.requestPermission('no');
+      } else if ((await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() === 'DENIED_ALWAYS') {
+        let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
+        if (state) {
+          await NativeSettings.open({
+            optionAndroid: AndroidSettings.ApplicationDetails,
+            optionIOS: IOSSettings.App,
+          });
+        }
+      }
+    });
+  }
+
+  async openLocationSettingsAndAwaitReturn() {
+    await NativeSettings.open({
+      optionAndroid: AndroidSettings.Location,
+      optionIOS: IOSSettings.LocationServices,
+    });
+  
+    await new Promise<void>(resolve => {
+      App.addListener('appStateChange', (state) => {
+        if (state.isActive) {
+          resolve();
+        }
+      });
+    });
   }
 
   async checkBluetooth() {
     if (Capacitor.getPlatform() !== 'web') {
-      if (!(await this.bluetoothService.getBluetoothState())) {
-        if (Capacitor.getPlatform() === 'android') {
-          let confirmation = confirm('Bluetooth service is turned off.\nProceed to settings?');
-          if (confirmation) {
-            await this.bluetoothService.goToBluetoothServiceSettings();
-          } else {
-            alert('Go to Settings -> Bluetooth in order to enable the bluetooth service.');
-          }
+      if (
+        (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'DENIED_ALWAYS' ||
+        (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'DENIED_ONCE'
+      ) {
+        let confirmation = confirm(this.translate.instant('Bluetooth permission is required for connection to eld.\nProceed to settings?'));
+        if (confirmation) {
+          await this.openSettingsAndAwaitReturn();
+          return;
         } else {
-          alert('In order to connect to a device, you have to turn on the Bluetooth Service.');
+          alert(this.translate.instant('In order to connect to a device, you to give bluetooth permission!'));
+          return;
+        }
+      } else if ((await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'NOT_REQUESTED') {
+        try {
+          await this.bluetoothService.requestBluetoothPermission();
+        } catch (e) {
+          console.error(e);
           return;
         }
       }
-      try {
-        await this.bluetoothService.requestBluetoothPermission();
-      } catch (e) {
-        console.error(e);
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        let confirmation = confirm(this.translate.instant('Bluetooth service has to be turned on to connect to eld.\nProceed to settings?'));
+        if (confirmation) {
+          await this.openServiceSettingsAndAwaitReturn();
+          return;
+        } else {
+          alert(this.translate.instant('In order to connect to a device, you to give bluetooth permission!'));
+          return;
+        }
       }
     }
     if (!this.deviceConStatus && this.bluetoothStatus) {
       this.goToConnectPage();
     }
+  }
+
+  async openServiceSettingsAndAwaitReturn() {
+    await NativeSettings.open({
+      optionAndroid: AndroidSettings.Bluetooth,
+      optionIOS: IOSSettings.Bluetooth,
+    });
+
+    await new Promise<void>(resolve => {
+      App.addListener('appStateChange', state => {
+        if (state.isActive) {
+          resolve();
+        }
+      });
+    });
+  }
+
+  async openSettingsAndAwaitReturn() {
+    await NativeSettings.open({
+      optionAndroid: AndroidSettings.ApplicationDetails,
+      optionIOS: IOSSettings.App,
+    });
+
+    await new Promise<void>(resolve => {
+      App.addListener('appStateChange', state => {
+        if (state.isActive) {
+          resolve();
+        }
+      });
+    });
   }
 
   toggleMode() {

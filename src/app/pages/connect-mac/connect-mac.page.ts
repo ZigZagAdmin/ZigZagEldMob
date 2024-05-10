@@ -16,6 +16,8 @@ import { DashboardService } from 'src/app/services/dashboard.service';
 import { Company } from 'src/app/models/company';
 import { TranslateService } from '@ngx-translate/core';
 import { BleClient, ScanResult } from '@capacitor-community/bluetooth-le';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-connect-mac',
@@ -40,6 +42,10 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   backUrl: string = '';
   firstLogin: boolean = false;
   availableDevices: string[] = [];
+  scanModalId = '';
+  scanModalIdValue = 'scan-modal-trigger';
+  deviceQueue: ScanResult[] = [];
+  activeTimeouts: any = [];
 
   constructor(
     private navCtrl: NavController,
@@ -114,24 +120,37 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   async connect(macAddress: string, checkForForm: boolean = true) {
+    console.log('SOMETHING', await this.bluetoothService.getBluetoothState());
     if (Capacitor.getPlatform() !== 'web') {
-      if (!(await this.bluetoothService.getBluetoothState())) {
-        let confirmation = confirm(this.translate.instant('Bluetooth service is turned off.\nProceed to settings?'));
+      if (
+        (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'DENIED_ALWAYS' ||
+        (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'DENIED_ONCE'
+      ) {
+        let confirmation = confirm(this.translate.instant('Bluetooth permission is required for connection to eld.\nProceed to settings?'));
         if (confirmation) {
-          if (Capacitor.getPlatform() === 'android') {
-            await this.bluetoothService.goToBluetoothServiceSettings();
-          } else {
-            alert(this.translate.instant('Go to Settings -> Bluetooth in order to enable the bluetooth service.'));
-          }
+          await this.openSettingsAndAwaitReturn();
+          return;
         } else {
-          alert(this.translate.instant('In order to connect to a device, you to turn on the bluetooth service'));
+          alert(this.translate.instant('In order to connect to a device, you to give bluetooth permission!'));
+          return;
+        }
+      } else if ((await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'NOT_REQUESTED') {
+        try {
+          await this.bluetoothService.requestBluetoothPermission();
+        } catch (e) {
+          console.error(e);
           return;
         }
       }
-      try {
-        await this.bluetoothService.requestBluetoothPermission();
-      } catch (e) {
-        console.error(e);
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        let confirmation = confirm(this.translate.instant('Bluetooth service has to be turned on to connect to eld.\nProceed to settings?'));
+        if (confirmation) {
+          await this.openServiceSettingsAndAwaitReturn();
+          return;
+        } else {
+          alert(this.translate.instant('In order to connect to a device, you to give bluetooth permission!'));
+          return;
+        }
       }
     }
     if (checkForForm) {
@@ -156,10 +175,41 @@ export class ConnectMacPage implements OnInit, OnDestroy {
           this.navigateToHos();
         } else {
           this.loading = false;
+          await this.storage.set('lastConnectedELD', '');
           this.toastService.showToast(this.translate.instant('Could not connect to') + ' ' + macAddress);
         }
       });
     }
+  }
+
+  async openServiceSettingsAndAwaitReturn() {
+    await NativeSettings.open({
+      optionAndroid: AndroidSettings.Bluetooth,
+      optionIOS: IOSSettings.Bluetooth,
+    });
+
+    await new Promise<void>(resolve => {
+      App.addListener('appStateChange', state => {
+        if (state.isActive) {
+          resolve();
+        }
+      });
+    });
+  }
+
+  async openSettingsAndAwaitReturn() {
+    await NativeSettings.open({
+      optionAndroid: AndroidSettings.ApplicationDetails,
+      optionIOS: IOSSettings.App,
+    });
+
+    await new Promise<void>(resolve => {
+      App.addListener('appStateChange', state => {
+        if (state.isActive) {
+          resolve();
+        }
+      });
+    });
   }
 
   async uploadEld(macAddress: string) {
@@ -193,54 +243,70 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   }
 
   async openScanner() {
+    console.log('SOMETHING1', await this.bluetoothService.getBluetoothState());
+    console.log('sdasdas: ', (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase());
     if (Capacitor.getPlatform() !== 'web') {
-      if (!(await this.bluetoothService.getBluetoothState())) {
-        let confirmation = confirm(this.translate.instant('Bluetooth service is turned off.\nProceed to settings?'));
+      if (
+        (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'DENIED_ALWAYS' ||
+        (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'DENIED_ONCE'
+      ) {
+        let confirmation = confirm(this.translate.instant('Bluetooth permission is required for connection to eld.\nProceed to settings?'));
         if (confirmation) {
-          if (Capacitor.getPlatform() === 'android') {
-            await this.bluetoothService.goToBluetoothServiceSettings();
-          } else {
-            alert(this.translate.instant('Go to Settings -> Bluetooth in order to enable the bluetooth service.'));
-          }
+          await this.openSettingsAndAwaitReturn();
+          return;
         } else {
-          alert(this.translate.instant('In order to connect to a device, you to turn on the bluetooth service'));
+          alert(this.translate.instant('In order to connect to a device, you to give bluetooth permission!'));
+          return;
+        }
+      } else if ((await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'NOT_REQUESTED') {
+        try {
+          await this.bluetoothService.requestBluetoothPermission();
+        } catch (e) {
+          console.error(e);
           return;
         }
       }
+      if (!(await this.bluetoothService.getBluetoothState())) {
+        let confirmation = confirm(this.translate.instant('Bluetooth service has to be turned on to connect to eld.\nProceed to settings?'));
+        if (confirmation) {
+          await this.openServiceSettingsAndAwaitReturn();
+          return;
+        } else {
+          alert(this.translate.instant('In order to connect to a device, you to give bluetooth permission!'));
+          return;
+        }
+      }
+    }
+    if ((await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'AUTHORIZED' || (await this.bluetoothService.getBluetoothAuthorizationStatus()).value.toUpperCase() === 'GRANTED') {
+      this.deviceQueue = [];
+      let timeout = 1;
+      this.isScanModalOpen = true;
+      this.scanModalId = this.scanModalIdValue;
       try {
-        await this.bluetoothService.requestBluetoothPermission();
+        await this.bluetoothService.initialize();
       } catch (e) {
         console.error(e);
       }
+      await BleClient.requestLEScan({ allowDuplicates: false }, res => {
+        this.deviceQueue.push(res);
+        timeout = (this.deviceQueue.length - 1) * 500;
+        let localTimeout = setTimeout(() => {
+          this.availableDevices.unshift(
+            `<div class="value-block"><div class="value-block-title">${res.device.name ? res.device.name : 'Generic device'}</div><div class="value-block-subtitle">MAC/UUID: ${
+              res.device.deviceId
+            }</div></div>`
+          );
+          this.changeDetectorRef.detectChanges();
+        }, timeout);
+        this.activeTimeouts.push(localTimeout);
+      });
     }
-    let deviceQueue: ScanResult[] = [];
-    let timeout = 1;
-    this.isScanModalOpen = true;
-    try {
-      await this.bluetoothService.initialize();
-    } catch (e) {
-      console.error(e);
-    }
-    await BleClient.requestLEScan({ allowDuplicates: false }, res => {
-      deviceQueue.push(res);
-      timeout = (deviceQueue.length - 1) * 100;
-      setTimeout(() => {
-        this.availableDevices.unshift(
-          `<div class="value-block"><div class="value-block-title">${res.device.name ? res.device.name : 'Generic device'}</div><div class="value-block-subtitle">MAC/UUID: ${
-            res.device.deviceId
-          }</div></div>`
-        );
-        this.changeDetectorRef.detectChanges();
-        setTimeout(() => (timeout = 100), 4000);
-      }, timeout);
-      console.log(this.availableDevices);
-    });
   }
 
   async connectToSelectedScannedDevice(value: string) {
     this.isScanModalOpen = false;
     await BleClient.stopLEScan();
-    const regex2 = /MAC\/UUID:\s*([\w:]+)/g;
+    const regex2 = /MAC\/UUID:\s*([\w:-]+)/g;
     let macAddress = regex2.exec(value)[1];
     this.loading = true;
     this.changeDetectorRef.detectChanges();
@@ -255,6 +321,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         this.navigateToHos();
       } else {
         this.loading = false;
+        await this.storage.set('lastConnectedELD', '');
         this.changeDetectorRef.detectChanges();
         this.toastService.showToast(this.translate.instant('Could not connect to') + ' ' + macAddress);
       }
@@ -265,8 +332,11 @@ export class ConnectMacPage implements OnInit, OnDestroy {
   async resetScan() {
     this.isScanModalOpen = false;
     await BleClient.stopLEScan();
+    this.activeTimeouts.forEach((el: any) => clearTimeout(el));
+    this.deviceQueue = [];
     setTimeout((): void => {
       this.availableDevices = [];
+      this.changeDetectorRef.detectChanges();
       return;
     }, 500);
   }

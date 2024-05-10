@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { GeolocationService } from './geolocation.service';
 import { Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Capacitor } from '@capacitor/core';
 
 declare let cordova: any;
 
@@ -132,7 +133,7 @@ export class LocationService {
       this.platform.ready().then(() => {
         cordova.plugins.diagnostic.isLocationEnabled(
           (enabled: any) => {
-            console.log('isLocationServiceAvailable: ', enabled)
+            console.log('isLocationServiceAvailable: ', enabled);
             resolve(enabled);
           },
           (error: any) => {
@@ -164,7 +165,7 @@ export class LocationService {
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
                 status = false;
                 this.locationStatusSubject.next(false);
-                if (pass !== 'pass') {
+                if (Capacitor.getPlatform() === 'android') {
                   let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
                   if (state) {
                     await NativeSettings.open({

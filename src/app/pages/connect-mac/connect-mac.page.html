@@ -28,7 +28,7 @@
     <button class="btn secondary-btn custom-button2" (click)="navigateToHos()">{{'Continue disconnected' | translate}}</button>
   </div>
   <app-choose-menu
-    [trigger]="'scan-modal-trigger'"
+    [trigger]="scanModalId"
     [isModalOpen]="isScanModalOpen"
     [options]="availableDevices"
     [noOptionsText]="'Scanning for devices...'"

@@ -29,6 +29,7 @@ import { Network } from '@capacitor/network';
 import { TranslateService } from '@ngx-translate/core';
 import { Device } from '@capacitor/device';
 import { App } from '@capacitor/app';
+import { Keyboard } from '@capacitor/keyboard';
 
 @Component({
   selector: 'app-login',
@@ -94,9 +95,9 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async login(username: string, password: string) {
-    // if (Capacitor.getPlatform() !== 'web') {
-    //   Keyboard.hide();
-    // }
+    if (Capacitor.getPlatform() === 'ios') {
+      Keyboard.hide();
+    }
     let networkStatus = await Network.getStatus();
     if (!networkStatus.connected) {
       this.toastService.showToast(this.translate.instant("You cannot login while you're offline!"));
@@ -224,22 +225,16 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async checkLocation() {
-    // if (!(await this.locationService.isLocationServiceAvailable())) {
-    //   let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
-    //   if (state) {
-    //     if (Capacitor.getPlatform() === 'android') {
-    //       await this.locationService.goToLocationServiceSettings();
-    //     } else {
-    //       alert(this.translate.instant('Go to Settings -> Location Services to enable the location service.'));
-    //     }
-    //   } else {
-    //     alert(this.translate.instant('You have to turn on the location service in order to continue.'));
-    //     return false;
-    //   }
-    // }
-    console.log(this.firstLogin);
-    if (!this.firstLogin) {
+    console.log('SOME: ', !this.firstLogin);
+    if (!(await this.locationService.isLocationServiceAvailable())) {
+      let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
+      if (state) {
+        await this.locationService.goToLocationServiceSettings();
+      }
+    }
+    if (!this.firstLogin && (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'DENIED_ALWAYS') {
       alert('Location and background location access is required for:\n1.Tracking your position in order to create accurate logs for the Logbook;\n2.Providing the same accurate level of log creation when the app is used in background (partially or completely closed);\nThe app does not use location for ads or other purposes, only Logbook related work.');
+      localStorage.setItem('firstLogin', String(this.firstLogin));
       await this.locationService.requestPermission('pass');
     }
     return (await this.locationService.isLocationPermissionGranted()).status;
