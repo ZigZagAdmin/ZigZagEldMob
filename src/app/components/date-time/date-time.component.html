@@ -9,7 +9,7 @@
     [ngClass]="{ 'input-fill': fill, 'validation-error': !valid, 'input-left': labelPosition === 'left', 'disable-form': disabled, 'disable-input-opacity': showDisabled }">
     <div class="input-box-value">{{ displayValue }}</div>
   </div>
-  <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="id">
+  <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="id" (willDismiss)="closeModal()">
     <ng-template>
       <ion-datetime
         (ionChange)="selectDate($event)"

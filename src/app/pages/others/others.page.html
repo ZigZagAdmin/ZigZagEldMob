@@ -43,7 +43,7 @@
       </div>
     </div>
   </div>
-  <ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-log-out-modal">
+  <ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-log-out-modal" (willDismiss)="closeModal()">
     <ng-template>
       <div class="modal-box">
         <div class="modal-title">{{ (isForbidden(lastStatusCode) ? 'Unable to log out' : 'Log Out') | translate }}</div>

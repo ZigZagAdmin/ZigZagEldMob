@@ -135,8 +135,8 @@ export class InspectionPreviewPage implements OnInit {
         if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd);
         else sDateEnd = new Date().getTime();
 
-        dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
-        dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+        dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+        dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
 
         if (
           formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]) <=

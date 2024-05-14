@@ -213,8 +213,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
         if (event.eventTime.timeStampEnd) sDateEnd = new Date(event.eventTime.timeStampEnd);
         else sDateEnd = new Date().getTime();
 
-        dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
-        dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+        dateBgn = new Date(formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+        dateEnd = new Date(formatDate(new Date(sDateEnd), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
 
         if (
           formatDate(new Date(event.eventTime.timeStamp), 'yyyy-MM-dd', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]) <=
@@ -838,7 +838,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     try {
       const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
       let index = this.logEvents.findIndex(el => el.eventTime.timeStamp > violation.startTime && allSt.includes(el.type.code));
-      let start = new Date(formatDate(new Date(violation.startTime), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      let start = new Date(formatDate(new Date(violation.startTime), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
       let end;
       let sEnd;
       let begin;
@@ -846,7 +846,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
       // console.log(this.logEvents[index]);
       if (this.logEvents[index]?.eventTime?.timeStamp) end = new Date(this.logEvents[index].eventTime.timeStamp);
       else end = new Date();
-      sEnd = new Date(formatDate(new Date(end), 'yyyy-MM-dd HH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      sEnd = new Date(formatDate(new Date(end), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
       if (formatDate(start, 'yyyy/MM/dd', 'en_US') === formatDate(this.currentDay, 'yyyy/MM/dd', 'en_US')) {
         begin = start.getHours() * 60 + start.getMinutes();
       } else {

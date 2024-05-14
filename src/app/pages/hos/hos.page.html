@@ -1,4 +1,4 @@
-<ion-content [forceOverscroll]="false">
+<ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <div class="hos-wrapper" [ngClass]="{'hide-el': pageLoading}">
     <div class="hos-header">
       <div class="service" [ngClass]="{'service-on': locationStatus, 'service-off': !locationStatus}" (click)="checkLocation()">
@@ -228,7 +228,7 @@
         </div>
       </div>
     </div>
-    <ion-modal [isOpen]="isModalOpen" trigger="trigger-status">
+    <ion-modal [isOpen]="isModalOpen" trigger="trigger-status" (willDismiss)="cancel()">
       <ng-template>
         <ion-content [forceOverscroll]="false">
           <app-header [title]="'Select Duty Status' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>

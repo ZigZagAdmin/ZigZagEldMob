@@ -1609,4 +1609,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     let value = document.getElementsByClassName(id).length > 0;
     return value;
   }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
+  }
 }

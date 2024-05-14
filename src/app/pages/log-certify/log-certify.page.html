@@ -35,7 +35,7 @@
       </div>
     </div>
   </div>
-  <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="enableModalTrigger ? 'certify-modal-trigger' : undefined">
+  <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="enableModalTrigger ? 'certify-modal-trigger' : undefined" (willDismiss)="closeModal()">
     <ng-template>
       <div class="modal-box">
         <div class="modal-title">{{'Would you like to sign the other days?' | translate}}</div>
