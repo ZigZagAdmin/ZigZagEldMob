@@ -30,6 +30,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Device } from '@capacitor/device';
 import { App } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 
 @Component({
   selector: 'app-login',
@@ -110,6 +111,8 @@ export class LoginPage implements OnInit, OnDestroy {
     if (Capacitor.getPlatform() !== 'web') {
       await this.checkLocation();
     }
+
+    console.log('CAME HERE');
 
     this.loading = true;
     let deviceModel = { model: '', operatingSystem: '', osVersion: '' };
@@ -226,18 +229,44 @@ export class LoginPage implements OnInit, OnDestroy {
 
   async checkLocation() {
     console.log('SOME: ', !this.firstLogin);
+    console.log('errr:', (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase());
     if (!(await this.locationService.isLocationServiceAvailable())) {
       let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
       if (state) {
-        await this.locationService.goToLocationServiceSettings();
+        await this.openLocationSettingsAndAwaitReturn();
       }
     }
-    if (!this.firstLogin && (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'DENIED_ALWAYS') {
-      alert('Location and background location access is required for:\n1.Tracking your position in order to create accurate logs for the Logbook;\n2.Providing the same accurate level of log creation when the app is used in background (partially or completely closed);\nThe app does not use location for ads or other purposes, only Logbook related work.');
+    console.log('errr2:', (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase());
+    if (
+      !this.firstLogin &&
+      (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'DENIED_ALWAYS' &&
+      (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'DENIED_ONCE'
+    ) {
+      alert(
+        'Location and background location access is required for:\n1.Tracking your position in order to create accurate logs for the Logbook;\n2.Providing the same accurate level of log creation when the app is used in background (partially or completely closed);\nThe app does not use location for ads or other purposes, only Logbook related work.'
+      );
       localStorage.setItem('firstLogin', String(this.firstLogin));
       await this.locationService.requestPermission('pass');
     }
+    console.log('AFTER RETURN');
     return (await this.locationService.isLocationPermissionGranted()).status;
+  }
+
+  async openLocationSettingsAndAwaitReturn() {
+    await NativeSettings.open({
+      optionAndroid: AndroidSettings.Location,
+      optionIOS: IOSSettings.LocationServices,
+    });
+
+    if (Capacitor.getPlatform() === 'ios') {
+      await new Promise<void>(resolve => {
+        App.addListener('appStateChange', state => {
+          if (state.isActive) {
+            resolve();
+          }
+        });
+      });
+    }
   }
 
   private saveAuthUser(authUser: AuthUser): Observable<any> {

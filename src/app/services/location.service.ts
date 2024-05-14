@@ -165,7 +165,7 @@ export class LocationService {
               case cordova.plugins.diagnostic.permissionStatus.DENIED_ALWAYS:
                 status = false;
                 this.locationStatusSubject.next(false);
-                if (Capacitor.getPlatform() === 'android') {
+                if (Capacitor.getPlatform() === 'android' && pass !== 'pass') {
                   let state = confirm(this.translate.instant('You need to give access to your location.\nProceed to settings?'));
                   if (state) {
                     await NativeSettings.open({

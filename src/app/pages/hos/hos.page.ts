@@ -521,9 +521,11 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
       if (state) {
         await this.openLocationSettingsAndAwaitReturn();
+        return;
       }
     }
-    await this.platform.ready().then(async (res) => {
+    console.log('SOMETHING: ', (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase());
+    await this.platform.ready().then(async res => {
       if (
         Capacitor.getPlatform() === 'android' ||
         (Capacitor.getPlatform() === 'ios' &&
@@ -548,9 +550,9 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       optionAndroid: AndroidSettings.Location,
       optionIOS: IOSSettings.LocationServices,
     });
-  
+
     await new Promise<void>(resolve => {
-      App.addListener('appStateChange', (state) => {
+      App.addListener('appStateChange', state => {
         if (state.isActive) {
           resolve();
         }
