@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
@@ -99,6 +99,7 @@ export class LogItemDailyComponent implements OnInit {
   };
 
   pageLoading: boolean = false;
+  oldNetworkState: boolean = null;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -112,25 +113,18 @@ export class LogItemDailyComponent implements OnInit {
     private utilityService: UtilityService,
     private shareService: ShareService,
     private manageService: ManageService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private ngZone: NgZone
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    this.pageLoading = true;
     this.shareService.destroyMessage();
     this.shareService.changeMessage('reset');
     this.timeZones = this.utilityService.checkSeason();
-    this.networkSub = this.internetService.interetStatusObs.subscribe(async state => {
-      if (state) {
-        this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
-        if (this.LogDailiesId) {
-          this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-        }
-      }
+    await firstValueFrom(this.activatedRoute.params).then(params => {
+      this.LogDailiesId = params['id'];
     });
-  }
-
-  async ionViewWillEnter() {
-    this.pageLoading = true;
     this.shareService.destroyMessage();
     this.shareService.changeMessage('reset');
     this.clearRect();
@@ -138,34 +132,36 @@ export class LogItemDailyComponent implements OnInit {
     this.driverId = await this.storage.get('driverId');
     this.vehicleUnit = await this.storage.get('vehicleUnit');
     this.timeZone = await this.storage.get('timeZone');
-    this.activatedRoute.params.subscribe(params => {
-      this.LogDailiesId = params['id'];
-    });
-
-    this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
-      if (ready) {
-        this.bReady = ready;
-
-        const logDailies$ = this.databaseService.getLogDailies();
-        const logEvents$ = this.databaseService.getLogEvents();
-
-        forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
-          this.logDailies = logDailies;
-          this.logEvents = logEvents;
-          this.logEvents.forEach(logEvent => (logEvent.type.code !== 'LOGIN' && logEvent.type.code !== 'LOGOUT' ? this.statusEvents.push(logEvent) : null));
-
-          if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
-
+    this.networkSub = this.internetService.interetStatusObs.subscribe(async state => {
+      if (state && state !== this.oldNetworkState) {
+        this.logDailies = await firstValueFrom(this.databaseService.getLogDailies());
+        if (this.LogDailiesId) {
           this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
-          if (this.logDaily) {
-            this.currentDay = this.logDaily.logDate;
-            this.fillFormWithLogDailyData();
-          }
-          this.drawGraph();
-          this.fillFormWithLogDailyData();
-          this.pageLoading = false;
-        });
+        }
+        this.oldNetworkState = state;
       }
+    });
+  }
+
+  async ionViewDidEnter() {
+    const logDailies$ = this.databaseService.getLogDailies();
+    const logEvents$ = this.databaseService.getLogEvents();
+
+    forkJoin([logDailies$, logEvents$]).subscribe(([logDailies, logEvents]) => {
+      this.logDailies = logDailies;
+      this.logEvents = logEvents;
+      this.logEvents.forEach(logEvent => (logEvent.type.code !== 'LOGIN' && logEvent.type.code !== 'LOGOUT' ? this.statusEvents.push(logEvent) : null));
+
+      if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
+
+      this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
+      if (this.logDaily) {
+        this.currentDay = this.logDaily.logDate;
+        this.fillFormWithLogDailyData();
+      }
+      this.drawGraph();
+      this.fillFormWithLogDailyData();
+      this.pageLoading = false;
     });
   }
 

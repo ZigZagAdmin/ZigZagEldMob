@@ -68,28 +68,31 @@ export class InspectionPreviewPage implements OnInit {
 
   async ngOnInit() {
     this.pageLoading = true;
+    this.timeZone = await this.storage.get('timeZone');
     this.timeZones = this.utilityService.checkSeason();
-    let queryParams$ = firstValueFrom(this.route.queryParams);
+    await firstValueFrom(this.route.queryParams).then((queryParams) => {
+      this.backUrl = queryParams['url'];
+      this.LogDailiesId = queryParams['logId'];
+      this.previousPage = queryParams['page'];
+    });
+    this.company = await firstValueFrom(this.databaseService.getCompany()); 
+  }
+
+  async ionViewDidEnter() {
     let vehicles$ = firstValueFrom(this.databaseService.getVehicles());
     let drivers$ = firstValueFrom(this.databaseService.getDrivers());
     let logDailies$ = firstValueFrom(this.databaseService.getLogDailies());
     let logEvents$ = firstValueFrom(this.databaseService.getLogEvents());
     let elds$ = firstValueFrom(this.databaseService.getELDs());
-    let company$ = firstValueFrom(this.databaseService.getCompany());
-    let timeZone$ = this.storage.get('timeZone');
+    
 
-    forkJoin([queryParams$, vehicles$, drivers$, logDailies$, logEvents$, elds$, timeZone$, company$]).subscribe(([queryParams, vehicles, drivers, logDailies, logEvents, elds, timeZone, company]) => {
-      this.backUrl = queryParams['url'];
-      this.LogDailiesId = queryParams['logId'];
-      this.previousPage = queryParams['page'];
+    forkJoin([vehicles$, drivers$, logDailies$, logEvents$, elds$]).subscribe(([vehicles, drivers, logDailies, logEvents, elds]) => {
       this.vehicle = vehicles[0];
       this.driver = drivers[0];
-      this.timeZone = timeZone;
       this.eld = elds.find(eld => eld.vehicleId === this.vehicle.vehicleId);
       this.logDailies = logDailies.slice(0, 8);
       this.logDaily = this.logDailies.find(item => item.logDailyId === this.LogDailiesId);
       this.logEvents = logEvents;
-      this.company = company;
       this.drawGraph();
       this.pageLoading = false;
     });

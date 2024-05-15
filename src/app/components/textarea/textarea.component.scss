@@ -23,6 +23,9 @@
   color: var(--gray-500) !important;
   background-color: var(--all-background);
   border: 1px solid var(--gray-200);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .input-box:focus {
