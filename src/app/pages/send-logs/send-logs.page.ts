@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { NavController } from '@ionic/angular';
 import { ShareService } from 'src/app/services/share.service';
 import { UtilityService } from 'src/app/services/utility.service';
@@ -50,5 +51,9 @@ export class SendLogsPage implements OnInit, OnDestroy {
 
   goBack() {
     this.navCtrl.navigateBack('unitab/inspection');
+  }
+  
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

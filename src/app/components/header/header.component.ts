@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-header',
@@ -19,5 +20,9 @@ export class HeaderComponent implements OnInit {
 
   goBack() {
     this.backButtonCallback.emit();
+  }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

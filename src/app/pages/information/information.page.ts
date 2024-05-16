@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { NavController } from '@ionic/angular';
 
 @Component({
@@ -18,5 +19,8 @@ export class InformationPage implements OnInit {
   }
   goBack() {
     this.navCtrl.navigateBack('unitab/others');
+  }
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

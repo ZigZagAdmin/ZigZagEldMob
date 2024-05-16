@@ -13,6 +13,7 @@ import { ManageService } from 'src/app/services/manage.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ACCESS_TOKEN_KEY } from 'src/app/services/auth.service';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-others',
@@ -307,5 +308,8 @@ export class OthersPage implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

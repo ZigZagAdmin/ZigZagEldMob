@@ -4,6 +4,7 @@ import { LogDailies } from 'src/app/models/log-dailies';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-inspection',
@@ -45,5 +46,8 @@ export class InspectionPage implements OnInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

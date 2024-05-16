@@ -1,4 +1,7 @@
-<ion-content>
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" [forceOverscroll]="getPlatform() === 'ios' ? true : false">
   <app-header [title]="'Insert Dvir' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <form class="padding-g" style="padding-top: 10px">
     <div class="edit-form">

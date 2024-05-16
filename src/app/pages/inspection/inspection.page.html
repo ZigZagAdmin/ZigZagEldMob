@@ -1,4 +1,7 @@
-<ion-content [forceOverscroll]="false">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <app-header [title]="'DOT Inspection' | translate"></app-header>
   <div class="edit-form padding-g">
     <div class="flex-b">

@@ -1,4 +1,7 @@
-<ion-content [fullscreen]="true" [forceOverscroll]="false">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" [forceOverscroll]="getPlatform() === 'ios' ? true : false">
   <app-header [title]="'Certify' | translate" [backButton]="true" (backButtonCallback)="goBack()">
     <div class="date-label">{{logDate | date: 'EEEE' | translate}}, {{logDate | date: 'MMM' | translate}} {{logDate | date: 'd'}}</div>
   </app-header>

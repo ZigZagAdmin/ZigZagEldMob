@@ -340,4 +340,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
       return;
     }, 500);
   }
+  getPlatform() {
+    return Capacitor.getPlatform();
+  }
 }

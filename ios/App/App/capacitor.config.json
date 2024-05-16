@@ -2,8 +2,5 @@
 	"appId": "com.zigzag.eld",
 	"appName": "ZigZag ELD",
 	"webDir": "www",
-	"bundledWebRuntime": false,
-	"ios": {
-		"contentInset": "always"
-	}
+	"bundledWebRuntime": false
 }

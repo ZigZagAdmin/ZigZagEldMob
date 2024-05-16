@@ -315,3 +315,13 @@ p {
     font-weight: 400;
   }
 }
+
+ion-toolbar {
+  --height: 0px;
+  --min-height: 0px;
+  --max-height: 0px;
+  --background: var(--ion-background-color);
+  --border-color: transparent;
+  --opacity: 0.8;
+  --box-shadow: none !important;
+}

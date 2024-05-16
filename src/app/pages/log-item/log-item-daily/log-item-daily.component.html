@@ -1,4 +1,7 @@
-<ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <app-header [title]="'Log' | translate" [backButton]="true" (backButtonCallback)="goBack()">
     <div style="display: flex; gap: 10px">
       <div class="preview-container" (click)="nevigateToInspection()" *ngIf="canBeInspected()"><img src="../../../../assets/icons/header-eye.svg" /></div>

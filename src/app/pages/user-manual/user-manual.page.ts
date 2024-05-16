@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from 'src/app/services/toast.service';
@@ -22,5 +23,9 @@ export class UserManualPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('/information');
+  }
+  
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

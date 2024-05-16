@@ -7,6 +7,7 @@ import { InterService } from 'src/app/services/inter.service';
 import { TranslateService } from '@ngx-translate/core';
 import { UtilityService } from 'src/app/services/utility.service';
 import { Storage } from '@ionic/storage';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-dvir',
@@ -85,5 +86,9 @@ export class DvirPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.interSub.unsubscribe();
+  }
+  
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

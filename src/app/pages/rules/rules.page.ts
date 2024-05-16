@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { NavController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { Driver } from 'src/app/models/driver';
@@ -25,5 +26,8 @@ export class RulesPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('unitab/others');
+  }
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

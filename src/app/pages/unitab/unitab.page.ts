@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-unitab',
@@ -11,5 +12,9 @@ export class UnitabPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
+  }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

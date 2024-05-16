@@ -6,6 +6,7 @@ import { AnimationBuilder, NavController } from '@ionic/angular';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { Driver, IAssignedVehicle } from 'src/app/models/driver';
 import { Company } from 'src/app/models/company';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-select-vehicle',
@@ -94,5 +95,9 @@ export class SelectVehiclePage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('unitab/others');
+  }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

@@ -1,4 +1,7 @@
-<ion-content [fullscreen]="true" [forceOverscroll]="false">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" [forceOverscroll]="getPlatform() === 'ios' ? true : false">
   <app-header *ngIf="!pageLoading" [title]="'Edit Duty Status' | translate" [subtitle]="getCurrentDateFormat(logDaily?.logDate)" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
   <div class="padding-g" style="display: flex; flex-direction: column; gap: 20px" *ngIf="!pageLoading">

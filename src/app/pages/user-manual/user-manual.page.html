@@ -1,4 +1,7 @@
-<ion-content [fullscreen]="true" [forceOverscroll]="false">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" [forceOverscroll]="getPlatform() === 'ios' ? true : false">
   <app-header [title]="'ELD User Manual' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <div class="padding-g no-data" *ngIf="pdfError">No data.</div>
   <div class="general-container" *ngIf="!pdfError">

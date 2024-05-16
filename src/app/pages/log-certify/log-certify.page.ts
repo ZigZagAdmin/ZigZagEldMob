@@ -1,6 +1,7 @@
 import { formatDate } from '@angular/common';
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
@@ -358,5 +359,8 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
   imageLoaded() {
     this.imageLoading = false;
+  }
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

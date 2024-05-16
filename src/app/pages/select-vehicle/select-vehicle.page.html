@@ -1,4 +1,7 @@
-<ion-content [forceOverscroll]="false" [fullscreen]="true">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <app-header [title]="'Select Vehicle' | translate" [backButton]="showBackButton" (backButtonCallback)="goBack()"></app-header>
 
   <!-- <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">

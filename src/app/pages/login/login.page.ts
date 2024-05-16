@@ -51,7 +51,6 @@ export class LoginPage implements OnInit, OnDestroy {
   driverId: string = '';
   placesCity: PlacesCity[] = [];
   autoLogin: boolean = false;
-  firstLogin: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -68,8 +67,6 @@ export class LoginPage implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    let _firstLogin = localStorage.getItem('firstLogin');
-    if (_firstLogin && _firstLogin.length !== 0) this.firstLogin = Boolean(_firstLogin);
     this.placesCity = await this.storage.get('placesCity');
     await this.storage.get('autoLogin').then(async res => {
       if (res !== null && res !== undefined) {
@@ -111,8 +108,6 @@ export class LoginPage implements OnInit, OnDestroy {
     if (Capacitor.getPlatform() !== 'web') {
       await this.checkLocation();
     }
-
-    console.log('CAME HERE');
 
     this.loading = true;
     let deviceModel = { model: '', operatingSystem: '', osVersion: '' };
@@ -228,27 +223,23 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   async checkLocation() {
-    console.log('SOME: ', !this.firstLogin);
-    console.log('errr:', (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase());
     if (!(await this.locationService.isLocationServiceAvailable())) {
       let state = confirm(this.translate.instant('Looks like the location service is turned off.\nProceed to settings?'));
       if (state) {
         await this.openLocationSettingsAndAwaitReturn();
       }
     }
-    console.log('errr2:', (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase());
     if (
-      !this.firstLogin &&
       (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'DENIED_ALWAYS' &&
-      (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'DENIED_ONCE'
+      (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'DENIED_ONCE' &&
+      (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'AUTHORIZED' &&
+      (await this.locationService.isLocationPermissionGranted()).value.toLocaleUpperCase() !== 'AUTHORIZED_WHEN_IN_USE'
     ) {
       alert(
         'Location and background location access is required for:\n1.Tracking your position in order to create accurate logs for the Logbook;\n2.Providing the same accurate level of log creation when the app is used in background (partially or completely closed);\nThe app does not use location for ads or other purposes, only Logbook related work.'
       );
-      localStorage.setItem('firstLogin', String(this.firstLogin));
       await this.locationService.requestPermission('pass');
     }
-    console.log('AFTER RETURN');
     return (await this.locationService.isLocationPermissionGranted()).status;
   }
 
@@ -469,6 +460,10 @@ export class LoginPage implements OnInit, OnDestroy {
 
   getYearCopyright() {
     return new Date().getFullYear();
+  }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 
   forgotPassword() {}

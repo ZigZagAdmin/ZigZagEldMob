@@ -1,4 +1,7 @@
-<ion-content [forceOverscroll]="false" [fullscreen]="true">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <app-header [title]="'Connect to ELD' | translate" [subtitle]="('Vehicle Unit' | translate) + ': ' + vehicle?.vehicleUnit" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
 
   <div class="connect-wrapper padding-g">
@@ -33,7 +36,6 @@
     [options]="availableDevices"
     [noOptionsText]="'Scanning for devices...'"
     (selectedValue)="connectToSelectedScannedDevice($event)"
-    (closeCallback)="resetScan()"
-    ></app-choose-menu>
+    (closeCallback)="resetScan()"></app-choose-menu>
   <ion-loading [isOpen]="loading" [message]="'Connecting to device...' | translate" spinner="circles" [backdropDismiss]="false"></ion-loading>
 </ion-content>

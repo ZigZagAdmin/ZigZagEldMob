@@ -1,3 +1,6 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
 <ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <div class="hos-wrapper" [ngClass]="{'hide-el': pageLoading}">
     <div class="hos-header">
@@ -230,7 +233,10 @@
     </div>
     <ion-modal [isOpen]="isModalOpen" trigger="trigger-status" (willDismiss)="cancel()">
       <ng-template>
-        <ion-content [forceOverscroll]="false">
+        <ion-header class="ion-no-border">
+          <ion-toolbar></ion-toolbar>
+        </ion-header>
+        <ion-content [fullscreen]="true" [forceOverscroll]="getPlatform() === 'ios' ? true : false">
           <app-header [title]="'Select Duty Status' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
           <div class="modal-content">
             <app-duty-radio-button (selectedValue)="selectButton($event)" [currentValue]="selectedButton"></app-duty-radio-button>

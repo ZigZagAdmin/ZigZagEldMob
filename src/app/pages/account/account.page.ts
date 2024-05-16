@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { TranslateService } from '@ngx-translate/core';
@@ -57,5 +58,9 @@ export class AccountPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('unitab/others');
+  }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

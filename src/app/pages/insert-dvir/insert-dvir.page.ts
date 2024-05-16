@@ -339,4 +339,7 @@ export class InsertDvirPage implements OnInit, OnDestroy, AfterViewInit {
         return this.translate.instant('th');
     }
   }
+  getPlatform() {
+    return Capacitor.getPlatform();
+  }
 }

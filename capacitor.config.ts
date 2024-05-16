@@ -5,9 +5,9 @@ const config: CapacitorConfig = {
   appName: 'ZigZag ELD',
   webDir: 'www',
   bundledWebRuntime: false,
-  ios: {
-    contentInset: 'always',
-  },
+  // ios: {
+  //   contentInset: 'never',
+  // },
 };
 
 export default config;

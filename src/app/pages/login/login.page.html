@@ -1,7 +1,11 @@
-<ion-content forceOverscroll="false">
+<!-- <ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header> -->
+<ion-content [fullscreen]="true" [forceOverscroll]="getPlatform() === 'ios' ? true : false">
   <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%">
     <div class="login-wrapper">
-      <img class="image" src="assets/imgs/login-img.png" alt="truck" />
+      <img class="image" *ngIf="getPlatform() === 'ios'" src="assets/imgs/login-img.png" alt="truck" />
+      <img class="image" *ngIf="getPlatform() === 'android'" src="assets/imgs/login-img-2.png" alt="truck" />
       <div class="login-form-container">
         <div class="title">{{"Welcome to ZigZag ELD" | translate}}</div>
         <div class="form-login">

@@ -527,4 +527,7 @@ export class EditDvirPage implements OnInit, OnDestroy, AfterViewInit {
     this.resizeCanvas();
     this.resizeMechCanvas();
   }
+  getPlatform() {
+    return Capacitor.getPlatform();
+  }
 }

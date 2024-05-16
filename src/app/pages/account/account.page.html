@@ -1,4 +1,7 @@
-<ion-content [forceOverscroll]="false">
+<ion-header class="ion-no-border">
+  <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <app-header [title]="'Account' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
   <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">

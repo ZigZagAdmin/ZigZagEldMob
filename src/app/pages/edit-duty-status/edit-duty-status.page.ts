@@ -889,4 +889,8 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
     }
     await this.storage.set('logDailies', this.logDailies);
   }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
+  }
 }

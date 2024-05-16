@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 import { NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
@@ -128,5 +129,9 @@ export class CoDriverPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('unitab/others');
+  }
+
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }

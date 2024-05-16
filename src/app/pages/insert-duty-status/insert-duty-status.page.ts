@@ -934,4 +934,7 @@ export class InsertDutyStatusPage implements OnInit, OnDestroy {
     }
     await this.storage.set('logDailies', this.logDailies);
   }
+  getPlatform() {
+    return Capacitor.getPlatform();
+  }
 }

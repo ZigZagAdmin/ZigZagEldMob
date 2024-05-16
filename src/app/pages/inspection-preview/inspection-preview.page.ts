@@ -17,6 +17,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { LocationService } from 'src/app/services/location.service';
 import { timeZones } from 'src/app/models/timeZone';
 import { TranslateService } from '@ngx-translate/core';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-inspection-preview',
@@ -379,5 +380,8 @@ export class InspectionPreviewPage implements OnInit {
   goBack() {
     if (this.backUrl === 'log-item') this.navCtrl.navigateBack(['log-item', this.logDaily.logDailyId]);
     else this.navCtrl.navigateBack('unitab/inspection');
+  }
+  getPlatform() {
+    return Capacitor.getPlatform();
   }
 }
