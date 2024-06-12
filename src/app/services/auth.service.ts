@@ -21,7 +21,7 @@ export class AuthService {
   login(username: string, password: string, deviceModel: string, operatingSystem: string, appVersion: string): Observable<AuthUser> {
     const project = 'ELD';
     return this.http
-      .post<AuthUser>(this.apiUrl + 'api/auth/loginDriver', {
+      .post<AuthUser>(this.apiUrl + 'auth/loginDriver', {
         username: username,
         password: password,
         project: project,

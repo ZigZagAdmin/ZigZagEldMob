@@ -15,23 +15,23 @@ export class DashboardService {
   constructor(private http: HttpClient, @Inject(AUTH_API_URL) private apiUrl: string) {}
 
   updateDVIR(dvir: DVIRs): Observable<object> {
-    return this.http.post(this.apiUrl + 'api/EldDashboard/uploadDVIR', dvir);
+    return this.http.post(this.apiUrl + 'eld/EldDashboard/uploadDVIR', dvir);
   }
 
   updateLogDaily(logDaily: LogDailies): Observable<object> {
-    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadLogDailies', logDaily);
+    return this.http.post(this.apiUrl + 'eld/eldDashboard/UploadLogDailies', logDaily);
   }
 
   updateLogEvent(logEvent: LogEvents): Observable<object> {
-    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadLogEvent', logEvent);
+    return this.http.post(this.apiUrl + 'eld/eldDashboard/UploadLogEvent', logEvent);
   }
 
   updateELD(eld: ELD) {
-    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadLogEvent', eld);
+    return this.http.post(this.apiUrl + 'eld/eldDashboard/UploadLogEvent', eld);
   }
 
   updateDriverStatuses(driverStatus: DriverStatus) {
-    return this.http.post(this.apiUrl + 'api/eldDashboard/UploadDriverStatuses', driverStatus);
+    return this.http.post(this.apiUrl + 'eld/eldDashboard/UploadDriverStatuses', driverStatus);
   }
 
 }
