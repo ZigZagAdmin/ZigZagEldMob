@@ -10,7 +10,7 @@
 }
 
 @media screen and (orientation: landscape) {
-  .edit-form {
+  .ios .edit-form {
     padding-left: var(--ion-safe-area-left);
     padding-right: var(--ion-safe-area-right);
   }

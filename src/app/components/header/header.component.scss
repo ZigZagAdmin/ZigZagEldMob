@@ -26,9 +26,7 @@
   padding-top: 10px;
 }
 
-@media screen and (orientation: landscape) {
-  .title-container {
-    padding-left: var(--ion-safe-area-left);
-    padding-right: var(--ion-safe-area-right);
-  }
+.safe-area {
+  padding-left: var(--ion-safe-area-left) !important;
+  padding-right: var(--ion-safe-area-right) !important;
 }

@@ -435,7 +435,7 @@ ion-loading {
 }
 
 @media screen and (orientation: landscape) {
-  .hos-wrapper {
+  .ios .hos-wrapper {
     padding-left: var(--ion-safe-area-left);
     padding-right: var(--ion-safe-area-right);
   }
