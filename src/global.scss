@@ -325,3 +325,10 @@ ion-toolbar {
   --opacity: 0.8;
   --box-shadow: none !important;
 }
+
+@media screen and (orientation: landscape) {
+  .ios app-header .title-container {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}

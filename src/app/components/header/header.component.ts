@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { Platform } from '@ionic/angular';
+
 
 @Component({
   selector: 'app-header',
@@ -15,7 +15,7 @@ export class HeaderComponent implements OnInit {
 
   @Output() backButtonCallback: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor(private platform: Platform) {}
+  constructor() {}
 
   ngOnInit() {}
 
@@ -27,7 +27,4 @@ export class HeaderComponent implements OnInit {
     return Capacitor.getPlatform();
   }
 
-  getOrientation() {
-    return this.platform.isLandscape();
-  }
 }

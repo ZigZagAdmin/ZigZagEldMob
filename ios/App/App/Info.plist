@@ -2,38 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSCalendarsUsageDescription</key>
-	<string>Access to calendar may be required for the proper functioning of certain plugins (no direct usage).</string>
-	<key>NSRemindersUsageDescription</key>
-    <string>Access to reminders may be required for the proper functioning of certain plugins (no direct usage).</string>
-	<key>NSContactsUsageDescription</key>
-	<string>Access to contacts may be required for the proper functioning of certain plugins (no direct usage).</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone may be required for the proper functioning of certain plugins (no direct usage).</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Motion sensor may be required for the proper functioning of certain plugins (no direct usage).</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Bluetooth access is required for connecting to ELD devices and read data from the vehicle.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Camera may be required for the proper functioning of certain plugins (no direct usage).</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Location is required for proper driver's geolocation and cretion of activity logs for LogBook.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Location is required for proper driver's geolocation and cretion of activity logs for LogBook.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location is required for proper driver's geolocation and cretion of activity logs for LogBook.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photos' access may be required for the proper functioning of certain plugins (no direct usage).</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-       <string>Bluetooth access is required for connecting to ELD devices and read data from the vehicle.</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>bluetooth-central</string>
-	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>ZigZag ELD</string>
+	<string>ZigZag ELD</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -50,6 +22,56 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>apitest.zigzagplus.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>eldapi.zigzageld.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Bluetooth access is required for connecting to possible ELD devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Bluetooth access is required for connecting to possible ELD devices.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Access to calendar may be required for the proper functioning of certain plugins (no direct usage).</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Access to camera may be required for the proper functioning of certain plugins (no direct usage).</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Access to contacts may be required for the proper functioning of certain plugins (no direct usage).</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location is required for proper driver's geolocation when transporting a load and displaying on the in-app map or providing directions.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Location is required for proper driver's geolocation when transporting a load and displaying on the in-app map or providing directions.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location is required for proper driver's geolocation when transporting a load and displaying on the in-app map or providing directions.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone may be required for the proper functioning of certain plugins (no direct usage).</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Motion sensor may be required for the proper functioning of certain plugins (no direct usage).</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Access to files and photos is required for uploading images, scanning or uploading documents (BOL) regarding the load transported.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Reminder permission may be required for the proper functioning of certain plugins (no direct usage).</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Inter-VariableFont_slnt,wght.ttf</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

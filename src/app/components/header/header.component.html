@@ -1,4 +1,4 @@
-<div class="title-container padding-g" [ngClass]="{'custom-padding': getPlatform() === 'ios','safe-area' : getPlatform() === 'ios' && getOrientation()}">
+<div class="title-container padding-g" [ngClass]="{ 'custom-padding': getPlatform() === 'ios' }">
   <div style="display: flex; justify-content: space-between; align-items: center">
     <div class="title-back">
       <img (click)="goBack()" *ngIf="backButton" src="../../../assets/icons/header-arrow-left.svg" />
