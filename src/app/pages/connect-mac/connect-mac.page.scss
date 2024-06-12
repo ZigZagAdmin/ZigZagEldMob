@@ -155,3 +155,11 @@ ion-loading {
   font-weight: 700;
   font-size: 14px;
 }
+
+@media screen and (orientation: landscape) {
+  .connect-wrapper {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}
+

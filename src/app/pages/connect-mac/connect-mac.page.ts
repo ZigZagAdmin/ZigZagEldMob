@@ -220,12 +220,12 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         companyId: this.company.companyId,
         name: 'Generic ELD',
         macAddress: macAddress,
-        type: '',
+        type: 'PT30',
         vehicleId: this.vehicle.vehicleId,
         vehicleUnit: this.vehicle.vehicleUnit,
         malfunctions: '',
-        fwVersion: '',
-        status: false,
+        fwVersion: '1.0',
+        status: '1',
       };
       this.elds.push(eld);
       await firstValueFrom(this.dashboardService.updateELD(eld))
@@ -289,9 +289,9 @@ export class ConnectMacPage implements OnInit, OnDestroy {
       }
       await BleClient.requestLEScan({ allowDuplicates: false }, res => {
         this.deviceQueue.push(res);
-        timeout = (this.deviceQueue.length - 1) * 500;
+        timeout = (this.deviceQueue.length - 1) * 750;
         let localTimeout = setTimeout(() => {
-          this.availableDevices.unshift(
+          this.availableDevices.push(
             `<div class="value-block"><div class="value-block-title">${res.device.name ? res.device.name : 'Generic device'}</div><div class="value-block-subtitle">MAC/UUID: ${
               res.device.deviceId
             }</div></div>`
@@ -317,7 +317,7 @@ export class ConnectMacPage implements OnInit, OnDestroy {
         this.toastService.showToast(this.translate.instant('Device successfully connected'), 'success');
         await this.bluetoothService.subscribeToDeviceData(macAddress);
         await this.storage.set('lastConnectedELD', macAddress);
-        await this.uploadEld(macAddress);
+        // await this.uploadEld(macAddress);
         this.navigateToHos();
       } else {
         this.loading = false;

@@ -75,4 +75,8 @@ export class ManageService {
     // const httpParams = new HttpParams().set('DriverId', DriverId).set('LogDateBgn', LogDateBgn).set('LogDateEnd', LogDateEnd);
     return this.http.get<LogEvents[]>(this.apiUrl + 'eld/EldDashboard/LogEvents');
   }
+
+  generateEldData(driverId: string, comment: string, option: string) {
+    return this.http.post(this.apiUrl + 'eld/EldReport/GenerateEldData', { driverId, comment, option });
+  }
 }

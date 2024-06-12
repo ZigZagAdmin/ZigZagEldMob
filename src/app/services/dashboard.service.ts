@@ -27,7 +27,7 @@ export class DashboardService {
   }
 
   updateELD(eld: ELD) {
-    return this.http.post(this.apiUrl + 'eld/eldDashboard/UploadLogEvent', eld);
+    return this.http.post(this.apiUrl + 'eld/eldManage/UploadEld', eld);
   }
 
   updateDriverStatuses(driverStatus: DriverStatus) {

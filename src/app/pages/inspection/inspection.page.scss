@@ -11,3 +11,10 @@ hr {
   height: 1px;
   background-color: #e4e7ec;
 }
+
+@media screen and (orientation: landscape) {
+  .edit-form {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}

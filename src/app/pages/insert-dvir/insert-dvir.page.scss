@@ -93,3 +93,10 @@
   justify-content: center;
   width: auto;
 }
+
+@media screen and (orientation: landscape) {
+  .main-container {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}

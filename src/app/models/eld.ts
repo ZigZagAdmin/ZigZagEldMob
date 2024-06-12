@@ -8,7 +8,7 @@ export interface ELD {
   vehicleUnit: string;
   malfunctions: string;
   fwVersion: string;
-  status: boolean;
+  status: string;
 
   sent?: boolean;
 }

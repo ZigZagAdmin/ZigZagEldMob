@@ -358,3 +358,10 @@ ion-col {
   font-size: 16px;
   margin-top: 15px;
 }
+
+@media screen and (orientation: landscape) {
+  .main-container {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}

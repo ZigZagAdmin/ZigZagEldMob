@@ -2,7 +2,7 @@
   <ion-toolbar></ion-toolbar>
 </ion-header> -->
 <ion-content [fullscreen]="true" [forceOverscroll]="getPlatform() === 'ios' ? true : false">
-  <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%">
+  <div class="main-container" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%">
     <div class="login-wrapper">
       <img class="image" *ngIf="getPlatform() === 'ios'" src="assets/imgs/login-img.png" alt="truck" />
       <img class="image" *ngIf="getPlatform() === 'android'" src="assets/imgs/login-img-2.png" alt="truck" />

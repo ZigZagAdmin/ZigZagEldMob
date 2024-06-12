@@ -57,3 +57,10 @@
   padding: 12px 0;
   padding-bottom: calc(var(--ion-safe-area-bottom) + 12px);
 }
+
+@media screen and (orientation: landscape) {
+  .login-form-container {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}

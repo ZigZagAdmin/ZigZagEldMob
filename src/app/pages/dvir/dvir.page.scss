@@ -146,3 +146,10 @@
 .hide-el {
   display: none;
 }
+
+@media screen and (orientation: landscape) {
+  .dvirs-list {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}

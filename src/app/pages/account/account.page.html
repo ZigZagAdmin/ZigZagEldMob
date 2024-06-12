@@ -3,7 +3,7 @@
 </ion-header>
 <ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <app-header [title]="'Account' | translate" [backButton]="true" (backButtonCallback)="goBack()"></app-header>
-  <div style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
+  <div class="main-container" style="display: flex; flex-direction: column; height: calc(100% - 47px)" *ngIf="!pageLoading">
     <div class="edit-dvir-block padding-g">
       <app-input [label]="'Name' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.name" [noValidation]="true"></app-input>
       <app-input [label]="'Email' | translate" [fill]="true" [type]="'text'" [disabled]="true" [value]="driver?.email" [noValidation]="true"></app-input>

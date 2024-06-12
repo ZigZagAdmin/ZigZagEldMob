@@ -10,7 +10,7 @@
   </app-header>
 
   <app-scroll-toolbar *ngIf="!pageLoading" [title]="getDateSub(logDaily?.logDate)" (leftCallback)="goToNextLog()" (rightCallback)="goToPreviousLog()"></app-scroll-toolbar>
-  <div class="padding-g" *ngIf="!pageLoading">
+  <div class="main-container padding-g" *ngIf="!pageLoading">
     <div class="card-info">
       <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
         <g class="grid" transform="translate(65, 40)">
@@ -159,6 +159,9 @@
       </div>
       <ion-modal class="cert-modal" [isOpen]="isModalOpen" [trigger]="'trigger-cert-modal'">
         <ng-template>
+          <ion-header class="ion-no-border">
+            <ion-toolbar></ion-toolbar>
+          </ion-header>
           <ion-content [forceOverscroll]="false">
             <app-header [title]="'Signature' | translate" [backButton]="true" (backButtonCallback)="cancel()"></app-header>
             <div class="sign-box">

@@ -163,3 +163,10 @@ ion-checkbox::part(container) {
     height: 18px;
   }
 }
+
+@media screen and (orientation: landscape) {
+  .edit-form {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+}
