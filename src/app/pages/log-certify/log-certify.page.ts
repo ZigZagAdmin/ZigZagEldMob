@@ -306,9 +306,9 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     else this.isConfirmButtonActive = false;
   }
 
-  async closeModal() {
+  async closeModal(flag: boolean) {
     this.isModalOpen = false;
-    await this.save();
+    if (flag) await this.save();
   }
 
   async confirmModal() {

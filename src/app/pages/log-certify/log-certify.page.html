@@ -38,14 +38,14 @@
       </div>
     </div>
   </div>
-  <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="enableModalTrigger ? 'certify-modal-trigger' : undefined" (willDismiss)="closeModal()">
+  <ion-modal id="custom-modal" [isOpen]="isModalOpen" [trigger]="enableModalTrigger ? 'certify-modal-trigger' : undefined" (willDismiss)="closeModal(false)">
     <ng-template>
       <div class="modal-box">
         <div class="modal-title">{{'Would you like to sign the other days?' | translate}}</div>
         <div class="modal-subtitle">{{'Rememeber that only the days that do not have logs will be signed!' | translate}}</div>
       </div>
       <div class="submit-buttons">
-        <div class="action-button default" (click)="closeModal()">{{'Cancel' | translate}}</div>
+        <div class="action-button default" (click)="closeModal(true)">{{'Cancel' | translate}}</div>
         <div class="action-button primary" style="color: #fcfcfc" (click)="confirmModal()">{{'Confirm' | translate}}</div>
       </div>
     </ng-template>
