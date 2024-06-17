@@ -19,6 +19,7 @@ import { CommentsComponentModule } from 'src/app/components/comments/comments.mo
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 import { ConvertMsToHoursAndMinutesAndSecondsHmPipe } from 'src/app/pipe/convert-ms-to-hours-and-minutes-and-seconds-hm.pipe';
 import { TranslateModule } from '@ngx-translate/core';
+import { RefinedDutyRadioButtonComponentModule } from 'src/app/components/refined-duty-radio-button/refined-duty-radio-button.module';
 
 @NgModule({
   imports: [
@@ -36,7 +37,8 @@ import { TranslateModule } from '@ngx-translate/core';
     MessageBannerComponentModule,
     CommentsComponentModule,
     PageLoaderComponentModule,
-    TranslateModule
+    TranslateModule,
+    RefinedDutyRadioButtonComponentModule
   ],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],
   exports: [ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],

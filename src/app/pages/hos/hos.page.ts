@@ -453,6 +453,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
           await this.createLogDailies();
           await this.calcViolations();
+          console.log(this.lastSelectedButton);
           this.pageLoading = false;
           this.ionViewTrigger = false;
         });
@@ -1031,11 +1032,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   selectButton(button: string) {
     this.selectedButton = button;
-    if (this.selectedButton === this.currentStatus.statusCode) {
-      this.isConfirmButtonActive = false;
-    } else {
-      this.isConfirmButtonActive = true;
-    }
+    this.confirm();
   }
 
   cancel() {
@@ -1048,13 +1045,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     console.log(this.selectedButton);
     console.log(this.lastSelectedButton);
     console.log(origin);
-    if (validate) {
-      this.shareService.changeMessage(this.utilityService.generateString(5));
-      if (!this.utilityService.validateForm(this.validation)) return;
-    }
     if (hidden) {
       console.log('inside hidden');
-      this.shareService.destroyMessage();
       await this.onWillDismiss(code).then(() => {
         this.isModalOpen = false;
         this.modalLoading = false;
@@ -1062,16 +1054,16 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     } else {
       if (this.selectedButton && this.selectedButton !== this.lastSelectedButton) {
         this.lastSelectedButton = this.selectedButton;
-        this.shareService.destroyMessage();
         await this.storage.set('lastStatusCode', this.selectedButton);
         await this.onWillDismiss(this.selectedButton, origin).then(() => {
           this.currentStatusColor = this.getStatusColor(this.selectedButton);
           this.isModalOpen = false;
           this.modalLoading = false;
         });
-      } else {
-        this.toastService.showToast(this.translate.instant('You need to select a different status!'), 'warning');
-      }
+      } 
+      // else if (!this.pageLoading && this.selectedButton === this.lastSelectedButton) {
+      //   this.toastService.showToast(this.translate.instant('You need to select a different status!'), 'warning');
+      // }
     }
   }
 
@@ -1364,6 +1356,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           currentLocation = res;
         }
       });
+      await this.storage.set("lastKnownLocation", currentLocation);
+      this.location = currentLocation;
       await firstValueFrom(
         this.dashboardService.updateDriverStatuses({
           driverId: this.driverId,

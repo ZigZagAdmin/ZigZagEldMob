@@ -1,0 +1,99 @@
+.list-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--gray-100);
+  border-radius: 10px;
+  padding: 10px;
+  gap: 10px;
+}
+
+@media screen and (min-width: 700px) {
+  .list-container {
+    flex-direction: row;
+  }
+}
+
+// @media screen and (max-width: 500px) {
+//   .list-container {
+//     flex-direction: row;
+//   }
+// }
+
+.list-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.list-item {
+  min-width: 100px;
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.status-label-checked {
+  color: var(--gray-25) !important;
+}
+
+.item-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+}
+
+.status-color {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}
+
+.status-label {
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--gray-300);
+}
+
+.item-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+ion-checkbox {
+  --size: 20px;
+  --checkbox-background-checked: var(--success-500);
+  --border-color: transparent;
+  --border-color-checked: transparent;
+  --checkmark-width: 2px;
+  pointer-events: none;
+}
+
+ion-checkbox::part(container) {
+  border-radius: 50%;
+}
+
+.disable-form {
+  pointer-events: none;
+}
+
+.status-icon {
+  img {
+    width: 32px;
+    height: 32px;
+  }
+}
+.status-icon-checked {
+  img {
+    -webkit-filter: invert(1) hue-rotate(180deg) brightness(10);
+    filter: invert(1) hue-rotate(180deg) brightness(10);
+  }
+}

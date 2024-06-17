@@ -34,6 +34,7 @@
       </div>
       <div class="green" [ngStyle]="{'background-color': currentStatusColor}">{{currentStatusTime}}</div>
     </div>
+    <!-- <app-refined-duty-radio-button (selectedValue)="selectButton($event)" [_currentValue]="selectedButton"></app-refined-duty-radio-button> -->
     <div class="circles">
       <p class="text-2" style="margin-bottom: 5px">{{'Hours Remaining' | translate}}</p>
       <div class="circles-block" *ngIf="!restMode">

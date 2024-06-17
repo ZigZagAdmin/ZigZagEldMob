@@ -1,0 +1,30 @@
+<div class="list-container">
+  <div class="list-row">
+    <div
+      class="list-item"
+      *ngFor="let item of data | slice : 0 : 2"
+      [ngClass]="{ 'disable-form': disable, 'disable-input-opacity': showDisabled }"
+      [ngStyle]="{ 'background-color': item.checked ? item.color : 'var(--gray-100)', 'width': (100 / 3) + '%' }"
+      (click)="select(item)">
+      <div class="item-data">
+        <div class="status-icon"><img [src]="item.checked ? item.iconActive : item.icon" /></div>
+        <div class="status-label" [ngClass]="{ 'status-label-checked': item.checked }">{{ item.label | translate }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="list-row">
+    <div
+      class="list-item"
+      *ngFor="let item of data | slice : 2 : 4"
+      [ngClass]="{ 'disable-form': disable, 'disable-input-opacity': showDisabled }"
+      [ngStyle]="{ 'background-color': item.checked ? item.color : 'var(--gray-100)' }"
+      (click)="select(item)">
+      <div class="item-data">
+        <div class="status-icon"><img [src]="item.checked ? item.iconActive : item.icon" /></div>
+        <div class="status-label" [ngClass]="{ 'status-label-checked': item.checked }">{{ item.label | translate }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--[ngStyle]="{ 'background-color': item.color }"-->
