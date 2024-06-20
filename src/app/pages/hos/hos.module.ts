@@ -19,6 +19,8 @@ import { CommentsComponentModule } from 'src/app/components/comments/comments.mo
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 import { ConvertMsToHoursAndMinutesAndSecondsHmPipe } from 'src/app/pipe/convert-ms-to-hours-and-minutes-and-seconds-hm.pipe';
 import { TranslateModule } from '@ngx-translate/core';
+import { CurrentStatusComponentModule } from 'src/app/components/current-status/current-status.module';
+import { ChangeStatusComponentModule } from 'src/app/components/change-status/current-status.module';
 
 @NgModule({
   imports: [
@@ -36,7 +38,9 @@ import { TranslateModule } from '@ngx-translate/core';
     MessageBannerComponentModule,
     CommentsComponentModule,
     PageLoaderComponentModule,
-    TranslateModule
+    TranslateModule,
+    CurrentStatusComponentModule,
+    ChangeStatusComponentModule
   ],
   declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],
   exports: [ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],

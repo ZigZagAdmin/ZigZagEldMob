@@ -26,14 +26,16 @@
 
     <app-message-banner *ngIf="bannerInfo.show" [title]="bannerInfo.title | translate" [subtitle]="bannerInfo.subtitle | translate" [type]="bannerInfo.type"></app-message-banner>
 
-    <div class="status-bar">
+    <!-- <div class="status-bar">
       <p class="subtitle">{{'Current Status' | translate}}</p>
       <div class="green" id="trigger-status" [ngStyle]="{'background-color': currentStatusColor}" style="max-width: 39%" (click)="toggleModal()">
         <span class="text-elipsis">{{currentStatus.statusName | translate}}</span>
         <img src="assets/icons/arrow-bottom.svg" alt="arrow" />
       </div>
       <div class="green" [ngStyle]="{'background-color': currentStatusColor}">{{currentStatusTime}}</div>
-    </div>
+    </div> -->
+    <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime"></app-current-status>
+    <app-change-status [(status)]="currentStatus.statusCode"></app-change-status>
     <div class="circles">
       <p class="text-2" style="margin-bottom: 5px">{{'Hours Remaining' | translate}}</p>
       <div class="circles-block" *ngIf="!restMode">
@@ -235,7 +237,7 @@
         </div>
       </div>
     </div>
-    <ion-modal [isOpen]="isModalOpen" trigger="trigger-status" (willDismiss)="cancel()">
+    <!-- <ion-modal [isOpen]="isModalOpen" trigger="trigger-status" (willDismiss)="cancel()">
       <ng-template>
         <ion-header class="ion-no-border">
           <ion-toolbar></ion-toolbar>
@@ -263,7 +265,7 @@
           </div>
         </ion-content>
       </ng-template>
-    </ion-modal>
+    </ion-modal> -->
     <ion-modal id="custom-modal" [isOpen]="isDrivingAuto" [backdropDismiss]="false">
       <ng-template>
         <div class="modal-box">

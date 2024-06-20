@@ -1,0 +1,72 @@
+.cs-main {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: fit-content;
+}
+
+.cs-container {
+  width: 100%;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cs-text-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.cs-text-static {
+    font-size: 14px;
+}
+
+.cs-text-status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    line-height: 37px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.cs-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bg-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 75%;
+}
+
+.cs-label {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: -12px;
+    top: -12px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    border-radius: 100%;
+    z-index: 999;
+}
+
+.cs-label-text {
+    font-size: 13px;
+}

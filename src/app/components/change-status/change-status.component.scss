@@ -1,0 +1,29 @@
+.chs-container {
+    width: 100%;
+    background-color: var(--gray-100);
+    border-radius: 10px;
+    display: flex;
+    padding: 12px;
+    gap: 10px;
+}
+
+.chs-el-main {
+    flex: 1 25%;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.chs-el-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    padding: 10px 0px;
+}
+
+.chs-el-text {
+    color: var(--gray-25);
+}
