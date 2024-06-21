@@ -26,6 +26,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { CarSimulatorService } from 'src/app/services/car-simulator.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { App } from '@capacitor/app';
+import { EventGraphic } from 'src/app/models/event-graphic';
 
 interface BannerInfo {
   show: boolean;
@@ -171,6 +172,21 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   lastEldData: { [key: string]: string } = {};
 
   skipFirst: boolean = false;
+
+  graphicsHour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+
+  durationsOFF = 0;
+  durationsSB = 0;
+  durationsD = 0;
+  durationsON = 0;
+  eventGraphicLine: EventGraphic[] = [];
+  violationRect = {
+    x1: 0,
+    x2: 0,
+  };
+  logDaily: LogDailies;
+  currentDay: string = '';
+
 
   constructor(
     private navCtrl: NavController,
@@ -1071,7 +1087,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           this.isModalOpen = false;
           this.modalLoading = false;
         });
-      } 
+      }
       // else {
       //   this.toastService.showToast(this.translate.instant('You need to select a different status!'), 'warning');
       // }
@@ -1367,7 +1383,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           currentLocation = res;
         }
       });
-      await this.storage.set("lastKnownLocation", currentLocation);
+      await this.storage.set('lastKnownLocation', currentLocation);
       this.location = currentLocation;
       await firstValueFrom(
         this.dashboardService.updateDriverStatuses({
@@ -1617,5 +1633,43 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   getPlatform() {
     return Capacitor.getPlatform();
+  }
+
+  toggleViolationRect(violation: {
+    startTime: number;
+    regulations: {
+      code: string;
+      name: string;
+    };
+  }) {
+    try {
+      const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+      let index = this.logEvents.findIndex(el => el.eventTime.timeStamp > violation.startTime && allSt.includes(el.type.code));
+      let start = new Date(formatDate(new Date(violation.startTime), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      let end;
+      let sEnd;
+      let begin;
+      let finish;
+      // console.log(this.logEvents[index]);
+      if (this.logEvents[index]?.eventTime?.timeStamp) end = new Date(this.logEvents[index].eventTime.timeStamp);
+      else end = new Date();
+      sEnd = new Date(formatDate(new Date(end), 'yyyy-MM-ddTHH:mm:ss', 'en_US', this.timeZones[this.timeZone as keyof typeof this.timeZones]));
+      if (formatDate(start, 'yyyy/MM/dd', 'en_US') === formatDate(this.currentDay, 'yyyy/MM/dd', 'en_US')) {
+        begin = start.getHours() * 60 + start.getMinutes();
+      } else {
+        begin = 0;
+      }
+      if (formatDate(sEnd, 'yyyy/MM/dd', 'en_US') === formatDate(this.currentDay, 'yyyy/MM/dd', 'en_US')) {
+        finish = sEnd.getHours() * 60 + sEnd.getMinutes();
+        // console.log(sEnd);
+      } else {
+        finish = 1440;
+      }
+
+      this.violationRect.x1 = begin;
+      this.violationRect.x2 = finish;
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

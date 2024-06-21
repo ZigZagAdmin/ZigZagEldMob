@@ -1,0 +1,15 @@
+<div class="recap-main" id="trigger-recap" (click)="open()">
+  <div class="recap-half">
+    <div class="recap-icon"><img src="assets/icons/recap-form.svg" /></div>
+    <div class="recap-text text-elipsis">Hours Tomorrow</div>
+  </div>
+  <div class="recap-half">
+    <div class="recap-text" style="margin-right: 5px">{{ time }}</div>
+    <div class="recap-icon"><img src="assets/icons/recap-expand.svg" /></div>
+  </div>
+</div>
+<ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-recap" (willDismiss)="cancel()">
+  <ng-template>
+    <div>Something</div>
+  </ng-template>
+</ion-modal>

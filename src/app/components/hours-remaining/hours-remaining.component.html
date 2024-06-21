@@ -1,0 +1,194 @@
+<div class="hr-main">
+  <div class="hr-title">
+    <div class="hr-title-text">Hours Remaining</div>
+    <div class="hr-title-change-mode" (click)="toggleRest()">
+      <div class="hr-change-mode-icon"><img [src]="!restMode ? 'assets/icons/s-mode-icon.svg' : 'assets/icons/d-mode-icon.svg'" /></div>
+      <div class="hr-change-mode-text">{{ !restMode ? 'Rest Mode' : 'Drive Mode' }}</div>
+    </div>
+  </div>
+  <div class="drive-mode" *ngIf="!restMode">
+    <div class="circle-block">
+      <circle-progress
+        style="pointer-events: none"
+        [percent]="percentBreak"
+        [responsive]="true"
+        [space]="-15"
+        [outerStrokeWidth]="15"
+        outerStrokeColor="var(--warning-300)"
+        innerStrokeColor="var(--gray-200)"
+        [innerStrokeWidth]="15"
+        titleFontSize="32"
+        [title]="convertSecondToHours(titleBreak)"
+        titleColor="var(--warning-400)"
+        titleFontWeight="600"
+        [subtitle]="'Break' | translate"
+        subtitleFontWeight="500"
+        subtitleColor="var(--gray-400)"
+        subtitleFontSize="22"
+        [showUnits]="false"
+        [clockwise]="false"
+        [animation]="animateCircles"
+        [animationDuration]="500"
+        outerStrokeLinecap="round">
+      </circle-progress>
+    </div>
+    <div class="circle-block">
+      <circle-progress
+        style="pointer-events: none"
+        [percent]="percentDriving"
+        [responsive]="true"
+        [space]="-15"
+        [outerStrokeWidth]="15"
+        outerStrokeColor="var(--success-500)"
+        innerStrokeColor="var(--gray-200)"
+        [innerStrokeWidth]="15"
+        titleFontSize="32"
+        [title]="convertSecondToHours(titleDriving)"
+        titleColor="var(--success-600)"
+        titleFontWeight="600"
+        [subtitle]="'Driving' | translate"
+        subtitleFontWeight="500"
+        subtitleColor="var(--gray-400)"
+        subtitleFontSize="22"
+        [animation]="animateCircles"
+        [showUnits]="false"
+        [clockwise]="false"
+        [animationDuration]="500"
+        outerStrokeLinecap="round">
+      </circle-progress>
+      <div class="circle-abs">
+        <circle-progress
+          style="pointer-events: none"
+          [percent]="percentDriving"
+          [responsive]="true"
+          [space]="-15"
+          [outerStrokeWidth]="15"
+          outerStrokeColor="var(--success-500)"
+          innerStrokeColor="var(--gray-200)"
+          [innerStrokeWidth]="15"
+          titleFontSize="42"
+          [title]="convertSecondToHours(titleDriving)"
+          titleColor="var(--success-600)"
+          backgroundColor="var(--gray-25)"
+          titleFontWeight="600"
+          [subtitle]="'SSB' | translate"
+          subtitleFontWeight="500"
+          subtitleColor="var(--gray-400)"
+          subtitleFontSize="32"
+          [animation]="animateCircles"
+          [showUnits]="false"
+          [clockwise]="false"
+          [animationDuration]="500"
+          outerStrokeLinecap="round">
+        </circle-progress>
+      </div>
+    </div>
+    <div class="circle-block">
+      <circle-progress
+        style="pointer-events: none"
+        [percent]="percentShift"
+        [responsive]="true"
+        [space]="-15"
+        [outerStrokeWidth]="15"
+        outerStrokeColor="var(--purple-500)"
+        innerStrokeColor="var(--gray-200)"
+        [innerStrokeWidth]="15"
+        titleFontSize="32"
+        [title]="convertSecondToHours(titleShift)"
+        titleColor="var(--purple-600)"
+        titleFontWeight="600"
+        [subtitle]="'Shift' | translate"
+        subtitleFontWeight="500"
+        subtitleColor="var(--gray-400)"
+        subtitleFontSize="22"
+        [showUnits]="false"
+        [clockwise]="false"
+        [animation]="animateCircles"
+        [animationDuration]="500"
+        outerStrokeLinecap="round">
+      </circle-progress>
+      <div class="circle-abs">
+        <circle-progress
+          style="pointer-events: none"
+          [percent]="percentDriving"
+          [responsive]="true"
+          [space]="-15"
+          [outerStrokeWidth]="15"
+          outerStrokeColor="var(--success-500)"
+          innerStrokeColor="var(--gray-200)"
+          [innerStrokeWidth]="15"
+          titleFontSize="42"
+          [title]="convertSecondToHours(titleDriving)"
+          titleColor="var(--success-600)"
+          backgroundColor="var(--gray-25)"
+          titleFontWeight="600"
+          [subtitle]="'SSB' | translate"
+          subtitleFontWeight="500"
+          subtitleColor="var(--gray-400)"
+          subtitleFontSize="32"
+          [animation]="animateCircles"
+          [showUnits]="false"
+          [clockwise]="false"
+          [animationDuration]="500"
+          outerStrokeLinecap="round">
+        </circle-progress>
+      </div>
+    </div>
+    <div class="circle-block">
+      <circle-progress
+        style="pointer-events: none"
+        [percent]="percentCycle"
+        [responsive]="true"
+        [space]="-15"
+        [outerStrokeWidth]="15"
+        outerStrokeColor="var(--orange-400)"
+        innerStrokeColor="var(--gray-200)"
+        [innerStrokeWidth]="15"
+        titleFontSize="32"
+        [title]="convertSecondToHours(titleCycle)"
+        titleColor="var(--orange-400)"
+        titleFontWeight="600"
+        [subtitle]="'Cycle' | translate"
+        subtitleFontWeight="500"
+        subtitleColor="var(--gray-400)"
+        subtitleFontSize="22"
+        [showUnits]="false"
+        [clockwise]="false"
+        [animation]="animateCircles"
+        [animationDuration]="500"
+        outerStrokeLinecap="round">
+      </circle-progress>
+    </div>
+  </div>
+  <div class="rest-mode" *ngIf="restMode">
+    <div class="rest-row">
+      <div class="row-1">
+        <p class="break-title">{{ 'Minimum Break Required' | translate }}</p>
+        <p class="break-title">{{ convertSecondToHours(restBreak) }} / 00:30</p>
+      </div>
+      <div class="progress-bar-outer">
+        <div id="inner-1" class="progress-bar-inner" [style]="'width: ' + progressBreak * 100 + '%'"></div>
+      </div>
+    </div>
+
+    <div class="rest-row">
+      <div class="row-1">
+        <p class="break-title">{{ 'Until shift reset' | translate }}</p>
+        <p class="break-title">{{ convertSecondToHours(restShift) }} / 10:00</p>
+      </div>
+      <div class="progress-bar-outer">
+        <div id="inner-2" class="progress-bar-inner" [style]="'width: ' + progressShift * 100 + '%'"></div>
+      </div>
+    </div>
+
+    <div class="rest-row">
+      <div class="row-1">
+        <p class="break-title">{{ 'Until Cycle Reset' | translate }}</p>
+        <p class="break-title">{{ convertSecondToHours(restCycle) }} / 34:00</p>
+      </div>
+      <div class="progress-bar-outer">
+        <div id="inner-3" class="progress-bar-inner" [style]="'width: ' + progressCycle * 100 + '%'"></div>
+      </div>
+    </div>
+  </div>
+</div>

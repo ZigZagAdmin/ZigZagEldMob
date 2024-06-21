@@ -36,7 +36,22 @@
     </div> -->
     <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime" (statusCallback)="selectButton($event)"></app-current-status>
     <app-change-status [status]="selectedButton" (statusChange)="selectButton($event)"></app-change-status>
-    <div class="circles">
+    <app-hours-remaining
+      [percentBreak]="percentBreak"
+      [percentDriving]="percentDriving"
+      [percentShift]="percentShift"
+      [percentCycle]="percentCycle"
+      [restBreak]="restBreak"
+      [restShift]="restShift"
+      [restCycle]="restCycle"
+      [progressBreak]="progressBreak"
+      [progressShift]="progressShift"
+      [progressCycle]="progressCycle"
+      [titleBreak]="titleBreak"
+      [titleDriving]="titleDriving"
+      [titleShift]="titleShift"
+      [titleCycle]="titleCycle"></app-hours-remaining>
+    <!-- <div class="circles">
       <p class="text-2" style="margin-bottom: 5px">{{'Hours Remaining' | translate}}</p>
       <div class="circles-block" *ngIf="!restMode">
         <div class="circle-block">
@@ -136,7 +151,7 @@
           </circle-progress>
         </div>
       </div>
-    </div>
+    </div> -->
     <div id="violation-m" class="sleep-container" [ngClass]="{'hide-container': !checkElementHasChildren('sleep-box')}">
       <!-- Shift -->
       <div class="sleep-box sleep-warning" *ngIf="this.titleShift < 1800 && this.titleShift > 0">
@@ -167,7 +182,8 @@
         <img src="../../../assets/icons/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
       </div>
     </div>
-    <div class="rest-mode" *ngIf="restMode">
+    <app-recap [recapTime]="hoursRecap | convertSecotdsToHoursAndMinutes"></app-recap>
+    <!-- <div class="rest-mode" *ngIf="restMode">
       <div class="rest-row">
         <div class="row-1">
           <p class="subtitle">{{'Minimum Break Required' | translate}}</p>
@@ -197,8 +213,8 @@
           <div id="inner-3" class="progress-bar-inner" [style]="'width: ' + progressCycle * 100 + '%'"></div>
         </div>
       </div>
-    </div>
-    <div class="time">
+    </div> -->
+    <!-- <div class="time">
       <div class="time-block">
         <p class="subtitle">{{ getTotalWorkedHours() | convertSecondsToHoursAndMinutesHm }}</p>
         <p class="text-1">{{'Last 7 Days' | translate}}</p>
@@ -207,18 +223,132 @@
         <p class="subtitle">{{ hoursRecap | convertSecondsToHoursAndMinutesHm }}</p>
         <p class="text-1">{{'Hours Tomorrow' | translate}}</p>
       </div>
-    </div>
-    <div class="switch-sleep">
+    </div> -->
+    <!-- <div class="switch-sleep">
       <p class="subtitle">{{'Split Sleeper Berth' | translate}}</p>
       <app-toggle-switch [isChecked]="splitSleeperBerth" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
-    </div>
-    <button class="btn primary-btn custom-sleep-btn" (click)="switchMode()">
+    </div> -->
+    <!-- <button class="btn primary-btn custom-sleep-btn" (click)="switchMode()">
       <img *ngIf="!restMode" src="assets/icons/moon.svg" alt="moon" />
       <img *ngIf="restMode" src="assets/icons/drive.svg" alt="moon" />
       <span>{{ (restMode ? 'Switch to Drive Mode' : 'Switch to Rest Mode') | translate }}</span>
-    </button>
-    <p class="subtitle">{{'Logs and Recap Hours' | translate}}</p>
-    <div class="log-dailies">
+    </button> -->
+    <!-- <p class="subtitle">{{'Logs and Recap Hours' | translate}}</p> -->
+    <div class="card-info">
+      <svg preserveAspectRatio="xMidYMid" viewBox="0 0 1600 270">
+        <g class="grid" transform="translate(65, 40)">
+          <rect class="border" x="0" y="0" width="1440" height="200" rx="8" ry="8"></rect>
+
+          <g class="" *ngFor="let hours of graphicsHour">
+            <g class="column" [style.transform]="'translateX(' + hours * 60 + 'px)'">
+              <line x1="0" x2="0" y1="0" y2="200"></line>
+              <g class="cell top" transform="translate(0, 0)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell top" transform="translate(0, 50)">
+                <line x1="15" x2="15" y1="0" y2="17.5"></line>
+                <line x1="30" x2="30" y1="0" y2="35"></line>
+                <line x1="45" x2="45" y1="0" y2="17.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 100)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+              <g class="cell bottom" transform="translate(0, 150)">
+                <line x1="15" x2="15" y1="50" y2="32.5"></line>
+                <line x1="30" x2="30" y1="50" y2="15"></line>
+                <line x1="45" x2="45" y1="50" y2="32.5"></line>
+              </g>
+            </g>
+          </g>
+          <g class="column" transform="translate(1440, 0)">
+            <line x1="0" x2="0" y1="0" y2="200"></line>
+          </g>
+
+          <line class="row" x1="0" x2="1440" y1="0" y2="0"></line>
+          <line class="row" x1="0" x2="1440" y1="50" y2="50"></line>
+          <line class="row" x1="0" x2="1440" y1="100" y2="100"></line>
+          <line class="row" x1="0" x2="1440" y1="150" y2="150"></line>
+          <line class="row" x1="0" x2="1440" y1="200" y2="200"></line>
+        </g>
+
+        <g class="duty-status-labels" transform="translate(40, 40)">
+          <text class="label" transform="translate(15, 25)" text-anchor="end" dy="0.35em">OFF</text>
+          <text class="label" transform="translate(15, 75)" text-anchor="end" dy="0.35em">SB</text>
+          <text class="label" transform="translate(15, 125)" text-anchor="end" dy="0.35em">D</text>
+          <text class="label" transform="translate(15, 175)" text-anchor="end" dy="0.35em">ON</text>
+        </g>
+
+        <g class="hour-labels" transform="translate(65, 40)">
+          <text class="label" transform="translate(0, 10)" text-anchor="middle" dy="-1em">M</text>
+          <text class="label" transform="translate(60, 10)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(120, 10)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(180, 10)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(240, 10)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(300, 10)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(360, 10)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(420, 10)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(480, 10)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(540, 10)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(600, 10)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(660, 10)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(720, 10)" text-anchor="middle" dy="-1em">N</text>
+          <text class="label" transform="translate(780, 10)" text-anchor="middle" dy="-1em">1</text>
+          <text class="label" transform="translate(840, 10)" text-anchor="middle" dy="-1em">2</text>
+          <text class="label" transform="translate(900, 10)" text-anchor="middle" dy="-1em">3</text>
+          <text class="label" transform="translate(960, 10)" text-anchor="middle" dy="-1em">4</text>
+          <text class="label" transform="translate(1020, 10)" text-anchor="middle" dy="-1em">5</text>
+          <text class="label" transform="translate(1080, 10)" text-anchor="middle" dy="-1em">6</text>
+          <text class="label" transform="translate(1140, 10)" text-anchor="middle" dy="-1em">7</text>
+          <text class="label" transform="translate(1200, 10)" text-anchor="middle" dy="-1em">8</text>
+          <text class="label" transform="translate(1260, 10)" text-anchor="middle" dy="-1em">9</text>
+          <text class="label" transform="translate(1320, 10)" text-anchor="middle" dy="-1em">10</text>
+          <text class="label" transform="translate(1380, 10)" text-anchor="middle" dy="-1em">11</text>
+          <text class="label" transform="translate(1440, 10)" text-anchor="middle" dy="-1em">M</text>
+        </g>
+
+        <g class="durations" transform="translate(1515, 40)">
+          <text class="label" transform="translate(0, 25)" dy="0.35em">{{ durationsOFF * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 75)" dy="0.35em">{{ durationsSB * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 125)" dy="0.35em">{{ durationsD * 60 | convertSecotdsToHoursAndMinutes }}</text>
+          <text class="label" transform="translate(0, 175)" dy="0.35em">{{ durationsON * 60 | convertSecotdsToHoursAndMinutes }}</text>
+        </g>
+
+        <g class="eventLine" transform="translate(65, 40)">
+          <g class="eventRecord" *ngFor="let event of eventGraphicLine">
+            <line [attr.x1]="event.x1" [attr.x2]="event.x2" [attr.y1]="event.y1" [attr.y2]="event.y2" [class]="event.class"></line>
+
+            <line *ngIf="event.yV > 0" [attr.x1]="event.x1" [attr.x2]="event.x1" [attr.y1]="event.y1" [attr.y2]="event.yV" class="vertical"></line>
+          </g>
+        </g>
+
+        <g transform="translate(65, 40)">
+          <rect [attr.x]="violationRect.x1" [attr.width]="violationRect.x2 - violationRect.x1" class="error-status-viol" height="200"></rect>
+        </g>
+      </svg>
+      <div class="violation-list" *ngIf="logDaily?.violations.length !== 0">
+        <div class="violation-item" *ngFor="let violation of logDaily?.violations" (click)="toggleViolationRect(violation)">
+          {{ (violation?.regulations.name | translate) + ' ' }}{{ violation.startTime | date : 'hh:mm:ss a' : timeZones[timeZone] }}
+        </div>
+      </div>
+    </div>
+    <div class="logdailies-horizontal">
+      <div class="logdaily-element" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
+        <div class="log-el-title">
+          <div class="log-el-text">{{ logDaily.logDate | date:'d MMM' | translate }}</div>
+          <div class="log-el-signs">
+            <div class="log-el-sign log-el-sign-red">F</div>
+            <div class="log-el-sign log-el-sign-red">C</div>
+            <div class="log-el-sign log-el-sign-green">V</div>
+          </div>
+        </div>
+        <div class="log-el-time">{{ logDaily.timeWorked | convertSecotdsToHoursAndMinutes }}</div>
+      </div>
+    </div>
+    <!-- <div class="log-dailies">
       <div class="log-daily" *ngFor="let logDaily of logDailies" (click)="selectLog(logDaily)">
         <div class="log-left">
           <div class="subtitle">
@@ -236,7 +366,7 @@
           <p class="hours-worked">{{ logDaily.timeWorked | convertSecotdsToHoursAndMinutes }}</p>
         </div>
       </div>
-    </div>
+    </div> -->
     <!-- <ion-modal [isOpen]="isModalOpen" trigger="trigger-status" (willDismiss)="cancel()">
       <ng-template>
         <ion-header class="ion-no-border">

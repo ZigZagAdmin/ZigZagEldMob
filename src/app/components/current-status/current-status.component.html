@@ -11,7 +11,7 @@
       <div class="cs-text-status">{{ currentStatus?.statusName }}</div>
       <div class="cs-text-status">{{ '(' + time + ')' }}</div>
       </div>
-    <div class="cs-icon"><img [src]="currentStatus?.icon" /></div>
+    <div class="cs-icon" [ngClass]="{'label-margin': currentStatus?.label }"><img [src]="currentStatus?.icon" /></div>
   </div>
   <div class="cs-label" *ngIf="currentStatus?.label" [ngStyle]="{ 'background-color': currentStatus?.labelBackground }" (click)="changeStatus(currentStatus?.labelCode)">
     <div class="cs-label-text" [ngStyle]="{ color: currentStatus?.labelColor }">{{ currentStatus?.labelCode }}</div>

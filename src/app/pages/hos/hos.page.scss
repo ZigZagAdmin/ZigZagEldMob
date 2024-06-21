@@ -440,3 +440,84 @@ ion-loading {
     padding-right: var(--ion-safe-area-right);
   }
 }
+
+.logdailies-horizontal {
+  display: flex;
+  width: 100%;
+  overflow-y: hidden;
+  overflow-x: scroll;
+  gap: 12px;
+}
+
+.logdailies-horizontal::-webkit-scrollbar {
+  display: none;
+}
+
+.logdaily-element {
+  flex: 1;
+  background-color: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 12px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.log-el-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.log-el-text {
+  font-size: 16px;
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.log-el-signs {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.log-el-sign {
+  border-radius: 100%;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  color: var(--gray-25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.log-el-sign-green {
+  background: var(--success-500);
+}
+
+.log-el-sign-red {
+  background: var(--error-600);
+}
+
+.log-el-time {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background-color: var(--success-500);
+  border-radius: 6px;
+  color: var(--gray-25);
+  padding: 2px 0px;
+}
+
+.card-info {
+  // min-width: 397px;
+  z-index: 5;
+  background: var(--gray-100);
+  border-radius: 10px;
+  padding: 10px 5px 1px 5px;
+}

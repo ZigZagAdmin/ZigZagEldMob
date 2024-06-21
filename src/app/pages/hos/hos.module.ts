@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgCircleProgressModule } from 'ng-circle-progress';
@@ -21,6 +21,8 @@ import { ConvertMsToHoursAndMinutesAndSecondsHmPipe } from 'src/app/pipe/convert
 import { TranslateModule } from '@ngx-translate/core';
 import { CurrentStatusComponentModule } from 'src/app/components/current-status/current-status.module';
 import { ChangeStatusComponentModule } from 'src/app/components/change-status/current-status.module';
+import { HoursRemainingComponentModule } from 'src/app/components/hours-remaining/hours-remaining.module';
+import { RecapComponent } from './recap/recap.component';
 
 @NgModule({
   imports: [
@@ -40,9 +42,10 @@ import { ChangeStatusComponentModule } from 'src/app/components/change-status/cu
     PageLoaderComponentModule,
     TranslateModule,
     CurrentStatusComponentModule,
-    ChangeStatusComponentModule
+    ChangeStatusComponentModule,
+    HoursRemainingComponentModule
   ],
-  declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],
+  declarations: [HosPage, MilisecToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe, RecapComponent],
   exports: [ConvertSecondsToHoursAndMinutesPipe, ConvertSecondsToHoursAndMinutesHmPipe, ConvertMsToHoursAndMinutesAndSecondsHmPipe],
 })
 export class HosPageModule {}
