@@ -34,8 +34,8 @@
       </div>
       <div class="green" [ngStyle]="{'background-color': currentStatusColor}">{{currentStatusTime}}</div>
     </div> -->
-    <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime"></app-current-status>
-    <app-change-status [(status)]="currentStatus.statusCode"></app-change-status>
+    <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime" (statusCallback)="selectButton($event)"></app-current-status>
+    <app-change-status [status]="selectedButton" (statusChange)="selectButton($event)"></app-change-status>
     <div class="circles">
       <p class="text-2" style="margin-bottom: 5px">{{'Hours Remaining' | translate}}</p>
       <div class="circles-block" *ngIf="!restMode">

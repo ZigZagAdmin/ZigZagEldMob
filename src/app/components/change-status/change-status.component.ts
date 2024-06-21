@@ -6,16 +6,15 @@ import { IStatus } from '../current-status/current-status.component';
   templateUrl: './change-status.component.html',
   styleUrls: ['./change-status.component.scss'],
 })
-export class ChangeStatusComponent  implements OnInit {
-
+export class ChangeStatusComponent implements OnInit {
   statusList: IStatus[] = [
-    { statusName: 'Driving', statusCode: 'D', icon: 'assets/icons/d-icon.svg', background: 'var(--success-500)', backgroundLayer: 'var(--gray-500)', color: 'var(--gray-25)', label: false },
+    { statusName: 'Driving', statusCode: 'D', icon: 'assets/icons/d-icon.svg', background: 'var(--success-500)', backgroundLayer: 'assets/icons/s-d-bg.svg', color: 'var(--gray-25)', label: false },
     {
-      statusName: 'Sleeper Berth',
+      statusName: 'Sleeper',
       statusCode: 'SB',
       icon: 'assets/icons/sb-icon.svg',
       background: 'var(--gray-700)',
-      backgroundLayer: 'var(--gray-300)',
+      backgroundLayer: 'assets/icons/s-sb-bg.svg',
       color: 'var(--gray-25)',
       label: false,
     },
@@ -24,7 +23,7 @@ export class ChangeStatusComponent  implements OnInit {
       statusCode: 'ON',
       icon: 'assets/icons/on-icon.svg',
       background: 'var(--warning-500)',
-      backgroundLayer: 'var(--gray-300)',
+      backgroundLayer: 'assets/icons/s-on-bg.svg',
       color: 'var(--gray-25)',
       label: true,
       labelCode: 'YM',
@@ -36,13 +35,13 @@ export class ChangeStatusComponent  implements OnInit {
       statusCode: 'OFF',
       icon: 'assets/icons/off-icon.svg',
       background: 'var(--gray-400)',
-      backgroundLayer: 'var(--gray-300)',
+      backgroundLayer: 'assets/icons/s-off-bg.svg',
       color: 'var(--gray-25)',
       label: true,
       labelCode: 'PC',
       labelColor: 'var(--gray-400)',
       labelBackground: 'var(--gray-25)',
-    }
+    },
   ];
 
   @Input()
@@ -55,17 +54,22 @@ export class ChangeStatusComponent  implements OnInit {
   set status(value: string) {
     console.log(value);
     this.currentStatus = this.statusList.find(el => el.statusCode === value);
-    this.filteredList = this.statusList.slice();
-    this.filteredList.filter(el => el.statusCode === value || el.labelCode === value);
+    this.filteredList = this.statusList.filter(el => el.statusCode !== value && el.labelCode !== value);
     this.statusChange.emit(value);
-      this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
+
+  @Output() statusCallback: EventEmitter<void> = new EventEmitter<void>();
 
   currentStatus: IStatus;
   filteredList: IStatus[];
 
-  constructor(private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit() {}
 
+  triggerStatus(code: string) {
+    this.status = code;
+    this.statusChange.emit(code);
+  }
 }

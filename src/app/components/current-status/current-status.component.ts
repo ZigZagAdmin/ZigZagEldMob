@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 export interface IStatus {
   statusName: string;
@@ -24,6 +24,8 @@ export class CurrentStatusComponent implements OnInit {
     this.changeDetectorRef.detectChanges();
   }
   @Input() time: string;
+
+  @Output() statusCallback: EventEmitter<string> = new EventEmitter<string>();
 
   statusList: IStatus[] = [
     { statusName: 'Driving', statusCode: 'D', icon: 'assets/icons/d-icon.svg', background: 'var(--success-500)', backgroundLayer: 'var(--gray-500)', color: 'var(--gray-25)', label: false },
@@ -91,4 +93,8 @@ export class CurrentStatusComponent implements OnInit {
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit() {}
+
+  changeStatus(code: string) {
+    this.statusCallback.emit(code);
+  }
 }

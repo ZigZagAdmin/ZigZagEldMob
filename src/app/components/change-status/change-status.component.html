@@ -1,8 +1,12 @@
 <div class="chs-container">
   <div class="chs-el-main" *ngFor="let status of filteredList">
-      <div class="chs-el-container" [ngStyle]="{'background-color': status?.background }">
+      <div class="chs-el-container" [ngStyle]="{'background-color': status?.background }" (click)="triggerStatus(status?.statusCode)">
         <div class="chs-el-logo"><img [src]="status?.icon" /></div>
-        <div class="chs-el-text">{{ status?.statusName }}</div>
+        <div class="chs-el-text text-elipsis">{{ status?.statusName }}</div>
+        <img class="chs-el-bg-layer" [ngClass]="{'chs-el-bg-layer-d': status?.statusCode === 'D'}" [src]="status?.backgroundLayer" />
+      </div>
+      <div class="chs-el-label" *ngIf="status?.label" [ngStyle]="{ 'background': status?.labelBackground, 'color': status?.labelColor }" (click)="triggerStatus(status?.labelCode)">
+        {{ status?.labelCode }}
       </div>
   </div>
 </div>

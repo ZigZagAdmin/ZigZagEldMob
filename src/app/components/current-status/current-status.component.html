@@ -13,7 +13,7 @@
       </div>
     <div class="cs-icon"><img [src]="currentStatus?.icon" /></div>
   </div>
-  <div class="cs-label" *ngIf="currentStatus?.label" [ngStyle]="{ 'background-color': currentStatus?.labelBackground }">
+  <div class="cs-label" *ngIf="currentStatus?.label" [ngStyle]="{ 'background-color': currentStatus?.labelBackground }" (click)="changeStatus(currentStatus?.labelCode)">
     <div class="cs-label-text" [ngStyle]="{ color: currentStatus?.labelColor }">{{ currentStatus?.labelCode }}</div>
   </div>
 </div>
