@@ -12,9 +12,10 @@ import { ScrollToolbarComponentModule } from 'src/app/components/scroll-toolbar/
 import { HosPageModule } from '../hos/hos.module';
 import { TranslateModule } from '@ngx-translate/core';
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
+import { PipesModule } from 'src/app/pipe/pipes.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, InspectionPreviewPageRoutingModule, HeaderComponentModule, ScrollToolbarComponentModule, HosPageModule, TranslateModule, PageLoaderComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, InspectionPreviewPageRoutingModule, HeaderComponentModule, ScrollToolbarComponentModule, HosPageModule, TranslateModule, PageLoaderComponentModule, PipesModule],
   declarations: [InspectionPreviewPage],
 })
 export class InspectionPreviewPageModule {}

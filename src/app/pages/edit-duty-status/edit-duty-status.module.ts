@@ -21,6 +21,7 @@ import { DateTimeComponentModule } from 'src/app/components/date-time/date-time.
 import { CommentsComponentModule } from 'src/app/components/comments/comments.module';
 import { LocationInputComponentModule } from 'src/app/components/location-input/location-input.module';
 import { TranslateModule } from '@ngx-translate/core';
+import { PipesModule } from 'src/app/pipe/pipes.module';
 
 @NgModule({
   imports: [
@@ -37,7 +38,8 @@ import { TranslateModule } from '@ngx-translate/core';
     DateTimeComponentModule,
     CommentsComponentModule,
     LocationInputComponentModule,
-    TranslateModule
+    TranslateModule,
+    PipesModule
   ],
   declarations: [EditDutyStatusPage],
 })

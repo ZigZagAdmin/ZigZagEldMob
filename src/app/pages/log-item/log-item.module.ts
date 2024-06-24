@@ -5,8 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { LogItemPageRoutingModule } from './log-item-routing.module';
-import { ConverStringDateToMilisecondsPipe } from 'src/app/pipe/conver-string-date-to-miliseconds.pipe';
-import { ConvertMilisecondsToHoursAndMinutesPipe } from 'src/app/pipe/convert-miliseconds-to-hours-and-minutes.pipe';
 import { LogItemPage } from './log-item.page';
 import { HeaderComponentModule } from 'src/app/components/header/header.module';
 import { ScrollToolbarComponentModule } from 'src/app/components/scroll-toolbar/scroll-toolbar.module';
@@ -15,6 +13,7 @@ import { LogItemDailyComponent } from './log-item-daily/log-item-daily.component
 import { HosPageModule } from '../hos/hos.module';
 import { PageLoaderComponentModule } from 'src/app/components/page-loader/page-loader.module';
 import { TranslateModule } from '@ngx-translate/core';
+import { PipesModule } from 'src/app/pipe/pipes.module';
 @NgModule({
   imports: [
     CommonModule,
@@ -27,8 +26,9 @@ import { TranslateModule } from '@ngx-translate/core';
     InputComponentModule,
     HosPageModule,
     PageLoaderComponentModule,
-    TranslateModule
+    TranslateModule,
+    PipesModule
   ],
-  declarations: [LogItemPage, ConverStringDateToMilisecondsPipe, ConvertMilisecondsToHoursAndMinutesPipe, LogItemDailyComponent],
+  declarations: [LogItemPage, LogItemDailyComponent],
 })
 export class LogItemPageModule {}
