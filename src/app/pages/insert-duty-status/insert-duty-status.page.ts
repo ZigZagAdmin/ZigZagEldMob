@@ -230,7 +230,7 @@ export class InsertDutyStatusPage implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.navCtrl.navigateBack(['log-item', this.logDailyId]);
+    this.navCtrl.back();
   }
 
   async getLocalCurrentLocation() {

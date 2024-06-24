@@ -104,7 +104,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {}
 
   goBack() {
-    this.navCtrl.navigateBack(['log-item', this.logId]);
+    this.navCtrl.back();
   }
 
   initSignaturePad() {

@@ -30,7 +30,7 @@ export class CurrentStatusComponent implements OnInit {
   statusList: IStatus[] = [
     { statusName: 'Driving', statusCode: 'D', icon: 'assets/icons/d-icon.svg', background: 'var(--success-500)', backgroundLayer: 'var(--gray-500)', color: 'var(--gray-25)', label: false },
     {
-      statusName: 'Sleeper Berth',
+      statusName: 'Sleeper',
       statusCode: 'SB',
       icon: 'assets/icons/sb-icon.svg',
       background: 'var(--gray-700)',

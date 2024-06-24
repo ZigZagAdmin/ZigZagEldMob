@@ -29,8 +29,8 @@ export interface LogDailies {
 export interface IForm {
   trailers: string;
   shippingDoc: string;
-  fromAddress: string;
-  toAddress: string;
+  fromAddress?: string;
+  toAddress?: string;
   signatureId: string;
   signature?: string;
   signatureLink?: string;

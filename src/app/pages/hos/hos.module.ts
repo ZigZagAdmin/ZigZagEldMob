@@ -20,6 +20,8 @@ import { ChangeStatusComponentModule } from 'src/app/components/change-status/cu
 import { HoursRemainingComponentModule } from 'src/app/components/hours-remaining/hours-remaining.module';
 import { RecapComponent } from './recap/recap.component';
 import { PipesModule } from 'src/app/pipe/pipes.module';
+import { LogDailyComponent } from './log-daily/log-daily.component';
+import { SelectComponentModule } from 'src/app/components/select/select.module';
 
 @NgModule({
   imports: [
@@ -41,8 +43,9 @@ import { PipesModule } from 'src/app/pipe/pipes.module';
     CurrentStatusComponentModule,
     ChangeStatusComponentModule,
     HoursRemainingComponentModule,
-    PipesModule
+    PipesModule,
+    SelectComponentModule
   ],
-  declarations: [HosPage, RecapComponent],
+  declarations: [HosPage, RecapComponent, LogDailyComponent],
 })
 export class HosPageModule {}

@@ -142,68 +142,6 @@ ion-col {
   position: relative;
 }
 
-.custom-card-on::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
-  height: 100%;
-  background-color: #fae057; /* Любой цвет, который вам нужен */
-  /* Другие стили по вашему выбору */
-}
-
-.custom-card-off::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
-  height: 100%;
-  background-color: #bdc3bf; /* Любой цвет, который вам нужен */
-  /* Другие стили по вашему выбору */
-}
-.custom-card-d::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
-  height: 100%;
-  background-color: #8bc34a; /* Любой цвет, который вам нужен */
-  /* Другие стили по вашему выбору */
-}
-.custom-card-sb::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
-  height: 100%;
-  background-color: #7e7e7e; /* Любой цвет, который вам нужен */
-  /* Другие стили по вашему выбору */
-}
-.custom-card-pc::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
-  height: 100%;
-  background-color: #bdc3bf; /* Любой цвет, который вам нужен */
-  /* Другие стили по вашему выбору */
-}
-.custom-card-ym::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2%; /* Ширина левой части, настраивайте по вашему усмотрению */
-  height: 100%;
-  background-color: #fae057; /* Любой цвет, который вам нужен */
-  /* Другие стили по вашему выбору */
-}
-
 .underline-text {
   text-decoration: underline;
   color: #0000ff;

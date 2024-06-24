@@ -165,7 +165,7 @@ export class EditDutyStatusPage implements OnInit, OnDestroy {
   ngOnDestroy(): void {}
 
   goBack() {
-    this.navCtrl.navigateBack(['log-item', this.logDailyId]);
+    this.navCtrl.back();
   }
 
   async getLocalCurrentLocation() {
