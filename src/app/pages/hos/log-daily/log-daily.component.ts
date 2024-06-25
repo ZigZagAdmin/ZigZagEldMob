@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, Input, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 import { InternetService } from 'src/app/services/internet.service';
@@ -28,7 +28,9 @@ import { Driver } from 'src/app/models/driver';
   templateUrl: './log-daily.component.html',
   styleUrls: ['./log-daily.component.scss'],
 })
-export class LogDailyComponent implements OnInit {
+export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() triggerRefresh: boolean = false;
+
   @ViewChild('sPad', { static: false }) signaturePadElement!: ElementRef;
   LogDailiesId!: string | null;
   bReady: boolean = false;
@@ -100,7 +102,7 @@ export class LogDailyComponent implements OnInit {
   oldNetworkState: boolean = null;
   isLogs: boolean = true;
 
-  chosenDriver: string = '';
+  chosenDriver: string = 'None';
 
   coDrivers: Driver[] = [];
   coDriverNames: string[] = [];
@@ -122,8 +124,7 @@ export class LogDailyComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.shareService.destroyMessage();
-    this.shareService.changeMessage('reset');
+    console.log("OnInit")
     this.timeZones = this.utilityService.checkSeason();
     this.shareService.destroyMessage();
     this.shareService.changeMessage('reset');
@@ -141,6 +142,21 @@ export class LogDailyComponent implements OnInit {
         this.oldNetworkState = state;
       }
     });
+    // this.fetchData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes['triggerRefresh']);
+    if(changes['triggerRefresh'] && changes['triggerRefresh'].currentValue !== undefined && changes['triggerRefresh'].currentValue !== null) {
+      console.log('refeeerere')
+      this.fetchData();
+    }
+  }
+
+  fetchData() {
+    this.clearRect();
+    this.shareService.destroyMessage();
+    this.shareService.changeMessage('reset');
     const logDailies$ = this.databaseService.getLogDailies();
     const logEvents$ = this.databaseService.getLogEvents();
     let coDrivers$ = this.storage.get('coDrivers');
@@ -148,15 +164,18 @@ export class LogDailyComponent implements OnInit {
     forkJoin([logDailies$, logEvents$, coDrivers$]).subscribe(([logDailies, logEvents, coDrivers]) => {
       this.logDailies = logDailies;
       this.logEvents = logEvents;
-      this.coDrivers = coDrivers;
-      this.coDriverNames = this.coDrivers.map(el => el.firstName + ' ' + el.lastName);
+      this.coDriverNames = [];
+      this.coDrivers = (coDrivers as Driver[]).slice().filter(el => el.driverId !== this.driverId);
+      this.coDriverNames = this.coDrivers.map(el => el.name);
       this.logEvents.forEach(logEvent => (logEvent.type.code !== 'LOGIN' && logEvent.type.code !== 'LOGOUT' ? this.statusEvents.push(logEvent) : null));
 
       if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
-
-      this.logDaily = this.logDailies[0];
-      this.LogDailiesId = this.logDaily.logDailyId;
-      console.log(this.logDaily);
+      if(this.LogDailiesId !== undefined && this.LogDailiesId !== null && this.LogDailiesId.length !== 0) {
+        this.logDaily = this.logDailies.find(el => el.logDailyId === this.LogDailiesId);
+      } else {
+        this.logDaily = this.logDailies[0];
+        this.LogDailiesId = this.logDaily.logDailyId;
+      }
       if (this.logDaily) {
         this.currentDay = this.logDaily.logDate;
         this.fillFormWithLogDailyData();
@@ -665,6 +684,7 @@ export class LogDailyComponent implements OnInit {
   }
 
   toggleLogsForm(flag: string) {
+    this.shareService.changeMessage('reset');
     if (flag === 'logs') {
       this.isLogs = true;
     } else {

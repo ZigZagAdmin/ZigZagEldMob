@@ -4,6 +4,7 @@
   flex-direction: column;
   gap: 20px;
   padding: 20px;
+  padding-bottom: 0px;
   .hos-header {
     width: 100%;
     display: flex;
@@ -434,7 +435,7 @@ ion-loading {
   padding-top: 10px;
 }
 
-@media screen and (orientation: landscape) {
+@media screen and (orientation: landscape) and (max-width: 1024px) {
   .ios .hos-wrapper {
     padding-left: var(--ion-safe-area-left);
     padding-right: var(--ion-safe-area-right);
@@ -520,4 +521,32 @@ ion-loading {
   background: var(--gray-100);
   border-radius: 10px;
   padding: 10px 5px 1px 5px;
+}
+
+.general-section-wrapper,
+.general-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media screen and (orientation: landscape) and (max-width: 1024px) {
+  .ios .hos-wrapper {
+    padding-left: var(--ion-safe-area-left);
+    padding-right: var(--ion-safe-area-right);
+  }
+
+}
+
+@media screen and (orientation: landscape) and (min-width: 1024px) {
+
+  .general-section-wrapper {
+    flex-direction: row;
+    gap: 30px;
+  }
+
+  .general-section {
+    width: 50%;
+  }
 }

@@ -147,7 +147,7 @@
   display: none;
 }
 
-@media screen and (orientation: landscape) {
+@media screen and (orientation: landscape) and (max-width: 1024px) {
   .ios .dvirs-list {
     padding-left: var(--ion-safe-area-left);
     padding-right: var(--ion-safe-area-right);

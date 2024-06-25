@@ -156,10 +156,9 @@ ion-loading {
   font-size: 14px;
 }
 
-@media screen and (orientation: landscape) {
+@media screen and (orientation: landscape) and (max-width: 1024px) {
   .ios .connect-wrapper {
     padding-left: var(--ion-safe-area-left);
     padding-right: var(--ion-safe-area-right);
   }
 }
-

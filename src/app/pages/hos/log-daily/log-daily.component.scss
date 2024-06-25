@@ -164,7 +164,7 @@ ion-col {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
+
   .form-item {
     display: flex;
     justify-content: space-between;
@@ -185,12 +185,17 @@ ion-col {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  
+  height: calc(50vh - 60px);
+  overflow-y: auto;
+  padding-bottom: 20px;
+
   .form-card {
     width: 100%;
     display: flex;
     border-radius: 12px;
+    flex-shrink: 0;
     overflow: hidden;
+    min-height: fit-content;
 
     .card-status {
       width: 10%;
@@ -215,13 +220,13 @@ ion-col {
         align-items: center;
         justify-content: space-between;
         gap: 5px;
-  
+
         .row-status {
           display: flex;
           align-items: center;
           gap: 10px;
         }
-  
+
         .text-2 {
           flex-grow: 1;
         }
@@ -335,7 +340,7 @@ ion-col {
   justify-content: flex-start;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  overflow-x: scroll;
 
   .violation-item {
     font-size: 11px;
@@ -344,6 +349,8 @@ ion-col {
     background-color: var(--error-50);
     padding: 5px 10px;
     border-radius: 50px;
+    min-width: fit-content;
+    flex-shrink: 0;
   }
 }
 
@@ -396,13 +403,6 @@ ion-col {
 
 .hide-el {
   display: none;
-}
-
-@media screen and (orientation: landscape) {
-  .ios .main-container {
-    padding-left: var(--ion-safe-area-left);
-    padding-right: var(--ion-safe-area-right);
-  }
 }
 
 .logdailies-horizontal {
@@ -564,7 +564,6 @@ ion-col {
   }
 
   .day-change-arrow {
-
     img {
       width: 28px;
       height: 28px;
@@ -620,4 +619,10 @@ ion-col {
 
 .active-log-daily {
   border: 1px solid var(--gray-400);
+}
+
+.form-wrapper {
+  padding: 0;
+  margin: 0;
+  height: calc(50vh - 60px);
 }

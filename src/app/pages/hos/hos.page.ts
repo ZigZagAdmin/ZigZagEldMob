@@ -172,6 +172,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   lastEldData: { [key: string]: string } = {};
 
   skipFirst: boolean = false;
+  triggerComponentRefresh: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -246,6 +247,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     });
     this.paramsSubscription = this.route.params.subscribe(async () => {
       if (this.bReady) {
+        this.refreshLogDailies();
         await firstValueFrom(this.databaseService.getLogDailies()).then(async logDailies => {
           if (!this.ionViewTrigger) {
             console.log('HOS PAGE PARAM SUBS');
@@ -965,6 +967,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         }
       }
     }
+    this.refreshLogDailies();
   }
 
   pushViolation(day: string, error: { code: string; name: string }, date: number) {
@@ -1402,6 +1405,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   updateEveryMinute() {
     setInterval(async () => {
       console.log('Every Minute Update');
+      this.refreshLogDailies();
       await this.createLogDailies();
       await this.calcViolations();
       await this.uploadDriverStatus();
@@ -1614,5 +1618,10 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   getPlatform() {
     return Capacitor.getPlatform();
+  }
+
+  refreshLogDailies() {
+    this.triggerComponentRefresh = !this.triggerComponentRefresh;
+    console.log("triggered: " + this.triggerComponentRefresh);
   }
 }

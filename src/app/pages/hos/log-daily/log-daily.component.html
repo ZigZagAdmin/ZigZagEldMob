@@ -150,28 +150,30 @@
         </div>
       </div>
     </div>
-    <div class="form-complex" *ngIf="!isLogs">
-      <div class="form-list">
-        <app-input class="custom-local-input" [label]="'Vehicle' | translate" [fill]="false" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>
-        <app-input class="custom-local-input" [label]="'Trailers' | translate" [fill]="false" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers" [noValidation]="true"></app-input>
-        <app-input
-          class="custom-local-input"
-          [label]="'Shipping Document' | translate"
-          [required]="true"
-          [fill]="false"
-          [labelPosition]="'left'"
-          [type]="'text'"
-          [(value)]="localForm.form.shippingDoc"
-          [(validation)]="validation['shippingDoc']"></app-input>
-          <app-select class="custom-local-select" [label]="'Co-Driver' | translate" (changeDetection)="showSelection()" [labelPosition]="'left'" [(value)]="chosenDriver" [options]="coDriverNames" [required]="true" [fill]="false" [noValidation]="false" [(validation)]="validation['coDriver']"></app-select>
-      </div>
-      <div class="form-buttons">
-        <button class="btn primary-btn custom-btn" style="width: 63px" (click)="onSubmit()">
-          <span *ngIf="!saveFormLoading" style="color: #fcfcfc">{{ 'Save' | translate }}</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
-        </button>
-        <button class="btn default-btn custom-btn" (click)="certifyLog()">
-          {{ 'Certify' | translate }}
-        </button>
+    <div class="form-wrapper" *ngIf="!isLogs">
+      <div class="form-complex">
+        <div class="form-list">
+          <app-input class="custom-local-input" [label]="'Vehicle' | translate" [fill]="false" [labelPosition]="'left'" [disabled]="true" [type]="'text'" [(value)]="vehicleUnit" [noValidation]="true"></app-input>
+          <app-input class="custom-local-input" [label]="'Trailers' | translate" [fill]="false" [labelPosition]="'left'" [type]="'text'" [(value)]="localForm.form.trailers" [noValidation]="true"></app-input>
+          <app-input
+            class="custom-local-input"
+            [label]="'Shipping Document' | translate"
+            [required]="true"
+            [fill]="false"
+            [labelPosition]="'left'"
+            [type]="'text'"
+            [(value)]="localForm.form.shippingDoc"
+            [(validation)]="validation['shippingDoc']"></app-input>
+            <app-select class="custom-local-select" [label]="'Co-Driver' | translate" (changeDetection)="showSelection()" [labelPosition]="'left'" [(value)]="chosenDriver" [options]="coDriverNames" [fill]="false" [noValidation]="true"></app-select>
+        </div>
+        <div class="form-buttons">
+          <button class="btn primary-btn custom-btn" style="width: 63px" (click)="onSubmit()">
+            <span *ngIf="!saveFormLoading" style="color: #fcfcfc">{{ 'Save' | translate }}</span> <ion-spinner *ngIf="saveFormLoading" style="zoom: 0.7" name="circular" color="light"></ion-spinner>
+          </button>
+          <button class="btn default-btn custom-btn" (click)="certifyLog()">
+            {{ 'Certify' | translate }}
+          </button>
+        </div>
       </div>
     </div>
     <!-- <div class="logs-certified"  *ngIf="!isLogs">

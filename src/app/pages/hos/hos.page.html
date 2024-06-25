@@ -34,156 +34,162 @@
       </div>
       <div class="green" [ngStyle]="{'background-color': currentStatusColor}">{{currentStatusTime}}</div>
     </div> -->
-    <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime" (statusCallback)="selectButton($event)"></app-current-status>
-    <app-change-status [status]="selectedButton" (statusChange)="selectButton($event)"></app-change-status>
-    <app-hours-remaining
-      [percentBreak]="percentBreak"
-      [percentDriving]="percentDriving"
-      [percentShift]="percentShift"
-      [percentCycle]="percentCycle"
-      [restBreak]="restBreak"
-      [restShift]="restShift"
-      [restCycle]="restCycle"
-      [progressBreak]="progressBreak"
-      [progressShift]="progressShift"
-      [progressCycle]="progressCycle"
-      [titleBreak]="titleBreak"
-      [titleDriving]="titleDriving"
-      [titleShift]="titleShift"
-      [titleCycle]="titleCycle"></app-hours-remaining>
-    <!-- <div class="circles">
-      <p class="text-2" style="margin-bottom: 5px">{{'Hours Remaining' | translate}}</p>
-      <div class="circles-block" *ngIf="!restMode">
-        <div class="circle-block">
-          <circle-progress
-            style="pointer-events: none"
-            [percent]="percentBreak"
-            [responsive]="true"
-            [space]="-15"
-            [outerStrokeWidth]="15"
-            outerStrokeColor="var(--warning-300)"
-            innerStrokeColor="var(--gray-200)"
-            [innerStrokeWidth]="15"
-            titleFontSize="22"
-            [title]="convertSecondToHours(titleBreak)"
-            titleColor="var(--warning-400)"
-            titleFontWeight="600"
-            [subtitle]="'Break' | translate"
-            subtitleFontWeight="500"
-            subtitleColor="var(--gray-400)"
-            subtitleFontSize="22"
-            [showUnits]="false"
-            [animation]="animateCircles"
-            [animationDuration]="500"
-            outerStrokeLinecap="round">
-          </circle-progress>
+    <div class="general-section-wrapper">
+      <div class="general-section">
+        <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime" (statusCallback)="selectButton($event)"></app-current-status>
+        <app-change-status [status]="selectedButton" (statusChange)="selectButton($event)"></app-change-status>
+      </div>
+      <div class="general-section">
+        <app-hours-remaining
+          [percentBreak]="percentBreak"
+          [percentDriving]="percentDriving"
+          [percentShift]="percentShift"
+          [percentCycle]="percentCycle"
+          [restBreak]="restBreak"
+          [restShift]="restShift"
+          [restCycle]="restCycle"
+          [progressBreak]="progressBreak"
+          [progressShift]="progressShift"
+          [progressCycle]="progressCycle"
+          [titleBreak]="titleBreak"
+          [titleDriving]="titleDriving"
+          [titleShift]="titleShift"
+          [titleCycle]="titleCycle"></app-hours-remaining>
+        <!-- <div class="circles">
+          <p class="text-2" style="margin-bottom: 5px">{{'Hours Remaining' | translate}}</p>
+          <div class="circles-block" *ngIf="!restMode">
+            <div class="circle-block">
+              <circle-progress
+                style="pointer-events: none"
+                [percent]="percentBreak"
+                [responsive]="true"
+                [space]="-15"
+                [outerStrokeWidth]="15"
+                outerStrokeColor="var(--warning-300)"
+                innerStrokeColor="var(--gray-200)"
+                [innerStrokeWidth]="15"
+                titleFontSize="22"
+                [title]="convertSecondToHours(titleBreak)"
+                titleColor="var(--warning-400)"
+                titleFontWeight="600"
+                [subtitle]="'Break' | translate"
+                subtitleFontWeight="500"
+                subtitleColor="var(--gray-400)"
+                subtitleFontSize="22"
+                [showUnits]="false"
+                [animation]="animateCircles"
+                [animationDuration]="500"
+                outerStrokeLinecap="round">
+              </circle-progress>
+            </div>
+            <div class="circle-block">
+              <circle-progress
+                style="pointer-events: none"
+                [percent]="percentDriving"
+                [responsive]="true"
+                [space]="-15"
+                [outerStrokeWidth]="15"
+                outerStrokeColor="var(--success-500)"
+                innerStrokeColor="var(--gray-200)"
+                [innerStrokeWidth]="15"
+                titleFontSize="22"
+                [title]="convertSecondToHours(titleDriving)"
+                titleColor="var(--success-600)"
+                titleFontWeight="600"
+                [subtitle]="'Driving' | translate"
+                subtitleFontWeight="500"
+                subtitleColor="var(--gray-400)"
+                subtitleFontSize="22"
+                [animation]="animateCircles"
+                [showUnits]="false"
+                [animationDuration]="500"
+                outerStrokeLinecap="round">
+              </circle-progress>
+            </div>
+            <div class="circle-block">
+              <circle-progress
+                style="pointer-events: none"
+                [percent]="percentShift"
+                [responsive]="true"
+                [space]="-15"
+                [outerStrokeWidth]="15"
+                outerStrokeColor="var(--purple-500)"
+                innerStrokeColor="var(--gray-200)"
+                [innerStrokeWidth]="15"
+                titleFontSize="22"
+                [title]="convertSecondToHours(titleShift)"
+                titleColor="var(--purple-600)"
+                titleFontWeight="600"
+                [subtitle]="'Shift' | translate"
+                subtitleFontWeight="500"
+                subtitleColor="var(--gray-400)"
+                subtitleFontSize="22"
+                [showUnits]="false"
+                [animation]="animateCircles"
+                [animationDuration]="500"
+                outerStrokeLinecap="round">
+              </circle-progress>
+            </div>
+            <div class="circle-block">
+              <circle-progress
+                style="pointer-events: none"
+                [percent]="percentCycle"
+                [responsive]="true"
+                [space]="-15"
+                [outerStrokeWidth]="15"
+                outerStrokeColor="var(--orange-400)"
+                innerStrokeColor="var(--gray-200)"
+                [innerStrokeWidth]="15"
+                titleFontSize="22"
+                [title]="convertSecondToHours(titleCycle)"
+                titleColor="var(--orange-400)"
+                titleFontWeight="600"
+                [subtitle]="'Cycle' | translate"
+                subtitleFontWeight="500"
+                subtitleColor="var(--gray-400)"
+                subtitleFontSize="22"
+                [showUnits]="false"
+                [animation]="animateCircles"
+                [animationDuration]="500"
+                outerStrokeLinecap="round">
+              </circle-progress>
+            </div>
+          </div>
+        </div> -->
+        <div id="violation-m" class="sleep-container" [ngClass]="{'hide-container': !checkElementHasChildren('sleep-box')}">
+          <!-- Shift -->
+          <div class="sleep-box sleep-warning" *ngIf="this.titleShift < 1800 && this.titleShift > 0">
+            <img src="../../../assets/icons/danger.svg" /> <span>Shift Warning: Shift will end in {{convertSecondToHours(this.titleShift)}} min</span>
+          </div>
+          <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleShift === 0">
+            <img src="../../../assets/icons/danger.svg" /> <span>Shift Violation: Shift is 00:00</span>
+          </div>
+          <!-- Break -->
+          <div class="sleep-box sleep-warning" *ngIf="this.titleBreak < 1800 && this.titleBreak > 0 && currentStatus.statusCode === 'D'">
+            <img src="../../../assets/icons/danger.svg" /> <span>Break Warning: You'll have to take a break in {{convertSecondToHours(this.titleBreak)}} min</span>
+          </div>
+          <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'D') && this.titleBreak === 0">
+            <img src="../../../assets/icons/danger.svg" /> <span>Break Violation: Break is 00:00. You need to take a break</span>
+          </div>
+          <!-- Cycle -->
+          <div class="sleep-box sleep-warning" *ngIf="this.titleCycle < 1800 && this.titleCycle > 0">
+            <img src="../../../assets/icons/danger.svg" /> <span>Cycle Warning: Cycle will end in {{convertSecondToHours(this.titleCycle)}} min</span>
+          </div>
+          <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleCycle === 0">
+            <img src="../../../assets/icons/danger.svg" /> <span>Cycle Violation: Cycle is 00:00</span>
+          </div>
+          <!-- Driving -->
+          <div class="sleep-box sleep-warning" *ngIf="this.titleDriving < 1800 && this.titleDriving > 0 && currentStatus.statusCode === 'D'">
+            <img src="../../../assets/icons/danger.svg" /> <span>Driving Warning: Driving will end in {{convertSecondToHours(this.titleDriving)}} min</span>
+          </div>
+          <div class="sleep-box sleep-error" *ngIf="currentStatus.statusCode === 'D' && this.titleDriving === 0">
+            <img src="../../../assets/icons/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
+          </div>
         </div>
-        <div class="circle-block">
-          <circle-progress
-            style="pointer-events: none"
-            [percent]="percentDriving"
-            [responsive]="true"
-            [space]="-15"
-            [outerStrokeWidth]="15"
-            outerStrokeColor="var(--success-500)"
-            innerStrokeColor="var(--gray-200)"
-            [innerStrokeWidth]="15"
-            titleFontSize="22"
-            [title]="convertSecondToHours(titleDriving)"
-            titleColor="var(--success-600)"
-            titleFontWeight="600"
-            [subtitle]="'Driving' | translate"
-            subtitleFontWeight="500"
-            subtitleColor="var(--gray-400)"
-            subtitleFontSize="22"
-            [animation]="animateCircles"
-            [showUnits]="false"
-            [animationDuration]="500"
-            outerStrokeLinecap="round">
-          </circle-progress>
-        </div>
-        <div class="circle-block">
-          <circle-progress
-            style="pointer-events: none"
-            [percent]="percentShift"
-            [responsive]="true"
-            [space]="-15"
-            [outerStrokeWidth]="15"
-            outerStrokeColor="var(--purple-500)"
-            innerStrokeColor="var(--gray-200)"
-            [innerStrokeWidth]="15"
-            titleFontSize="22"
-            [title]="convertSecondToHours(titleShift)"
-            titleColor="var(--purple-600)"
-            titleFontWeight="600"
-            [subtitle]="'Shift' | translate"
-            subtitleFontWeight="500"
-            subtitleColor="var(--gray-400)"
-            subtitleFontSize="22"
-            [showUnits]="false"
-            [animation]="animateCircles"
-            [animationDuration]="500"
-            outerStrokeLinecap="round">
-          </circle-progress>
-        </div>
-        <div class="circle-block">
-          <circle-progress
-            style="pointer-events: none"
-            [percent]="percentCycle"
-            [responsive]="true"
-            [space]="-15"
-            [outerStrokeWidth]="15"
-            outerStrokeColor="var(--orange-400)"
-            innerStrokeColor="var(--gray-200)"
-            [innerStrokeWidth]="15"
-            titleFontSize="22"
-            [title]="convertSecondToHours(titleCycle)"
-            titleColor="var(--orange-400)"
-            titleFontWeight="600"
-            [subtitle]="'Cycle' | translate"
-            subtitleFontWeight="500"
-            subtitleColor="var(--gray-400)"
-            subtitleFontSize="22"
-            [showUnits]="false"
-            [animation]="animateCircles"
-            [animationDuration]="500"
-            outerStrokeLinecap="round">
-          </circle-progress>
-        </div>
-      </div>
-    </div> -->
-    <div id="violation-m" class="sleep-container" [ngClass]="{'hide-container': !checkElementHasChildren('sleep-box')}">
-      <!-- Shift -->
-      <div class="sleep-box sleep-warning" *ngIf="this.titleShift < 1800 && this.titleShift > 0">
-        <img src="../../../assets/icons/danger.svg" /> <span>Shift Warning: Shift will end in {{convertSecondToHours(this.titleShift)}} min</span>
-      </div>
-      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleShift === 0">
-        <img src="../../../assets/icons/danger.svg" /> <span>Shift Violation: Shift is 00:00</span>
-      </div>
-      <!-- Break -->
-      <div class="sleep-box sleep-warning" *ngIf="this.titleBreak < 1800 && this.titleBreak > 0 && currentStatus.statusCode === 'D'">
-        <img src="../../../assets/icons/danger.svg" /> <span>Break Warning: You'll have to take a break in {{convertSecondToHours(this.titleBreak)}} min</span>
-      </div>
-      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'D') && this.titleBreak === 0">
-        <img src="../../../assets/icons/danger.svg" /> <span>Break Violation: Break is 00:00. You need to take a break</span>
-      </div>
-      <!-- Cycle -->
-      <div class="sleep-box sleep-warning" *ngIf="this.titleCycle < 1800 && this.titleCycle > 0">
-        <img src="../../../assets/icons/danger.svg" /> <span>Cycle Warning: Cycle will end in {{convertSecondToHours(this.titleCycle)}} min</span>
-      </div>
-      <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && this.titleCycle === 0">
-        <img src="../../../assets/icons/danger.svg" /> <span>Cycle Violation: Cycle is 00:00</span>
-      </div>
-      <!-- Driving -->
-      <div class="sleep-box sleep-warning" *ngIf="this.titleDriving < 1800 && this.titleDriving > 0 && currentStatus.statusCode === 'D'">
-        <img src="../../../assets/icons/danger.svg" /> <span>Driving Warning: Driving will end in {{convertSecondToHours(this.titleDriving)}} min</span>
-      </div>
-      <div class="sleep-box sleep-error" *ngIf="currentStatus.statusCode === 'D' && this.titleDriving === 0">
-        <img src="../../../assets/icons/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
       </div>
     </div>
     <app-recap [recapTime]="hoursRecap | convertSecotdsToHoursAndMinutes"></app-recap>
-    <app-log-daily></app-log-daily>
+    <app-log-daily [triggerRefresh]="triggerComponentRefresh"></app-log-daily>
     <!-- <div class="rest-mode" *ngIf="restMode">
       <div class="rest-row">
         <div class="row-1">
