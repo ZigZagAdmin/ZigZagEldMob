@@ -1,0 +1,23 @@
+<div class="notes-main">
+  <div class="notes-title">
+    <div class="title-text">Comments</div>
+    <div class="subtitle-text">Choose a suggestion or enter a remark</div>
+  </div>
+  <div class="notes-choose-words">
+    <div class="word" *ngFor="let word of suggestions" [ngClass]="{ 'word-active': word.active }" (click)="chooseWord(word)">{{ word.text }}</div>
+  </div>
+  <div class="notes-text-area">
+    <textarea
+      (input)="onInputChange($event)"
+      id="custom-textarea"
+      [(ngModel)]="value"
+      [readonly]="disabled"
+      [placeholder]="placeholder"
+      class="input-box"
+      [ngClass]="{ 'input-fill': fill, 'validation-error': !valid }"></textarea>
+  </div>
+  <div class="notes-buttons">
+    <div class="notes-btn notes-btn-default" (click)="cancel()">Cancel</div>
+    <div class="notes-btn notes-btn-primary" (click)="confirm()">Confirm</div>
+  </div>
+</div>

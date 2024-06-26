@@ -1,0 +1,106 @@
+.notes-main {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px 20px;
+}
+
+.notes-title {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.title-text {
+  font-size: 18px;
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.subtitle-text {
+  font-size: 16px;
+  color: var(--gray-500);
+}
+
+.notes-choose-words {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.word {
+  font-size: 18px;
+  width: fit-content;
+  padding: 8px;
+  color: var(--gray-500);
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.word-active {
+  color: var(--gray-25);
+  background-color: var(--primary-600);
+}
+
+.input-box {
+  width: 100%;
+  height: 100px;
+  resize: none;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--gray-500) !important;
+  background-color: var(--all-background);
+  border: 1px solid var(--gray-200);
+}
+
+.input-box:focus {
+  color: var(--gray-500) !important;
+  outline: none;
+  border: 1px solid var(--gray-300);
+}
+
+.input-fill {
+  border: none !important;
+  background-color: var(--gray-100) !important;
+}
+
+.validation-error {
+  border: 1px solid var(--error-600) !important;
+}
+
+.validation-error:focus {
+  border: 1px solid var(--error-600) !important;
+}
+
+.notes-buttons {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+}   
+
+.notes-btn {
+    flex: 1;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.notes-btn-default {
+    border: 1px solid var(--gray-300);
+    color: var(--gray-700);
+    background-color: var(--gray-25);
+}
+
+.notes-btn-primary {
+    color: var(--gray-25);
+    background: var(--primary-600);
+}

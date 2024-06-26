@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { IStatus } from '../current-status/current-status.component';
 
 @Component({
@@ -6,7 +6,7 @@ import { IStatus } from '../current-status/current-status.component';
   templateUrl: './change-status.component.html',
   styleUrls: ['./change-status.component.scss'],
 })
-export class ChangeStatusComponent implements OnInit {
+export class ChangeStatusComponent implements OnInit, OnChanges {
   statusList: IStatus[] = [
     { statusName: 'Driving', statusCode: 'D', icon: 'assets/icons/d-icon.svg', background: 'var(--success-500)', backgroundLayer: 'assets/icons/s-d-bg.svg', color: 'var(--gray-25)', label: false },
     {
@@ -52,24 +52,50 @@ export class ChangeStatusComponent implements OnInit {
   @Output() statusChange = new EventEmitter<string>();
 
   set status(value: string) {
-    console.log(value);
-    this.currentStatus = this.statusList.find(el => el.statusCode === value);
-    this.filteredList = this.statusList.filter(el => el.statusCode !== value && el.labelCode !== value);
-    this.statusChange.emit(value);
-    this.changeDetectorRef.detectChanges();
+    console.log(value)
+    console.log(this.manualTrigger);
+    this.tempValue = value;
+    if (value !== 'ON' || (value === 'ON' && !this.manualTrigger)) {
+      this.filterData(value);
+    }
   }
 
+  @Input() filterTrigger: boolean = undefined;
   @Output() statusCallback: EventEmitter<void> = new EventEmitter<void>();
 
   currentStatus: IStatus;
   filteredList: IStatus[];
+  manualTrigger: boolean = false;
+  previousValue: string = '';
+  tempValue: string = '';
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit() {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.currentStatus && changes['filterTrigger'] && changes['filterTrigger'].previousValue !== undefined && changes['filterTrigger'].previousValue !== null) {
+      this.filterData(this.tempValue);
+    }
+  }
+
   triggerStatus(code: string) {
+    this.manualTrigger = true;
     this.status = code;
+    console.log(code);
+    console.log(this.status);
     this.statusChange.emit(code);
+  }
+
+  filterData(value: string) {
+    console.log(value);
+    if (this.manualTrigger) this.manualTrigger = false;
+    if (this.currentStatus === undefined || value !== this.previousValue) {
+      this.currentStatus = this.statusList.find(el => el.statusCode === value);
+      this.filteredList = this.statusList.filter(el => el.statusCode !== value && el.labelCode !== value);
+      this.previousValue = value;
+      console.log(this.previousValue);
+      this.changeDetectorRef.detectChanges();
+    }
   }
 }

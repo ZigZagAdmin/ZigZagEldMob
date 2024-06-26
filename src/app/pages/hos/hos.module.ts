@@ -22,6 +22,7 @@ import { RecapComponent } from './recap/recap.component';
 import { PipesModule } from 'src/app/pipe/pipes.module';
 import { LogDailyComponent } from './log-daily/log-daily.component';
 import { SelectComponentModule } from 'src/app/components/select/select.module';
+import { CommentsModalComponent } from './comments-modal/comments-modal.component';
 
 @NgModule({
   imports: [
@@ -46,6 +47,6 @@ import { SelectComponentModule } from 'src/app/components/select/select.module';
     PipesModule,
     SelectComponentModule
   ],
-  declarations: [HosPage, RecapComponent, LogDailyComponent],
+  declarations: [HosPage, RecapComponent, LogDailyComponent, CommentsModalComponent],
 })
 export class HosPageModule {}

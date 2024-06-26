@@ -1,5 +1,5 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { Platform } from '@ionic/angular';
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ModalController, Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { NavController } from '@ionic/angular';
@@ -27,6 +27,7 @@ import { CarSimulatorService } from 'src/app/services/car-simulator.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { App } from '@capacitor/app';
 import { EventGraphic } from 'src/app/models/event-graphic';
+import { CommentsModalComponent } from './comments-modal/comments-modal.component';
 
 interface BannerInfo {
   show: boolean;
@@ -41,6 +42,8 @@ interface BannerInfo {
   styleUrls: ['./hos.page.scss'],
 })
 export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('onDutyModal', { static: false }) onDutyModal: HTMLIonModalElement;
+
   message = '';
   someErrors: boolean = false;
   bReady: boolean = false;
@@ -173,6 +176,9 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   skipFirst: boolean = false;
   triggerComponentRefresh: boolean = false;
+  triggerStatusChange: boolean = undefined;
+
+  onDutyModalWindow: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -192,7 +198,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     private platform: Platform,
     private ngZone: NgZone,
     private translate: TranslateService,
-    public carSim: CarSimulatorService
+    public carSim: CarSimulatorService,
+    private modalController: ModalController
   ) {}
 
   async ngOnInit() {
@@ -1028,11 +1035,28 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  selectButton(button: string) {
-    console.log(button);
-    this.selectedButton = button;
-    this.currentStatus.statusCode = button;
-    this.confirm();
+  async selectButton(button: string) {
+    try {
+      if (button === 'ON' && !this.pageLoading) {
+        this.comments = '';
+        this.onDutyModalWindow = true;
+        await new Promise(async (res, rej) => {
+          await this.onDutyModal.present();
+          const { data, role } = await this.onDutyModal.onWillDismiss();
+          if (role === 'cancel') {
+            rej(null);
+          } else {
+            this.triggerStatusChange = !this.triggerStatusChange;
+            res(null);
+          }
+        });
+      }
+      this.selectedButton = button;
+      this.currentStatus.statusCode = button;
+      this.confirm();
+    } catch (e) {
+      return;
+    }
     // if (this.selectedButton === this.currentStatus.statusCode) {
     //   this.isConfirmButtonActive = false;
     // } else {
@@ -1622,6 +1646,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   refreshLogDailies() {
     this.triggerComponentRefresh = !this.triggerComponentRefresh;
-    console.log("triggered: " + this.triggerComponentRefresh);
+    console.log('triggered: ' + this.triggerComponentRefresh);
   }
 }

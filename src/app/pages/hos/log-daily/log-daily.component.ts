@@ -124,7 +124,7 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
   ) {}
 
   async ngOnInit() {
-    console.log("OnInit")
+    console.log('OnInit');
     this.timeZones = this.utilityService.checkSeason();
     this.shareService.destroyMessage();
     this.shareService.changeMessage('reset');
@@ -146,9 +146,7 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes['triggerRefresh']);
-    if(changes['triggerRefresh'] && changes['triggerRefresh'].currentValue !== undefined && changes['triggerRefresh'].currentValue !== null) {
-      console.log('refeeerere')
+    if (changes['triggerRefresh'] && changes['triggerRefresh'].currentValue !== undefined && changes['triggerRefresh'].currentValue !== null) {
       this.fetchData();
     }
   }
@@ -170,7 +168,7 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
       this.logEvents.forEach(logEvent => (logEvent.type.code !== 'LOGIN' && logEvent.type.code !== 'LOGOUT' ? this.statusEvents.push(logEvent) : null));
 
       if (this.logDailies.length === 0 || this.logDailies.length < 14) this.storage.get('logDailies').then(data => (this.logDailies = data));
-      if(this.LogDailiesId !== undefined && this.LogDailiesId !== null && this.LogDailiesId.length !== 0) {
+      if (this.LogDailiesId !== undefined && this.LogDailiesId !== null && this.LogDailiesId.length !== 0) {
         this.logDaily = this.logDailies.find(el => el.logDailyId === this.LogDailiesId);
       } else {
         this.logDaily = this.logDailies[0];
@@ -716,7 +714,7 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
 
   scrollToItem(index: number) {
     const container = document.getElementById('logdailies');
-    const item = document.getElementById("logdaily"+index);
+    const item = document.getElementById('logdaily' + index);
 
     if (container && item) {
       const containerRect = container.getBoundingClientRect();
@@ -730,14 +728,14 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
         const newScrollLeft = container.scrollLeft + (itemRect.left - containerRect.left);
         container.scrollTo({
           left: newScrollLeft,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       } else if (!itemRightVisible) {
         // Scroll to the right just enough to make the item visible
         const newScrollLeft = container.scrollLeft + (itemRect.right - containerRect.right);
         container.scrollTo({
           left: newScrollLeft,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
     }

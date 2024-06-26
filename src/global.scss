@@ -332,3 +332,15 @@ ion-toolbar {
     padding-right: var(--ion-safe-area-right);
   }
 }
+
+ion-modal#on-duty-modal {
+  --width: fit-content;
+  --min-width: 80%;
+  --max-width: 85%;
+  --max-height: 100%;
+  --overflow: hidden;
+  --height: fit-content;
+  --border-radius: 10px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}

@@ -37,7 +37,7 @@
     <div class="general-section-wrapper">
       <div class="general-section">
         <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime" (statusCallback)="selectButton($event)"></app-current-status>
-        <app-change-status [status]="selectedButton" (statusChange)="selectButton($event)"></app-change-status>
+        <app-change-status [status]="selectedButton" (statusChange)="selectButton($event)" [filterTrigger]="triggerStatusChange" [filterTrigger]="pageLoading"></app-change-status>
       </div>
       <div class="general-section">
         <app-hours-remaining
@@ -300,6 +300,11 @@
           <div class="action-button defaultd" (click)="changeStatusLocally('OFF')">{{'Off Duty' | translate}}</div>
           <div class="action-button warningb" (click)="changeStatusLocally('ON')">{{'On Duty' | translate}}</div>
         </div>
+      </ng-template>
+    </ion-modal>
+    <ion-modal #onDutyModal id="on-duty-modal" [isOpen]="onDutyModalWindow" [backdropDismiss]="false">
+      <ng-template>
+        <app-comments-modal (closeModal)="onDutyModal.dismiss(null, 'cancel')" (confirmModal)="onDutyModal.dismiss(null, 'confirm')" [(value)]="comments"></app-comments-modal>
       </ng-template>
     </ion-modal>
   </div>
