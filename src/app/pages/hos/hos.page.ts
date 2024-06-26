@@ -361,23 +361,21 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
             this.currentStatus.statusName = 'Off Duty';
             this.currentStatusColor = this.getStatusColor(this.currentStatus.statusCode);
 
-            if (this.networkStatus) {
-              await this.dashboardService
-                .updateLogEvent(firstLogEvent)
-                .toPromise()
-                .then(async response => {
-                  console.log('New status is updated on server:', response);
-                  await this.updateLogEvents(firstLogEvent, true);
-                })
-                .catch(async error => {
-                  console.log('Internet Status: ' + this.networkStatus);
-                  console.log('New Log Event Status Pushed in offline logEvents Array');
-                  await this.updateLogEvents(firstLogEvent, false);
-                });
-            } else {
-              console.log('Updated logEvents in offline array');
-              await this.updateLogEvents(firstLogEvent, false);
-            }
+            await this.updateLogEvents(firstLogEvent, true)
+              .then(response => {
+                if (this.networkStatus)
+                  firstValueFrom(this.dashboardService.updateLogEvent(firstLogEvent))
+                    .then(res => {
+                      console.log('New status is updated on server:', response);
+                    })
+                    .catch(async error => {
+                      console.log('Internet Status: ' + this.networkStatus);
+                      console.log('New Log Event Status Pushed in offline logEvents Array');
+                    });
+              })
+              .catch(async error => {
+                console.log('Error updating log event: ' + error);
+              });
           } else {
             this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
             this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
@@ -429,36 +427,34 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
             this.storage.set('lastStatusCode', this.selectedButton);
             this.storage.set('bAuthorized', true);
-            if (this.networkStatus) {
-              await this.dashboardService
-                .updateLogEvent(lastLogEvent)
-                .toPromise()
-                .then(async response => {
-                  console.log('Last LogEvent is updated on server:', response);
-                  await this.updateIndexLogEvents(lastLogEvent, true);
-                })
-                .catch(async () => {
-                  console.log('Internet Status: ' + this.networkStatus);
-                  console.log('Last LogEvent Pushed in offline logEvents array');
-                  await this.updateIndexLogEvents(lastLogEvent, false);
-                });
-              await this.dashboardService
-                .updateLogEvent(LoginLogEvent)
-                .toPromise()
-                .then(async response => {
-                  console.log('New status is updated on server:', response);
-                  await this.updateLogEvents(LoginLogEvent, true);
-                })
-                .catch(async () => {
-                  console.log('Internet Status: ' + this.networkStatus);
-                  console.log('New Log Event Status Pushed in offline logEvents Array');
-                  await this.updateLogEvents(LoginLogEvent, false);
-                });
-            } else {
-              console.log('Updated logEvents in offline array');
-              await this.updateIndexLogEvents(lastLogEvent, false);
-              await this.updateLogEvents(LoginLogEvent, false);
-            }
+            await this.updateIndexLogEvents(lastLogEvent, true)
+              .then(response => {
+                if (this.networkStatus)
+                  firstValueFrom(this.dashboardService.updateLogEvent(lastLogEvent))
+                    .then(response => console.log('Last LogEvent is updated on server:', response))
+                    .catch(async () => {
+                      console.log('Internet Status: ' + this.networkStatus);
+                      console.log('Last LogEvent Pushed in offline logEvents array');
+                    });
+              })
+              .catch(async e => {
+                console.log('Error updating log event: ' + e);
+              });
+            await this.updateLogEvents(LoginLogEvent, true)
+              .then(async response => {
+                if (this.networkStatus)
+                  firstValueFrom(this.dashboardService.updateLogEvent(LoginLogEvent))
+                    .then(response => {
+                      console.log('New status is updated on server:', response);
+                    })
+                    .catch(async () => {
+                      console.log('Internet Status: ' + this.networkStatus);
+                      console.log('New Log Event Status Pushed in offline logEvents Array');
+                    });
+              })
+              .catch(e => {
+                console.log('Error uploading log event: ' + e);
+              });
           }
 
           await this.createLogDailies();
@@ -1092,8 +1088,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         await this.storage.set('lastStatusCode', this.selectedButton);
         await this.onWillDismiss(this.selectedButton, origin).then(() => {
           this.currentStatusColor = this.getStatusColor(this.selectedButton);
-          this.isModalOpen = false;
-          this.modalLoading = false;
+          // this.isModalOpen = false;
+          // this.modalLoading = false;
         });
       }
       // else {
@@ -1103,7 +1099,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async onWillDismiss(status: string, origin: { name: string; code: string } = { name: 'Driver', code: 'DRIVER' }) {
-    console.log(origin);
     this.modalLoading = true;
     const endTime = new Date().getTime();
     const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
@@ -1208,40 +1203,41 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       newLogEvent.eventTime.timeStamp = this.currentDriving.start + this.currentDriving.index * 5 * 60 * 1000;
     }
 
-    if (this.networkStatus) {
-      await this.dashboardService
-        .updateLogEvent(lastLogEvent)
-        .toPromise()
-        .then(async response => {
-          console.log('Last LogEvent is updated on server:', response);
-          await this.updateIndexLogEvents(lastLogEvent, true);
-        })
-        .catch(async () => {
-          console.log('Internet Status: ' + this.networkStatus);
-          console.log('Last LogEvent Pushed in offline logEvents array');
-          await this.updateIndexLogEvents(lastLogEvent, false);
-        });
-      await this.dashboardService
-        .updateLogEvent(newLogEvent)
-        .toPromise()
-        .then(async response => {
-          console.log('New status is updated on server:', response);
-          await this.updateLogEvents(newLogEvent, true);
-        })
-        .catch(async () => {
-          console.log('Internet Status: ' + this.networkStatus);
-          console.log('New Log Event Status Pushed in offline logEvents Array');
-          await this.updateLogEvents(newLogEvent, false);
-        });
-    } else {
-      console.log('Updated logEvents in offline array');
-      await this.updateIndexLogEvents(lastLogEvent, false);
-      await this.updateLogEvents(newLogEvent, false);
-    }
+    await this.updateIndexLogEvents(lastLogEvent, false)
+      .then(response => {
+        if (this.networkStatus)
+          firstValueFrom(this.dashboardService.updateLogEvent(lastLogEvent))
+            .then(res => {
+              console.log('Last LogEvent is updated on server:', res);
+              this.updateIndexLogEvents(lastLogEvent, true);
+            })
+            .catch(e => {
+              console.log('Internet Status: ' + this.networkStatus);
+            });
+      })
+      .catch(e => {
+        console.log('An Error Occured: ' + e);
+      });
+
+    await this.updateLogEvents(newLogEvent, false)
+      .then(response => {
+        if (this.networkStatus)
+          firstValueFrom(this.dashboardService.updateLogEvent(newLogEvent))
+            .then(res => {
+              console.log('New status is updated on server:', res);
+              this.updateIndexLogEvents(newLogEvent, true);
+            })
+            .catch(e => {
+              console.log('Internet Status: ' + this.networkStatus);
+            });
+      })
+      .catch(e => {
+        console.log('An error Occured: ' + e);
+      });
 
     await this.createLogDailies();
     await this.calcViolations();
-    await this.uploadDriverStatus();
+    this.uploadDriverStatus();
   }
 
   convertSecondToHours(secs: number): string {
@@ -1330,17 +1326,20 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   async updateLogDailies(logDaily: LogDailies) {
     if (this.networkStatus) {
-      this.dashboardService.updateLogDaily(logDaily).subscribe(
-        async response => {
-          console.log('LogDaily (durationStatuses) is updated on server:', response);
-          await this.updateIndexLogDaily(logDaily, true);
-        },
-        async () => {
-          console.log('Internet Status: ' + this.networkStatus);
-          await this.updateIndexLogDaily(logDaily, false);
-          console.log('Pushed in logDailies');
-        }
-      );
+      await this.updateIndexLogDaily(logDaily, true)
+        .then(async response => {
+          if (this.networkStatus)
+            firstValueFrom(this.dashboardService.updateLogDaily(logDaily))
+              .then(res => {
+                console.log('LogDaily (durationStatuses) is updated on server:', res);
+              })
+              .catch(e => {
+                console.log('Internet Status: ' + this.networkStatus);
+              });
+        })
+        .catch(e => {
+          console.log('Error updating log daily ' + e);
+        });
     } else {
       console.log('Updated logEvents in offline array');
       await this.updateIndexLogDaily(logDaily, false);

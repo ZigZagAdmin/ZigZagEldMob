@@ -82,7 +82,6 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
 
   validation: { [key: string]: boolean } = {
     shippingDoc: false,
-    coDriver: false,
   };
 
   finishedLoading: boolean = false;
@@ -462,26 +461,25 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
 
     let networkStatus = (await Network.getStatus()).connected;
 
-    if (networkStatus) {
-      this.dashboardService.updateLogDaily(this.logDaily as LogDailies).subscribe(
-        async response => {
-          console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
-          await this.updateIndexLogDaily(this.logDaily as LogDailies, true);
-          this.saveFormLoading = false;
-          this.toastService.showToast(this.translate.instant('Saved successfully!'), 'success');
-        },
-        async error => {
-          await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
-          this.saveFormLoading = false;
-          this.toastService.showToast(this.translate.instant('Offline save!'), 'warning');
-        }
-      );
-    } else {
-      console.log('Updated logEvents in offline array');
-      this.saveFormLoading = false;
-      await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
-      this.toastService.showToast(this.translate.instant('Offline save!'), 'warning');
-    }
+    await this.updateIndexLogDaily(this.logDaily as LogDailies, false).then(
+      async response => {
+        if (networkStatus)
+          firstValueFrom(this.dashboardService.updateLogDaily(this.logDaily as LogDailies))
+            .then(res => {
+              console.log(`LogDaily ${this.logDaily} is updated on server:`, response);
+            })
+            .catch(e => {
+              this.updateIndexLogDaily(this.logDaily as LogDailies, false);
+            });
+        this.saveFormLoading = false;
+        this.toastService.showToast(this.translate.instant('Saved successfully!'), 'success');
+      },
+      async error => {
+        await this.updateIndexLogDaily(this.logDaily as LogDailies, false);
+        this.saveFormLoading = false;
+        this.toastService.showToast(this.translate.instant('Offline save!'), 'warning');
+      }
+    );
   }
 
   async updateLogDaily(logDailyData: LogDailies, online: boolean) {
