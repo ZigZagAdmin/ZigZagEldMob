@@ -333,7 +333,7 @@ ion-toolbar {
   }
 }
 
-ion-modal#on-duty-modal {
+ion-modal#on-duty-modal, ion-modal#location-modal {
   --width: fit-content;
   --min-width: 80%;
   --max-width: 85%;

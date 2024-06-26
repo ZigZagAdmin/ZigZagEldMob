@@ -55,7 +55,7 @@ export class ChangeStatusComponent implements OnInit, OnChanges {
     console.log(value)
     console.log(this.manualTrigger);
     this.tempValue = value;
-    if (value !== 'ON' || (value === 'ON' && !this.manualTrigger)) {
+    if (!this.manualTrigger) {
       this.filterData(value);
     }
   }

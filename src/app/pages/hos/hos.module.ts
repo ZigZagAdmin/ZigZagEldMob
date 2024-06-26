@@ -23,6 +23,7 @@ import { PipesModule } from 'src/app/pipe/pipes.module';
 import { LogDailyComponent } from './log-daily/log-daily.component';
 import { SelectComponentModule } from 'src/app/components/select/select.module';
 import { CommentsModalComponent } from './comments-modal/comments-modal.component';
+import { LocationModalComponent } from './location-modal/location-modal.component';
 
 @NgModule({
   imports: [
@@ -47,6 +48,6 @@ import { CommentsModalComponent } from './comments-modal/comments-modal.componen
     PipesModule,
     SelectComponentModule
   ],
-  declarations: [HosPage, RecapComponent, LogDailyComponent, CommentsModalComponent],
+  declarations: [HosPage, RecapComponent, LogDailyComponent, CommentsModalComponent, LocationModalComponent],
 })
 export class HosPageModule {}

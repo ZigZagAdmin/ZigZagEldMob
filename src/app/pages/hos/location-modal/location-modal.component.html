@@ -1,0 +1,13 @@
+<div class="location-main">
+  <div class="location-title">
+    <div class="title-icon"><img src="assets/icons/no-location.svg" /></div>
+    <div class="title-text">Location not found</div>
+    <div class="subtitle-text">Please enter your current location or leave blank</div>
+  </div>
+  <div class="location-input">
+    <input (input)="onInputChange($event)" [(ngModel)]="value" [placeholder]="placeholder" autocomplete="one-time-code" class="input-box" [ngClass]="{ 'input-fill': fill }" />
+  </div>
+  <div class="location-buttons">
+    <div class="location-btn location-btn-primary" (click)="submit()">Submit</div>
+  </div>
+</div>

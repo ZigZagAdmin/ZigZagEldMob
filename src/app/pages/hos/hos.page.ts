@@ -43,6 +43,7 @@ interface BannerInfo {
 })
 export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('onDutyModal', { static: false }) onDutyModal: HTMLIonModalElement;
+  @ViewChild('locationModal', { static: false }) locationModal: HTMLIonModalElement;
 
   message = '';
   someErrors: boolean = false;
@@ -177,8 +178,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   skipFirst: boolean = false;
   triggerComponentRefresh: boolean = false;
   triggerStatusChange: boolean = undefined;
-
-  onDutyModalWindow: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -989,16 +988,16 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  async toggleModal() {
-    this.isModalOpen = true;
-    this.locationDescription = '';
-    this.comments = '';
+  // async toggleModal() {
+  //   this.isModalOpen = true;
+  //   this.locationDescription = '';
+  //   this.comments = '';
 
-    if (this.currentStatus) {
-      this.selectButton(this.currentStatus.statusCode);
-    }
-    await this.getLocalCurrentLocation();
-  }
+  //   if (this.currentStatus) {
+  //     this.selectButton(this.currentStatus.statusCode);
+  //   }
+  //   await this.getLocalCurrentLocation();
+  // }
 
   async getLocalCurrentLocation(check: boolean = true) {
     this.locationLoading = true;
@@ -1031,11 +1030,31 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  async selectButton(button: string) {
+  async selectButton(button: string, manual: boolean = false) {
     try {
+      console.log(this.location);
+      if (
+        manual &&
+        (((this.location.locationType === 'MANUAL' || this.location.locationType === undefined || this.location.locationType.length === 0) &&
+          (this.locationDescription.length !== 0 || this.location.description.length !== 0)) ||
+          ((this.location.description === undefined || this.location.description.length === 0) && (this.locationDescription === undefined || this.locationDescription.length === 0)))
+      ) {
+        this.locationDescription = '';
+        await new Promise(async (res, rej) => {
+          this.locationModal.present();
+          await this.locationModal.onWillDismiss().then(() => {
+            this.location = {
+              locationType: 'MANUAL',
+              description: this.locationDescription,
+              latitude: 0,
+              longitude: 0,
+            };
+            res(null);
+          });
+        });
+      }
       if (button === 'ON' && !this.pageLoading) {
         this.comments = '';
-        this.onDutyModalWindow = true;
         await new Promise(async (res, rej) => {
           await this.onDutyModal.present();
           const { data, role } = await this.onDutyModal.onWillDismiss();
@@ -1046,6 +1065,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
             res(null);
           }
         });
+      } else {
+        this.triggerStatusChange = !this.triggerStatusChange;
       }
       this.selectedButton = button;
       this.currentStatus.statusCode = button;
