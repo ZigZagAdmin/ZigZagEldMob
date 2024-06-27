@@ -188,7 +188,7 @@
         </div>
       </div>
     </div>
-    <app-recap [recapTime]="hoursRecap | convertSecotdsToHoursAndMinutes"></app-recap>
+    <app-recap [recapTime]="hoursRecap | convertSecotdsToHoursAndMinutes" [recapDays]="daysRecap" [recapFooter]="recapFooter"></app-recap>
     <app-log-daily [triggerRefresh]="triggerComponentRefresh"></app-log-daily>
     <!-- <div class="rest-mode" *ngIf="restMode">
       <div class="rest-row">

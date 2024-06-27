@@ -179,6 +179,14 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   triggerComponentRefresh: boolean = false;
   triggerStatusChange: boolean = undefined;
 
+  daysRecap: { [key: string]: number } = {};
+  recapFooter: { last7Days: number; hwt: number; hatomorrow: number; hatoday: number } = {
+    last7Days: 0,
+    hwt: 0,
+    hatomorrow: 0,
+    hatoday: 0,
+  };
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -914,6 +922,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
     this.titleBreak = (this.driveWithoutBreakLimit - driveT2) / 1000 < 0 ? 0 : (this.driveWithoutBreakLimit - driveT2) / 1000;
     this.titleCycle = (this.cycleLimit - cycleT) / 1000 < 0 ? 0 : (this.cycleLimit - cycleT) / 1000;
+    this.recapFooter.hatoday = this.titleCycle;
     this.titleDriving = (this.driveLimit - driveT) / 1000 < 0 ? 0 : (this.driveLimit - driveT) / 1000;
     this.titleShift = (this.shiftLimit - shiftT) / 1000 < 0 ? 0 : (this.shiftLimit - shiftT) / 1000;
 
@@ -923,6 +932,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     this.percentShift = (this.titleShift * 100) / (this.shiftLimit / 1000);
 
     this.hoursRecap = this.bResetTimeLast7Day ? (this.cycleLimit - cycleT) / 1000 : (this.cycleLimit - cycleT) / 1000 + this.logDailies[7].timeWorked;
+    this.recapFooter.hatomorrow = this.hoursRecap;
+    this.recapFooter.last7Days = this.getTotalWorkedHours();
 
     switch (this.currentStatus.statusCode) {
       case 'D':
@@ -967,6 +978,13 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           await this.updateLogDailies(logDaily);
           this.changeDetectorRef.detectChanges();
         }
+      }
+
+      if (logDaily.logDate >= formatDate(new Date().getTime() - 604800000, 'yyyy/MM/dd', 'en-US') && logDaily.logDate < formatDate(new Date(), 'yyyy/MM/dd', 'en-US')) {
+        this.daysRecap[formatDate(new Date(logDaily.logDate), 'yyyy/MM/dd', 'en-US')] = logDaily.timeWorked;
+      }
+      if (logDaily.logDate === formatDate(new Date(), 'yyyy/MM/dd', 'en-US')) {
+        this.recapFooter.hwt = logDaily.timeWorked;
       }
     }
     this.refreshLogDailies();

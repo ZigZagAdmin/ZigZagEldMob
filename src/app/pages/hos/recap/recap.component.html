@@ -10,6 +10,35 @@
 </div>
 <ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-recap" (willDismiss)="cancel()">
   <ng-template>
-    <div>Something</div>
+    <div class="recap-modal-main">
+      <div class="recap-table">
+        <div class="recap-table-row recap-table-header">
+          <div class="recap-table-cell">Date</div>
+          <div class="recap-table-cell">Hours Worked</div>
+        </div>
+        <div class="recap-table-row" *ngFor="let day of _recapDays | keyvalue">
+          <div class="recap-table-cell">{{ formatDateL(day.key) }}</div>
+          <div class="recap-table-cell">{{ day?.value | convertSecotdsToHoursAndMinutes }}</div>
+        </div>
+        <div class="recap-table-separator"></div>
+        <div class="recap-table-row">
+          <div class="recap-table-cell">Last 7 days</div>
+          <div class="recap-table-cell">{{ _recapFooter?.last7Days | convertSecotdsToHoursAndMinutes }}</div>
+        </div>
+        <div class="recap-table-row recap-table-footer">
+          <div class="recap-table-cell">Hours Worked Today</div>
+          <div class="recap-table-cell">{{ _recapFooter?.hwt | convertSecotdsToHoursAndMinutes }}</div>
+        </div>
+        <div class="recap-table-row">
+          <div class="recap-table-cell">Hours Available Tomorrow</div>
+          <div class="recap-table-cell">{{ _recapFooter?.hatomorrow | convertSecotdsToHoursAndMinutes }}</div>
+        </div>
+        <div class="recap-table-row">
+          <div class="recap-table-cell">Hours Available Today</div>
+          <div class="recap-table-cell">{{ _recapFooter?.hatoday | convertSecotdsToHoursAndMinutes }}</div>
+        </div>
+      </div>
+      <div class="recap-back-btn" (click)="cancel()">Close</div>
+    </div>
   </ng-template>
 </ion-modal>

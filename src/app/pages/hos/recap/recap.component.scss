@@ -1,42 +1,105 @@
 .recap-main {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 10px 20px;
-    border-radius: 10px;
-    background-color: var(--gray-100);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: var(--gray-100);
 }
 
 .recap-half {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .recap-text {
-    color: var(--gray-500);
-    font-weight: 500;
-    // max-width: 50%;
-    // width: fit-content;
+  color: var(--gray-500);
+  font-weight: 500;
+  // max-width: 50%;
+  // width: fit-content;
 }
 
 .recap-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 ion-modal#custom-modal {
-    --width: fit-content;
-    --min-width: 80%;
-    --max-width: 85%;
-    --max-height: 100%;
-    --overflow: hidden;
-    --height: fit-content;
-    --border-radius: 10px;
-    --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
+  --width: fit-content;
+  --min-width: 80%;
+  --max-width: 85%;
+  --max-height: 100%;
+  --overflow: hidden;
+  --height: fit-content;
+  --border-radius: 10px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.recap-modal-main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.recap-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recap-table-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--gray-500);
+
+  &:first-child {
+    .recap-table-cell {
+      font-weight: 600;
+    }
   }
+}
+
+.recap-table-header {
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
+.recap-table-footer {
+  color: var(--gray-600);
+}
+
+.recap-table-cell {
+  width: fit-content;
+  &:last-child {
+    font-weight: 500;
+  }
+}
+
+.recap-table-separator {
+  height: 0;
+  border-top: 1px solid var(--gray-200);
+}
+
+.recap-back-btn {
+  height: 42px;
+  color: var(--gray-500);
+  background-color: var(--gray-100);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border-radius: 50px;
+}
