@@ -4,6 +4,8 @@
 
 export const environment = {
   production: false,
+  // authApi: 'http://localhost:5000/',
+  // tokenAllowedDomains: ['localhost:5000'],
   authApi: 'https://eldapi.zigzageld.com/',
   tokenAllowedDomains: ['eldapi.zigzageld.com'],
 };

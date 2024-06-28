@@ -185,7 +185,7 @@
         <button class="btn secondary-btn" id="trigger-cert-modal" [ngClass]="{ 'no-image': !logDaily?.certified }" (click)="openModal()">{{ 'Certified' | translate }}</button>
       </div>
     </div> -->
-    <ion-modal  *ngIf="!isLogs" class="cert-modal" [isOpen]="isModalOpen" [trigger]="'trigger-cert-modal'">
+    <!-- <ion-modal  *ngIf="!isLogs" class="cert-modal" [isOpen]="isModalOpen" [trigger]="'trigger-cert-modal'">
       <ng-template>
         <ion-header class="ion-no-border">
           <ion-toolbar></ion-toolbar>
@@ -201,6 +201,6 @@
           </div>
         </ion-content>
       </ng-template>
-    </ion-modal>
+    </ion-modal> -->
   </div>
 </div>

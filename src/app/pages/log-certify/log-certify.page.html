@@ -10,7 +10,6 @@
       <div class="canvas-container">
         <canvas #sPad height="290" [ngClass]="{'no-display': signatureFound}" style="touch-action: none; user-select: none"></canvas>
         <div class="image-container" *ngIf="signatureFound">
-          <img [src]="signatureLink" />
           <img [ngClass]="{ 'no-display': imageLoading }" [src]="logDaily.form.signatureLink" (load)="imageLoaded()" />
           <ion-spinner *ngIf="imageLoading" name="dots" color="dark"></ion-spinner>
         </div>

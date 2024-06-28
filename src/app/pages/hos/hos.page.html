@@ -312,6 +312,18 @@
         <app-location-modal [(value)]="locationDescription" (submitModal)="locationModal.dismiss()"></app-location-modal>
       </ng-template>
     </ion-modal>
+    <ion-modal #certificationModal id="certification-modal" [backdropDismiss]="false">
+      <ng-template>
+        <app-certification-modal
+          [logDailies]="logDailies"
+          [logEvents]="logEvents"
+          [timeZone]="timeZone"
+          [vehicleId]="vehicleId"
+          [signature]="signature"
+          (closeCallback)="certificationModal.dismiss()"
+          (submitCallback)="refreshLogDailies()"></app-certification-modal>
+      </ng-template>
+    </ion-modal>
   </div>
   <app-page-loader [height]="'100%'" [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
   <ion-loading [isOpen]="autoChangeLoading" [message]="'Changing status...' | translate" spinner="circles" [backdropDismiss]="false"></ion-loading>

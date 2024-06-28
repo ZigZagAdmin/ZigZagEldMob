@@ -44,6 +44,7 @@ interface BannerInfo {
 export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('onDutyModal', { static: false }) onDutyModal: HTMLIonModalElement;
   @ViewChild('locationModal', { static: false }) locationModal: HTMLIonModalElement;
+  @ViewChild('certificationModal', { static: false }) certificationModal: HTMLIonModalElement;
 
   message = '';
   someErrors: boolean = false;
@@ -187,6 +188,14 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     hatoday: 0,
   };
 
+  signature = {
+    signatureLink: '',
+    foundSignatureId: '',
+  };
+
+  signatureFound: boolean = false;
+  certificationSub: Subscription;
+
   constructor(
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -205,8 +214,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     private platform: Platform,
     private ngZone: NgZone,
     private translate: TranslateService,
-    public carSim: CarSimulatorService,
-    private modalController: ModalController
+    public carSim: CarSimulatorService
   ) {}
 
   async ngOnInit() {
@@ -310,6 +318,11 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     this.bAuthorized = await this.storage.get('bAuthorized');
     this.driverName = await this.storage.get('name');
     this.pickedVehicle = await this.storage.get('vehicleUnit');
+    let appOpened = await this.storage.get('appOpened');
+    if (appOpened) {
+      this.checkForUnsignedDays();
+    }
+    await this.storage.set('appOpened', false);
     let localSplitSleep = await this.storage.get('splitSleeperBerth');
     let chosenEldMac = await this.storage.get('lastConnectedELD');
     await this.handleSplitSleep(localSplitSleep);
@@ -1274,6 +1287,13 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         console.log('An error Occured: ' + e);
       });
 
+    if (allSt.includes(status) && newLogEvent.eventTime.logDate === this.logDailies[0].logDate && this.logDailies[0].certified) {
+      this.logDailies[0].certified = false;
+      this.logDailies[0].form.signatureId = '00000000-0000-0000-0000-000000000000';
+      this.logDailies[0].form.signatureLink = '';
+      await this.updateLogDailies(this.logDailies[0]);
+    }
+
     await this.createLogDailies();
     await this.calcViolations();
     this.uploadDriverStatus();
@@ -1685,5 +1705,46 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   refreshLogDailies() {
     this.triggerComponentRefresh = !this.triggerComponentRefresh;
     console.log('triggered: ' + this.triggerComponentRefresh);
+  }
+
+  async findSignature() {
+    const signature = this.logDailies.find(log => log.form.signatureId !== '' && log.form.signatureId !== '00000000-0000-0000-0000-000000000000');
+
+    if (signature) {
+      this.signature = {
+        signatureLink: signature.form.signatureLink,
+        foundSignatureId: signature.form.signatureId,
+      };
+      this.signatureFound = true;
+    } else {
+      this.signatureFound = false;
+    }
+  }
+
+  async checkForUnsignedDays() {
+    let isUnsigned = false;
+    for (const el of this.logDailies) {
+      console.log(el.certified);
+      if (el.logDate !== this.logDailies[0].logDate && !el.certified && (el.formManner || !this.hasLogEvents(el))) {
+        isUnsigned = true;
+        break;
+      }
+    }
+    console.log(isUnsigned);
+    this.findSignature();
+    console.log(this.signature);
+    if (isUnsigned && this.signatureFound) {
+      this.certificationModal.present();
+    }
+  }
+
+  hasLogEvents(logDaily: LogDailies) {
+    const allSt = ['OFF', 'SB', 'D', 'ON', 'PC', 'YM'];
+    for (let logEvent of this.logEvents) {
+      if (logDaily.logDate === logEvent.eventTime.logDate && allSt.includes(logEvent.type.code)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

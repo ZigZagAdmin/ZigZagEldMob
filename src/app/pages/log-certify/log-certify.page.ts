@@ -93,10 +93,11 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
       this.logDailies = logDailies;
       this.logDaily = this.logDailies.find(log => log.logDailyId === this.logId);
       this.logEvents = logEvents;
+      this.findOwnSignature();
     });
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.initSignaturePad();
     setTimeout(() => this.resizeCanvas(), 0);
   }
@@ -143,6 +144,16 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.signatureFound = false;
       this.toastService.showToast(this.translate.instant('No signature found on other daily logs.'));
+    }
+  }
+
+  async findOwnSignature() {
+    if (this.logDaily && this.logDaily.form && this.logDaily.form.signatureLink && this.logDaily.form.signatureLink.length !== 0) {
+      this.signature = '';
+      this.signatureLink = this.logDaily.form.signatureLink;
+      this.foundSignatureId = this.logDaily.form.signatureId;
+      this.signatureFound = true;
+      this.activateSave();
     }
   }
 
@@ -193,6 +204,8 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
 
     const lastLogEvent = this.logEvents[this.logEvents.length - 1];
 
+    let certificateNumber = this.getCertificateNumber();
+
     let CetificationLogEvent: LogEvents = {
       logEventId: this.utilityService.uuidv4(),
       companyId: '',
@@ -212,7 +225,7 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
         serialNumber: '',
       },
       sequenceNumber: lastLogEvent ? lastLogEvent.sequenceNumber + 1 : 1,
-      type: { name: 'Certification (1)', code: 'CERTIFICATION_1' },
+      type: { name: 'Certification (' + certificateNumber + ')', code: 'CERTIFICATION_' + certificateNumber },
       recordStatus: { name: 'Active', code: 'ACTIVE' },
       malfunction: false,
       dataDiagnosticEvent: false,
@@ -269,6 +282,31 @@ export class LogCertifyPage implements OnInit, OnDestroy, AfterViewInit {
         this.goBack();
       }
     }
+  }
+
+  getCertificateNumber() {
+    if (!this.logDaily.certified) {
+      return '1';
+    }
+
+    let certNumber = 0;
+
+    let endIndex = this.logDailies.findIndex(el => el.logDailyId === this.logDaily.logDailyId);
+    for (let i = 0; i <= endIndex; i++) {
+      this.logEvents.forEach(logEvent => {
+        console.log(logEvent.eventTime.logDate === this.logDailies[i].logDate);
+        if (logEvent.eventTime.logDate === this.logDailies[i].logDate) {
+          console.log(logEvent.eventTime.logDate + ' ' + logEvent.type.code.includes('CERTIFICATION_'));
+        }
+        if (logEvent.eventTime.logDate === this.logDailies[i].logDate && logEvent.type.code.includes('CERTIFICATION_') && logEvent.certificationDate === this.logDaily.logDate) {
+          certNumber++;
+        }
+      });
+    }
+
+    certNumber++;
+
+    return certNumber < 9 ? certNumber.toString() : '9';
   }
 
   async updateLogDaily(logDailyData: LogDailies, online: boolean) {

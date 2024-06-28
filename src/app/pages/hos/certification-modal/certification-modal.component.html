@@ -1,0 +1,26 @@
+<div class="certification-main">
+  <div class="certification-title">
+    <div class="certification-text">Attention</div>
+    <div class="certification-subtext">Please sign the following uncertified records. <span style="text-decoration: underline">For the disabled days you must complete the Form first.</span></div>
+  </div>
+  <div class="certification-checkboxes">
+    <div class="certification-all" (click)="selectAllDays()">
+      <div class="cert-box-el"><ion-checkbox [checked]="selectAll"></ion-checkbox></div>
+      <div class="cert-box-label">Select All</div>
+    </div>
+    <div class="certification-per-day">
+      <div class="cert-aux" *ngFor="let day of filteredDays">
+        <div class="cert-box" [ngClass]="{ 'cert-box-disabled': !day.form }" (click)="selectDay(day)">
+          <div class="cert-box-el"><ion-checkbox [checked]="day.checked"></ion-checkbox></div>
+          <div class="cert-box-label">{{ formatDateL(day.label) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="certification-buttons">
+    <div class="certification-btn certification-btn-default" (click)="close()">Not Ready</div>
+    <button class="certification-btn certification-btn-primary" (click)="submit()" [ngClass]="{ 'disable-click': loading }">
+      <span *ngIf="!loading">{{ 'Certify' | translate }}</span> <ion-spinner style="scale: 0.8" *ngIf="loading" name="circular" color="light"></ion-spinner>
+    </button>
+  </div>
+</div>

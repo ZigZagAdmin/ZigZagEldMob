@@ -24,6 +24,7 @@ import { LogDailyComponent } from './log-daily/log-daily.component';
 import { SelectComponentModule } from 'src/app/components/select/select.module';
 import { CommentsModalComponent } from './comments-modal/comments-modal.component';
 import { LocationModalComponent } from './location-modal/location-modal.component';
+import { CertificationModalComponent } from './certification-modal/certification-modal.component';
 
 @NgModule({
   imports: [
@@ -48,6 +49,6 @@ import { LocationModalComponent } from './location-modal/location-modal.componen
     PipesModule,
     SelectComponentModule
   ],
-  declarations: [HosPage, RecapComponent, LogDailyComponent, CommentsModalComponent, LocationModalComponent],
+  declarations: [HosPage, RecapComponent, LogDailyComponent, CommentsModalComponent, LocationModalComponent, CertificationModalComponent],
 })
 export class HosPageModule {}

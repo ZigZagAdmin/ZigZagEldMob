@@ -452,8 +452,6 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
     if (this.logDaily) {
       this.logDaily.form.trailers = this.localForm.form.trailers;
       this.logDaily.form.shippingDoc = this.localForm.form.shippingDoc;
-      this.logDaily.form.fromAddress = this.localForm.form.fromAddress;
-      this.logDaily.form.toAddress = this.localForm.form.toAddress;
       this.logDaily.formManner = true;
     }
 
@@ -572,10 +570,10 @@ export class LogDailyComponent implements OnInit, OnDestroy, OnChanges {
   certifyLog() {
     if (!this.logDaily.formManner && this.statusesOnDay.length >= 2) {
       this.toastService.showToast(this.translate.instant('You must complete the form first!'));
-      this.validation = {
-        shippingDoc: false,
-        coDriver: false,
-      };
+      // this.validation = {
+      //   shippingDoc: false,
+      //   coDriver: false,
+      // };
       this.shareService.changeMessage(this.utilityService.generateString(5));
       if (!this.utilityService.validateForm(this.validation)) return;
       return;
