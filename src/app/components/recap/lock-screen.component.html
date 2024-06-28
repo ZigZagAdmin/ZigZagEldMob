@@ -1,0 +1,51 @@
+<ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-lockscreen" [backdropDismiss]="false" (willDismiss)="cancel()">
+  <ng-template>
+    <div class="lockscreen-main">
+      <div class="lockscreen-title">
+        <div class="lockscreen-title-icon"><img src="assets/icons/lockscreen-lock.svg" /></div>
+        <div class="lockscreen-time">{{ getCurrentTime() }}</div>
+        <div class="lockscreen-date">{{ getCurrentDate() }}</div>
+      </div>
+      <div class="lockscreen-circles">
+        <div class="lockscreen-driving-circle"></div>
+        <div class="lockscreen-rest-circles">
+          <div class="lockscreen-circle-block"></div>
+        </div>
+      </div>
+      <div id="violation-m" class="sleep-container" [ngClass]="{ 'hide-container': !checkElementHasChildren('sleep-box') }">
+        <!-- Shift -->
+        <div class="sleep-box sleep-warning" *ngIf="circleData.titleShift < 1800 && circleData.titleShift > 0">
+          <img src="../../../assets/icons/danger.svg" /> <span>Shift Warning: Shift will end in {{ convertSecondToHours(circleData.titleShift) }} min</span>
+        </div>
+        <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && circleData.titleShift === 0">
+          <img src="../../../assets/icons/danger.svg" /> <span>Shift Violation: Shift is 00:00</span>
+        </div>
+        <!-- Break -->
+        <div class="sleep-box sleep-warning" *ngIf="circleData.titleBreak < 1800 && circleData.titleBreak > 0 && currentStatus.statusCode === 'D'">
+          <img src="../../../assets/icons/danger.svg" /> <span>Break Warning: You'll have to take a break in {{ convertSecondToHours(circleData.titleBreak) }} min</span>
+        </div>
+        <div class="sleep-box sleep-error" *ngIf="currentStatus.statusCode === 'D' && circleData.titleBreak === 0">
+          <img src="../../../assets/icons/danger.svg" /> <span>Break Violation: Break is 00:00. You need to take a break</span>
+        </div>
+        <!-- Cycle -->
+        <div class="sleep-box sleep-warning" *ngIf="circleData.titleCycle < 1800 && circleData.titleCycle > 0">
+          <img src="../../../assets/icons/danger.svg" /> <span>Cycle Warning: Cycle will end in {{ convertSecondToHours(circleData.titleCycle) }} min</span>
+        </div>
+        <div class="sleep-box sleep-error" *ngIf="(currentStatus.statusCode === 'ON' || currentStatus.statusCode === 'D' || currentStatus.statusCode === 'YM') && circleData.titleCycle === 0">
+          <img src="../../../assets/icons/danger.svg" /> <span>Cycle Violation: Cycle is 00:00</span>
+        </div>
+        <!-- Driving -->
+        <div class="sleep-box sleep-warning" *ngIf="circleData.titleDriving < 1800 && circleData.titleDriving > 0 && currentStatus.statusCode === 'D'">
+          <img src="../../../assets/icons/danger.svg" /> <span>Driving Warning: Driving will end in {{ convertSecondToHours(circleData.titleDriving) }} min</span>
+        </div>
+        <div class="sleep-box sleep-error" *ngIf="currentStatus.statusCode === 'D' && circleData.titleDriving === 0">
+          <img src="../../../assets/icons/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
+        </div>
+      </div>
+      <div class="lockscreen-unlock-button">
+        <span>Unlock</span>
+        <img src="assets/icons/lockscreen-unlock.svg" />
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

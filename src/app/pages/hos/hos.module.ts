@@ -25,6 +25,7 @@ import { SelectComponentModule } from 'src/app/components/select/select.module';
 import { CommentsModalComponent } from './comments-modal/comments-modal.component';
 import { LocationModalComponent } from './location-modal/location-modal.component';
 import { CertificationModalComponent } from './certification-modal/certification-modal.component';
+import { LockScreenComponentModule } from 'src/app/components/recap/lock-screen.module';
 
 @NgModule({
   imports: [
@@ -47,7 +48,8 @@ import { CertificationModalComponent } from './certification-modal/certification
     ChangeStatusComponentModule,
     HoursRemainingComponentModule,
     PipesModule,
-    SelectComponentModule
+    SelectComponentModule,
+    LockScreenComponentModule
   ],
   declarations: [HosPage, RecapComponent, LogDailyComponent, CommentsModalComponent, LocationModalComponent, CertificationModalComponent],
 })

@@ -324,6 +324,10 @@
           (submitCallback)="refreshLogDailies()"></app-certification-modal>
       </ng-template>
     </ion-modal>
+    <app-lock-screen
+      [isModalOpen]="true"
+      [circleData]="{titleShift: titleShift, titleBreak: titleBreak, titleCycle: titleCycle, titleDriving: titleDriving}"
+      [currentStatus]="currentStatus"></app-lock-screen>
   </div>
   <app-page-loader [height]="'100%'" [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
   <ion-loading [isOpen]="autoChangeLoading" [message]="'Changing status...' | translate" spinner="circles" [backdropDismiss]="false"></ion-loading>
