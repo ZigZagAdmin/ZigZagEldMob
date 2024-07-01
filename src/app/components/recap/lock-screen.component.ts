@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-lock-screen',
@@ -7,17 +7,30 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./lock-screen.component.scss'],
 })
 export class LockScreenComponent implements OnInit {
-  
-  @Input() isModalOpen: boolean = false;
-  @Input() currentStatus: {statusCode: string; statusName: string;};
-  @Input() circleData: {titleBreak: number; titleShift: number; titleCycle: number; titleDriving: number}
+  @Input() set isModalOpen(newValue: boolean) {
+    this._isModalOpen = newValue;
+  }
 
-  constructor() {}
+  @Input() currentStatus: { statusCode: string; statusName: string };
+  @Input() circleData: { titleBreak: number; titleShift: number; titleCycle: number; titleDriving: number; percentDriving: number; percentBreak: number; percentShift: number; percentCycle: number };
 
-  ngOnInit() {}
+  @Output() closeCallback: EventEmitter<void> = new EventEmitter<void>();
+
+  constructor(private ngZone: NgZone) {}
+
+  _isModalOpen: boolean = false;
+
+  currentTime: string;
+  currentDate: string;
+
+  ngOnInit() {
+    this.updateTimeAndDate();
+    this.startClock();
+  }
 
   cancel() {
-    this.isModalOpen = false;
+    this._isModalOpen = false;
+    this.closeCallback.emit();
   }
 
   formatDateL(oldDate: string) {
@@ -25,11 +38,25 @@ export class LockScreenComponent implements OnInit {
   }
 
   getCurrentTime() {
-    return formatDate(new Date(), "h:mm:ss a", 'en-US');
+    return formatDate(new Date(), 'h:mm:ss a', 'en-US');
   }
 
   getCurrentDate() {
-    return formatDate(new Date(), "cccc, d LLLL, yyyy", 'en-US');
+    return formatDate(new Date(), 'cccc, d LLLL, yyyy', 'en-US');
+  }
+
+  updateTimeAndDate() {
+    const now = new Date();
+    this.currentTime = now.toLocaleTimeString();
+    this.currentDate = now.toLocaleDateString();
+  }
+
+  startClock() {
+    this.ngZone.runOutsideAngular(() => {
+      setInterval(() => {
+        this.ngZone.run(() => this.updateTimeAndDate());
+      }, 1000);
+    });
   }
 
   convertSecondToHours(secs: number): string {

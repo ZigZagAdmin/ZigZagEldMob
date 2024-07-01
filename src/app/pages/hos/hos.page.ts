@@ -28,6 +28,7 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { App } from '@capacitor/app';
 import { EventGraphic } from 'src/app/models/event-graphic';
 import { CommentsModalComponent } from './comments-modal/comments-modal.component';
+import { IdleService } from 'src/app/services/idle.service';
 
 interface BannerInfo {
   show: boolean;
@@ -195,6 +196,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   signatureFound: boolean = false;
   certificationSub: Subscription;
+  idleSub: Subscription;
+  isLockScreenOpen: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -214,7 +217,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     private platform: Platform,
     private ngZone: NgZone,
     private translate: TranslateService,
-    public carSim: CarSimulatorService
+    public carSim: CarSimulatorService,
+    private idleService: IdleService
   ) {}
 
   async ngOnInit() {
@@ -259,6 +263,14 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       });
     }
 
+    this.idleSub = this.idleService.userInactive.subscribe(isIdle => {
+      if (this.currentStatus.statusCode === 'D' && !this.isLockScreenOpen) {
+        this.isLockScreenOpen = true;
+        this.idleService.removeListener();
+        this.idleService.reset();
+      }
+    });
+
     this.internetSub = this.internetService.interetStatusObs.subscribe(async state => {
       this.networkStatus = state;
       await this.showBannerInfoMessage();
@@ -301,11 +313,13 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy(): void {
+    console.log('HOS ON DESTROY');
     this.shareService.destroyMessage();
     if (this.internetSub) this.internetSub.unsubscribe();
     if (this.locationSub) this.locationSub.unsubscribe();
     if (this.bluetoothSub) this.bluetoothSub.unsubscribe();
     if (this.eldDataSub) this.eldDataSub.unsubscribe();
+    if (this.idleSub) this.idleSub.unsubscribe();
   }
 
   async ionViewWillEnter() {
@@ -400,6 +414,8 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
             this.selectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
             this.lastSelectedButton = filteredLogEvents[filteredLogEvents.length - 1].type.code;
           }
+
+          this.checkIdling(this.selectedButton);
 
           if (this.bAuthorized === false) {
             const lastLogEvent = this.logEvents[this.logEvents.length - 1];
@@ -1294,6 +1310,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       await this.updateLogDailies(this.logDailies[0]);
     }
 
+    this.checkIdling(this.currentStatus.statusCode);
     await this.createLogDailies();
     await this.calcViolations();
     this.uploadDriverStatus();
@@ -1746,5 +1763,18 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       }
     }
     return false;
+  }
+
+  checkIdling(status: string) {
+    if (status === 'D') {
+      this.idleService.initListener();
+      this.idleService.reset();
+    } else {
+      this.idleService.removeListener();
+    }
+  }
+
+  closeLockScreen() {
+    this.isLockScreenOpen = false;
   }
 }

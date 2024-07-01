@@ -52,7 +52,7 @@ export class ChangeStatusComponent implements OnInit, OnChanges {
   @Output() statusChange = new EventEmitter<string>();
 
   set status(value: string) {
-    console.log(value)
+    console.log(value);
     console.log(this.manualTrigger);
     this.tempValue = value;
     if (!this.manualTrigger) {

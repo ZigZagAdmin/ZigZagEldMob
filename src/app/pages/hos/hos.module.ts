@@ -49,7 +49,7 @@ import { LockScreenComponentModule } from 'src/app/components/recap/lock-screen.
     HoursRemainingComponentModule,
     PipesModule,
     SelectComponentModule,
-    LockScreenComponentModule
+    LockScreenComponentModule,
   ],
   declarations: [HosPage, RecapComponent, LogDailyComponent, CommentsModalComponent, LocationModalComponent, CertificationModalComponent],
 })

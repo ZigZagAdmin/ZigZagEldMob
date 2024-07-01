@@ -1,4 +1,4 @@
-<ion-modal id="custom-modal" [isOpen]="isModalOpen" trigger="trigger-lockscreen" [backdropDismiss]="false" (willDismiss)="cancel()">
+<ion-modal id="custom-modal" [isOpen]="_isModalOpen" [backdropDismiss]="false">
   <ng-template>
     <div class="lockscreen-main">
       <div class="lockscreen-title">
@@ -7,9 +7,159 @@
         <div class="lockscreen-date">{{ getCurrentDate() }}</div>
       </div>
       <div class="lockscreen-circles">
-        <div class="lockscreen-driving-circle"></div>
+        <div class="lockscreen-driving-circle">
+          <circle-progress
+            style="pointer-events: none"
+            [percent]="circleData.percentDriving"
+            [responsive]="true"
+            [space]="-15"
+            [outerStrokeWidth]="15"
+            outerStrokeColor="var(--success-500)"
+            innerStrokeColor="var(--gray-200)"
+            [innerStrokeWidth]="15"
+            titleFontSize="32"
+            [title]="convertSecondToHours(circleData.titleDriving)"
+            titleColor="var(--success-600)"
+            titleFontWeight="600"
+            [subtitle]="'Driving' | translate"
+            subtitleFontWeight="500"
+            subtitleColor="var(--gray-400)"
+            subtitleFontSize="22"
+            [animation]="false"
+            [showUnits]="false"
+            [clockwise]="false"
+            [animationDuration]="500"
+            outerStrokeLinecap="round">
+          </circle-progress>
+        </div>
         <div class="lockscreen-rest-circles">
-          <div class="lockscreen-circle-block"></div>
+          <div class="lockscreen-circle-block">
+            <circle-progress
+              style="pointer-events: none"
+              [percent]="circleData.percentBreak"
+              [responsive]="true"
+              [space]="-15"
+              [outerStrokeWidth]="15"
+              outerStrokeColor="var(--warning-300)"
+              innerStrokeColor="var(--gray-200)"
+              [innerStrokeWidth]="15"
+              titleFontSize="32"
+              [title]="convertSecondToHours(circleData.titleBreak)"
+              titleColor="var(--warning-400)"
+              titleFontWeight="600"
+              [subtitle]="'Break' | translate"
+              subtitleFontWeight="500"
+              subtitleColor="var(--gray-400)"
+              subtitleFontSize="22"
+              [showUnits]="false"
+              [clockwise]="false"
+              [animation]="false"
+              [animationDuration]="500"
+              outerStrokeLinecap="round">
+            </circle-progress>
+            <div class="circle-abs">
+              <circle-progress
+                style="pointer-events: none"
+                [percent]="circleData.percentDriving"
+                [responsive]="true"
+                [space]="-15"
+                [outerStrokeWidth]="15"
+                outerStrokeColor="var(--success-500)"
+                innerStrokeColor="var(--gray-200)"
+                [innerStrokeWidth]="15"
+                titleFontSize="42"
+                [title]="convertSecondToHours(circleData.titleDriving)"
+                titleColor="var(--success-600)"
+                backgroundColor="var(--gray-25)"
+                titleFontWeight="600"
+                [subtitle]="'SSB' | translate"
+                subtitleFontWeight="500"
+                subtitleColor="var(--gray-400)"
+                subtitleFontSize="32"
+                [animation]="false"
+                [showUnits]="false"
+                [clockwise]="false"
+                [animationDuration]="500"
+                outerStrokeLinecap="round">
+              </circle-progress>
+            </div>
+          </div>
+          <div class="lockscreen-circle-block">
+            <circle-progress
+              style="pointer-events: none"
+              [percent]="circleData.percentShift"
+              [responsive]="true"
+              [space]="-15"
+              [outerStrokeWidth]="15"
+              outerStrokeColor="var(--purple-500)"
+              innerStrokeColor="var(--gray-200)"
+              [innerStrokeWidth]="15"
+              titleFontSize="32"
+              [title]="convertSecondToHours(circleData.titleShift)"
+              titleColor="var(--purple-600)"
+              titleFontWeight="600"
+              [subtitle]="'Shift' | translate"
+              subtitleFontWeight="500"
+              subtitleColor="var(--gray-400)"
+              subtitleFontSize="22"
+              [showUnits]="false"
+              [clockwise]="false"
+              [animation]="false"
+              [animationDuration]="500"
+              outerStrokeLinecap="round">
+            </circle-progress>
+            <div class="circle-abs">
+              <circle-progress
+                style="pointer-events: none"
+                [percent]="circleData.percentDriving"
+                [responsive]="true"
+                [space]="-15"
+                [outerStrokeWidth]="15"
+                outerStrokeColor="var(--success-500)"
+                innerStrokeColor="var(--gray-200)"
+                [innerStrokeWidth]="15"
+                titleFontSize="42"
+                [title]="convertSecondToHours(circleData.titleDriving)"
+                titleColor="var(--success-600)"
+                backgroundColor="var(--gray-25)"
+                titleFontWeight="600"
+                [subtitle]="'SSB' | translate"
+                subtitleFontWeight="500"
+                subtitleColor="var(--gray-400)"
+                subtitleFontSize="32"
+                [animation]="false"
+                [showUnits]="false"
+                [clockwise]="false"
+                [animationDuration]="500"
+                outerStrokeLinecap="round">
+              </circle-progress>
+            </div>
+          </div>
+          <div class="lockscreen-circle-block">
+            <circle-progress
+              style="pointer-events: none"
+              [percent]="circleData.percentCycle"
+              [responsive]="true"
+              [space]="-15"
+              [outerStrokeWidth]="15"
+              outerStrokeColor="var(--orange-400)"
+              innerStrokeColor="var(--gray-200)"
+              [innerStrokeWidth]="15"
+              titleFontSize="32"
+              [title]="convertSecondToHours(circleData.titleCycle)"
+              titleColor="var(--orange-400)"
+              titleFontWeight="600"
+              [subtitle]="'Cycle' | translate"
+              subtitleFontWeight="500"
+              subtitleColor="var(--gray-400)"
+              subtitleFontSize="22"
+              [showUnits]="false"
+              [clockwise]="false"
+              [animation]="false"
+              [animationDuration]="500"
+              outerStrokeLinecap="round">
+            </circle-progress>
+          </div>
         </div>
       </div>
       <div id="violation-m" class="sleep-container" [ngClass]="{ 'hide-container': !checkElementHasChildren('sleep-box') }">
@@ -42,7 +192,7 @@
           <img src="../../../assets/icons/danger.svg" /> <span>Driving Violation: Driving is 00:00</span>
         </div>
       </div>
-      <div class="lockscreen-unlock-button">
+      <div class="lockscreen-unlock-button" (click)="cancel()">
         <span>Unlock</span>
         <img src="assets/icons/lockscreen-unlock.svg" />
       </div>

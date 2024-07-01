@@ -48,14 +48,17 @@ ion-modal#custom-modal {
 
 .lockscreen-main {
   width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 40px;
+  overflow: auto;
 }
 
 .lockscreen-title {
-  margin-top: 20vh;
+  margin-top: 15vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -73,4 +76,103 @@ ion-modal#custom-modal {
 .lockscreen-date {
   font-size: 22px;
   color: var(--gray-500);
+}
+
+.lockscreen-unlock-button {
+  flex-shrink: 0;
+  // margin: auto 20px 5vh 20px;
+  margin-top: auto;
+  margin-bottom: 5vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--primary-600);
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  height: 56px;
+
+  span {
+    font-size: 21px;
+    // font-weight: 500;
+    color: var(--gray-25);
+  }
+}
+
+.lockscreen-circles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.lockscreen-driving-circle {
+  width: 50%;
+  max-width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lockscreen-rest-circles {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  // max-width: 80%;
+  // min-width: 60%;
+  gap: 25px;
+  margin: 0 auto;
+}
+
+.lockscreen-circle-block {
+  flex: 1 calc((100% / 3) - 50px);
+  max-width: 140px;
+  display: flex;
+  position: relative;
+}
+
+.circle-abs {
+  position: absolute;
+  max-width: 57%;
+  top: -18%;
+  right: -12px;
+}
+
+@media screen and (max-width: 700px) {
+  .lockscreen-main {
+    gap: 30px;
+  }
+
+  .lockscreen-circles {
+    gap: 15px;
+  }
+
+  .lockscreen-title-icon {
+    img {
+      width: 46px;
+      height: 46px;
+    }
+  }
+  .lockscreen-driving-circle {
+    max-width: 140px;
+  }
+  .lockscreen-rest-circles {
+    gap: 15px;
+  }
+
+  .lockscreen-circle-block {
+    flex: 1 calc((100% / 3) - 75px);
+    max-width: 100px;
+  }
+
+  .lockscreen-time {
+    font-size: 20px;
+  }
+
+  .lockscreen-date {
+    font-size: 18px;
+  }
 }

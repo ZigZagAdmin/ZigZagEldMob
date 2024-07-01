@@ -325,8 +325,9 @@
       </ng-template>
     </ion-modal>
     <app-lock-screen
-      [isModalOpen]="true"
-      [circleData]="{titleShift: titleShift, titleBreak: titleBreak, titleCycle: titleCycle, titleDriving: titleDriving}"
+      [isModalOpen]="isLockScreenOpen"
+      (closeCallback)="checkIdling(currentStatus.statusCode); closeLockScreen()"
+      [circleData]="{titleShift: titleShift, titleBreak: titleBreak, titleCycle: titleCycle, titleDriving: titleDriving, percentBreak: percentBreak, percentDriving: percentDriving, percentCycle: percentCycle, percentShift: percentShift}"
       [currentStatus]="currentStatus"></app-lock-screen>
   </div>
   <app-page-loader [height]="'100%'" [ngClass]="{'hide-el': !pageLoading}"></app-page-loader>
