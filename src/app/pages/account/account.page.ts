@@ -24,12 +24,14 @@ export class AccountPage implements OnInit {
     es: 'Español',
   };
   inputLanguage: string = '';
+  splitSleeperBerth: boolean;
   languageOptions: string[] = ['English', 'Español'];
 
   constructor(private navCtrl: NavController, private databaseService: DatabaseService, private storage: Storage, private translate: TranslateService) {}
 
   async ngOnInit() {
     this.pageLoading = true;
+    this.splitSleeperBerth = localStorage.getItem('SSB') === 'true';
     let driver$ = firstValueFrom(this.databaseService.getDrivers());
     let company$ = firstValueFrom(this.databaseService.getCompany());
     let timeZone$ = this.storage.get('timeZone');
@@ -62,5 +64,10 @@ export class AccountPage implements OnInit {
 
   getPlatform() {
     return Capacitor.getPlatform();
+  }
+
+  toggleSplitSleeperBerth(value: boolean) {
+    console.log('SSB: ', value);
+    localStorage.setItem('SSB', value.toString());
   }
 }

@@ -13,11 +13,37 @@
 // }
 
 .reminder {
+  width: 100%;
   margin: 0 20px 20px 20px;
 }
 
 .hide-el {
   display: none;
+}
+
+.switch-sleep {
+  margin-top: 5px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: var(--gray-100);
+  border-radius: 10px;
+
+  .subtitle {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  ion-toggle {
+    --handle-background: var(--gray-500);
+    --handle-background-checked: var(--success-500);
+    --track-background: var(--gray-25);
+    --track-background-checked: var(--gray-25);
+    --handle-width: 23px;
+    --handle-height: 23px;
+  }
 }
 
 @media screen and (orientation: landscape) and (max-width: 1024px) and (max-width: 1024px) {

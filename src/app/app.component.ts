@@ -4,7 +4,7 @@ import { Storage } from '@ionic/storage';
 import { forkJoin, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, Platform } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { InternetService } from './services/internet.service';
@@ -21,6 +21,7 @@ import { KeepAwake } from '@capacitor-community/keep-awake';
 import { svgPreloadUrls } from './utilities/svg-preloads';
 import { GeolocationService } from './services/geolocation.service';
 import { imagePreloads } from './utilities/img-preloads';
+import { DarkModeService } from './services/dark-mode.service';
 // import { Driver } from './models/driver';
 
 @Component({
@@ -35,6 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
   databaseSubscription: Subscription | undefined;
   lastNetworkStatus: boolean = null;
   networkSub!: Subscription;
+  platformSub: Subscription;
   constructor(
     private navCtrl: NavController,
     private storage: Storage,
@@ -48,7 +50,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private bluetoothService: BluetoothService,
     private translate: TranslateService,
     private ngZone: NgZone,
-    private geolocationService: GeolocationService
+    private geolocationService: GeolocationService,
+    private darkModeService: DarkModeService,
+    private platform: Platform
   ) {
     this.ngZone.runOutsideAngular(() => {
       this.preloadSVG();
@@ -58,6 +62,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     console.log('APP COMPONENT INIT');
+    let ssb = localStorage.getItem('SSB');
+    if (ssb === undefined || ssb === null || ssb === 'null' || ssb.length === 0) {
+      localStorage.setItem('SSB', 'true');
+    }
+    this.darkModeService.initializeDarkMode();
+    this.platformSub = this.platform.resume.subscribe(() => {
+      this.darkModeService.initializeDarkMode();
+    });
     await this.storage.set('appOpened', true);
     this.networkSub = this.internetService.interetStatusObs.subscribe(async () => {
       let currentStatus = await Network.getStatus();
@@ -236,6 +248,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+    if (this.platformSub) this.platformSub.unsubscribe();
     this.networkSub.unsubscribe();
   }
 

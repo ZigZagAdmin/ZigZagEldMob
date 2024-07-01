@@ -41,8 +41,12 @@
         [value]="company?.terminals[0].street + ', ' + company?.terminals[0].city + ', ' + company?.terminals[0].stateProvinceCode + ' ' + company?.terminals[0].zipCode + ', ' + company?.terminals[0].countryCode"
         [noValidation]="true"></app-input>
       <app-select [label]="'Language' | translate" (changeDetection)="showSelection($event)" [(value)]="inputLanguage" [options]="languageOptions" [noValidation]="true"></app-select>
+      <div class="switch-sleep">
+        <p class="subtitle">{{'Split Sleeper Berth' | translate}}</p>
+        <app-toggle-switch [isChecked]="splitSleeperBerth" (valueCalback)="toggleSplitSleeperBerth($event)"></app-toggle-switch>
+      </div>
     </div>
-    <div style="flex: 1; display: flex; align-items: flex-end">
+    <div style="flex: 1; width: 100%; display: flex; align-items: flex-end">
       <div class="reminder">
         <img src="assets/icons/reminder.svg" alt="reminder" />
         <p class="reminder-text">{{'In order to change your information please contact your fleet manager' | translate}}</p>

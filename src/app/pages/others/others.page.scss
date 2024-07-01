@@ -151,12 +151,15 @@ ion-checkbox::part(container) {
 
 .dark-mode-button {
   height: 32px;
-  width: 64px;
+  width: 136px;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: var(--gray-100);
   border-radius: 10px;
+  font-size: 14px;
+  color: var(--gray-500);
+  font-weight: 600;
 
   img {
     width: 18px;

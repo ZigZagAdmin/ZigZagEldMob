@@ -153,7 +153,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   notDriveLimit = 30 * 60 * 1000; // 30min
   inspectionTime = 691200000; // 8 дней
   splitSleepData: { duration: number; drivingT: number; time: number };
-  splitSleeperBerth: boolean = false;
+  splitSleeperBerth: boolean;
   violations: any = {};
   ionViewTrigger: boolean = false;
 
@@ -323,6 +323,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async ionViewWillEnter() {
+    console.log('HOS VIEW ENTER');
     this.ionViewTrigger = true;
     this.getVehicle();
     this.vehicleId = await this.storage.get('vehicleId');
@@ -337,9 +338,9 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       this.checkForUnsignedDays();
     }
     await this.storage.set('appOpened', false);
-    let localSplitSleep = await this.storage.get('splitSleeperBerth');
+    this.splitSleeperBerth = localStorage.getItem('SSB') === 'true';
     let chosenEldMac = await this.storage.get('lastConnectedELD');
-    await this.handleSplitSleep(localSplitSleep);
+    // await this.handleSplitSleep(localSplitSleep);
     this.databaseSubscription = this.databaseService.databaseReadySubject.subscribe((ready: boolean) => {
       if (ready) {
         this.bReady = ready;
@@ -500,15 +501,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
         });
       }
     });
-  }
-
-  async handleSplitSleep(value: boolean | undefined | null) {
-    if (value === null || value === undefined) {
-      this.splitSleeperBerth = false;
-    } else {
-      this.splitSleeperBerth = value;
-    }
-    await this.storage.set('splitSleeperBerth', this.splitSleeperBerth);
   }
 
   async updateLogEvents(logEventData: LogEvents, online: boolean) {
@@ -1351,11 +1343,6 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     return sSign + sHours + ':' + sMinutes;
-  }
-
-  async toggleSplitSleeperBerth(value: boolean) {
-    this.handleSplitSleep(value);
-    await this.calcViolations();
   }
 
   async createLogDailies() {

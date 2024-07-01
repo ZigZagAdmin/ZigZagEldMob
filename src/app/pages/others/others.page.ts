@@ -14,6 +14,9 @@ import { ToastService } from 'src/app/services/toast.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ACCESS_TOKEN_KEY } from 'src/app/services/auth.service';
 import { Capacitor } from '@capacitor/core';
+import { DarkModeService } from 'src/app/services/dark-mode.service';
+
+export type DarkModeType = 'system' | 'dark' | 'light';
 
 @Component({
   selector: 'app-others',
@@ -52,7 +55,7 @@ export class OthersPage implements OnInit {
 
   syncLoading: boolean = false;
 
-  darkMode: boolean = false;
+  darkMode: DarkModeType = 'system';
 
   constructor(
     private navCtrl: NavController,
@@ -62,13 +65,14 @@ export class OthersPage implements OnInit {
     private utilityService: UtilityService,
     private manageService: ManageService,
     private toastService: ToastService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private darkModeService: DarkModeService
   ) {}
 
   ngOnInit(): void {}
 
   async ionViewWillEnter() {
-    this.darkMode = localStorage.getItem('darkMode') === 'true';
+    this.darkMode = localStorage.getItem('darkMode') as DarkModeType;
     let vehicleId$ = this.storage.get('vehicleId');
     let driverId$ = this.storage.get('driverId');
     let companyId$ = this.storage.get('companyId');
@@ -147,7 +151,7 @@ export class OthersPage implements OnInit {
       },
       async error => {
         this.toastService.showToast(this.translate.instant('There was a problem syncing data.'), 'error');
-        console.error('There was a problem syncing data: ' + error)
+        console.error('There was a problem syncing data: ' + error);
         this.syncLoading = false;
       }
     );
@@ -298,10 +302,21 @@ export class OthersPage implements OnInit {
   }
 
   async toggleDarkMode() {
-    if (this.darkMode) this.darkMode = false;
-    else this.darkMode = true;
-    document.body.classList.toggle('dark', this.darkMode);
-    localStorage.setItem('darkMode', this.darkMode.toString());
+    console.log(this.darkMode);
+    switch (this.darkMode) {
+      case 'system':
+        this.darkMode = 'light';
+        break;
+      case 'dark':
+        this.darkMode = 'system';
+        break;
+      case 'light':
+        this.darkMode = 'dark';
+        break;
+    }
+
+    this.darkModeService.updateDarkModeClass(this.darkMode);
+    localStorage.setItem('darkMode', this.darkMode);
   }
 
   ionViewWillLeave() {
