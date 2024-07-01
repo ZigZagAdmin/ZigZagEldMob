@@ -27,6 +27,8 @@ export class HoursRemainingComponent  implements OnInit {
 
   @Input() animateCircles: boolean = false;
 
+  @Input() sliptSleeperBirth: boolean = true;
+
   restMode: boolean = false;
 
   constructor() { }

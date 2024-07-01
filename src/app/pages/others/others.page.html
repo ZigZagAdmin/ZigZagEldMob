@@ -4,7 +4,12 @@
 <ion-content [forceOverscroll]="getPlatform() === 'ios' ? true : false" [fullscreen]="true">
   <app-header [title]="'Others' | translate">
     <div class="buttons-header-container">
-      <div class="dark-mode-button" (click)="toggleDarkMode()">{{ "Interface: " + darkMode }}</div>
+      <div class="dark-mode-button" [ngClass]="darkMode" (click)="toggleDarkMode()">
+        <img *ngIf="darkMode === 'system'" src="assets/icons/dm-system.svg" />
+        <img *ngIf="darkMode === 'dark'" src="assets/icons/dm-dark.svg" />
+        <img *ngIf="darkMode === 'light'" src="assets/icons/dm-light.svg" />
+        <span>{{ darkMode | titlecase }}</span>
+      </div>
       <div class="sync-button" (click)="syncData()">
         <span *ngIf="!syncLoading">sync</span>
         <ion-spinner *ngIf="syncLoading" name="circular" color="medium"></ion-spinner>

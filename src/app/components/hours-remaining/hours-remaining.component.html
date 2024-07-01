@@ -56,7 +56,7 @@
         [animationDuration]="500"
         outerStrokeLinecap="round">
       </circle-progress>
-      <div class="circle-abs">
+      <div class="circle-abs" *ngIf="sliptSleeperBirth">
         <circle-progress
           style="pointer-events: none"
           [percent]="percentDriving"
@@ -107,7 +107,7 @@
         [animationDuration]="500"
         outerStrokeLinecap="round">
       </circle-progress>
-      <div class="circle-abs">
+      <div class="circle-abs" *ngIf="sliptSleeperBirth">
         <circle-progress
           style="pointer-events: none"
           [percent]="percentDriving"
