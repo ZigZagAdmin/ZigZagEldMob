@@ -179,7 +179,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
 
   skipFirst: boolean = false;
   triggerComponentRefresh: boolean = false;
-  triggerStatusChange: boolean = undefined;
+  triggerStatusChange: string = undefined;
 
   daysRecap: { [key: string]: number } = {};
   recapFooter: { last7Days: number; hwt: number; hatomorrow: number; hatoday: number } = {
@@ -1086,7 +1086,9 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           (this.locationDescription.length !== 0 || this.location.description.length !== 0)) ||
           ((this.location.description === undefined || this.location.description.length === 0) && (this.locationDescription === undefined || this.locationDescription.length === 0)))
       ) {
-        this.locationDescription = '';
+        if (this.location.locationType === 'MANUAL') {
+          this.locationDescription = '';
+        }
         await new Promise(async (res, rej) => {
           this.locationModal.present();
           await this.locationModal.onWillDismiss().then(() => {
@@ -1100,6 +1102,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           });
         });
       }
+      console.log(this.location);
       if (button === 'ON' && !this.pageLoading) {
         this.comments = '';
         await new Promise(async (res, rej) => {
@@ -1108,12 +1111,12 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
           if (role === 'cancel') {
             rej(null);
           } else {
-            this.triggerStatusChange = !this.triggerStatusChange;
+            this.triggerStatusChange = this.utilityService.generateString(6);
             res(null);
           }
         });
       } else {
-        this.triggerStatusChange = !this.triggerStatusChange;
+        this.triggerStatusChange = this.utilityService.generateString(6);
       }
       this.selectedButton = button;
       this.currentStatus.statusCode = button;
@@ -1248,7 +1251,7 @@ export class HosPage implements OnInit, OnDestroy, AfterViewChecked {
       },
       location: {
         locationType: this.location.locationType,
-        description: this.locationDescription,
+        description: this.location.description,
         latitude: this.location.latitude,
         longitude: this.location.longitude,
       },

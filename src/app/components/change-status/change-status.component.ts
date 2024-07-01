@@ -60,7 +60,7 @@ export class ChangeStatusComponent implements OnInit, OnChanges {
     }
   }
 
-  @Input() filterTrigger: boolean = undefined;
+  @Input() filterTrigger: string = undefined;
   @Output() statusCallback: EventEmitter<void> = new EventEmitter<void>();
 
   currentStatus: IStatus;
@@ -74,7 +74,7 @@ export class ChangeStatusComponent implements OnInit, OnChanges {
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.currentStatus && changes['filterTrigger'] && changes['filterTrigger'].previousValue !== undefined && changes['filterTrigger'].previousValue !== null) {
+    if (changes['filterTrigger'] && changes['filterTrigger'].currentValue !== undefined && changes['filterTrigger'].currentValue !== null) {
       this.filterData(this.tempValue);
     }
   }
@@ -82,8 +82,8 @@ export class ChangeStatusComponent implements OnInit, OnChanges {
   triggerStatus(code: string) {
     this.manualTrigger = true;
     this.status = code;
+    this.changeDetectorRef.detectChanges();
     console.log(code);
-    console.log(this.status);
     this.statusChange.emit(code);
   }
 

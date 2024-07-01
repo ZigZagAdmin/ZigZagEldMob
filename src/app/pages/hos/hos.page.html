@@ -37,7 +37,7 @@
     <div class="general-section-wrapper">
       <div class="general-section">
         <app-current-status [status]="currentStatus.statusCode" [time]="currentStatusTime" (statusCallback)="selectButton($event, true)"></app-current-status>
-        <app-change-status [status]="selectedButton" (statusChange)="selectButton($event, true)" [filterTrigger]="triggerStatusChange" [filterTrigger]="pageLoading"></app-change-status>
+        <app-change-status [status]="selectedButton" (statusChange)="selectButton($event, true)" [filterTrigger]="triggerStatusChange"></app-change-status>
       </div>
       <div class="general-section">
         <app-hours-remaining
